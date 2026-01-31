@@ -142,6 +142,15 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
                     maxBurnTime = burnTime;
                     generationPerTick = ENERGY_PER_TICK;
                     itemHandler.extractItem(INPUT_SLOT, 1, false);
+
+                    // If the item has a crafting remaining item, give it back to the input slot.
+                    if (stack.getItem().getCraftingRemainingItem() != null) {
+                        ItemStack remaining = stack.getItem().getCraftingRemainingItem().getDefaultInstance();
+                        if (!remaining.isEmpty()) {
+                            itemHandler.insertItem(INPUT_SLOT, remaining, false);
+                        }
+                    }
+
                     changed = true;
                 }
             } else if (remainingEnergy > 0) {
