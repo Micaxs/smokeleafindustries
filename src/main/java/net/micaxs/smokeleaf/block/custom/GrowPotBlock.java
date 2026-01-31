@@ -2,6 +2,7 @@
 package net.micaxs.smokeleaf.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import net.micaxs.smokeleaf.block.entity.GrinderBlockEntity;
 import net.micaxs.smokeleaf.block.entity.GrowPotBlockEntity;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
 import net.micaxs.smokeleaf.item.custom.FertilizerItem;
@@ -184,6 +185,20 @@ public class GrowPotBlock extends BaseEntityBlock {
 
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (state.getBlock() != newState.getBlock()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof GrowPotBlockEntity growPotBlockEntity) {
+                growPotBlockEntity.drops();
+            }
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+
+
 
 
     @OnlyIn(Dist.CLIENT)

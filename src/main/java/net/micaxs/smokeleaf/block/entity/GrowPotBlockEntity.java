@@ -18,6 +18,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Containers;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -392,6 +394,21 @@ public class GrowPotBlockEntity extends BlockEntity {
                         this.phosphorus = Math.max(0, data.p());
                         this.potassium = Math.max(0, data.k());
                     });
+        }
+    }
+
+    public void drops() {
+        SimpleContainer inventory = new SimpleContainer(2);
+        int slot = 0;
+        if (hasSoil() && soilState != null) {
+            inventory.setItem(slot++, new ItemStack(soilState.getBlock()));
+        }
+        if (hasCrop() && cropBlock != null) {
+            Item seedItem = cropBlock.getBaseSeedId().asItem();
+            inventory.setItem(slot, new ItemStack(seedItem));
+        }
+        if (level != null) {
+            Containers.dropContents(level, worldPosition, inventory);
         }
     }
 

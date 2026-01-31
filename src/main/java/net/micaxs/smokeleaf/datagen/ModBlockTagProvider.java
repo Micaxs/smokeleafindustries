@@ -36,6 +36,8 @@ public class ModBlockTagProvider extends BlockTagsProvider  {
                 .add(ModBlocks.LIQUIFIER.get())
                 .add(ModBlocks.SEQUENCER.get())
                 .add(ModBlocks.SYNTHESIZER.get())
+                .add(ModBlocks.DRYER.get())
+                .add(ModBlocks.GROW_POT.get())
                 .add(ModBlocks.HEMP_STONE_SLAB.get())
                 .add(ModBlocks.HEMP_BRICK_SLAB.get())
                 .add(ModBlocks.HEMP_CHISELED_STONE_SLAB.get())

@@ -1,7 +1,7 @@
-// 1.21.1	2025-10-07T08:01:18.930186063	Tags for minecraft:block mod id smokeleafindustries
+// 1.21.1	2026-01-31T10:57:02.62803896	Tags for minecraft:block mod id smokeleafindustries
 a38d3ddb53011ee9e6f7ef99717ef7ab8813b69f data/minecraft/tags/block/fence_gates.json
 a1d054ab50bb017243456318c6c78733fe18b005 data/minecraft/tags/block/fences.json
-d8026e8ee463dad600fb09b2c7859473a43bd543 data/minecraft/tags/block/mineable/pickaxe.json
+2f2f03d40b0cf631bb6294fc7419af13132073ed data/minecraft/tags/block/mineable/pickaxe.json
 c1e3c167b4d4b9f67f09c76b1ede3c6d8d9d63c2 data/minecraft/tags/block/needs_iron_tool.json
 2b256c23e778d7db37fbfeffe665e9284b523393 data/minecraft/tags/block/needs_stone_tool.json
 88a1f4d3b03651030f0f9daab06ebf5de94150ca data/minecraft/tags/block/planks.json
