@@ -345,7 +345,7 @@
       "weight": 10
     },
     {
-      "weight": 2,
+      "weight": 11,
       "element": {
         "element_type": "minecraft:single_pool_element",
         "location": "smokeleafindustries:village/plains/village_shop",
