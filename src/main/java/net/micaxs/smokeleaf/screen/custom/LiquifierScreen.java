@@ -125,18 +125,6 @@ public class LiquifierScreen extends AbstractContainerScreen<LiquifierMenu> {
                 }
                 // Right click: fill held container from tank (bucket or tincture)
                 if (button == 1) {
-                    FluidStack stack = menu.blockEntity.getFluid();
-                    if (!stack.isEmpty()
-                            && stack.getFluid() == ModFluids.SOURCE_HASH_OIL_FLUID.get()
-                            && this.minecraft.player.getInventory().getSelected().getItem() == ModItems.EMPTY_TINCTURE.get()) {
-
-                        // Replace empty tincture with filled one
-                        this.minecraft.player.getInventory().removeItem(this.minecraft.player.getInventory().selected, 1);
-                        this.minecraft.player.getInventory().add(new net.minecraft.world.item.ItemStack(ModItems.HASH_OIL_TINCTURE.get()));
-                        return true; // handled tincture; do not process bucket logic
-                    }
-
-                    // Default: try to drain to bucket (now also works for hash oil)
                     this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId,
                             LiquifierMenu.BUTTON_DRAIN_TO_BUCKET);
                     return true;

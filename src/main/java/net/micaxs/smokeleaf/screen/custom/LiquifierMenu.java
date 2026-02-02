@@ -8,13 +8,19 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class LiquifierMenu extends AbstractContainerMenu {
     public final LiquifierBlockEntity blockEntity;
@@ -104,6 +110,32 @@ public class LiquifierMenu extends AbstractContainerMenu {
         // Carried (mouse cursor)
         ItemStack carried = getCarried();
         if (!carried.isEmpty()) {
+            if (carried.getCount() > 1 && carried.is(Items.BUCKET)) {
+                FluidStack simulated = tank.drain(1000, IFluidHandler.FluidAction.SIMULATE);
+                if (simulated.isEmpty() || simulated.getAmount() < 1000) return false;
+
+                ItemStack filledBucket = filledBucketForFluid(simulated);
+                if (filledBucket.isEmpty()) return false;
+
+                FluidStack drained = tank.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+                if (drained.isEmpty() || drained.getAmount() < 1000) return false;
+
+                ItemStack remainder = carried.copy();
+                remainder.shrink(1);
+                setCarried(remainder);
+
+                Inventory inv = player.getInventory();
+                if (!inv.add(filledBucket)) {
+                    player.drop(filledBucket, false);
+                }
+
+                inv.setChanged();
+                player.inventoryMenu.broadcastChanges();
+                blockEntity.setChanged();
+                broadcastChanges();
+                return true;
+            }
+
             FluidActionResult res = FluidUtil.tryFillContainer(carried, tank, 1000, player, true);
             if (res.isSuccess()) {
                 setCarried(res.getResult());
@@ -138,6 +170,50 @@ public class LiquifierMenu extends AbstractContainerMenu {
     private boolean tryFillHandFromTank(Player player, InteractionHand hand, IFluidHandler tank) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty()) return false;
+
+        // STACKED empty buckets: manual drain + insert filled bucket.
+        // This must short-circuit the entire method to prevent any later logic replacing the hand.
+        if (held.getCount() > 1 && held.is(Items.BUCKET)) {
+            Inventory inv = player.getInventory();
+
+            FluidStack simulated = tank.drain(1000, IFluidHandler.FluidAction.SIMULATE);
+            if (simulated.isEmpty() || simulated.getAmount() < 1000) return false;
+
+            ItemStack filledBucket = filledBucketForFluid(simulated);
+            if (filledBucket.isEmpty()) return false;
+
+            FluidStack drained = tank.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+            if (drained.isEmpty() || drained.getAmount() < 1000) return false;
+
+            // Deduct exactly 1 empty bucket from the actual slot
+            if (hand == InteractionHand.MAIN_HAND) {
+                int selected = inv.selected;
+                ItemStack inSlot = inv.getItem(selected);
+                // Be strict here: only mutate if it is still our empty bucket stack
+                if (!inSlot.is(Items.BUCKET) || inSlot.getCount() <= 1) return false;
+                inSlot.shrink(1);
+                inv.setItem(selected, inSlot);
+            } else {
+                ItemStack inSlot = inv.offhand.get(0);
+                if (!inSlot.is(Items.BUCKET) || inSlot.getCount() <= 1) return false;
+                inSlot.shrink(1);
+                inv.offhand.set(0, inSlot);
+            }
+
+            // Add filled bucket to inventory, otherwise drop
+            if (!inv.add(filledBucket)) {
+                player.drop(filledBucket, false);
+            }
+
+            // Force sync
+            inv.setChanged();
+            player.inventoryMenu.broadcastChanges();
+            blockEntity.setChanged();
+            broadcastChanges();
+            return true;
+        }
+
+        // Single bucket / other containers (including cursor-carried stack handled elsewhere)
         FluidActionResult res = FluidUtil.tryFillContainer(held, tank, 1000, player, true);
         if (res.isSuccess()) {
             player.setItemInHand(hand, res.getResult());
@@ -146,6 +222,12 @@ public class LiquifierMenu extends AbstractContainerMenu {
             return true;
         }
         return false;
+    }
+
+    private static ItemStack filledBucketForFluid(FluidStack drained) {
+        Fluid fluid = drained.getFluid();
+        Item bucketItem = fluid.getBucket();
+        return new ItemStack(bucketItem);
     }
 
     private static final int HOTBAR_SLOT_COUNT = 9;
