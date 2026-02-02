@@ -4,7 +4,6 @@ import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.recipe.*;
 import net.micaxs.smokeleaf.screen.custom.MutatorMenu;
-import net.micaxs.smokeleaf.utils.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -24,7 +23,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -69,8 +67,13 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         public boolean isItemValid(int slot, ItemStack stack) {
             return switch(slot) {
                 case 0 -> stack.is(ModFluids.HASH_OIL_BUCKET) || stack.is(ModFluids.HEMP_OIL_BUCKET);
-                case 1 -> stack.is(ModTags.WEED_SEEDS);
-                case 2 -> stack.is(ModTags.WEED_EXTRACTS);
+                case 1, 2 -> {
+                    if (stack.isEmpty() || level == null) yield false;
+                    yield level.getRecipeManager()
+                            .getAllRecipesFor(ModRecipes.MUTATOR_TYPE.get())
+                            .stream()
+                            .anyMatch(holder -> holder.value().inputItems().stream().anyMatch(iwc -> iwc.ingredient().test(stack)));
+                }
                 case 3 -> false;
                 default -> false;
             };
