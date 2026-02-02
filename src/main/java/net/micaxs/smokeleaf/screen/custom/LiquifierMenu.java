@@ -17,8 +17,6 @@ import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
