@@ -8,6 +8,7 @@ import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
+import net.micaxs.smokeleaf.item.custom.ManualGrinderItem;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.micaxs.smokeleaf.utils.WeedDataUtil;
 import net.micaxs.smokeleaf.villager.ModVillagers;
@@ -150,23 +151,8 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onManualGrinderCraft(PlayerEvent.ItemCraftedEvent event) {
         ItemStack result = event.getCrafting();
-        if (!(result.getItem() instanceof net.micaxs.smokeleaf.item.custom.ManualGrinderItem)) return;
-        if (result.has(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get())) return;
-
-        Container inv = event.getInventory();
-        ItemStack candidate = ItemStack.EMPTY;
-
-        for (int i = 0; i < inv.getContainerSize(); i++) {
-            ItemStack slot = inv.getItem(i);
-            if (slot.isEmpty()) continue;
-            if (slot.getItem() instanceof net.micaxs.smokeleaf.item.custom.ManualGrinderItem) continue;
-            candidate = slot.copyWithCount(1);
-            break;
-        }
-
-        if (!candidate.isEmpty()) {
-            result.set(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get(),
-                    ManualGrinderContents.fromStack(candidate));
+        if (!(result.getItem() instanceof ManualGrinderItem)) {
+            return;
         }
     }
 
