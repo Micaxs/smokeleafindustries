@@ -3,10 +3,18 @@ package net.micaxs.smokeleaf.block.custom;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
+import net.micaxs.smokeleaf.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -18,9 +26,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.function.Supplier;
 
@@ -31,6 +42,12 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
 
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 10);
     public static final BooleanProperty TOP = BooleanProperty.create("top");
+
+    /**
+     * Only used for hemp: counts how many times a fully-grown hemp plant was sheared.
+     * After 3 leaf drops, the 4th shear breaks/harvests the crop.
+     */
+    public static final EnumProperty<HempShearStage> HEMP_SHEAR_STAGE = EnumProperty.create("hemp_shear_stage", HempShearStage.class);
 
     private static final int MAX_PERCENT = 100;
     private static final int MAX_PH = 14;
@@ -79,7 +96,8 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
 
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(this.getAgeProperty(), 0)
-                .setValue(TOP, false));
+                .setValue(TOP, false)
+                .setValue(HEMP_SHEAR_STAGE, HempShearStage.S0));
     }
 
     public int getBaseThc() { return this.baseThc; }
@@ -183,7 +201,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
 
     @Override
     public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AGE, TOP);
+        builder.add(AGE, TOP, HEMP_SHEAR_STAGE);
     }
 
     protected boolean isTop(BlockState state) {
@@ -227,5 +245,95 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
         }
         this.blockEntity = be;
         return be;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        // Allow other interactions to behave normally.
+        return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                          Player player, InteractionHand hand, BlockHitResult hitResult) {
+        // Only run this behavior on the actual hemp crop.
+        if (!state.is(ModBlocks.HEMP_CROP.get())) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        }
+
+        // Only bottom part should handle interactions.
+        if (isTop(state)) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        }
+
+        // Must be fully-grown.
+        if (getAge(state) != getMaxAge()) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        }
+
+        // Only with shears.
+        if (!stack.is(Items.SHEARS)) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        }
+
+        if (level.isClientSide) {
+            // Let client show hand swing; actual drops/state changes happen server-side.
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        HempShearStage stage = state.getValue(HEMP_SHEAR_STAGE);
+
+        if (stage.nextOrNull() != null) {
+            // First 3 times: drop a hemp leaf and advance stage.
+            popResource(level, pos, new ItemStack(ModItems.HEMP_LEAF.get()));
+            BlockState newState = state.setValue(HEMP_SHEAR_STAGE, stage.nextOrNull());
+            level.setBlock(pos, newState, 2);
+            level.gameEvent(player, GameEvent.SHEAR, pos);
+
+            // Damage shears.
+            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+            return ItemInteractionResult.CONSUME;
+        }
+
+        // 4th time: break/harvest the crop normally (uses loot table, etc.)
+        // Also remove the top half if it exists.
+        BlockPos topPos = pos.above();
+        if (level.getBlockState(topPos).getBlock() == this) {
+            level.destroyBlock(topPos, false);
+        }
+        level.destroyBlock(pos, true);
+        level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
+
+        stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+        return ItemInteractionResult.CONSUME;
+    }
+
+    /** 0..3 shear clicks; on S3 the next shear harvests the plant. */
+    public enum HempShearStage implements net.minecraft.util.StringRepresentable {
+        S0("0"),
+        S1("1"),
+        S2("2"),
+        S3("3");
+
+        private final String name;
+
+        HempShearStage(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
+        }
+
+        /** @return next stage for the first 3 clicks, or null when already at S3. */
+        public HempShearStage nextOrNull() {
+            return switch (this) {
+                case S0 -> S1;
+                case S1 -> S2;
+                case S2 -> S3;
+                case S3 -> null;
+            };
+        }
     }
 }

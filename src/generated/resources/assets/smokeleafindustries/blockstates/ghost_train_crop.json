@@ -1,69 +1,267 @@
 {
   "variants": {
-    "age=0,top=false": {
+    "age=0,hemp_shear_stage=0,top=false": {
       "model": "smokeleafindustries:block/ghost_train_stage_0"
     },
-    "age=0,top=true": {
+    "age=0,hemp_shear_stage=0,top=true": {
       "model": "smokeleafindustries:block/ghost_train_stage_0"
     },
-    "age=1,top=false": {
+    "age=0,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_0"
+    },
+    "age=0,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_0"
+    },
+    "age=0,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_0"
+    },
+    "age=0,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_0"
+    },
+    "age=0,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_0"
+    },
+    "age=0,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_0"
+    },
+    "age=1,hemp_shear_stage=0,top=false": {
       "model": "smokeleafindustries:block/ghost_train_stage_1"
     },
-    "age=1,top=true": {
+    "age=1,hemp_shear_stage=0,top=true": {
       "model": "smokeleafindustries:block/ghost_train_stage_1"
     },
-    "age=10,top=false": {
+    "age=1,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_1"
+    },
+    "age=1,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_1"
+    },
+    "age=1,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_1"
+    },
+    "age=1,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_1"
+    },
+    "age=1,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_1"
+    },
+    "age=1,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_1"
+    },
+    "age=10,hemp_shear_stage=0,top=false": {
       "model": "smokeleafindustries:block/ghost_train_stage_6_full"
     },
-    "age=10,top=true": {
+    "age=10,hemp_shear_stage=0,top=true": {
       "model": "smokeleafindustries:block/ghost_train_stage_10"
     },
-    "age=2,top=false": {
-      "model": "smokeleafindustries:block/ghost_train_stage_2"
-    },
-    "age=2,top=true": {
-      "model": "smokeleafindustries:block/ghost_train_stage_2"
-    },
-    "age=3,top=false": {
-      "model": "smokeleafindustries:block/ghost_train_stage_3"
-    },
-    "age=3,top=true": {
-      "model": "smokeleafindustries:block/ghost_train_stage_3"
-    },
-    "age=4,top=false": {
-      "model": "smokeleafindustries:block/ghost_train_stage_4"
-    },
-    "age=4,top=true": {
-      "model": "smokeleafindustries:block/ghost_train_stage_4"
-    },
-    "age=5,top=false": {
-      "model": "smokeleafindustries:block/ghost_train_stage_5"
-    },
-    "age=5,top=true": {
-      "model": "smokeleafindustries:block/ghost_train_stage_5"
-    },
-    "age=6,top=false": {
-      "model": "smokeleafindustries:block/ghost_train_stage_6"
-    },
-    "age=6,top=true": {
-      "model": "smokeleafindustries:block/ghost_train_stage_6"
-    },
-    "age=7,top=false": {
-      "model": "smokeleafindustries:block/ghost_train_stage_6"
-    },
-    "age=7,top=true": {
-      "model": "smokeleafindustries:block/ghost_train_stage_7"
-    },
-    "age=8,top=false": {
-      "model": "smokeleafindustries:block/ghost_train_stage_6"
-    },
-    "age=8,top=true": {
-      "model": "smokeleafindustries:block/ghost_train_stage_8"
-    },
-    "age=9,top=false": {
+    "age=10,hemp_shear_stage=1,top=false": {
       "model": "smokeleafindustries:block/ghost_train_stage_6_full"
     },
-    "age=9,top=true": {
+    "age=10,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_10"
+    },
+    "age=10,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6_full"
+    },
+    "age=10,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_10"
+    },
+    "age=10,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6_full"
+    },
+    "age=10,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_10"
+    },
+    "age=2,hemp_shear_stage=0,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_2"
+    },
+    "age=2,hemp_shear_stage=0,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_2"
+    },
+    "age=2,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_2"
+    },
+    "age=2,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_2"
+    },
+    "age=2,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_2"
+    },
+    "age=2,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_2"
+    },
+    "age=2,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_2"
+    },
+    "age=2,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_2"
+    },
+    "age=3,hemp_shear_stage=0,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_3"
+    },
+    "age=3,hemp_shear_stage=0,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_3"
+    },
+    "age=3,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_3"
+    },
+    "age=3,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_3"
+    },
+    "age=3,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_3"
+    },
+    "age=3,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_3"
+    },
+    "age=3,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_3"
+    },
+    "age=3,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_3"
+    },
+    "age=4,hemp_shear_stage=0,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_4"
+    },
+    "age=4,hemp_shear_stage=0,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_4"
+    },
+    "age=4,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_4"
+    },
+    "age=4,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_4"
+    },
+    "age=4,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_4"
+    },
+    "age=4,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_4"
+    },
+    "age=4,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_4"
+    },
+    "age=4,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_4"
+    },
+    "age=5,hemp_shear_stage=0,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_5"
+    },
+    "age=5,hemp_shear_stage=0,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_5"
+    },
+    "age=5,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_5"
+    },
+    "age=5,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_5"
+    },
+    "age=5,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_5"
+    },
+    "age=5,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_5"
+    },
+    "age=5,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_5"
+    },
+    "age=5,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_5"
+    },
+    "age=6,hemp_shear_stage=0,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=6,hemp_shear_stage=0,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=6,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=6,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=6,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=6,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=6,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=6,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=7,hemp_shear_stage=0,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=7,hemp_shear_stage=0,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_7"
+    },
+    "age=7,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=7,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_7"
+    },
+    "age=7,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=7,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_7"
+    },
+    "age=7,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=7,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_7"
+    },
+    "age=8,hemp_shear_stage=0,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=8,hemp_shear_stage=0,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_8"
+    },
+    "age=8,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=8,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_8"
+    },
+    "age=8,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=8,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_8"
+    },
+    "age=8,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6"
+    },
+    "age=8,hemp_shear_stage=3,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_8"
+    },
+    "age=9,hemp_shear_stage=0,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6_full"
+    },
+    "age=9,hemp_shear_stage=0,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_9"
+    },
+    "age=9,hemp_shear_stage=1,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6_full"
+    },
+    "age=9,hemp_shear_stage=1,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_9"
+    },
+    "age=9,hemp_shear_stage=2,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6_full"
+    },
+    "age=9,hemp_shear_stage=2,top=true": {
+      "model": "smokeleafindustries:block/ghost_train_stage_9"
+    },
+    "age=9,hemp_shear_stage=3,top=false": {
+      "model": "smokeleafindustries:block/ghost_train_stage_6_full"
+    },
+    "age=9,hemp_shear_stage=3,top=true": {
       "model": "smokeleafindustries:block/ghost_train_stage_9"
     }
   }
