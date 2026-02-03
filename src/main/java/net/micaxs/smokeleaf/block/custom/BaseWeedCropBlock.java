@@ -60,6 +60,9 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     private int baseThc = 0;
     private int baseCbd = 0;
 
+    // Hemp should grow faster than the other weed crops as its required to even begin.
+    private static final float HEMP_GROWTH_SPEED_MULTIPLIER = 3.5f;
+
     public BaseWeedCropBlock(Properties properties, Supplier<Item> seedItem) {
         this(properties, seedItem, 0, 0, 0, 7, 0, 0);
     }
@@ -97,14 +100,18 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (!level.isAreaLoaded(pos, 1) || isTop(state) || level.getRawBrightness(pos, 0) < 11 || !canSurvive(state, level, pos)) {
-                return;
+            return;
         }
 
         int age = this.getAge(state);
         if (age >= getMaxAge()) return;
 
         float growthSpeed = getGrowthSpeed(this.defaultBlockState(), level, pos);
-        if (random.nextInt((int)(25.0F / growthSpeed) + 1) == 0) {
+        if (state.is(ModBlocks.HEMP_CROP.get())) {
+            growthSpeed *= HEMP_GROWTH_SPEED_MULTIPLIER;
+        }
+
+        if (random.nextInt((int) (25.0F / growthSpeed) + 1) == 0) {
             int nextAge = age + 1;
             level.setBlock(pos, getStateForAge(nextAge), 2);
             if (nextAge >= getTallAge()) {
