@@ -7,6 +7,7 @@ import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -31,6 +32,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,6 +62,13 @@ public class GrowPotBlockEntity extends BlockEntity {
     private int nitrogen;
     private int phosphorus;
     private int potassium;
+
+    /**
+     * Lag-safe throttle for auto-harvest/export. We only attempt when harvestable,
+     * and at most once per second per pot.
+     */
+    private static final int AUTO_EXPORT_INTERVAL_TICKS = 20;
+    private int autoExportCooldown = 0;
 
     public GrowPotBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GROW_POT.get(), pos, state);
@@ -115,7 +126,14 @@ public class GrowPotBlockEntity extends BlockEntity {
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, GrowPotBlockEntity be) {
-        if (!(level instanceof ServerLevel)) return;
+        if (!(level instanceof ServerLevel serverLevel)) return;
+
+        // Auto-export when fully grown (runs before growth logic, throttled).
+        if (be.canHarvest()) {
+            be.tryAutoHarvestAndExport(serverLevel);
+            return;
+        }
+
         if (!be.hasCrop()) return;
 
         int light = level.getMaxLocalRawBrightness(pos.above());
@@ -138,6 +156,97 @@ public class GrowPotBlockEntity extends BlockEntity {
         if (be.cropAge != startAge) {
             be.setChangedAndSync();
         }
+    }
+
+    private void tryAutoHarvestAndExport(ServerLevel serverLevel) {
+        // Defensive: only server side
+        if (level == null || level.isClientSide) return;
+        if (!canHarvest()) return;
+
+        if (autoExportCooldown > 0) {
+            autoExportCooldown--;
+            return;
+        }
+        autoExportCooldown = AUTO_EXPORT_INTERVAL_TICKS;
+
+        IItemHandler below = getBelowItemHandler();
+        if (below == null) return; // no valid target below, do nothing (no lag)
+
+        // Simulate harvest drops and attempt to insert everything.
+        List<ItemStack> drops = getHarvestDrops(serverLevel);
+        if (drops.isEmpty()) {
+            // Still reset growth so it doesn't spam attempts.
+            this.cropAge = 0;
+            this.growthProgressTicks = 0;
+            setChangedAndSync();
+            return;
+        }
+
+        // Try to insert; keep leftovers.
+        List<ItemStack> leftovers = new ArrayList<>();
+        for (ItemStack stack : drops) {
+            if (stack.isEmpty()) continue;
+            ItemStack remaining = ItemHandlerHelper.insertItemStacked(below, stack, false);
+            if (!remaining.isEmpty()) leftovers.add(remaining);
+        }
+
+        // If we managed to insert at least something, complete harvest and drop leftovers (if any).
+        // If we couldn't insert anything, we leave the crop grown so it can try again later.
+        boolean insertedSomething = leftovers.size() != drops.size();
+        if (!insertedSomething) return;
+
+        // Complete the actual harvest: reset growth
+        this.cropAge = 0;
+        this.growthProgressTicks = 0;
+        setChangedAndSync();
+
+        // Drop leftovers into the world (rare, only if target inventory fills up)
+        for (ItemStack rem : leftovers) {
+            Block.popResource(serverLevel, worldPosition, rem);
+        }
+    }
+
+    @Nullable
+    private IItemHandler getBelowItemHandler() {
+        if (level == null) return null;
+        BlockPos belowPos = worldPosition.below();
+
+        // Try to find an item handler below, exposed on its UP face.
+        return level.getCapability(Capabilities.ItemHandler.BLOCK, belowPos, Direction.UP);
+    }
+
+    private List<ItemStack> getHarvestDrops(ServerLevel serverLevel) {
+        if (cropBlock == null) return List.of();
+
+        BlockState lootState = cropBlock.defaultBlockState()
+                .setValue(BaseWeedCropBlock.AGE, cropBlock.getMaxAge())
+                .setValue(cropBlock.getTop(), Boolean.FALSE);
+
+        LootParams.Builder builder = new LootParams.Builder(serverLevel)
+                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(worldPosition))
+                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY);
+
+        List<ItemStack> drops = new ArrayList<>(lootState.getDrops(builder));
+
+        // Remove seed drops (same behavior as manual harvest)
+        Item seedItem = cropBlock.getBaseSeedId().asItem();
+        drops.removeIf(stk -> stk.is(seedItem));
+
+        int budFactor = getBudCount();
+        int thcVal = getThc();
+        int cbdVal = getCbd();
+
+        for (ItemStack drop : drops) {
+            if (drop.getItem() instanceof BaseBudItem) {
+                if (drop.getCount() > 0 && budFactor > 1) {
+                    drop.setCount(drop.getCount() * budFactor);
+                }
+                BaseBudItem.setThc(drop, thcVal);
+                BaseBudItem.setCbd(drop, cbdVal);
+            }
+        }
+
+        return drops;
     }
 
     private int getFullGrowthTicksForSoil() {
@@ -372,6 +481,7 @@ public class GrowPotBlockEntity extends BlockEntity {
         this.cropAge = 0;
         this.growthProgressTicks = 0;
         this.thc = this.cbd = this.ph = this.nitrogen = this.phosphorus = this.potassium = 0;
+        this.autoExportCooldown = 0;
 
         if (tag.contains("Pot")) {
             PotData.CODEC.parse(NbtOps.INSTANCE, tag.get("Pot"))
