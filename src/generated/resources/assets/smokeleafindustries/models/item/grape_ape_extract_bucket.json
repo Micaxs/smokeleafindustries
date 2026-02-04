@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "smokeleafindustries:item/grape_ape_extract_bucket"
+  }
+}

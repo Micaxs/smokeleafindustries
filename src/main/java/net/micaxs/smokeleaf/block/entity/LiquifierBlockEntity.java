@@ -1,7 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
-import net.micaxs.smokeleaf.fluid.ModFluids;
+import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
+import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.recipe.LiquifierRecipe;
 import net.micaxs.smokeleaf.recipe.LiquifierRecipeInput;
 import net.micaxs.smokeleaf.recipe.ModRecipes;
@@ -9,6 +10,7 @@ import net.micaxs.smokeleaf.screen.custom.LiquifierMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -16,9 +18,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -159,8 +163,22 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private void craftFluid(LiquifierRecipe recipe) {
-        itemHandler.extractItem(INPUT_SLOT, 1, false);
-        FLUID_TANK.fill(recipe.outputCopy(), IFluidHandler.FluidAction.EXECUTE);
+        ItemStack in = itemHandler.extractItem(INPUT_SLOT, 1, false);
+        FluidStack out = recipe.outputCopy();
+
+        if (recipe.shouldInheritInputEffects() && !in.isEmpty() && in.getItem() instanceof BaseWeedItem weedItem) {
+            MobEffect effect = weedItem.getEffect();
+            if (effect != null) {
+                ResourceLocation id = BuiltInRegistries.MOB_EFFECT.getKey(effect);
+                if (id != null) {
+                    int amplifier = 2; // extracts are level 2 in your item definitions
+                    int duration = weedItem.getDuration();
+                    WeedFluidStackUtil.withWeedData(out, java.util.List.of(id), amplifier, duration);
+                }
+            }
+        }
+
+        FLUID_TANK.fill(out, IFluidHandler.FluidAction.EXECUTE);
     }
 
     public void tick(Level level, BlockPos blockPos, BlockState blockState) {

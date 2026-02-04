@@ -18,10 +18,18 @@ import net.minecraft.core.HolderLookup;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraft.world.level.material.Fluid;
 
-public record LiquifierRecipe(Ingredient ingredient, FluidStack output) implements Recipe<LiquifierRecipeInput> {
+public record LiquifierRecipe(Ingredient ingredient, FluidStack output, boolean inheritInputEffects) implements Recipe<LiquifierRecipeInput> {
+
+    public LiquifierRecipe(Ingredient ingredient, FluidStack output) {
+        this(ingredient, output, false);
+    }
 
     public FluidStack outputCopy() {
         return output.copy();
+    }
+
+    public boolean shouldInheritInputEffects() {
+        return inheritInputEffects;
     }
 
     @Override
@@ -71,7 +79,8 @@ public record LiquifierRecipe(Ingredient ingredient, FluidStack output) implemen
 
         public static final MapCodec<LiquifierRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
                 Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(LiquifierRecipe::ingredient),
-                FLUID_STACK_OBJECT.fieldOf("output").forGetter(LiquifierRecipe::output)
+                FLUID_STACK_OBJECT.fieldOf("output").forGetter(LiquifierRecipe::output),
+                Codec.BOOL.optionalFieldOf("inherit_input_effects", false).forGetter(LiquifierRecipe::inheritInputEffects)
         ).apply(inst, LiquifierRecipe::new));
 
         // Stream codec for FluidStack (fluid id + varint amount)
@@ -92,6 +101,7 @@ public record LiquifierRecipe(Ingredient ingredient, FluidStack output) implemen
                 StreamCodec.composite(
                         Ingredient.CONTENTS_STREAM_CODEC, LiquifierRecipe::ingredient,
                         FLUID_STACK_STREAM_CODEC, LiquifierRecipe::output,
+                        ByteBufCodecs.BOOL, LiquifierRecipe::inheritInputEffects,
                         LiquifierRecipe::new
                 );
 

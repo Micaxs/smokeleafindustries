@@ -1,0 +1,11 @@
+{
+  "type": "smokeleafindustries:liquifier",
+  "ingredient": {
+    "item": "smokeleafindustries:moonbow_extract"
+  },
+  "inherit_input_effects": true,
+  "output": {
+    "amount": 500,
+    "fluid": "smokeleafindustries:moonbow_extract_fluid"
+  }
+}

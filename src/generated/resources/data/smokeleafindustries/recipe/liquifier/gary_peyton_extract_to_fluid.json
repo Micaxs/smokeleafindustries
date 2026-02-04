@@ -1,0 +1,11 @@
+{
+  "type": "smokeleafindustries:liquifier",
+  "ingredient": {
+    "item": "smokeleafindustries:gary_peyton_extract"
+  },
+  "inherit_input_effects": true,
+  "output": {
+    "amount": 500,
+    "fluid": "smokeleafindustries:gary_peyton_extract_fluid"
+  }
+}

@@ -15,6 +15,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
+import net.micaxs.smokeleaf.recipe.LiquifierRecipe;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -876,5 +878,50 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
                 .save(recipeOutput);
 
+        // ---- Liquifier (Extract -> Extract Fluid) ----
+        // Each extract item liquifies into 500 mB of its matching extract fluid.
+        // We also set inherit_input_effects so the produced fluid keeps weed effect data.
+        liquifierExtract(recipeOutput, "white_widow", ModItems.WHITE_WIDOW_EXTRACT.get(), ModFluids.SOURCE_WHITE_WIDOW_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "bubble_kush", ModItems.BUBBLE_KUSH_EXTRACT.get(), ModFluids.SOURCE_BUBBLE_KUSH_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "lemon_haze", ModItems.LEMON_HAZE_EXTRACT.get(), ModFluids.SOURCE_LEMON_HAZE_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "sour_diesel", ModItems.SOUR_DIESEL_EXTRACT.get(), ModFluids.SOURCE_SOUR_DIESEL_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "blue_ice", ModItems.BLUE_ICE_EXTRACT.get(), ModFluids.SOURCE_BLUE_ICE_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "bubblegum", ModItems.BUBBLEGUM_EXTRACT.get(), ModFluids.SOURCE_BUBBLEGUM_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "purple_haze", ModItems.PURPLE_HAZE_EXTRACT.get(), ModFluids.SOURCE_PURPLE_HAZE_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "og_kush", ModItems.OG_KUSH_EXTRACT.get(), ModFluids.SOURCE_OG_KUSH_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "jack_herer", ModItems.JACK_HERER_EXTRACT.get(), ModFluids.SOURCE_JACK_HERER_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "gary_peyton", ModItems.GARY_PEYTON_EXTRACT.get(), ModFluids.SOURCE_GARY_PEYTON_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "amnesia_haze", ModItems.AMNESIA_HAZE_EXTRACT.get(), ModFluids.SOURCE_AMNESIA_HAZE_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "ak47", ModItems.AK47_EXTRACT.get(), ModFluids.SOURCE_AK47_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "ghost_train", ModItems.GHOST_TRAIN_EXTRACT.get(), ModFluids.SOURCE_GHOST_TRAIN_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "grape_ape", ModItems.GRAPE_APE_EXTRACT.get(), ModFluids.SOURCE_GRAPE_APE_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "cotton_candy", ModItems.COTTON_CANDY_EXTRACT.get(), ModFluids.SOURCE_COTTON_CANDY_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "banana_kush", ModItems.BANANA_KUSH_EXTRACT.get(), ModFluids.SOURCE_BANANA_KUSH_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "carbon_fiber", ModItems.CARBON_FIBER_EXTRACT.get(), ModFluids.SOURCE_CARBON_FIBER_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "birthday_cake", ModItems.BIRTHDAY_CAKE_EXTRACT.get(), ModFluids.SOURCE_BIRTHDAY_CAKE_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "blue_cookies", ModItems.BLUE_COOKIES_EXTRACT.get(), ModFluids.SOURCE_BLUE_COOKIES_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "afghani", ModItems.AFGHANI_EXTRACT.get(), ModFluids.SOURCE_AFGHANI_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "moonbow", ModItems.MOONBOW_EXTRACT.get(), ModFluids.SOURCE_MOONBOW_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "lava_cake", ModItems.LAVA_CAKE_EXTRACT.get(), ModFluids.SOURCE_LAVA_CAKE_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "jelly_rancher", ModItems.JELLY_RANCHER_EXTRACT.get(), ModFluids.SOURCE_JELLY_RANCHER_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "strawberry_shortcake", ModItems.STRAWBERRY_SHORTCAKE_EXTRACT.get(), ModFluids.SOURCE_STRAWBERRY_SHORTCAKE_EXTRACT_FLUID.get());
+        liquifierExtract(recipeOutput, "pink_kush", ModItems.PINK_KUSH_EXTRACT.get(), ModFluids.SOURCE_PINK_KUSH_EXTRACT_FLUID.get());
+
+    }
+
+    private static void liquifierExtract(RecipeOutput out,
+                                        String name,
+                                        net.minecraft.world.item.Item extractItem,
+                                        net.minecraft.world.level.material.Fluid extractFluid) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID,
+                "liquifier/" + name + "_extract_to_fluid");
+
+        LiquifierRecipe recipe = new LiquifierRecipe(
+                Ingredient.of(extractItem),
+                new FluidStack(extractFluid, 500),
+                true
+        );
+
+        out.accept(id, recipe, null);
     }
 }

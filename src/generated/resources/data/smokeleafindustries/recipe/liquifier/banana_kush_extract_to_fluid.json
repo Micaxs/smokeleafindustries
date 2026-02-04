@@ -1,0 +1,11 @@
+{
+  "type": "smokeleafindustries:liquifier",
+  "ingredient": {
+    "item": "smokeleafindustries:banana_kush_extract"
+  },
+  "inherit_input_effects": true,
+  "output": {
+    "amount": 500,
+    "fluid": "smokeleafindustries:banana_kush_extract_fluid"
+  }
+}

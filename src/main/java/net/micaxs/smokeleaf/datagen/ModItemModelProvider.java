@@ -42,6 +42,33 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModFluids.HEMP_OIL_BUCKET.get());
         basicItem(ModFluids.HASH_OIL_BUCKET.get());
         basicItem(ModFluids.HASH_OIL_SLUDGE_BUCKET.get());
+
+        basicItem(ModFluids.WHITE_WIDOW_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.BUBBLE_KUSH_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.LEMON_HAZE_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.SOUR_DIESEL_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.BLUE_ICE_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.BUBBLEGUM_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.PURPLE_HAZE_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.OG_KUSH_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.JACK_HERER_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.GARY_PEYTON_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.AMNESIA_HAZE_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.AK47_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.GHOST_TRAIN_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.GRAPE_APE_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.COTTON_CANDY_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.BANANA_KUSH_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.CARBON_FIBER_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.BIRTHDAY_CAKE_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.BLUE_COOKIES_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.AFGHANI_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.MOONBOW_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.LAVA_CAKE_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.JELLY_RANCHER_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.STRAWBERRY_SHORTCAKE_EXTRACT_BUCKET.get());
+        basicItem(ModFluids.PINK_KUSH_EXTRACT_BUCKET.get());
+
         basicItem(ModItems.HASH_OIL_TINCTURE.get());
         basicItem(ModItems.BASE_EXTRACT.get());
         basicItem(ModItems.HEMP_COAL.get());

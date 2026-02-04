@@ -4,10 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
+import net.micaxs.smokeleaf.fluid.WeedFluidData;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -43,6 +42,10 @@ public class ModDataComponentTypes {
     // Weed THC/CBD Content
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> THC = register("thc", builder -> builder.persistent(Codec.INT));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> CBD = register("cbd", builder -> builder.persistent(Codec.INT));
+
+    // Weed Extract Fluid payload (effects attached at machine-time to FluidStacks)
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<WeedFluidData>> WEED_FLUID_DATA =
+            register("weed_fluid_data", b -> b.persistent(WeedFluidData.CODEC));
 
     // Plant Nutrients (Increase THC with: 5N 10P 14K) (Increase CBD with: 8N 4P 13K) (Optimal pH: 6.0 - 7.0)
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> PH = register("ph", builder -> builder.persistent(Codec.INT));

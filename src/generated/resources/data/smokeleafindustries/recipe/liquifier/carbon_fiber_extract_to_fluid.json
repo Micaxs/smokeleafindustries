@@ -1,0 +1,11 @@
+{
+  "type": "smokeleafindustries:liquifier",
+  "ingredient": {
+    "item": "smokeleafindustries:carbon_fiber_extract"
+  },
+  "inherit_input_effects": true,
+  "output": {
+    "amount": 500,
+    "fluid": "smokeleafindustries:carbon_fiber_extract_fluid"
+  }
+}

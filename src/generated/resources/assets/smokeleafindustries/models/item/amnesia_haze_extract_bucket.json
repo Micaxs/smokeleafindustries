@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "smokeleafindustries:item/amnesia_haze_extract_bucket"
+  }
+}

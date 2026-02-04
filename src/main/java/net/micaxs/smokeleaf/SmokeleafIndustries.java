@@ -63,9 +63,6 @@ public class SmokeleafIndustries {
         ModEffects.register(modEventBus);
         ModSounds.register(modEventBus);
 
-        ModFluidTypes.register(modEventBus);
-        ModFluids.register(modEventBus);
-
         ModDataComponentTypes.register(modEventBus);
         ModLootModifiers.register(modEventBus);
         ModLootItemFunctions.register(modEventBus);
@@ -73,6 +70,9 @@ public class SmokeleafIndustries {
         ModParticles.register(modEventBus);
 
         ModVillagers.register(modEventBus);
+
+        ModFluidTypes.register(modEventBus);
+        ModFluids.register(modEventBus);
 
         modEventBus.register(ModPayloads.class);
 

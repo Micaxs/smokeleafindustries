@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "smokeleafindustries:item/birthday_cake_extract_bucket"
+  }
+}

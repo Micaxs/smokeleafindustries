@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "smokeleafindustries:item/carbon_fiber_extract_bucket"
+  }
+}

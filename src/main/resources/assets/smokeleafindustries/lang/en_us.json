@@ -36,7 +36,6 @@
   "item.smokeleafindustries.dual_arc_lamp": "Dual Arc Bulb",
   "item.smokeleafindustries.plant_analyzer": "Plant Analyzer",
   "item.smokeleafindustries.empty_vial": "Empty Vial",
-
   "item.smokeleafindustries.joint.mixed": "Mixed Joint",
   "item.smokeleafindustries.joint.format": "%s Joint",
   "tooltip.smokeleafindustries.joint.empty": "No active ingredients.",
@@ -45,8 +44,6 @@
   "item.smokeleafindustries.blunt.format": "%s Blunt",
   "tooltip.smokeleafindustries.blunt.empty": "No active ingredients.",
   "tooltip.smokeleafindustries.blunt.effects_title": "Blunt Effects:",
-
-
   "item.smokeleafindustries.worm_castings": "Worm Castings",
   "item.smokeleafindustries.compost": "Compost",
   "item.smokeleafindustries.mycorrhizae": "Mycorrhizae",
@@ -64,14 +61,30 @@
   "item.smokeleafindustries.balanced_boost": "Balanced Boost",
   "item.smokeleafindustries.phosphorus_reducer": "Phosphorus Reducer",
   "item.smokeleafindustries.potassium_reducer": "Potassium Reducer",
-
-
-
-
-
-
-
-
+  "item.smokeleafindustries.white_widow_extract_bucket": "White Widow Oil Bucket",
+  "item.smokeleafindustries.blue_ice_extract_bucket": "Blue Ice Oil Bucket",
+  "item.smokeleafindustries.purple_haze_extract_bucket": "Purple Haze Oil Bucket",
+  "item.smokeleafindustries.lemon_haze_extract_bucket": "Lemon Haze Oil Bucket",
+  "item.smokeleafindustries.bubblegum_extract_bucket": "Bubblegum Oil Bucket",
+  "item.smokeleafindustries.bubble_kush_extract_bucket": "Bubble Kush Oil Bucket",
+  "item.smokeleafindustries.og_kush_extract_bucket": "OG Kush Oil Bucket",
+  "item.smokeleafindustries.jack_herer_extract_bucket": "Jack Herer Oil Bucket",
+  "item.smokeleafindustries.gary_peyton_extract_bucket": "Gary Peyton Oil Bucket",
+  "item.smokeleafindustries.amnesia_haze_extract_bucket": "Amnesia Haze Oil Bucket",
+  "item.smokeleafindustries.ak47_extract_bucket": "AK47 Oil Bucket",
+  "item.smokeleafindustries.ghost_train_extract_bucket": "Ghost Train Oil Bucket",
+  "item.smokeleafindustries.grape_ape_extract_bucket": "Grape Ape Oil Bucket",
+  "item.smokeleafindustries.cotton_candy_extract_bucket": "Cotton Candy Oil Bucket",
+  "item.smokeleafindustries.banana_kush_extract_bucket": "Banana Kush Oil Bucket",
+  "item.smokeleafindustries.carbon_fiber_extract_bucket": "Carbon Fiber Oil Bucket",
+  "item.smokeleafindustries.birthday_cake_extract_bucket": "Birthday Cake Oil Bucket",
+  "item.smokeleafindustries.blue_cookies_extract_bucket": "Blue Cookies Oil Bucket",
+  "item.smokeleafindustries.afghani_extract_bucket": "Afghani Oil Bucket",
+  "item.smokeleafindustries.moonbow_extract_bucket": "Moonbow Oil Bucket",
+  "item.smokeleafindustries.lava_cake_extract_bucket": "Lava Cake Oil Bucket",
+  "item.smokeleafindustries.jelly_rancher_extract_bucket": "Jelly Rancher Oil Bucket",
+  "item.smokeleafindustries.strawberry_shortcake_extract_bucket": "Strawberry Shortcake Oil Bucket",
+  "item.smokeleafindustries.pink_kush_extract_bucket": "Pink Kush Oil Bucket",
   "item.smokeleafindustries.hemp_seeds": "Hemp Seeds",
   "item.smokeleafindustries.white_widow_seeds": "White Widow Seeds",
   "item.smokeleafindustries.blue_ice_seeds": "Blue Ice Seeds",
@@ -223,24 +236,20 @@
   "item.smokeleafindustries.jelly_rancher_gummy": "Jelly Rancher Gummy",
   "item.smokeleafindustries.strawberry_shortcake_gummy": "Strawberry Shortcake Gummy",
   "item.smokeleafindustries.pink_kush_gummy": "Pink Kush Gummy",
-
   "block.smokeleafindustries.hemp_stone": "Hemp Stone",
   "block.smokeleafindustries.hemp_stone_stairs": "Hemp Stone Stairs",
   "block.smokeleafindustries.hemp_stone_slab": "Hemp Stone Slab",
   "block.smokeleafindustries.hemp_stone_pressure_plate": "Hemp Stone Pressure Plate",
   "block.smokeleafindustries.hemp_stone_button": "Hemp Stone Button",
   "block.smokeleafindustries.hemp_stone_wall": "Hemp Stone Wall",
-
   "block.smokeleafindustries.hemp_chiseled_stone": "Hemp Chiseled Stone",
   "block.smokeleafindustries.hemp_chiseled_stone_stairs": "Hemp Chiseled Stone Stairs",
   "block.smokeleafindustries.hemp_chiseled_stone_slab": "Hemp Chiseled Stone Slab",
   "block.smokeleafindustries.hemp_chiseled_stone_wall": "Hemp Chiseled Stone Wall",
-
   "block.smokeleafindustries.hemp_bricks": "Hemp Bricks",
   "block.smokeleafindustries.hemp_brick_stairs": "Hemp Brick Stairs",
   "block.smokeleafindustries.hemp_brick_slab": "Hemp Brick Slab",
   "block.smokeleafindustries.hemp_brick_wall": "Hemp Brick Wall",
-
   "block.smokeleafindustries.hemp_planks": "Hemp Planks",
   "block.smokeleafindustries.hemp_plank_stairs": "Hemp Planks Stairs",
   "block.smokeleafindustries.hemp_plank_slab": "Hemp Planks Slab",
@@ -250,7 +259,6 @@
   "block.smokeleafindustries.hemp_plank_fence_gate": "Hemp Planks Fence Gate",
   "block.smokeleafindustries.hemp_plank_door": "Hemp Planks Door",
   "block.smokeleafindustries.hemp_plank_trapdoor": "Hemp Planks Trapdoor",
-
   "block.smokeleafindustries.led_light": "LED Grow Light",
   "block.smokeleafindustries.grow_pot": "Grow Pot",
   "block.smokeleafindustries.grinder": "Grinder",
@@ -263,48 +271,87 @@
   "block.smokeleafindustries.drying_rack": "Drying Rack",
   "block.smokeleafindustries.reflector": "Reflector",
   "block.smokeleafindustries.dryer": "Dryer",
-
-
   "block.smokeleafindustries.hemp_crop": "Hemp Plant",
   "block.smokeleafindustries.white_widow_crop": "White Widow Plant",
-    "block.smokeleafindustries.blue_ice_crop": "Blue Ice Plant",
-    "block.smokeleafindustries.sour_diesel_crop": "Sour Diesel Plant",
-    "block.smokeleafindustries.purple_haze_crop": "Purple Haze Plant",
-    "block.smokeleafindustries.lemon_haze_crop": "Lemon Haze Plant",
-    "block.smokeleafindustries.bubblegum_crop": "Bubblegum Plant",
-    "block.smokeleafindustries.bubble_kush_crop": "Bubble Kush Plant",
-    "block.smokeleafindustries.og_kush_crop": "OG Kush Plant",
-    "block.smokeleafindustries.jack_herer_crop": "Jack Herer Plant",
-    "block.smokeleafindustries.gary_peyton_crop": "Gary Peyton Plant",
-    "block.smokeleafindustries.amnesia_haze_crop": "Amnesia Haze Plant",
-    "block.smokeleafindustries.ak47_crop": "AK47 Plant",
-    "block.smokeleafindustries.ghost_train_crop": "Ghost Train Plant",
-    "block.smokeleafindustries.grape_ape_crop": "Grape Ape Plant",
-    "block.smokeleafindustries.cotton_candy_crop": "Cotton Candy Plant",
-    "block.smokeleafindustries.banana_kush_crop": "Banana Kush Plant",
-    "block.smokeleafindustries.carbon_fiber_crop": "Carbon Fiber Plant",
-    "block.smokeleafindustries.birthday_cake_crop": "Birthday Cake Plant",
-    "block.smokeleafindustries.blue_cookies_crop": "Blue Cookies Plant",
-    "block.smokeleafindustries.afghani_crop": "Afghani Plant",
-    "block.smokeleafindustries.moonbow_crop": "Moonbow Plant",
-    "block.smokeleafindustries.lava_cake_crop": "Lava Cake Plant",
-    "block.smokeleafindustries.jelly_rancher_crop": "Jelly Rancher Plant",
-    "block.smokeleafindustries.strawberry_shortcake_crop": "Strawberry Shortcake Plant",
-    "block.smokeleafindustries.pink_kush_crop": "Pink Kush Plant",
-
-
-
-
+  "block.smokeleafindustries.blue_ice_crop": "Blue Ice Plant",
+  "block.smokeleafindustries.sour_diesel_crop": "Sour Diesel Plant",
+  "block.smokeleafindustries.purple_haze_crop": "Purple Haze Plant",
+  "block.smokeleafindustries.lemon_haze_crop": "Lemon Haze Plant",
+  "block.smokeleafindustries.bubblegum_crop": "Bubblegum Plant",
+  "block.smokeleafindustries.bubble_kush_crop": "Bubble Kush Plant",
+  "block.smokeleafindustries.og_kush_crop": "OG Kush Plant",
+  "block.smokeleafindustries.jack_herer_crop": "Jack Herer Plant",
+  "block.smokeleafindustries.gary_peyton_crop": "Gary Peyton Plant",
+  "block.smokeleafindustries.amnesia_haze_crop": "Amnesia Haze Plant",
+  "block.smokeleafindustries.ak47_crop": "AK47 Plant",
+  "block.smokeleafindustries.ghost_train_crop": "Ghost Train Plant",
+  "block.smokeleafindustries.grape_ape_crop": "Grape Ape Plant",
+  "block.smokeleafindustries.cotton_candy_crop": "Cotton Candy Plant",
+  "block.smokeleafindustries.banana_kush_crop": "Banana Kush Plant",
+  "block.smokeleafindustries.carbon_fiber_crop": "Carbon Fiber Plant",
+  "block.smokeleafindustries.birthday_cake_crop": "Birthday Cake Plant",
+  "block.smokeleafindustries.blue_cookies_crop": "Blue Cookies Plant",
+  "block.smokeleafindustries.afghani_crop": "Afghani Plant",
+  "block.smokeleafindustries.moonbow_crop": "Moonbow Plant",
+  "block.smokeleafindustries.lava_cake_crop": "Lava Cake Plant",
+  "block.smokeleafindustries.jelly_rancher_crop": "Jelly Rancher Plant",
+  "block.smokeleafindustries.strawberry_shortcake_crop": "Strawberry Shortcake Plant",
+  "block.smokeleafindustries.pink_kush_crop": "Pink Kush Plant",
   "fluid_type.smokeleafindustries.hemp_oil_fluid": "Hemp Oil",
   "fluid_type.smokeleafindustries.hash_oil_fluid": "Hash Oil",
   "fluid_type.smokeleafindustries.hash_oil_sludge_fluid": "Sludge Hash Oil",
-
+  "fluid_type.smokeleafindustries.white_widow_extract_fluid": "White Widow Oil",
+  "fluid_type.smokeleafindustries.blue_ice_extract_fluid": "Blue Ice Oil",
+  "fluid_type.smokeleafindustries.purple_haze_extract_fluid": "Purple Haze Oil",
+  "fluid_type.smokeleafindustries.lemon_haze_extract_fluid": "Lemon Haze Oil",
+  "fluid_type.smokeleafindustries.bubblegum_extract_fluid": "Bubblegum Oil",
+  "fluid_type.smokeleafindustries.bubble_kush_extract_fluid": "Bubble Kush Oil",
+  "fluid_type.smokeleafindustries.og_kush_extract_fluid": "OG Kush Oil",
+  "fluid_type.smokeleafindustries.jack_herer_extract_fluid": "Jack Herer Oil",
+  "fluid_type.smokeleafindustries.gary_peyton_extract_fluid": "Gary Peyton Oil",
+  "fluid_type.smokeleafindustries.amnesia_haze_extract_fluid": "Amnesia Haze Oil",
+  "fluid_type.smokeleafindustries.ak47_extract_fluid": "AK47 Oil",
+  "fluid_type.smokeleafindustries.ghost_train_extract_fluid": "Ghost Train Oil",
+  "fluid_type.smokeleafindustries.grape_ape_extract_fluid": "Grape Ape Oil",
+  "fluid_type.smokeleafindustries.cotton_candy_extract_fluid": "Cotton Candy Oil",
+  "fluid_type.smokeleafindustries.banana_kush_extract_fluid": "Banana Kush Oil",
+  "fluid_type.smokeleafindustries.carbon_fiber_extract_fluid": "Carbon Fiber Oil",
+  "fluid_type.smokeleafindustries.birthday_cake_extract_fluid": "Birthday Cake Oil",
+  "fluid_type.smokeleafindustries.blue_cookies_extract_fluid": "Blue Cookies Oil",
+  "fluid_type.smokeleafindustries.afghani_extract_fluid": "Afghani Oil",
+  "fluid_type.smokeleafindustries.moonbow_extract_fluid": "Moonbow Oil",
+  "fluid_type.smokeleafindustries.lava_cake_extract_fluid": "Lava Cake Oil",
+  "fluid_type.smokeleafindustries.jelly_rancher_extract_fluid": "Jelly Rancher Oil",
+  "fluid_type.smokeleafindustries.strawberry_shortcake_extract_fluid": "Strawberry Shortcake Oil",
+  "fluid_type.smokeleafindustries.pink_kush_extract_fluid": "Pink Kush Oil",
+  "block.smokeleafindustries.white_widow_extract_fluid_block": "White Widow Oil",
+  "block.smokeleafindustries.blue_ice_extract_fluid_block": "Blue Ice Oil",
+  "block.smokeleafindustries.purple_haze_extract_fluid_block": "Purple Haze Oil",
+  "block.smokeleafindustries.lemon_haze_extract_fluid_block": "Lemon Haze Oil",
+  "block.smokeleafindustries.bubblegum_extract_fluid_block": "Bubblegum Oil",
+  "block.smokeleafindustries.bubble_kush_extract_fluid_block": "Bubble Kush Oil",
+  "block.smokeleafindustries.og_kush_extract_fluid_block": "OG Kush Oil",
+  "block.smokeleafindustries.jack_herer_extract_fluid_block": "Jack Herer Oil",
+  "block.smokeleafindustries.gary_peyton_extract_fluid_block": "Gary Peyton Oil",
+  "block.smokeleafindustries.amnesia_haze_extract_fluid_block": "Amnesia Haze Oil",
+  "block.smokeleafindustries.ak47_extract_fluid_block": "AK47 Oil",
+  "block.smokeleafindustries.ghost_train_extract_fluid_block": "Ghost Train Oil",
+  "block.smokeleafindustries.grape_ape_extract_fluid_block": "Grape Ape Oil",
+  "block.smokeleafindustries.cotton_candy_extract_fluid_block": "Cotton Candy Oil",
+  "block.smokeleafindustries.banana_kush_extract_fluid_block": "Banana Kush Oil",
+  "block.smokeleafindustries.carbon_fiber_extract_fluid_block": "Carbon Fiber Oil",
+  "block.smokeleafindustries.birthday_cake_extract_fluid_block": "Birthday Cake Oil",
+  "block.smokeleafindustries.blue_cookies_extract_fluid_block": "Blue Cookies Oil",
+  "block.smokeleafindustries.afghani_extract_fluid_block": "Afghani Oil",
+  "block.smokeleafindustries.moonbow_extract_fluid_block": "Moonbow Oil",
+  "block.smokeleafindustries.lava_cake_extract_fluid_block": "Lava Cake Oil",
+  "block.smokeleafindustries.jelly_rancher_extract_fluid_block": "Jelly Rancher Oil",
+  "block.smokeleafindustries.strawberry_shortcake_extract_fluid_block": "Strawberry Shortcake Oil",
+  "block.smokeleafindustries.pink_kush_extract_fluid_block": "Pink Kush Oil",
   "creativetab.smokeleafindustries.smokeleaf_herb_tab": "Smokeleaf Industries",
   "creativetab.smokeleafindustries.smokeleaf_items_tab": "Smokeleaf Industries",
-
   "entity.minecraft.villager.smokeleafindustries.dealer": "Dealer",
   "entity.minecraft.villager.smokeleafindustries.stoner": "Stoner",
-
   "tooltip.smokeleafindustries.dried": "Dried",
   "tooltip.smokeleafindustries.fresh": "Fresh",
   "tooltip.smokeleafindustries.extra_effects": "Extra effects: %s",
@@ -319,8 +366,6 @@
   "tooltip.smokeleafindustries.hemp_hammer.uses": "%s/%s Uses Remaining",
   "tooltip.smokeleafindustries.hps_lamp": "Place in a reflector to produce light and increase weed plants growth speed. Bulb will break when lifespan ends.",
   "tooltip.smokeleafindustries.plant_analyzer": "Right click a Weed Crop to Analyzer the Nutrient Levels.",
-
-
   "tooltip.smokeleafindustries.white_widow_bag": "Contains 8 White Widow Weed.",
   "tooltip.smokeleafindustries.blue_ice_bag": "Contains 8 Blue Ice Weed.",
   "tooltip.smokeleafindustries.sour_diesel_bag": "Contains 8 Sour Diesel Weed.",
@@ -350,20 +395,14 @@
   "tooltip.smokeleafindustries.grow_pot.plant": "Rightclick with Weed Seeds to plant them in the soil.",
   "tooltip.smokeleafindustries.grow_pot.info": "RightClick when fully grown to harvest the plant.\nShift + Rightclick to remove soil and/or plant.\n\nPlants will grow faster inside a Grow Pot and still require light to grow!",
   "tooltip.smokeleafindustries.add_fertilizer": "You can only add fertilizer when the crop is not fully grown yet.",
-
   "message.smokeleafindustries.cat_urine_cooldown": "Cat is not ready. %s seconds left.",
-
-
   "jei.smokeleafindustries.drying.time": "%s",
   "jei.smokeleafindustries.manual_grinder": "Manual Grinder",
   "jei.smokeleafindustries.grind_time": "Time: %s",
   "jei.smokeleafindustries.category.joint": "Joint Crafting",
   "jei.smokeleafindustries.bucket_use": "You can get a full bucket by right clicking 1000mb of Fluid on the tank with an empty bucket. Alternatively, you can also store fluids by left clicking.",
-  "smokeleafindusties.tooltip.liquid.amount.with.capacity" : "%s / %s mB",
+  "smokeleafindusties.tooltip.liquid.amount.with.capacity": "%s / %s mB",
   "smokeleafindusties.tooltip.liquid.amount": "%s mB",
-
-
-
   "effect.smokeleafindustries.bubbled": "Bubbled Vision",
   "effect.smokeleafindustries.uplifted": "Uplifted",
   "effect.smokeleafindustries.paranoia": "Paranoia",
@@ -387,9 +426,6 @@
   "effect.smokeleafindustries.sticky_icky": "Sticky Icky",
   "effect.smokeleafindustries.r_trees": "R. Trees",
   "effect.smokeleafindustries.vein_high": "Vein High",
-
-
-
   "gui.tooltip.extractor.info": "The extractor requires energy to operate, this machine will create an extract of your provided weeds.",
   "gui.tooltip.generator.info": "The generator will convert your weed into energy, this energy can then be used to power other machines.",
   "gui.tooltip.grinder.info": "The grinder requires energy to operate and grind buds into weed, this doubles the output of your weed.",
@@ -398,10 +434,6 @@
   "gui.tooltip.synthesizer.info": "The synthesizer requires empty dna strand + 3 ingredients and energy to operate, this machine will fill your DNA strand with different items and can then be processed further into an extract.",
   "gui.tooltip.sequencer.info": "The sequencer requires energy to operate, this machine will create a new strain extract from your provided valid dna strand + base extract.",
   "gui.tooltip.dryer.info": "The dryer requires energy to operate, this machine will dry your fresh tobacco leaves into dried tobacco leaves, and fresh buds into dried buds.",
-
-
-
-
   "advancement.smokeleafindustries.root.title": "Welcome to Smokeleaf Industries",
   "advancement.smokeleafindustries.root.desc": "Enjoy your journey through the smokable plants industry.",
   "advancement.smokeleafindustries.cat_urine.title": "Ewww! Cat Pee!",
@@ -410,8 +442,6 @@
   "advancement.smokeleafindustries.hemp_seeds.desc": "Obtain hemp seeds.",
   "advancement.smokeleafindustries.joint.title": "Roll it up!",
   "advancement.smokeleafindustries.joint.desc": "Craft a joint.",
-
-
   "linguist.smokeleafindustries.villager_text.1": "Yo... you ever just... stare at redstone dust for like an hour?",
   "linguist.smokeleafindustries.villager_text.2": "I tried to roll a joint but it turned into a paper airplane, man.",
   "linguist.smokeleafindustries.villager_text.3": "Bro, I swear the creeper just wanted a hug...",
@@ -423,13 +453,9 @@
   "linguist.smokeleafindustries.villager_text.9": "You ever notice how the Enderman just… gets you, man?",
   "linguist.smokeleafindustries.villager_text.10": "You ever wonder if you can eat the moon? Like, is it made of cheese or something?",
   "linguist.smokeleafindustries.villager_text.11": "Imagine the munchies, but no pizza in Minecraft...",
-
-
   "config.jade.plugin_smokeleafindustries.grow_pot_jade": "Grow Pot",
   "config.jade.plugin_smokeleafindustries.weed_crop_jade": "Weed Crop",
   "config.jade.plugin_smokeleafindustries.drying_rack": "Drying Rack",
   "config.jade.plugin_smokeleafindustries.reflector": "Reflector",
-
-
   "item.smokeleafindustries.guide_book": "Smokeleaf Guide"
 }
