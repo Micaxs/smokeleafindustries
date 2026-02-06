@@ -114,6 +114,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         horizontalBooleanVariants(ModBlocks.SYNTHESIZER.get(), BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.POWERED, "_on", "", false);
         horizontalBooleanVariants(ModBlocks.SEQUENCER.get(), BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.POWERED, "_on", "", false);
         horizontalBooleanVariants(ModBlocks.DRYER.get(), BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.POWERED, "_on", "", false);
+        horizontalBooleanVariants(ModBlocks.MIXER.get(), BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.POWERED, "_on", "", false);
 
 
 

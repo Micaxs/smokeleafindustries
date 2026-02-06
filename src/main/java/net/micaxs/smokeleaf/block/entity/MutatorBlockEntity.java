@@ -4,6 +4,18 @@ import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.recipe.*;
 import net.micaxs.smokeleaf.screen.custom.MutatorMenu;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
+import net.micaxs.smokeleaf.item.ModItems;
+import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainUtil;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -28,13 +40,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,7 +71,7 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             return switch(slot) {
-                case 0 -> stack.is(ModFluids.HASH_OIL_BUCKET) || stack.is(ModFluids.HEMP_OIL_BUCKET);
+                case 0 -> stack.is(ModFluids.HASH_OIL_BUCKET) || stack.is(ModFluids.HEMP_OIL_BUCKET) || stack.is(ModFluids.UNIDENTIFIED_MIXTURE_BUCKET);
                 case 1, 2 -> {
                     if (stack.isEmpty() || level == null) yield false;
                     yield level.getRecipeManager()
@@ -235,6 +240,37 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         MutatorRecipe rec = opt.get().value();
         ItemStack output = rec.output().copy();
 
+        // If this is the custom strain recipe, build strain data from mixture fluid.
+        if (output.is(ModItems.UNIDENTIFIED_SEEDS.get())) {
+            FluidStack mix = FLUID_TANK.getFluid();
+            if (!mix.isEmpty() && mix.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
+                StrainData base = StrainUtil.getStrain(mix);
+                int color = base != StrainData.EMPTY ? base.colorArgb() : IClientFluidTypeExtensions.of(mix.getFluid()).getTintColor(mix);
+
+                // Randomize stats (MVP): THC/CBD 0-30, N/P/K 0-14
+                int thc = this.level != null ? this.level.random.nextInt(31) : 10;
+                int cbd = this.level != null ? this.level.random.nextInt(31) : 10;
+                int n = this.level != null ? this.level.random.nextInt(15) : 5;
+                int p = this.level != null ? this.level.random.nextInt(15) : 5;
+                int k = this.level != null ? this.level.random.nextInt(15) : 5;
+
+                StrainData outData = new StrainData(
+                        color,
+                        thc,
+                        cbd,
+                        n,
+                        p,
+                        k,
+                        base.effects(),
+                        base.amplifier(),
+                        base.durationTicks(),
+                        false,
+                        ""
+                );
+                output.set(ModDataComponentTypes.STRAIN_DATA.get(), outData);
+            }
+        }
+
         // Remove inputs using exact counts from the recipe
         removeInputs(rec);
 
@@ -244,7 +280,12 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         // Insert output
         ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
         int newCount = existing.getCount() + output.getCount();
-        itemHandler.setStackInSlot(OUTPUT_SLOT, new ItemStack(output.getItem(), newCount));
+        ItemStack newStack = new ItemStack(output.getItem(), newCount);
+        // Preserve strain data when stacking (only safe if same strain payload; MVP: keep latest)
+        if (output.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+            newStack.set(ModDataComponentTypes.STRAIN_DATA.get(), output.get(ModDataComponentTypes.STRAIN_DATA.get()));
+        }
+        itemHandler.setStackInSlot(OUTPUT_SLOT, newStack);
     }
 
     private void removeInputs(MutatorRecipe rec) {

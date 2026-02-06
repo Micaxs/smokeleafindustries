@@ -395,6 +395,22 @@ public class ModFluids {
             .levelDecreasePerBlock(2);
 
 
+    // ---- Player-made mixture fluid ----
+
+    public static final Supplier<FlowingFluid> SOURCE_UNIDENTIFIED_MIXTURE_FLUID = FLUIDS.register("unidentified_mixture_fluid",
+            () -> new BaseFlowingFluid.Source(ModFluids.UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES));
+    public static final Supplier<FlowingFluid> FLOWING_UNIDENTIFIED_MIXTURE_FLUID = FLUIDS.register("flowing_unidentified_mixture",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES));
+    public static final DeferredBlock<LiquidBlock> UNIDENTIFIED_MIXTURE_FLUID_BLOCK = ModBlocks.BLOCKS.register("unidentified_mixture_fluid_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+    public static final DeferredItem<Item> UNIDENTIFIED_MIXTURE_BUCKET = ModItems.ITEMS.registerItem("unidentified_mixture_bucket",
+            properties -> new BucketItem(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), properties.craftRemainder(Items.BUCKET).stacksTo(1)));
+    public static final BaseFlowingFluid.Properties UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.UNIDENTIFIED_MIXTURE_FLUID_TYPE, SOURCE_UNIDENTIFIED_MIXTURE_FLUID, FLOWING_UNIDENTIFIED_MIXTURE_FLUID)
+            .slopeFindDistance(2)
+            .levelDecreasePerBlock(2);
+
+
     // Late wiring to avoid null bucket/block during properties construction
     static {
         HASH_OIL_FLUID_PROPERTIES.block(HASH_OIL_FLUID_BLOCK).bucket(HASH_OIL_BUCKET);
@@ -426,10 +442,24 @@ public class ModFluids {
         JELLY_RANCHER_EXTRACT_FLUID_PROPERTIES.block(JELLY_RANCHER_EXTRACT_FLUID_BLOCK).bucket(JELLY_RANCHER_EXTRACT_BUCKET);
         STRAWBERRY_SHORTCAKE_EXTRACT_FLUID_PROPERTIES.block(STRAWBERRY_SHORTCAKE_EXTRACT_FLUID_BLOCK).bucket(STRAWBERRY_SHORTCAKE_EXTRACT_BUCKET);
         PINK_KUSH_EXTRACT_FLUID_PROPERTIES.block(PINK_KUSH_EXTRACT_FLUID_BLOCK).bucket(PINK_KUSH_EXTRACT_BUCKET);
+        UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES.block(UNIDENTIFIED_MIXTURE_FLUID_BLOCK).bucket(UNIDENTIFIED_MIXTURE_BUCKET);
     }
 
     public static void register(IEventBus eventBus) {
         FLUIDS.register(eventBus);
     }
 
+    /**
+     * Returns true if the given fluid is one of the registered strain extract fluids.
+     * Used by machines that accept any extract as an input (e.g., Mixer).
+     */
+    public static boolean isExtractFluid(net.minecraft.world.level.material.Fluid fluid) {
+        if (fluid == null) return false;
+        // Keep this simple and cheap: all extract fluids in this mod are named "*_extract_fluid".
+        // (This avoids maintaining a large allowlist.)
+        var key = net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(fluid);
+        return key != null
+                && SmokeleafIndustries.MODID.equals(key.getNamespace())
+                && key.getPath().endsWith("_extract_fluid");
+    }
 }

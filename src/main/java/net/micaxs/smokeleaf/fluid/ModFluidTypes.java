@@ -248,6 +248,16 @@ public class ModFluidTypes {
             "Kush"
     ));
 
+    // Player-made mixture fluid (dynamic tint via STRAIN_DATA)
+    public static final Supplier<WeedFluidType> UNIDENTIFIED_MIXTURE_FLUID_TYPE = registerWeedFluidType("unidentified_mixture_fluid", new MixtureWeedFluidType(
+            WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL,
+            0xFFAAAAAA, new Vector3f(170f / 255f, 170f / 255f, 170f / 255f),
+            FluidType.Properties.create().canExtinguish(true).lightLevel(5).density(10).viscosity(3).sound(SoundAction.get("drink"), SoundEvents.HONEY_DRINK),
+            0, 0,
+            "Unidentified",
+            "Mixture"
+    ));
+
     private static Supplier<FluidType> registerFluidType(String name, FluidType fluidType) {
         return FLUID_TYPES.register(name, () -> fluidType);
     }

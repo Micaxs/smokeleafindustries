@@ -1,0 +1,21 @@
+{
+  "type": "smokeleafindustries:mutator",
+  "ingredients": [
+    {
+      "item": "smokeleafindustries:hemp_seeds",
+      "count": 1
+    },
+    {
+      "item": "smokeleafindustries:base_extract",
+      "count": 1
+    }
+  ],
+  "fluid": {
+    "FluidName": "smokeleafindustries:unidentified_mixture_fluid",
+    "Amount": 250
+  },
+  "output": {
+    "item": "smokeleafindustries:unidentified_seeds",
+    "count": 1
+  }
+}

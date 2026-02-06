@@ -85,6 +85,7 @@
   "item.smokeleafindustries.jelly_rancher_extract_bucket": "Jelly Rancher Oil Bucket",
   "item.smokeleafindustries.strawberry_shortcake_extract_bucket": "Strawberry Shortcake Oil Bucket",
   "item.smokeleafindustries.pink_kush_extract_bucket": "Pink Kush Oil Bucket",
+  "item.smokeleafindustries.unidentified_mixture_bucket": "Unidentified Mixture Bucket",
   "item.smokeleafindustries.hemp_seeds": "Hemp Seeds",
   "item.smokeleafindustries.white_widow_seeds": "White Widow Seeds",
   "item.smokeleafindustries.blue_ice_seeds": "Blue Ice Seeds",
@@ -324,6 +325,7 @@
   "fluid_type.smokeleafindustries.jelly_rancher_extract_fluid": "Jelly Rancher Oil",
   "fluid_type.smokeleafindustries.strawberry_shortcake_extract_fluid": "Strawberry Shortcake Oil",
   "fluid_type.smokeleafindustries.pink_kush_extract_fluid": "Pink Kush Oil",
+  "fluid_type.smokeleafindustries.unidentified_mixture_fluid": "Unidentified Mixture Oil",
   "block.smokeleafindustries.white_widow_extract_fluid_block": "White Widow Oil",
   "block.smokeleafindustries.blue_ice_extract_fluid_block": "Blue Ice Oil",
   "block.smokeleafindustries.purple_haze_extract_fluid_block": "Purple Haze Oil",
@@ -348,6 +350,7 @@
   "block.smokeleafindustries.jelly_rancher_extract_fluid_block": "Jelly Rancher Oil",
   "block.smokeleafindustries.strawberry_shortcake_extract_fluid_block": "Strawberry Shortcake Oil",
   "block.smokeleafindustries.pink_kush_extract_fluid_block": "Pink Kush Oil",
+  "block.smokeleafindustries.unidentified_mixture_fluid_block": "Unidentified Mixture Oil",
   "creativetab.smokeleafindustries.smokeleaf_herb_tab": "Smokeleaf Industries",
   "creativetab.smokeleafindustries.smokeleaf_items_tab": "Smokeleaf Industries",
   "entity.minecraft.villager.smokeleafindustries.dealer": "Dealer",
@@ -434,6 +437,7 @@
   "gui.tooltip.synthesizer.info": "The synthesizer requires empty dna strand + 3 ingredients and energy to operate, this machine will fill your DNA strand with different items and can then be processed further into an extract.",
   "gui.tooltip.sequencer.info": "The sequencer requires energy to operate, this machine will create a new strain extract from your provided valid dna strand + base extract.",
   "gui.tooltip.dryer.info": "The dryer requires energy to operate, this machine will dry your fresh tobacco leaves into dried tobacco leaves, and fresh buds into dried buds.",
+  "gui.tooltip.mixer.info": "The mixer requires energy to operate. Insert two different extract oils to create an Unidentified Mixture that combines both effects and a blended color.",
   "advancement.smokeleafindustries.root.title": "Welcome to Smokeleaf Industries",
   "advancement.smokeleafindustries.root.desc": "Enjoy your journey through the smokable plants industry.",
   "advancement.smokeleafindustries.cat_urine.title": "Ewww! Cat Pee!",
@@ -457,5 +461,6 @@
   "config.jade.plugin_smokeleafindustries.weed_crop_jade": "Weed Crop",
   "config.jade.plugin_smokeleafindustries.drying_rack": "Drying Rack",
   "config.jade.plugin_smokeleafindustries.reflector": "Reflector",
-  "item.smokeleafindustries.guide_book": "Smokeleaf Guide"
+  "item.smokeleafindustries.guide_book": "Smokeleaf Guide",
+  "block.smokeleafindustries.mixer": "Mixer"
 }

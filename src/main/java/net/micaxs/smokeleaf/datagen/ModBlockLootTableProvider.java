@@ -114,6 +114,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.SYNTHESIZER.get());
         dropSelf(ModBlocks.SEQUENCER.get());
         dropSelf(ModBlocks.DRYER.get());
+        dropSelf(ModBlocks.MIXER.get());
 
         dropSelf(ModBlocks.DRYING_RACK.get());
 

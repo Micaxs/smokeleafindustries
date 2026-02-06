@@ -1,0 +1,28 @@
+package net.micaxs.smokeleaf.item.custom;
+
+import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainUtil;
+import net.minecraft.world.item.ItemStack;
+
+/**
+ * Bud item for custom strains.
+ *
+ * This item uses STRAIN_DATA for THC/CBD. Callers should use the helpers
+ * here (or StrainUtil) instead of BaseBudItem.getThc/getCbd.
+ */
+public class UnidentifiedBudItem extends BaseBudItem {
+
+    public UnidentifiedBudItem(Properties properties, int dry, int dryingTime) {
+        super(properties, dry, dryingTime);
+    }
+
+    public static int getThc(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        return d != StrainData.EMPTY ? d.thc() : BaseBudItem.getThc(stack);
+    }
+
+    public static int getCbd(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        return d != StrainData.EMPTY ? d.cbd() : BaseBudItem.getCbd(stack);
+    }
+}

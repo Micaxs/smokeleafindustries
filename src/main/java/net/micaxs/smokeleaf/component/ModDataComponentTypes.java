@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.fluid.WeedFluidData;
+import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -61,6 +62,10 @@ public class ModDataComponentTypes {
     // Manual Grinder stored contents (immutable)
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ManualGrinderContents>> MANUAL_GRINDER_CONTENTS =
             register("manual_grinder_contents", b -> b.persistent(ManualGrinderContents.CODEC));
+
+    // Custom strain payload for player-created strains (items and mixture fluids)
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<StrainData>> STRAIN_DATA =
+            register("strain_data", b -> b.persistent(StrainData.CODEC));
 
     private static <T>DeferredHolder<DataComponentType<?>, DataComponentType<T>> register(String name, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
         return DATA_COMPONENT_TYPES.register(name, () -> builderOperator.apply(DataComponentType.builder()).build());

@@ -1,0 +1,8 @@
+{
+  "type": "smokeleafindustries:liquifier",
+  "ingredient": { "tag": "smokeleafindustries:weed_extracts" },
+  "output": {
+    "fluid": "smokeleafindustries:unidentified_mixture_fluid",
+    "amount": 100
+  }
+}

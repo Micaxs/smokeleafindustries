@@ -26,6 +26,9 @@ public class ModTags {
 
     public static final TagKey<Block> POT_SOILS = blockTag("pot_soils");
 
+    // NOTE: Tag JSON will be added later; for now we treat UNIDENTIFIED_SEEDS as a valid seed in GrowPot logic.
+    public static final TagKey<Item> UNIDENTIFIED_SEEDS = tag("unidentified_seeds");
+
     private static TagKey<Item> tag(String name) {
         return ItemTags.create(ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, name));
     }

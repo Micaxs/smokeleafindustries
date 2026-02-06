@@ -2,9 +2,9 @@
 package net.micaxs.smokeleaf.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import net.micaxs.smokeleaf.block.entity.GrinderBlockEntity;
 import net.micaxs.smokeleaf.block.entity.GrowPotBlockEntity;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
+import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.FertilizerItem;
 import net.micaxs.smokeleaf.item.custom.PlantAnalyzerItem;
 import net.micaxs.smokeleaf.screen.custom.MagnifyingGlassScreen;
@@ -99,7 +99,7 @@ public class GrowPotBlock extends BaseEntityBlock {
 
         boolean canPlantCrop = pot.hasSoil()
                 && !pot.hasCrop()
-                && stack.is(ModTags.WEED_SEEDS)
+                && (stack.is(ModTags.WEED_SEEDS) || stack.is(ModItems.UNIDENTIFIED_SEEDS.get()))
                 && GrowPotBlockEntity.resolveCropBySeed(stack.getItem()) != null;
 
         boolean canFertilize = pot.hasCrop() && holdingFertilizer && !pot.canHarvest();
@@ -152,6 +152,20 @@ public class GrowPotBlock extends BaseEntityBlock {
         }
 
         if (canPlantCrop) {
+            // Custom strains (GrowPot-only MVP): Unidentified seeds plant as a generic crop,
+            // but the pot stores the strain payload and uses it for drops.
+            if (stack.is(ModItems.UNIDENTIFIED_SEEDS.get())) {
+                BaseWeedCropBlock crop = GrowPotBlockEntity.resolveCropBySeed(ModItems.HEMP_SEEDS.get());
+                if (crop != null) {
+                    pot.setCustomStrain(stack);
+                    pot.initFromCrop(crop);
+                    pot.plantCrop(crop);
+                    if (!player.isCreative()) stack.shrink(1);
+                    pot.setChangedAndSync();
+                    return ItemInteractionResult.SUCCESS;
+                }
+            }
+
             BaseWeedCropBlock crop = GrowPotBlockEntity.resolveCropBySeed(stack.getItem());
             if (crop != null) {
                 pot.initFromCrop(crop);

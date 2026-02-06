@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "smokeleafindustries:item/unidentified_mixture_bucket_base",
+    "layer1": "smokeleafindustries:item/unidentified_mixture_bucket_mask"
+  }
+}

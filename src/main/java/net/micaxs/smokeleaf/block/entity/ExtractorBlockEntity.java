@@ -2,6 +2,7 @@ package net.micaxs.smokeleaf.block.entity;
 
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
+import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.recipe.ExtractorRecipe;
@@ -58,6 +59,12 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
                 return false;
             }
             if (stack.isEmpty() || level == null) {
+                return false;
+            }
+
+            // Custom strains can't be extracted.
+            if (stack.is(ModItems.UNIDENTIFIED_BUD.get()) || stack.is(ModItems.UNIDENTIFIED_WEED.get())
+                    || stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
                 return false;
             }
 
@@ -220,10 +227,16 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private boolean hasRecipe() {
+        ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
+        // Custom strains can't be extracted (double check for automation insertion).
+        if (input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())
+                || input.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+            return false;
+        }
+
         Optional<RecipeHolder<ExtractorRecipe>> recipe = getCurrentRecipe();
         if (recipe.isEmpty()) return false;
 
-        ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
         ItemStack recipeOut = recipe.get().value().output();
         ItemStack candidate = buildOutputWithWeedData(input, recipeOut);
 
@@ -255,6 +268,12 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
         if (recipe.isEmpty()) return;
 
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
+        // Custom strains can't be extracted (safety).
+        if (input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())
+                || input.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+            return;
+        }
+
         ItemStack recipeOut = recipe.get().value().output();
         ItemStack candidate = buildOutputWithWeedData(input, recipeOut);
 

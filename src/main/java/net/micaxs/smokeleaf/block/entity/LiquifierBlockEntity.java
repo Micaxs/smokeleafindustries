@@ -1,6 +1,7 @@
 package net.micaxs.smokeleaf.block.entity;
 
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.recipe.LiquifierRecipe;
@@ -33,6 +34,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -175,6 +178,25 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
                     int duration = weedItem.getDuration();
                     WeedFluidStackUtil.withWeedData(out, java.util.List.of(id), amplifier, duration);
                 }
+            }
+        }
+
+        // If we are producing the player-made mixture, carry per-item strain data into the fluid stack.
+        // (MixtureWeedFluidType uses STRAIN_DATA to tint dynamically.)
+        if (!in.isEmpty() && out.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+            // already set, keep
+        } else if (!in.isEmpty() && out.getFluid() == net.micaxs.smokeleaf.fluid.ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
+            if (in.has(ModDataComponentTypes.ACTIVE_INGREDIENT.get())) {
+                // Build a minimal strain payload from the extract item itself.
+                StrainUtil.setStrain(out, new StrainData(
+                        StrainUtil.DEFAULT_UNIDENTIFIED_COLOR,
+                        0, 0, 0, 0, 0,
+                        java.util.List.of(),
+                        0,
+                        0,
+                        false,
+                        ""
+                ));
             }
         }
 

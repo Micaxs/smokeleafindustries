@@ -458,6 +458,15 @@ public class ModItems {
 
 
 
+    // Custom Strains (Player-created)
+    public static final DeferredItem<Item> UNIDENTIFIED_SEEDS = ITEMS.register("unidentified_seeds",
+            () -> new UnidentifiedSeedsItem(new Item.Properties()));
+    public static final DeferredItem<Item> UNIDENTIFIED_BUD = ITEMS.register("unidentified_bud",
+            () -> new UnidentifiedBudItem(new Item.Properties(), 0, 1000));
+    public static final DeferredItem<Item> UNIDENTIFIED_WEED = ITEMS.register("unidentified_weed",
+            () -> new UnidentifiedStrainItem(new Item.Properties()));
+
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

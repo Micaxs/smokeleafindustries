@@ -1,4 +1,4 @@
-// 1.21.1	2025-10-08T23:02:54.280612101	Loot Tables
+// 1.21.1	2026-02-06T03:47:19.765386922	Loot Tables
 1a1752a23ecda96c84412e2d3fe438ea7ccc3f40 data/smokeleafindustries/loot_table/blocks/afghani_crop.json
 eb2a243913313761abca7f84491c10e989cd834b data/smokeleafindustries/loot_table/blocks/ak47_crop.json
 64e5118431f321901d2ee983566f53f6a6e692ce data/smokeleafindustries/loot_table/blocks/amnesia_haze_crop.json
@@ -49,6 +49,7 @@ f9c5713a7a68548c728a4de759c8b01d9c823265 data/smokeleafindustries/loot_table/blo
 37e4ad301e6eb1b06df6cd4036ed72d0f6b48f2a data/smokeleafindustries/loot_table/blocks/led_light.json
 ab3b59791aee933ca21901955553f937ef8fe495 data/smokeleafindustries/loot_table/blocks/lemon_haze_crop.json
 d45c7843dbcbda88ac65ec1be76ca32ad0400d61 data/smokeleafindustries/loot_table/blocks/liquifier.json
+5324b05ca06e101ac5a9fac928035ab19edaaf47 data/smokeleafindustries/loot_table/blocks/mixer.json
 0ed91dfcb51de06dca8f35e0c89d5b55205d5fb4 data/smokeleafindustries/loot_table/blocks/moonbow_crop.json
 475637580e8d6395693bf3d194b8e8790e451193 data/smokeleafindustries/loot_table/blocks/mutator.json
 7d72c9ad9bac78fe62915a091024c536f0a9a15e data/smokeleafindustries/loot_table/blocks/og_kush_crop.json

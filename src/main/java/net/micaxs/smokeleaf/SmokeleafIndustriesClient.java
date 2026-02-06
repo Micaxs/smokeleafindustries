@@ -15,6 +15,7 @@ import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.item.custom.DNAStrandItem;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
 import net.micaxs.smokeleaf.screen.custom.*;
+import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.GuiGraphics;
@@ -149,6 +150,8 @@ public class SmokeleafIndustriesClient {
             ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_STRAWBERRY_SHORTCAKE_EXTRACT_FLUID.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_PINK_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_PINK_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_UNIDENTIFIED_MIXTURE_FLUID.get(), RenderType.translucent());
 
 
 
@@ -199,6 +202,7 @@ public class SmokeleafIndustriesClient {
         event.registerFluidType((ModFluidTypes.JELLY_RANCHER_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.JELLY_RANCHER_EXTRACT_FLUID_TYPE.get());
         event.registerFluidType((ModFluidTypes.STRAWBERRY_SHORTCAKE_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.STRAWBERRY_SHORTCAKE_EXTRACT_FLUID_TYPE.get());
         event.registerFluidType((ModFluidTypes.PINK_KUSH_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.PINK_KUSH_EXTRACT_FLUID_TYPE.get());
+        event.registerFluidType((ModFluidTypes.UNIDENTIFIED_MIXTURE_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.UNIDENTIFIED_MIXTURE_FLUID_TYPE.get());
 
 
     }
@@ -213,6 +217,7 @@ public class SmokeleafIndustriesClient {
         event.register(ModMenuTypes.SYNTHESIZER_MENU.get(), SynthesizerScreen::new);
         event.register(ModMenuTypes.SEQUENCER_MENU.get(), SequencerScreen::new);
         event.register(ModMenuTypes.DRYER_MENU.get(), DryerScreen::new);
+        event.register(ModMenuTypes.MIXER_MENU.get(), MixerScreen::new);
     }
 
     @SubscribeEvent
@@ -294,6 +299,13 @@ public class SmokeleafIndustriesClient {
     @SubscribeEvent
     public static void onItemColor(RegisterColorHandlersEvent.Item event) {
         ItemColor itemColor = (stack, tintIndex) -> {
+            // Custom strain tint: apply STRAIN_DATA color to the mask layer.
+            // In the bucket model, layer0 is the base and layer1 is the mask.
+            if (tintIndex == 1 && stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+                StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+                if (d != null) return d.colorArgb();
+            }
+
             if (stack.getItem() instanceof BaseBudItem) {
                 Boolean isDry = stack.get(ModDataComponentTypes.DRY);
                 if (Boolean.TRUE.equals(isDry)) {
@@ -330,7 +342,15 @@ public class SmokeleafIndustriesClient {
                 ModItems.LAVA_CAKE_BUD.get(),
                 ModItems.JELLY_RANCHER_BUD.get(),
                 ModItems.STRAWBERRY_SHORTCAKE_BUD.get(),
-                ModItems.PINK_KUSH_BUD.get()
+                ModItems.PINK_KUSH_BUD.get(),
+
+                // Custom strains
+                ModItems.UNIDENTIFIED_SEEDS.get(),
+                ModItems.UNIDENTIFIED_BUD.get(),
+                ModItems.UNIDENTIFIED_WEED.get(),
+
+                // Mixture bucket (mask tinted by strain)
+                ModFluids.UNIDENTIFIED_MIXTURE_BUCKET.get()
         );
     }
 

@@ -1,7 +1,6 @@
 package net.micaxs.smokeleaf.event;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
-import net.micaxs.smokeleaf.block.custom.LiquifierBlock;
 import net.micaxs.smokeleaf.block.entity.*;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -45,6 +44,11 @@ public class ModBusEvents {
         // Dryer BlockEntity Capabilities
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.DRYER_BE.get(), DryerBlockEntity::getEnergyStorage);
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.DRYER_BE.get(), DryerBlockEntity::getItemHandler);
+
+        // Mixer BlockEntity Capabilities
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.MIXER_BE.get(), MixerBlockEntity::getEnergyStorage);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MIXER_BE.get(), MixerBlockEntity::getFluidHandler);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MIXER_BE.get(), MixerBlockEntity::getItemHandler);
 
     }
 

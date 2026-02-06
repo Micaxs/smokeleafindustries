@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=east,powered=false": {
+      "model": "smokeleafindustries:block/mixer",
+      "y": 270
+    },
+    "facing=east,powered=true": {
+      "model": "smokeleafindustries:block/mixer_on",
+      "y": 270
+    },
+    "facing=north,powered=false": {
+      "model": "smokeleafindustries:block/mixer",
+      "y": 180
+    },
+    "facing=north,powered=true": {
+      "model": "smokeleafindustries:block/mixer_on",
+      "y": 180
+    },
+    "facing=south,powered=false": {
+      "model": "smokeleafindustries:block/mixer"
+    },
+    "facing=south,powered=true": {
+      "model": "smokeleafindustries:block/mixer_on"
+    },
+    "facing=west,powered=false": {
+      "model": "smokeleafindustries:block/mixer",
+      "y": 90
+    },
+    "facing=west,powered=true": {
+      "model": "smokeleafindustries:block/mixer_on",
+      "y": 90
+    }
+  }
+}
