@@ -299,8 +299,7 @@ public class SmokeleafIndustriesClient {
     @SubscribeEvent
     public static void onItemColor(RegisterColorHandlersEvent.Item event) {
         ItemColor itemColor = (stack, tintIndex) -> {
-            // Custom strain tint: apply STRAIN_DATA color to the mask layer.
-            // In the bucket model, layer0 is the base and layer1 is the mask.
+            // Custom strain tint: apply STRAIN_DATA color to tint layer 1.
             if (tintIndex == 1 && stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
                 StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
                 if (d != null) return d.colorArgb();

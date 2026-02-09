@@ -1,10 +1,8 @@
 package net.micaxs.smokeleaf.fluid;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
-import net.micaxs.smokeleaf.effect.ModEffects;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffects;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.SoundAction;
 import net.neoforged.neoforge.fluids.FluidType;

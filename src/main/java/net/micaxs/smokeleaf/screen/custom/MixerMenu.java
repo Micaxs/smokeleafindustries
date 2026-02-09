@@ -1,6 +1,7 @@
 package net.micaxs.smokeleaf.screen.custom;
 
 import net.micaxs.smokeleaf.block.entity.MixerBlockEntity;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
