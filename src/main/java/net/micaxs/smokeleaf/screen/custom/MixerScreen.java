@@ -63,7 +63,6 @@ public class MixerScreen extends AbstractContainerScreen<MixerMenu> {
         bRenderer.render(g, x + 29, y + 11, menu.blockEntity.getFluidB());
         outRenderer.render(g, x + 134, y + 11, menu.blockEntity.getFluidOut());
 
-        // TODO FIXME: progress arrow is misaligned
         if (menu.isCrafting()) {
             g.blit(GUI_TEXTURE, x + 76, y + 39, 0, 166, menu.getScaledProgress(), 7);
         }

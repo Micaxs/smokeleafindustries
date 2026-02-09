@@ -2,6 +2,7 @@ package net.micaxs.smokeleaf.block.entity;
 
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.fluid.ModFluids;
+import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.screen.custom.MixerMenu;
@@ -365,7 +366,7 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
 
         // Also carry effect payload for consumption.
         if (!mixed.effects().isEmpty()) {
-            net.micaxs.smokeleaf.fluid.WeedFluidStackUtil.withWeedData(out, mixed.effects(), mixed.amplifier(), mixed.durationTicks());
+            WeedFluidStackUtil.withWeedData(out, mixed.effects(), mixed.amplifier(), mixed.durationTicks());
         }
 
         TANK_OUT.fill(out, IFluidHandler.FluidAction.EXECUTE);

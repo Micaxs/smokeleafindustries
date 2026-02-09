@@ -101,7 +101,11 @@ public class FluidTankRenderer {
 
     private int getColorTint(FluidStack ingredient) {
         Fluid fluid = ingredient.getFluid();
-        IClientFluidTypeExtensions renderProperties = IClientFluidTypeExtensions.of(fluid);
+
+        // Use the FluidType-based properties when possible (some fluids compute tint from the FluidStack).
+        // NeoForge exposes this via IClientFluidTypeExtensions.
+        FluidType type = fluid.getFluidType();
+        IClientFluidTypeExtensions renderProperties = IClientFluidTypeExtensions.of(type);
         return renderProperties.getTintColor(ingredient);
     }
 

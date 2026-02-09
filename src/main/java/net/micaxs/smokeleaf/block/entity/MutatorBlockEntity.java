@@ -8,6 +8,7 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
+import net.minecraft.nbt.NbtOps;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -56,6 +57,12 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
     protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = 82;
+
+    /**
+     * Strain payload for the mixture currently in the tank.
+     * We persist this separately because FluidTank serialization may drop custom FluidStack components.
+     */
+    private StrainData mixtureStrain = StrainData.EMPTY;
 
 
 
@@ -129,7 +136,33 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public FluidStack getFluid() {
-        return FLUID_TANK.getFluid();
+        // What the GUI should render.
+        FluidStack tank = FLUID_TANK.getFluid();
+
+        // If the tank contains the player-made mixture, ensure the rendered stack carries strain data.
+        if (!tank.isEmpty() && tank.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
+            StrainData strain = StrainUtil.getStrain(tank);
+            if (strain == StrainData.EMPTY && this.mixtureStrain != StrainData.EMPTY) {
+                FluidStack copy = tank.copy();
+                copy.set(ModDataComponentTypes.STRAIN_DATA.get(), this.mixtureStrain);
+                return copy;
+            }
+        }
+
+        // Legacy fallback: if tank is missing STRAIN_DATA, try the currently inserted bucket.
+        if (!tank.isEmpty()
+                && tank.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()
+                && !tank.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+            ItemStack bucketStack = itemHandler.getStackInSlot(BUCKET_SLOT);
+            FluidStack fromBucket = FluidUtil.getFluidContained(bucketStack).orElse(FluidStack.EMPTY);
+            if (!fromBucket.isEmpty() && fromBucket.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+                FluidStack copy = tank.copy();
+                copy.set(ModDataComponentTypes.STRAIN_DATA.get(), fromBucket.get(ModDataComponentTypes.STRAIN_DATA.get()));
+                return copy;
+            }
+        }
+
+        return tank;
     }
     public IFluidHandler getTank(@Nullable Direction direction) {
         return FLUID_TANK;
@@ -244,7 +277,8 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         if (output.is(ModItems.UNIDENTIFIED_SEEDS.get())) {
             FluidStack mix = FLUID_TANK.getFluid();
             if (!mix.isEmpty() && mix.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
-                StrainData base = StrainUtil.getStrain(mix);
+                // Prefer persisted mixtureStrain (FluidStack components may be lost in tank serialization).
+                StrainData base = this.mixtureStrain != StrainData.EMPTY ? this.mixtureStrain : StrainUtil.getStrain(mix);
                 int color = base != StrainData.EMPTY ? base.colorArgb() : IClientFluidTypeExtensions.of(mix.getFluid()).getTintColor(mix);
 
                 // Randomize stats (MVP): THC/CBD 0-30, N/P/K 0-14
@@ -277,11 +311,15 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         // Drain fluid
         FLUID_TANK.drain(rec.getFluid().getAmount(), IFluidHandler.FluidAction.EXECUTE);
 
+        // If we drained the mixture, clear persisted strain once tank empties.
+        if (FLUID_TANK.isEmpty()) {
+            mixtureStrain = StrainData.EMPTY;
+        }
+
         // Insert output
         ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
         int newCount = existing.getCount() + output.getCount();
         ItemStack newStack = new ItemStack(output.getItem(), newCount);
-        // Preserve strain data when stacking (only safe if same strain payload; MVP: keep latest)
         if (output.has(ModDataComponentTypes.STRAIN_DATA.get())) {
             newStack.set(ModDataComponentTypes.STRAIN_DATA.get(), output.get(ModDataComponentTypes.STRAIN_DATA.get()));
         }
@@ -369,8 +407,57 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         }
 
         int filledAmount = FLUID_TANK.fill(fluidInBucket, IFluidHandler.FluidAction.SIMULATE);
-        if (filledAmount > 0) {
-            FLUID_TANK.fill(fluidInBucket, IFluidHandler.FluidAction.EXECUTE);
+        if (filledAmount <= 0) {
+            return;
+        }
+
+        // Special handling for the player-made mixture: persist the strain separately + keep tank in sync.
+        if (fluidInBucket.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
+            // The mixture bucket stores strain on the ItemStack itself. The FluidStack returned by FluidUtil
+            // may not carry components, so read from the bucket item first.
+            StrainData inStrain = StrainUtil.getStrain(bucketStack);
+            if (inStrain == StrainData.EMPTY) {
+                inStrain = StrainUtil.getStrain(fluidInBucket);
+            }
+            if (inStrain != StrainData.EMPTY) {
+                this.mixtureStrain = inStrain;
+            }
+
+            FluidStack inTank = FLUID_TANK.getFluid();
+            if (inTank.isEmpty()) {
+                FluidStack toSet = fluidInBucket.copyWithAmount(filledAmount);
+                if (this.mixtureStrain != StrainData.EMPTY) {
+                    toSet.set(ModDataComponentTypes.STRAIN_DATA.get(), this.mixtureStrain);
+                }
+                FLUID_TANK.setFluid(toSet);
+            } else if (inTank.getFluid() == fluidInBucket.getFluid()) {
+                FluidStack merged = inTank.copy();
+                int newAmount = Math.min(FLUID_TANK.getCapacity(), inTank.getAmount() + filledAmount);
+                merged.setAmount(newAmount);
+                if (this.mixtureStrain != StrainData.EMPTY) {
+                    merged.set(ModDataComponentTypes.STRAIN_DATA.get(), this.mixtureStrain);
+                }
+                FLUID_TANK.setFluid(merged);
+            } else {
+                return;
+            }
+
+            // Consume the bucket as normal.
+            ItemStack emptyBucket = new ItemStack(bucketStack.getItem().getCraftingRemainingItem());
+            itemHandler.setStackInSlot(BUCKET_SLOT, emptyBucket);
+
+            // Force-save/sync strain immediately (it's not part of the tank NBT in all NeoForge paths).
+            setChanged();
+            if (this.level != null && !this.level.isClientSide()) {
+                this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
+            return;
+        }
+
+        // Default path for all other fluids.
+        FluidStack toInsert = fluidInBucket.copyWithAmount(filledAmount);
+        int actuallyFilled = FLUID_TANK.fill(toInsert, IFluidHandler.FluidAction.EXECUTE);
+        if (actuallyFilled > 0) {
             ItemStack emptyBucket = new ItemStack(bucketStack.getItem().getCraftingRemainingItem());
             itemHandler.setStackInSlot(BUCKET_SLOT, emptyBucket);
         }
@@ -407,7 +494,16 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         tag.putInt("mutator.progress", progress);
         tag.putInt("mutator.maxProgress", maxProgress);
         tag.putInt("mutator.energy", ENERGY_STORAGE.getEnergyStored());
-        tag = FLUID_TANK.writeToNBT(registries, tag);
+
+        tag.put("mutator.tank", FLUID_TANK.writeToNBT(registries, new CompoundTag()));
+
+        // Persist mixture strain separately (FluidTank may drop custom FluidStack components).
+        if (mixtureStrain != StrainData.EMPTY) {
+            StrainData.CODEC.encodeStart(NbtOps.INSTANCE, mixtureStrain)
+                    .result()
+                    .ifPresent(t -> tag.put("mutator.mixture_strain", t));
+        }
+
         super.saveAdditional(tag, registries);
     }
 
@@ -418,7 +514,17 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         ENERGY_STORAGE.setEnergy(tag.getInt("mutator.energy"));
         progress = tag.getInt("mutator.progress");
         maxProgress = tag.getInt("mutator.maxProgress");
-        FLUID_TANK.readFromNBT(registries, tag);
+
+        if (tag.contains("mutator.tank")) {
+            FLUID_TANK.readFromNBT(registries, tag.getCompound("mutator.tank"));
+        }
+
+        mixtureStrain = StrainData.EMPTY;
+        if (tag.contains("mutator.mixture_strain")) {
+            StrainData.CODEC.parse(NbtOps.INSTANCE, tag.get("mutator.mixture_strain"))
+                    .result()
+                    .ifPresent(d -> mixtureStrain = d);
+        }
     }
 
 

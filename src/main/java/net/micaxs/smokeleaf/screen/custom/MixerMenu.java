@@ -1,7 +1,6 @@
 package net.micaxs.smokeleaf.screen.custom;
 
 import net.micaxs.smokeleaf.block.entity.MixerBlockEntity;
-import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
@@ -236,7 +235,7 @@ public class MixerMenu extends AbstractContainerMenu {
         ItemStack stack = new ItemStack(bucketItem);
 
         StrainData strain = StrainUtil.getStrain(drained);
-        if (strain != net.micaxs.smokeleaf.strain.StrainData.EMPTY) {
+        if (strain != StrainData.EMPTY) {
             StrainUtil.setStrain(stack, strain);
         }
 
