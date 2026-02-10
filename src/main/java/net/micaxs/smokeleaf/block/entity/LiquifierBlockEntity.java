@@ -181,14 +181,13 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
 
-        // If we are producing the player-made mixture, carry per-item strain data into the fluid stack.
+        // If we are producing the player-made mixture, ensure it carries strain data + effects + stable stat rolls.
         // (MixtureWeedFluidType uses STRAIN_DATA to tint dynamically.)
-        if (!in.isEmpty() && out.has(ModDataComponentTypes.STRAIN_DATA.get())) {
-            // already set, keep
-        } else if (!in.isEmpty() && out.getFluid() == net.micaxs.smokeleaf.fluid.ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
-            if (in.has(ModDataComponentTypes.ACTIVE_INGREDIENT.get())) {
-                // Build a minimal strain payload from the extract item itself.
-                StrainUtil.setStrain(out, new StrainData(
+        if (!in.isEmpty() && out.getFluid() == net.micaxs.smokeleaf.fluid.ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
+            // Ensure STRAIN_DATA exists.
+            StrainData base = out.has(ModDataComponentTypes.STRAIN_DATA.get()) ? StrainUtil.getStrain(out) : null;
+            if (base == null || base == StrainData.EMPTY) {
+                base = new StrainData(
                         StrainUtil.DEFAULT_UNIDENTIFIED_COLOR,
                         0, 0, 0, 0, 0,
                         java.util.List.of(),
@@ -196,8 +195,30 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
                         0,
                         false,
                         ""
-                ));
+                );
             }
+
+            // If we inherited effects, also mirror them into STRAIN_DATA so other consumers can just read strain.
+            var weed = WeedFluidStackUtil.getWeedData(out);
+            if (weed != null && !weed.effects().isEmpty() && base.effects().isEmpty()) {
+                base = new StrainData(
+                        base.colorArgb(),
+                        base.thc(),
+                        base.cbd(),
+                        base.nitrogen(),
+                        base.phosphorus(),
+                        base.potassium(),
+                        weed.effects(),
+                        weed.amplifier(),
+                        weed.durationTicks(),
+                        base.identified(),
+                        base.displayName()
+                );
+            }
+
+            // Roll THC/CBD + N/P/K once, only if unset.
+            base = StrainUtil.finalizeMixtureStats(base, level != null ? level.random : null);
+            StrainUtil.setStrain(out, base);
         }
 
         FLUID_TANK.fill(out, IFluidHandler.FluidAction.EXECUTE);

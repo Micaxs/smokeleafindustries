@@ -13,6 +13,7 @@ import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.item.custom.DNAStrandItem;
+import net.micaxs.smokeleaf.item.custom.UnidentifiedSeedsItem;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
 import net.micaxs.smokeleaf.screen.custom.*;
 import net.micaxs.smokeleaf.strain.StrainData;
@@ -303,6 +304,20 @@ public class SmokeleafIndustriesClient {
             if (tintIndex == 1 && stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
                 StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
                 if (d != null) return d.colorArgb();
+            }
+
+            // Custom StrainData Color onto the Unidentified Seeds
+            if (stack.getItem() instanceof UnidentifiedSeedsItem) {
+                if (tintIndex == 0) {
+                    // Base of seeds (pick from array)
+                    String[] baseColors = new String[]{"687d44"};
+                    int color = Integer.parseInt(baseColors[stack.getDamageValue() % baseColors.length], 16) | 0xFF000000;
+                    return color;
+                } else if (tintIndex == 1) {
+                    // Tint by the StrainData color if present, to match the bud/weed it grows into.
+                    StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+                    if (d != null) return d.colorArgb();
+                }
             }
 
             if (stack.getItem() instanceof BaseBudItem) {

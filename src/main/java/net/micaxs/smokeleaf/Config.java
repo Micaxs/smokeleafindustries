@@ -21,6 +21,21 @@ public class Config {
                             Config::validatePlantNutrientsElement
                     );
 
+    /**
+     * Per-extract-fluid stat overrides.
+     *
+     * Format (list entries):
+     *   { "white_widow_extract_fluid": { n=6, p=1, k=9, thc=0, cbd=0 } }
+     * Keys can be either full resource locations ("smokeleafindustries:white_widow_extract_fluid")
+     * or just the path ("white_widow_extract_fluid").
+     */
+    public static final ModConfigSpec.ConfigValue<List<? extends UnmodifiableConfig>> EXTRACT_FLUID_STATS =
+            BUILDER.defineListAllowEmpty(
+                    "extract_fluid_stats",
+                    defaultExtractFluidStats(),
+                    Config::validateExtractFluidStatsElement
+            );
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     // Cache resolved targets for quick lookup; keys include both "namespace:path" and plain "path".
@@ -160,8 +175,78 @@ public class Config {
         return Optional.ofNullable(t);
     }
 
+    private static List<UnmodifiableConfig> defaultExtractFluidStats() {
+        List<UnmodifiableConfig> list = new ArrayList<>();
+        // Defaults mirror plant nutrient targets; users can override per extract fluid.
+        list.add(makeExtract("white_widow_extract_fluid", 11, 8, 10, 0, 0));
+        list.add(makeExtract("bubble_kush_extract_fluid", 12, 10, 18, 0, 0));
+        list.add(makeExtract("amnesia_haze_extract_fluid", 10, 13, 9, 0, 0));
+        list.add(makeExtract("blue_cookies_extract_fluid", 10, 13, 9, 0, 0));
+        list.add(makeExtract("ghost_train_extract_fluid", 13, 12, 10, 0, 0));
+
+        list.add(makeExtract("sour_diesel_extract_fluid", 11, 13, 10, 0, 0));
+        list.add(makeExtract("lemon_haze_extract_fluid", 9, 12, 15, 0, 0));
+        list.add(makeExtract("jack_herer_extract_fluid", 10, 15, 10, 0, 0));
+        list.add(makeExtract("grape_ape_extract_fluid", 15, 13, 15, 0, 0));
+        list.add(makeExtract("cotton_candy_extract_fluid", 10, 13, 9, 0, 0));
+        list.add(makeExtract("afghani_extract_fluid", 11, 10, 19, 0, 0));
+        list.add(makeExtract("lava_cake_extract_fluid", 14, 12, 11, 0, 0));
+        list.add(makeExtract("jelly_rancher_extract_fluid", 11, 14, 9, 0, 0));
+        list.add(makeExtract("strawberry_shortcake_extract_fluid", 14, 11, 15, 0, 0));
+        list.add(makeExtract("purple_haze_extract_fluid", 11, 13, 7, 0, 0));
+
+        list.add(makeExtract("blue_ice_extract_fluid", 14, 9, 14, 0, 0));
+        list.add(makeExtract("bubblegum_extract_fluid", 14, 14, 12, 0, 0));
+        list.add(makeExtract("gary_peyton_extract_fluid", 14, 15, 9, 0, 0));
+        list.add(makeExtract("ak47_extract_fluid", 17, 8, 11, 0, 0));
+        list.add(makeExtract("banana_kush_extract_fluid", 15, 13, 15, 0, 0));
+        list.add(makeExtract("pink_kush_extract_fluid", 17, 9, 12, 0, 0));
+
+        list.add(makeExtract("og_kush_extract_fluid", 12, 13, 15, 0, 0));
+        list.add(makeExtract("carbon_fiber_extract_fluid", 14, 13, 20, 0, 0));
+        list.add(makeExtract("birthday_cake_extract_fluid", 11, 13, 16, 0, 0));
+        list.add(makeExtract("moonbow_extract_fluid", 15, 2, 22, 0, 0));
+
+        return List.copyOf(list);
+    }
+
+    private static UnmodifiableConfig makeExtract(String fluidName, int n, int p, int k, int thc, int cbd) {
+        var inner = com.electronwill.nightconfig.core.Config.inMemory();
+        inner.set("n", n);
+        inner.set("p", p);
+        inner.set("k", k);
+        inner.set("thc", thc);
+        inner.set("cbd", cbd);
+        var outer = com.electronwill.nightconfig.core.Config.inMemory();
+        outer.set(fluidName, inner);
+        return outer.unmodifiable();
+    }
+
+    private static boolean validateExtractFluidStatsElement(Object o) {
+        if (!(o instanceof UnmodifiableConfig outer)) return false;
+        Map<String, Object> outerMap = outer.valueMap();
+        if (outerMap.isEmpty() || outerMap.size() != 1) return false;
+
+        var entry = outerMap.entrySet().iterator().next();
+        Object innerObj = entry.getValue();
+        if (!(innerObj instanceof UnmodifiableConfig inner)) return false;
+
+        Object n = inner.get("n");
+        Object p = inner.get("p");
+        Object k = inner.get("k");
+        Object thc = inner.get("thc");
+        Object cbd = inner.get("cbd");
+
+        // thc/cbd are optional but if present must be int-like
+        boolean okNpk = isIntLike(n) && isIntLike(p) && isIntLike(k);
+        boolean okThc = (thc == null) || isIntLike(thc);
+        boolean okCbd = (cbd == null) || isIntLike(cbd);
+        return okNpk && okThc && okCbd;
+    }
+
     @SubscribeEvent
     static void onConfigLoadOrReload(final ModConfigEvent event) {
         rebuildPlantNutrientsCache();
+        // No explicit cache needed for EXTRACT_FLUID_STATS; it is read lazily by ExtractFluidStats.
     }
 }

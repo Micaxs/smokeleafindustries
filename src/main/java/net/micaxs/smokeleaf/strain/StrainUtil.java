@@ -4,6 +4,7 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -77,15 +78,66 @@ public final class StrainUtil {
         if (wa != null) { amp = Math.max(amp, wa.amplifier()); dur = Math.max(dur, wa.durationTicks()); }
         if (wb != null) { amp = Math.max(amp, wb.amplifier()); dur = Math.max(dur, wb.durationTicks()); }
 
+        // N/P/K (and optionally THC/CBD) derived from input extract stats.
+        // This makes mixture stats deterministic for a given pair of extract fluids.
+        var sa = (a != null) ? ExtractFluidStats.get(a.getFluid()) : ExtractFluidStats.Stats.EMPTY;
+        var sb = (b != null) ? ExtractFluidStats.get(b.getFluid()) : ExtractFluidStats.Stats.EMPTY;
+        int total = Math.max(1, amtA + amtB);
+
+        int n = (sa.n() * amtA + sb.n() * amtB) / total;
+        int p = (sa.p() * amtA + sb.p() * amtB) / total;
+        int k = (sa.k() * amtA + sb.k() * amtB) / total;
+
+        int thc = (sa.thc() * amtA + sb.thc() * amtB) / total;
+        int cbd = (sa.cbd() * amtA + sb.cbd() * amtB) / total;
+
         return new StrainData(
                 mixedColor,
-                0, 0,
-                0, 0, 0,
+                thc,
+                cbd,
+                n,
+                p,
+                k,
                 effList,
                 amp,
                 dur,
                 false,
                 ""
+        );
+    }
+
+    /**
+     * Ensures the mixture has stable stat rolls.
+     *
+     * If THC/CBD or N/P/K are unset (all zeros), we roll them once and return a new StrainData.
+     * If any of those values are already present, we keep the data as-is.
+     */
+    public static StrainData finalizeMixtureStats(StrainData base, RandomSource random) {
+        if (base == null || base == StrainData.EMPTY) return StrainData.EMPTY;
+        if (random == null) return base;
+
+        boolean needsCannabinoids = base.thc() == 0 && base.cbd() == 0;
+        boolean needsNpk = base.nitrogen() == 0 && base.phosphorus() == 0 && base.potassium() == 0;
+        if (!needsCannabinoids && !needsNpk) return base;
+
+        int thc = needsCannabinoids ? random.nextInt(31) : base.thc();
+        int cbd = needsCannabinoids ? random.nextInt(31) : base.cbd();
+        int n = needsNpk ? random.nextInt(15) : base.nitrogen();
+        int p = needsNpk ? random.nextInt(15) : base.phosphorus();
+        int k = needsNpk ? random.nextInt(15) : base.potassium();
+
+        return new StrainData(
+                base.colorArgb(),
+                thc,
+                cbd,
+                n,
+                p,
+                k,
+                base.effects(),
+                base.amplifier(),
+                base.durationTicks(),
+                base.identified(),
+                base.displayName()
         );
     }
 

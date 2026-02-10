@@ -346,6 +346,19 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         // Output space
         FluidStack out = TANK_OUT.getFluid();
         if (!out.isEmpty() && out.getFluid() != ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) return false;
+
+        // If output already has mixture in it, only allow stacking if the resulting strain matches.
+        if (!out.isEmpty() && out.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
+            int aTint = IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
+            int bTint = IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
+            StrainData next = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
+
+            StrainData existing = StrainUtil.getStrain(out);
+            // If the tank lost components somehow, treat it as non-stackable to avoid overwriting.
+            if (existing == StrainData.EMPTY) return false;
+            if (!existing.equals(next)) return false;
+        }
+
         return TANK_OUT.getFluidAmount() + 500 <= TANK_OUT.getCapacity();
     }
 

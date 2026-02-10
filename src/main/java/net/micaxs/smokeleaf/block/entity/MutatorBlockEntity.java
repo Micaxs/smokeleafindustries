@@ -273,35 +273,29 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         MutatorRecipe rec = opt.get().value();
         ItemStack output = rec.output().copy();
 
-        // If this is the custom strain recipe, build strain data from mixture fluid.
+        // If this is the custom strain recipe, copy strain data from the mixture fluid.
         if (output.is(ModItems.UNIDENTIFIED_SEEDS.get())) {
             FluidStack mix = FLUID_TANK.getFluid();
             if (!mix.isEmpty() && mix.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
                 // Prefer persisted mixtureStrain (FluidStack components may be lost in tank serialization).
                 StrainData base = this.mixtureStrain != StrainData.EMPTY ? this.mixtureStrain : StrainUtil.getStrain(mix);
-                int color = base != StrainData.EMPTY ? base.colorArgb() : IClientFluidTypeExtensions.of(mix.getFluid()).getTintColor(mix);
 
-                // Randomize stats (MVP): THC/CBD 0-30, N/P/K 0-14
-                int thc = this.level != null ? this.level.random.nextInt(31) : 10;
-                int cbd = this.level != null ? this.level.random.nextInt(31) : 10;
-                int n = this.level != null ? this.level.random.nextInt(15) : 5;
-                int p = this.level != null ? this.level.random.nextInt(15) : 5;
-                int k = this.level != null ? this.level.random.nextInt(15) : 5;
+                // Legacy support: older mixtures may have only color/effects. If stats are missing, roll ONCE and persist.
+                if (this.level != null) {
+                    StrainData finalized = StrainUtil.finalizeMixtureStats(base, this.level.random);
+                    if (finalized != base && finalized != StrainData.EMPTY) {
+                        base = finalized;
+                        this.mixtureStrain = finalized;
+                    }
+                }
 
-                StrainData outData = new StrainData(
-                        color,
-                        thc,
-                        cbd,
-                        n,
-                        p,
-                        k,
-                        base.effects(),
-                        base.amplifier(),
-                        base.durationTicks(),
-                        false,
-                        ""
-                );
-                output.set(ModDataComponentTypes.STRAIN_DATA.get(), outData);
+                // If still no strain, at least use fluid tint.
+                if (base == StrainData.EMPTY) {
+                    int color = IClientFluidTypeExtensions.of(mix.getFluid()).getTintColor(mix);
+                    base = new StrainData(color, 0, 0, 0, 0, 0, java.util.List.of(), 0, 0, false, "");
+                }
+
+                output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);
             }
         }
 
@@ -406,11 +400,6 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
 
-        int filledAmount = FLUID_TANK.fill(fluidInBucket, IFluidHandler.FluidAction.SIMULATE);
-        if (filledAmount <= 0) {
-            return;
-        }
-
         // Special handling for the player-made mixture: persist the strain separately + keep tank in sync.
         if (fluidInBucket.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
             // The mixture bucket stores strain on the ItemStack itself. The FluidStack returned by FluidUtil
@@ -419,27 +408,34 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
             if (inStrain == StrainData.EMPTY) {
                 inStrain = StrainUtil.getStrain(fluidInBucket);
             }
-            if (inStrain != StrainData.EMPTY) {
+
+            // If the tank already contains mixture strain, only allow stacking if it matches.
+            if (this.mixtureStrain != StrainData.EMPTY && inStrain != StrainData.EMPTY && !this.mixtureStrain.equals(inStrain)) {
+                return; // different mixture, don't merge
+            }
+
+            // Adopt strain if we don't have one yet.
+            if (this.mixtureStrain == StrainData.EMPTY && inStrain != StrainData.EMPTY) {
                 this.mixtureStrain = inStrain;
             }
 
-            FluidStack inTank = FLUID_TANK.getFluid();
-            if (inTank.isEmpty()) {
-                FluidStack toSet = fluidInBucket.copyWithAmount(filledAmount);
-                if (this.mixtureStrain != StrainData.EMPTY) {
-                    toSet.set(ModDataComponentTypes.STRAIN_DATA.get(), this.mixtureStrain);
-                }
-                FLUID_TANK.setFluid(toSet);
-            } else if (inTank.getFluid() == fluidInBucket.getFluid()) {
-                FluidStack merged = inTank.copy();
-                int newAmount = Math.min(FLUID_TANK.getCapacity(), inTank.getAmount() + filledAmount);
-                merged.setAmount(newAmount);
-                if (this.mixtureStrain != StrainData.EMPTY) {
-                    merged.set(ModDataComponentTypes.STRAIN_DATA.get(), this.mixtureStrain);
-                }
-                FLUID_TANK.setFluid(merged);
-            } else {
+            // Build the stack we try to insert, ensuring STRAIN_DATA is present so NeoForge treats it as the same stack.
+            FluidStack toInsert = fluidInBucket.copy();
+            if (this.mixtureStrain != StrainData.EMPTY) {
+                toInsert.set(ModDataComponentTypes.STRAIN_DATA.get(), this.mixtureStrain);
+            }
+
+            int actuallyFilled = FLUID_TANK.fill(toInsert, IFluidHandler.FluidAction.EXECUTE);
+            if (actuallyFilled <= 0) {
                 return;
+            }
+
+            // Ensure the tank fluid stays tagged with the strain data (some paths may drop components).
+            FluidStack inTankNow = FLUID_TANK.getFluid();
+            if (!inTankNow.isEmpty() && this.mixtureStrain != StrainData.EMPTY && !inTankNow.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+                FluidStack copy = inTankNow.copy();
+                copy.set(ModDataComponentTypes.STRAIN_DATA.get(), this.mixtureStrain);
+                FLUID_TANK.setFluid(copy);
             }
 
             // Consume the bucket as normal.
@@ -451,6 +447,11 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
             if (this.level != null && !this.level.isClientSide()) {
                 this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
+            return;
+        }
+
+        int filledAmount = FLUID_TANK.fill(fluidInBucket, IFluidHandler.FluidAction.SIMULATE);
+        if (filledAmount <= 0) {
             return;
         }
 
