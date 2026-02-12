@@ -105,7 +105,9 @@ public class MagnifyingGlassScreen extends Screen {
         BlockPos bePos = this.pos;
         if (level != null) {
             BlockState stateAtPos = level.getBlockState(this.pos);
-            if (stateAtPos.getBlock() instanceof BaseWeedCropBlock && stateAtPos.getValue(BaseWeedCropBlock.TOP)) {
+            if ((stateAtPos.getBlock() instanceof BaseWeedCropBlock && stateAtPos.getValue(BaseWeedCropBlock.TOP))
+                    || (stateAtPos.getBlock() instanceof net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock
+                        && stateAtPos.getValue(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP))) {
                 bePos = this.pos.below();
             }
         }

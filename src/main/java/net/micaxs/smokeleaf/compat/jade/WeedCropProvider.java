@@ -3,7 +3,10 @@ package net.micaxs.smokeleaf.compat.jade;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
+import net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock;
 import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
+import net.micaxs.smokeleaf.block.entity.UnidentifiedWeedCropBlockEntity;
+import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +19,7 @@ import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
+import snownee.jade.api.theme.IThemeHelper;
 
 public enum WeedCropProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
@@ -34,7 +38,8 @@ public enum WeedCropProvider implements IBlockComponentProvider, IServerDataProv
         BlockPos pos = accessor.getPosition();
 
         // Always grab the bottom block as that's the Entity.
-        if (state.hasProperty(BaseWeedCropBlock.TOP) && state.getValue(BaseWeedCropBlock.TOP)) {
+        if ((state.hasProperty(BaseWeedCropBlock.TOP) && state.getValue(BaseWeedCropBlock.TOP))
+                || (state.hasProperty(UnidentifiedWeedCropBlock.TOP) && state.getValue(UnidentifiedWeedCropBlock.TOP))) {
             pos = pos.below();
         }
 
@@ -51,12 +56,32 @@ public enum WeedCropProvider implements IBlockComponentProvider, IServerDataProv
             tag.putInt("tp", target.p);
             tag.putInt("tk", target.k);
         }
+
+        // Unidentified strain name support (server -> client)
+        if (be instanceof UnidentifiedWeedCropBlockEntity uCrop) {
+            StrainData d = uCrop.getStrain();
+            if (d != null && d != StrainData.EMPTY) {
+                tag.putString("strain_name", d.displayName() == null ? "" : d.displayName());
+            }
+        }
     }
 
     // Client tooltip
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         CompoundTag data = accessor.getServerData();
+
+        BlockState state = accessor.getBlockState();
+        if (state.getBlock() instanceof UnidentifiedWeedCropBlock) {
+            String trimmed = (data.contains("strain_name") ? data.getString("strain_name") : "").trim();
+            Component title = trimmed.isEmpty()
+                    ? Component.literal("Unidentified Plant")
+                    : Component.literal(trimmed + " Plant");
+
+            // Add as a styled title-like line so it visually replaces the header.
+            tooltip.add(IThemeHelper.get().title(title));
+        }
+
         if (!hasAll(data, "n", "p", "k", "tn", "tp", "tk")) return;
 
         int n = data.getInt("n");

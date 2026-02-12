@@ -1,0 +1,70 @@
+{
+  "variants": {
+    "age=0,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_0_two"
+    },
+    "age=0,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_0_top_two"
+    },
+    "age=1,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_1_two"
+    },
+    "age=1,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_1_top_two"
+    },
+    "age=10,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_6_full_two"
+    },
+    "age=10,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_10_top_two"
+    },
+    "age=2,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_2_two"
+    },
+    "age=2,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_2_top_two"
+    },
+    "age=3,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_3_two"
+    },
+    "age=3,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_3_top_two"
+    },
+    "age=4,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_4_two"
+    },
+    "age=4,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_4_top_two"
+    },
+    "age=5,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_5_two"
+    },
+    "age=5,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_5_top_two"
+    },
+    "age=6,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_6_two"
+    },
+    "age=6,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_6_top_two"
+    },
+    "age=7,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_6_two"
+    },
+    "age=7,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_7_top_two"
+    },
+    "age=8,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_6_two"
+    },
+    "age=8,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_8_top_two"
+    },
+    "age=9,top=false": {
+      "model": "smokeleafindustries:block/unidentified_stage_6_full_two"
+    },
+    "age=9,top=true": {
+      "model": "smokeleafindustries:block/unidentified_stage_9_top_two"
+    }
+  }
+}

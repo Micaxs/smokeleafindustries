@@ -2,6 +2,7 @@ package net.micaxs.smokeleaf.item.custom;
 
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.block.custom.GrowPotBlock;
+import net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock;
 import net.micaxs.smokeleaf.screen.custom.MagnifyingGlassScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -34,7 +35,9 @@ public class PlantAnalyzerItem extends Item {
         if (player == null) return InteractionResult.PASS;
 
         BlockState state = level.getBlockState(pos);
-        if (!(state.getBlock() instanceof BaseWeedCropBlock) && !(state.getBlock() instanceof GrowPotBlock)) {
+        if (!(state.getBlock() instanceof BaseWeedCropBlock)
+                && !(state.getBlock() instanceof UnidentifiedWeedCropBlock)
+                && !(state.getBlock() instanceof GrowPotBlock)) {
             return InteractionResult.PASS;
         }
 

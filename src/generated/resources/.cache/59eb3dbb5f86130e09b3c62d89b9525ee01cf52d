@@ -1,4 +1,4 @@
-// 1.21.1	2026-02-06T03:47:19.765386922	Loot Tables
+// 1.21.1	2026-02-10T07:39:56.778670191	Loot Tables
 1a1752a23ecda96c84412e2d3fe438ea7ccc3f40 data/smokeleafindustries/loot_table/blocks/afghani_crop.json
 eb2a243913313761abca7f84491c10e989cd834b data/smokeleafindustries/loot_table/blocks/ak47_crop.json
 64e5118431f321901d2ee983566f53f6a6e692ce data/smokeleafindustries/loot_table/blocks/amnesia_haze_crop.json
@@ -61,4 +61,5 @@ c84b2d7678692de4468382007c77f260b8849889 data/smokeleafindustries/loot_table/blo
 39a106740dc975d27035f162a792cd289d58a98b data/smokeleafindustries/loot_table/blocks/strawberry_shortcake_crop.json
 795fcab7e1fa046de6dc44b2fbd3dbf73f539c9c data/smokeleafindustries/loot_table/blocks/synthesizer.json
 ffb5f503e16a5f44ce65cea78125bd31792701c5 data/smokeleafindustries/loot_table/blocks/tobacco_crop.json
+c8233b6bda7dd447b43a9dc6996dfbaf4d4d4adf data/smokeleafindustries/loot_table/blocks/unidentified_weed_crop.json
 7cebdf0ed8c4e21815f73df17055c270a85e8d04 data/smokeleafindustries/loot_table/blocks/white_widow_crop.json

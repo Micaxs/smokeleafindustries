@@ -2,6 +2,7 @@ package net.micaxs.smokeleaf;
 
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
+import net.micaxs.smokeleaf.block.entity.UnidentifiedWeedCropBlockEntity;
 import net.micaxs.smokeleaf.block.entity.client.DryingRackRenderer;
 import net.micaxs.smokeleaf.block.entity.render.GrowPotRenderer;
 import net.micaxs.smokeleaf.client.brainmelt.BrainMeltInputHandler;
@@ -18,6 +19,7 @@ import net.micaxs.smokeleaf.screen.ModMenuTypes;
 import net.micaxs.smokeleaf.screen.custom.*;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -27,6 +29,7 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -298,6 +301,44 @@ public class SmokeleafIndustriesClient {
     }
 
     @SubscribeEvent
+    public static void onBlockColor(RegisterColorHandlersEvent.Block event) {
+        BlockColor blockColor = (state, level, pos, tintIndex) -> {
+            // Only tint our unidentified crop (bottom/top both use the same block).
+            if (state == null || state.getBlock() != ModBlocks.UNIDENTIFIED_WEED_CROP.get()) {
+                return 0xFFFFFFFF;
+            }
+
+            // tintIndex 0 => base layer, fixed color.
+            if (tintIndex == 0) {
+                String[] baseColors = new String[]{"99d335"};
+                return Integer.parseInt(baseColors[0], 16) | 0xFF000000;
+            }
+
+            // tintIndex 1 => mask layer, strain color.
+            if (tintIndex == 1 && level != null && pos != null) {
+                BlockEntity be = level.getBlockEntity(pos);
+
+                // StrainData is stored on the bottom half BE; top half has no BE, so look down one block.
+                if (!(be instanceof UnidentifiedWeedCropBlockEntity) && state.hasProperty(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP)
+                        && Boolean.TRUE.equals(state.getValue(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP))) {
+                    be = level.getBlockEntity(pos.below());
+                }
+
+                if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
+                    StrainData d = cropBe.getStrain();
+                    if (d != null && d != StrainData.EMPTY) {
+                        return d.colorArgb();
+                    }
+                }
+            }
+
+            return 0xFFFFFFFF;
+        };
+
+        event.register(blockColor, ModBlocks.UNIDENTIFIED_WEED_CROP.get());
+    }
+
+    @SubscribeEvent
     public static void onItemColor(RegisterColorHandlersEvent.Item event) {
         ItemColor itemColor = (stack, tintIndex) -> {
             // Custom strain tint: apply STRAIN_DATA color to tint layer 1.
@@ -310,7 +351,7 @@ public class SmokeleafIndustriesClient {
             if (stack.getItem() instanceof UnidentifiedSeedsItem) {
                 if (tintIndex == 0) {
                     // Base of seeds (pick from array)
-                    String[] baseColors = new String[]{"687d44"};
+                    String[] baseColors = new String[]{"99d335"};
                     int color = Integer.parseInt(baseColors[stack.getDamageValue() % baseColors.length], 16) | 0xFF000000;
                     return color;
                 } else if (tintIndex == 1) {

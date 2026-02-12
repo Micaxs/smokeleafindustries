@@ -12,40 +12,47 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 
 public class ModBlockEntities {
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
+            DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, SmokeleafIndustries.MODID);
 
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, SmokeleafIndustries.MODID);
+
+    public static final Supplier<BlockEntityType<BaseWeedCropBlockEntity>> BASE_WEED_CROP_BE =
+            BLOCK_ENTITIES.register("base_weed_crop_be",
+                    () -> BlockEntityType.Builder.of(BaseWeedCropBlockEntity::new,
+                            ModBlocks.HEMP_CROP.get(),
+                            ModBlocks.WHITE_WIDOW_CROP.get(),
+                            ModBlocks.BUBBLE_KUSH_CROP.get(),
+                            ModBlocks.LEMON_HAZE_CROP.get(),
+                            ModBlocks.SOUR_DIESEL_CROP.get(),
+                            ModBlocks.BLUE_ICE_CROP.get(),
+                            ModBlocks.PURPLE_HAZE_CROP.get(),
+                            ModBlocks.BUBBLEGUM_CROP.get(),
+                            ModBlocks.OG_KUSH_CROP.get(),
+                            ModBlocks.JACK_HERER_CROP.get(),
+                            ModBlocks.GARY_PEYTON_CROP.get(),
+                            ModBlocks.AMNESIA_HAZE_CROP.get(),
+                            ModBlocks.AK47_CROP.get(),
+                            ModBlocks.GHOST_TRAIN_CROP.get(),
+                            ModBlocks.GRAPE_APE_CROP.get(),
+                            ModBlocks.COTTON_CANDY_CROP.get(),
+                            ModBlocks.BANANA_KUSH_CROP.get(),
+                            ModBlocks.CARBON_FIBER_CROP.get(),
+                            ModBlocks.BIRTHDAY_CAKE_CROP.get(),
+                            ModBlocks.BLUE_COOKIES_CROP.get(),
+                            ModBlocks.AFGHANI_CROP.get(),
+                            ModBlocks.MOONBOW_CROP.get(),
+                            ModBlocks.LAVA_CAKE_CROP.get(),
+                            ModBlocks.JELLY_RANCHER_CROP.get(),
+                            ModBlocks.STRAWBERRY_SHORTCAKE_CROP.get(),
+                            ModBlocks.PINK_KUSH_CROP.get()
+                    ).build(null));
 
 
-    public static final Supplier<BlockEntityType<BaseWeedCropBlockEntity>> BASE_WEED_CROP_BE = BLOCK_ENTITIES.register("base_weed_crop_be",
-            () -> BlockEntityType.Builder.of(BaseWeedCropBlockEntity::new,
-                    ModBlocks.HEMP_CROP.get(),
-                    ModBlocks.WHITE_WIDOW_CROP.get(),
-                    ModBlocks.BUBBLE_KUSH_CROP.get(),
-                    ModBlocks.LEMON_HAZE_CROP.get(),
-                    ModBlocks.SOUR_DIESEL_CROP.get(),
-                    ModBlocks.BLUE_ICE_CROP.get(),
-                    ModBlocks.BUBBLEGUM_CROP.get(),
-                    ModBlocks.PURPLE_HAZE_CROP.get(),
-                    ModBlocks.OG_KUSH_CROP.get(),
-                    ModBlocks.JACK_HERER_CROP.get(),
-                    ModBlocks.GARY_PEYTON_CROP.get(),
-                    ModBlocks.AMNESIA_HAZE_CROP.get(),
-                    ModBlocks.AK47_CROP.get(),
-                    ModBlocks.GHOST_TRAIN_CROP.get(),
-                    ModBlocks.GRAPE_APE_CROP.get(),
-                    ModBlocks.COTTON_CANDY_CROP.get(),
-                    ModBlocks.BANANA_KUSH_CROP.get(),
-                    ModBlocks.CARBON_FIBER_CROP.get(),
-                    ModBlocks.BIRTHDAY_CAKE_CROP.get(),
-                    ModBlocks.BLUE_COOKIES_CROP.get(),
-                    ModBlocks.AFGHANI_CROP.get(),
-                    ModBlocks.MOONBOW_CROP.get(),
-                    ModBlocks.LAVA_CAKE_CROP.get(),
-                    ModBlocks.JELLY_RANCHER_CROP.get(),
-                    ModBlocks.STRAWBERRY_SHORTCAKE_CROP.get(),
-                    ModBlocks.PINK_KUSH_CROP.get()
-    ).build(null));
-
+    public static final Supplier<BlockEntityType<UnidentifiedWeedCropBlockEntity>> UNIDENTIFIED_WEED_CROP_BE =
+            BLOCK_ENTITIES.register("unidentified_weed_crop_be",
+                    () -> BlockEntityType.Builder.of(UnidentifiedWeedCropBlockEntity::new,
+                            ModBlocks.UNIDENTIFIED_WEED_CROP.get()
+                    ).build(null));
 
     public static final Supplier<BlockEntityType<GeneratorBlockEntity>> GENERATOR_BE = BLOCK_ENTITIES.register("generator_be",
             () -> BlockEntityType.Builder.of(GeneratorBlockEntity::new, ModBlocks.GENERATOR.get()).build(null));

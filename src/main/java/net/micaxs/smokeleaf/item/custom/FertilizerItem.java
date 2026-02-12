@@ -2,6 +2,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
+import net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock;
 import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -39,19 +40,28 @@ public class FertilizerItem extends Item {
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = level.getBlockState(clickedPos);
 
-        if (!(clickedState.getBlock() instanceof BaseWeedCropBlock weedBlock)) {
+        if (!(clickedState.getBlock() instanceof BaseWeedCropBlock)
+                && !(clickedState.getBlock() instanceof UnidentifiedWeedCropBlock)) {
             return InteractionResult.PASS;
         }
 
         // Always operate on the bottom block entity
         BlockPos bePos = clickedPos;
-        if (clickedState.hasProperty(weedBlock.getTop()) && clickedState.getValue(weedBlock.getTop())) {
+        if ((clickedState.getBlock() instanceof BaseWeedCropBlock && clickedState.getValue(BaseWeedCropBlock.TOP))
+                || (clickedState.getBlock() instanceof UnidentifiedWeedCropBlock && clickedState.getValue(UnidentifiedWeedCropBlock.TOP))) {
             bePos = clickedPos.below();
         }
 
         // Check if the crop is fully grown (use bottom state for safety)
         BlockState bottomState = level.getBlockState(bePos);
-        if (bottomState.getBlock() instanceof BaseWeedCropBlock bottomCrop && bottomCrop.isMaxAge(bottomState)) {
+        boolean isFullyGrown = false;
+        if (bottomState.getBlock() instanceof BaseWeedCropBlock bottomCrop) {
+            isFullyGrown = bottomCrop.isMaxAge(bottomState);
+        } else if (bottomState.getBlock() instanceof UnidentifiedWeedCropBlock unidentifiedCrop) {
+            isFullyGrown = bottomState.getValue(UnidentifiedWeedCropBlock.AGE) >= unidentifiedCrop.getMaxAge();
+        }
+
+        if (isFullyGrown) {
             if (!level.isClientSide() && context.getPlayer() != null) {
                 context.getPlayer().displayClientMessage(
                         Component.translatable("tooltip.smokeleafindustries.add_fertilizer"),

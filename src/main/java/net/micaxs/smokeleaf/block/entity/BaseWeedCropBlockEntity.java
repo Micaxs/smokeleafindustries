@@ -36,7 +36,14 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
     private int potassium;
 
     public BaseWeedCropBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.BASE_WEED_CROP_BE.get(), pos, blockState);
+        this(ModBlockEntities.BASE_WEED_CROP_BE.get(), pos, blockState);
+    }
+
+    /**
+     * Internal ctor to let subclasses use a different BlockEntityType.
+     */
+    protected BaseWeedCropBlockEntity(BlockEntityType<? extends BaseWeedCropBlockEntity> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
     }
 
     // Getters

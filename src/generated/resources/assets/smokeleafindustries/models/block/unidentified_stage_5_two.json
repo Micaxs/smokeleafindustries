@@ -1,0 +1,9 @@
+{
+  "parent": "smokeleafindustries:block/crop_two_layer",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "base": "smokeleafindustries:block/unidentified/unidentified_stage_5_base",
+    "mask": "smokeleafindustries:block/unidentified/unidentified_stage_5_mask",
+    "particle": "smokeleafindustries:block/unidentified/unidentified_stage_5_base"
+  }
+}

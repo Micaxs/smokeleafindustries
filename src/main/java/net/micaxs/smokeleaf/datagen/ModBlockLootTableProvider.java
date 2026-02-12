@@ -76,6 +76,9 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         // Weed Crops
         addHempCropLoot(ModBlocks.HEMP_CROP, ModItems.HEMP_FIBERS, ModItems.HEMP_SEEDS, ModItems.HEMP_LEAF);
 
+        // Player-made strain crop
+        addUnidentifiedCropLoot(ModBlocks.UNIDENTIFIED_WEED_CROP, ModItems.UNIDENTIFIED_WEED, ModItems.UNIDENTIFIED_SEEDS, ModItems.HEMP_LEAF);
+
         addCropLoot(ModBlocks.WHITE_WIDOW_CROP, ModItems.WHITE_WIDOW_BUD, ModItems.WHITE_WIDOW_SEEDS, ModItems.HEMP_LEAF);
         addCropLoot(ModBlocks.BUBBLE_KUSH_CROP, ModItems.BUBBLE_KUSH_BUD, ModItems.BUBBLE_KUSH_SEEDS, ModItems.HEMP_LEAF);
         addCropLoot(ModBlocks.LEMON_HAZE_CROP, ModItems.LEMON_HAZE_BUD, ModItems.LEMON_HAZE_SEEDS, ModItems.HEMP_LEAF);
@@ -266,6 +269,39 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
                                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
                                 .add(LootItem.lootTableItem(leafSupplier.get())))
         );
+    }
+
+
+    private void addUnidentifiedCropLoot(net.neoforged.neoforge.registries.DeferredBlock<Block> cropBlock,
+                                        java.util.function.Supplier<Item> weedSupplier,
+                                        java.util.function.Supplier<Item> seedsSupplier,
+                                        java.util.function.Supplier<Item> leafSupplier) {
+        LootItemCondition.Builder cropIsHarvestable = LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(cropBlock.get())
+                .setProperties(StatePropertiesPredicate.Builder.properties()
+                        .hasProperty(BaseWeedCropBlock.AGE, 10));
+        LootItemCondition.Builder cropIsBottomSegment = LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(cropBlock.get())
+                .setProperties(StatePropertiesPredicate.Builder.properties()
+                        .hasProperty(BaseWeedCropBlock.TOP, false));
+
+        this.add(cropBlock.get(), LootTable.lootTable()
+                // Always 1 seed (bottom segment)
+                .withPool(LootPool.lootPool()
+                        .when(cropIsBottomSegment)
+                        .add(LootItem.lootTableItem(seedsSupplier.get())
+                                .apply(net.micaxs.smokeleaf.loot.ApplyUnidentifiedStrain.applyFromCrop()))
+                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
+                // Weed: when harvestable on bottom segment; count derives from crop nutrients, strain derives from BE
+                .withPool(LootPool.lootPool()
+                        .when(cropIsHarvestable.and(cropIsBottomSegment))
+                        .add(LootItem.lootTableItem(weedSupplier.get())
+                                .apply(net.micaxs.smokeleaf.loot.ApplyUnidentifiedStrain.applyFromCrop())))
+                // Leaf: 1
+                .withPool(LootPool.lootPool()
+                        .when(cropIsHarvestable.and(cropIsBottomSegment))
+                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
+                        .add(LootItem.lootTableItem(leafSupplier.get()))));
     }
 
 

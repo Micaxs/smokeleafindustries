@@ -462,5 +462,7 @@
   "config.jade.plugin_smokeleafindustries.drying_rack": "Drying Rack",
   "config.jade.plugin_smokeleafindustries.reflector": "Reflector",
   "item.smokeleafindustries.guide_book": "Smokeleaf Guide",
-  "block.smokeleafindustries.mixer": "Mixer"
+  "block.smokeleafindustries.mixer": "Mixer",
+  "item.smokeleafindustries.unidentified_seeds": "Unidentified Seeds",
+  "block.smokeleafindustries.unidentified_weed_crop": "Unidentified Plant"
 }

@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
  */
 public class UnidentifiedSeedsItem extends ItemNameBlockItem {
     public UnidentifiedSeedsItem(Properties properties) {
-        super(ModBlocks.HEMP_CROP.get(), properties);
+        super(ModBlocks.UNIDENTIFIED_WEED_CROP.get(), properties);
     }
 
     @Override

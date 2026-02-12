@@ -1,0 +1,51 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "#base",
+    "base": "minecraft:block/missing",
+    "mask": "minecraft:block/missing"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 8],
+      "to": [16, 16, 8],
+      "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45, "rescale": true},
+      "shade": false,
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#base", "tintindex": 0},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#base", "tintindex": 0}
+      }
+    },
+    {
+      "from": [0, 0, 8],
+      "to": [16, 16, 8],
+      "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": -45, "rescale": true},
+      "shade": false,
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#base", "tintindex": 0},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#base", "tintindex": 0}
+      }
+    },
+    {
+      "from": [0, 0, 8],
+      "to": [16, 16, 8],
+      "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45, "rescale": true},
+      "shade": false,
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#mask", "tintindex": 1},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#mask", "tintindex": 1}
+      }
+    },
+    {
+      "from": [0, 0, 8],
+      "to": [16, 16, 8],
+      "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": -45, "rescale": true},
+      "shade": false,
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#mask", "tintindex": 1},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#mask", "tintindex": 1}
+      }
+    }
+  ]
+}

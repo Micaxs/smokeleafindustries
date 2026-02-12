@@ -14,6 +14,8 @@ public class ModLootItemFunctions {
 
     public static final DeferredHolder<LootItemFunctionType<?>, LootItemFunctionType<ApplyBudStats>> APPLY_BUD_STATS =
             LOOT_FUNCTION_TYPES.register("apply_bud_stats", () -> new LootItemFunctionType<>(ApplyBudStats.CODEC));
+    public static final DeferredHolder<LootItemFunctionType<?>, LootItemFunctionType<ApplyUnidentifiedStrain>> APPLY_UNIDENTIFIED_STRAIN =
+            LOOT_FUNCTION_TYPES.register("apply_unidentified_strain", () -> new LootItemFunctionType<>(ApplyUnidentifiedStrain.CODEC));
 
     public static void register(IEventBus bus) {
         LOOT_FUNCTION_TYPES.register(bus);

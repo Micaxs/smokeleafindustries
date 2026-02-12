@@ -119,6 +119,10 @@ public class ModBlocks {
     public static final DeferredBlock<Block> HEMP_CROP = BLOCKS.register("hemp_crop", () ->
             new BaseWeedCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT).noOcclusion().noCollission(), ModItems.HEMP_SEEDS));
 
+    // Player-made strain crop
+    public static final DeferredBlock<Block> UNIDENTIFIED_WEED_CROP = BLOCKS.register("unidentified_weed_crop", () ->
+            new UnidentifiedWeedCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT).noOcclusion().noCollission()));
+
 
     private static BlockBehaviour.Properties props() {
         return BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT).noOcclusion().noCollission();

@@ -6,6 +6,7 @@ import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.block.custom.GrowLightBlock;
 import net.micaxs.smokeleaf.block.custom.ReflectorBlock;
 import net.micaxs.smokeleaf.block.custom.TobaccoCropBlock;
+import net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -69,6 +70,15 @@ public class ModBlockStateProvider extends BlockStateProvider {
         trapdoorBlockWithRenderType(((TrapDoorBlock) ModBlocks.HEMP_PLANK_TRAPDOOR.get()), modLoc("block/hemp_plank_trapdoor"), true, "cutout");
 
         blockItem(ModBlocks.HEMP_PLANK_TRAPDOOR, "_bottom");
+
+        // Unidentified crop uses a custom two-layer model (base + mask).
+        // Enable this once you add the textures under:
+        //   assets/smokeleafindustries/textures/block/unidentified/
+        // with names like:
+        //   unidentified_stage_0_base.png, unidentified_stage_0_mask.png ... up to stage_10
+        // NOTE: NeoForge datagen will hard-fail if referenced textures are missing.
+
+        makeUnidentifiedWeedCrop((UnidentifiedWeedCropBlock) ModBlocks.UNIDENTIFIED_WEED_CROP.get(), "unidentified_stage_", "unidentified/unidentified_stage_");
 
         makeWeedCrop((BaseWeedCropBlock) ModBlocks.HEMP_CROP.get(), "hemp_stage_", "hemp/hemp_stage_");
         makeWeedCrop((BaseWeedCropBlock) ModBlocks.WHITE_WIDOW_CROP.get(), "white_widow_stage_", "white_widow/white_widow_stage_");
@@ -184,6 +194,47 @@ public class ModBlockStateProvider extends BlockStateProvider {
         getVariantBuilder(cropBlock).forAllStates(function);
     }
 
+    private void makeUnidentifiedWeedCrop(UnidentifiedWeedCropBlock block, String modelNamePrefix, String texturePrefix) {
+        var vb = getVariantBuilder(block);
+        vb.forAllStates(state -> {
+            int age = state.getValue(UnidentifiedWeedCropBlock.AGE);
+            boolean top = state.getValue(UnidentifiedWeedCropBlock.TOP);
+
+            // Match BaseWeedCropBlock bottom/top staging rules so tall crop growth looks identical.
+            // - top half: use stage per age
+            // - bottom half: ages 0-6 => stage age
+            //               ages 7-8 => stage 6
+            //               ages 9-10 => stage 6_full
+            String modelSuffix;
+            String textureStage;
+            if (top) {
+                modelSuffix = age + "_top";
+                textureStage = Integer.toString(age);
+            } else {
+                if (age <= BaseWeedCropBlock.FIRST_STAGE_MAX_AGE) {
+                    modelSuffix = Integer.toString(age);
+                    textureStage = Integer.toString(age);
+                } else if (age <= 8) {
+                    modelSuffix = Integer.toString(BaseWeedCropBlock.FIRST_STAGE_MAX_AGE);
+                    textureStage = Integer.toString(BaseWeedCropBlock.FIRST_STAGE_MAX_AGE);
+                } else {
+                    modelSuffix = BaseWeedCropBlock.FIRST_STAGE_MAX_AGE + "_full";
+                    textureStage = BaseWeedCropBlock.FIRST_STAGE_MAX_AGE + "_full";
+                }
+            }
+
+            String name = modelNamePrefix + modelSuffix;
+
+            ModelFile twoLayer = models().withExistingParent(name + "_two", modLoc("block/crop_two_layer"))
+                    .texture("base", modLoc("block/" + texturePrefix + textureStage + "_base"))
+                    .texture("mask", modLoc("block/" + texturePrefix + textureStage + "_mask"))
+                    .texture("particle", modLoc("block/" + texturePrefix + textureStage + "_base"))
+                    .renderType("cutout");
+
+            return ConfiguredModel.builder().modelFile(twoLayer).build();
+        });
+    }
+
     private ConfiguredModel[] tobaccoCropModel(BlockState blockState, TobaccoCropBlock cropBlock, String modelName, String textureName) {
         ConfiguredModel[] models = new ConfiguredModel[1];
         models[0] = new ConfiguredModel(models().cross(
@@ -246,6 +297,5 @@ public class ModBlockStateProvider extends BlockStateProvider {
     private void blockItem(DeferredBlock<Block> deferredBlock, String appendix) {
             simpleBlockItem(deferredBlock.get(), new ModelFile.UncheckedModelFile("smokeleafindustries:block/" + deferredBlock.getId().getPath() + appendix));
     }
-
 
 }
