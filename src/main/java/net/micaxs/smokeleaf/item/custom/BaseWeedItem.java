@@ -2,6 +2,8 @@ package net.micaxs.smokeleaf.item.custom;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
+import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.utils.WeedEffectHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
@@ -84,8 +86,23 @@ public class BaseWeedItem extends Item {
     }
 
     @Override
+    public Component getName(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        if (d != StrainData.EMPTY && d.displayName() != null && !d.displayName().isBlank()) {
+            return Component.literal(d.displayName() + " Weed");
+        }
+        return super.getName(stack);
+    }
+
+    @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+
+        StrainData d = StrainUtil.getStrain(stack);
+        if (d != StrainData.EMPTY) {
+            tooltipComponents.add(Component.literal("THC: " + d.thc() + "%  CBD: " + d.cbd() + "%"));
+            tooltipComponents.add(Component.literal("NPK: " + d.nitrogen() + "/" + d.phosphorus() + "/" + d.potassium()));
+        }
 
         List<MobEffectInstance> previews = buildEffectInstances(stack);
         if (previews.isEmpty()) {

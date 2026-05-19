@@ -26,7 +26,7 @@ public class UnidentifiedStrainItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         StrainData d = StrainUtil.getStrain(stack);
-        if (d.identified() && d.displayName() != null && !d.displayName().isBlank()) {
+        if (d.displayName() != null && !d.displayName().isBlank()) {
             return Component.literal(d.displayName());
         }
         return super.getName(stack);
