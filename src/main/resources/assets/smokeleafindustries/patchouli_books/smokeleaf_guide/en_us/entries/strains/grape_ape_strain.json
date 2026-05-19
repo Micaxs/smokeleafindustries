@@ -5,29 +5,24 @@
   "sortnum": 13,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:grape_ape_bud",
-      "text": "The Grape Ape Strain$(br2)Base THC: 18% $(br)Base CBD: 7% $(br)Effect: Aroused"
+      "type": "patchouli:text",
+      "title": "Grape Ape",
+      "text": "$(bold)Base THC:$() 18% — $(bold)Base CBD:$() 7%$(br)$(bold)Effect:$() Aroused (10 seconds)$(br)$(bold)Extra Effects:$() None (THC ≤ 20)$(br)$(br)Warped Fungus from the Nether required.$(br)$(br)$(bold)Synthesizer Reagents:$()$(br)Brown Mushroom + Butter + Warped Fungus"
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:grape_ape_weed",
-      "text": "Grape Ape Weed can be obtained by grinding your Fresh or Dried buds in a Grinder machine or using the manual grinder."
+      "text": "Grind Grape Ape Buds in the Grinder (2 weed) or Manual Grinder (1 weed)."
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:grape_ape_seeds",
-      "text": "Grape Ape Seeds can be planted on farmland or inside the Grow Pot"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:grape_ape_extract",
-      "text": "Grape Ape Extract can be gained through the DNA Process or by extracting Grape Ape Weed in an Extractor"
+      "text": "Plant on farmland or in a Grow Pot. Harvest at age 10. Get seeds via DNA route or Mutator."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:grape_ape_bag",
-      "text": "You can package your grape ape weed for easier distribution or selling to the stoner villager."
+      "text": "Pack weed into a bag for selling to the Stoner Villager or compact storage."
     }
   ]
 }

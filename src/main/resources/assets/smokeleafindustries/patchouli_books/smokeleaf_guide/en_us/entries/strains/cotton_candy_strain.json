@@ -1,33 +1,28 @@
 {
-  "name": "cotton_candy",
+  "name": "Cotton Candy",
   "icon": "smokeleafindustries:cotton_candy_bud",
   "category": "smokeleafindustries:strains_category",
-  "sortnum": 19,
+  "sortnum": 14,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:cotton_candy_bud",
-      "text": "The Cotton Candy Strain$(br2)Base THC: 19% $(br)Base CBD: 6% $(br)Effect: Chillout"
+      "type": "patchouli:text",
+      "title": "Cotton Candy",
+      "text": "$(bold)Base THC:$() 19% — $(bold)Base CBD:$() 6%$(br)$(bold)Effect:$() Chillout (10 seconds)$(br)$(bold)Extra Effects:$() None (THC ≤ 20)$(br)$(br)Obtain via DNA route or buy from Dealer Villager.$(br)$(br)$(bold)Synthesizer Reagents:$()$(br)Pink Dye + Sugar + Feather"
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:cotton_candy_weed",
-      "text": "cotton candy Weed can be obtained by grinding your Fresh or Dried buds in a Grinder machine or using the manual grinder."
+      "text": "Grind Cotton Candy Buds in the Grinder (2 weed) or Manual Grinder (1 weed)."
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:cotton_candy_seeds",
-      "text": "cotton candy Seeds can be planted on farmland or inside the Grow Pot"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:cotton_candy_extract",
-      "text": "cotton candy extract can be gained through the DNA Process or by extracting cotton_candy Weed in an Extractor"
+      "text": "Plant on farmland or in a Grow Pot. Harvest at age 10. Get seeds via DNA route or Mutator."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:cotton_candy_bag",
-      "text": "You can package your cotton_candy weed for easier distribution or selling to the stoner villager."
+      "text": "Pack weed into a bag for selling to the Stoner Villager or compact storage."
     }
   ]
 }

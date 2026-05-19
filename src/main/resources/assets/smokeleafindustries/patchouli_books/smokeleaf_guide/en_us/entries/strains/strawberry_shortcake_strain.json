@@ -4,11 +4,25 @@
   "category": "smokeleafindustries:strains_category",
   "sortnum": 23,
   "pages": [
-    { "type": "patchouli:spotlight", "item": "smokeleafindustries:strawberry_shortcake_bud", "text": "The Strawberry Shortcake Strain$(br2)Base THC: ??% $(br)Base CBD: ??% $(br)Effect: ??" },
-    { "type": "patchouli:spotlight", "item": "smokeleafindustries:strawberry_shortcake_weed", "text": "Strawberry Shortcake Weed can be obtained by grinding your Fresh or Dried buds in a Grinder machine or using the manual grinder." },
-    { "type": "patchouli:spotlight", "item": "smokeleafindustries:strawberry_shortcake_seeds", "text": "Strawberry Shortcake Seeds can be planted on farmland or inside the Grow Pot" },
-    { "type": "patchouli:spotlight", "item": "smokeleafindustries:strawberry_shortcake_extract", "text": "Strawberry Shortcake Extract can be gained through the DNA Process or by extracting Strawberry Shortcake Weed in an Extractor" },
-    { "type": "patchouli:crafting", "recipe": "smokeleafindustries:strawberry_shortcake_bag", "text": "You can package your strawberry shortcake weed for easier distribution or selling to the stoner villager." }
+    {
+      "type": "patchouli:text",
+      "title": "Strawberry Shortcake",
+      "text": "$(bold)Base THC:$() 16% — $(bold)Base CBD:$() 9%$(br)$(bold)Effect:$() High Flyer (10 seconds)$(br)$(bold)Extra Effects:$() None (THC ≤ 20)$(br)$(br)Obtain via DNA route or buy from Dealer Villager.$(br)$(br)$(bold)Synthesizer Reagents:$()$(br)Sweet Berries + Wheat + Red Dye"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "smokeleafindustries:strawberry_shortcake_weed",
+      "text": "Grind Strawberry Shortcake Buds in the Grinder (2 weed) or Manual Grinder (1 weed)."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "smokeleafindustries:strawberry_shortcake_seeds",
+      "text": "Plant on farmland or in a Grow Pot. Harvest at age 10. Get seeds via DNA route or Mutator."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "smokeleafindustries:strawberry_shortcake_bag",
+      "text": "Pack weed into a bag for selling to the Stoner Villager or compact storage."
+    }
   ]
 }
-

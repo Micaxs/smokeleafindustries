@@ -1,0 +1,28 @@
+{
+  "name": "Progression Overview",
+  "icon": "smokeleafindustries:hemp_core",
+  "category": "smokeleafindustries:getting_started_category",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Tier 0: Early Game",
+      "text": "Everything you can do with just iron and copper:$(br)• Grow hemp → Hemp Fibers, Hemp Leaf$(br)• Craft $(bold)Manual Grinder$() (grinds hemp leaf → fibers, buds → weed)$(br)• Craft $(bold)Hemp Hammer$() → $(bold)Bio Composite$() → smelt to $(bold)Hemp Plastic$()$(br)• Craft $(bold)Drying Rack$() to dry buds and tobacco$(br)• Craft $(bold)Bong$() to consume weed$(br)• Craft $(bold)HPS Lamp$() for indoor growing$(br)• Find a village → trade hemp leaf for emeralds at $(bold)Stoner Villager$()"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tier 1: Machine Age",
+      "text": "Requires Diamond + Amethyst Shard:$(br)• Craft $(bold)Unfinished Hemp Core$() (diamond + amethyst + redstone + glowstone dust)$(br)• Craft $(bold)Hemp Core$() (hammer + plastic + unfinished core)$(br)• Hemp Core unlocks $(bold)ALL machines$()$(br)• Build a $(bold)Generator$() first for RF power$(br)• Then: Grinder, Extractor, Dryer, Liquifier, Grow Pot$(br)$(br)Place a Grinder block near an unemployed villager → $(bold)Dealer Villager$() (sells all strain weed)"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tier 2: Strain Engineering",
+      "text": "With a Liquifier producing Hemp Oil:$(br)• Craft $(bold)Mutator$() (diamond block required)$(br)• Get a strain extract → put in Mutator with seeds + Hemp Oil → $(bold)specific strain seeds$()$(br)$(br)For strains you don't have yet, use the $(bold)DNA route$():$(br)1. Extractor: Hemp Seeds → DNA Strand$(br)2. Synthesizer: DNA Strand + 3 reagents → Filled DNA Strand$(br)3. Sequencer: Filled DNA Strand + Base Extract → Strain Extract$(br)4. Mutator: Any Seeds + Strain Extract + Hemp Oil → Strain Seeds"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tier 3: Economy",
+      "text": "Turn your crop empire into emeralds:$(br)• Liquifier: Weed Seeds → Hemp Oil, Weed Ground → Hash Oil$(br)• Craft $(bold)Empty Bag$() from Hemp Plastic, pack weed → $(bold)Strain Bags$()$(br)• Sell bags to $(bold)Stoner Villager$() (level 2) for emeralds$(br)• Craft edibles: $(bold)Weed Cookie$(), $(bold)Hash Brownie$()(br)• Craft $(bold)Blunt$() (3 rows of paper + weed) or $(bold)Joint$() (paper + weed + tobacco)"
+    }
+  ]
+}

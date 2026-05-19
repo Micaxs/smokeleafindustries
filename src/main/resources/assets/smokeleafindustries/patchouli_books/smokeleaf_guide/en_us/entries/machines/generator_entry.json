@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "This machine produces RF power by burning weed related items.$(br)$(br)It has an input slot for specific items that generate an amount of energy based on the item."
+      "text": "The $(bold)Generator$() burns hemp-based fuels to produce $(bold)RF (Redstone Flux)$() energy. It is the power source for all other machines — build this first!$(br)$(br)To use: place a fuel item in the input slot. The generator will burn it and fill its internal energy buffer. Connect other machines adjacent to it or with pipes to distribute power.$(br)$(br)$(bold)Fuel values:$()$(br)• Hemp Coal: 1,600 RF$(br)• Weed (any ground weed): 3,200 RF$(br)• Weed Buds (any strain bud): 6,400 RF$(br)• Hemp Oil Bucket: 48,000 RF (bucket consumed)"
     },
     {
       "type": "patchouli:crafting",
@@ -16,25 +16,13 @@
       "type": "patchouli:spotlight",
       "title": "Hemp Coal",
       "item": "smokeleafindustries:hemp_coal",
-      "text": "This produces 1600 RF per item."
-    },
-    {
-      "type": "patchouli:spotlight",
-      "title": "Weed Buds",
-      "item": "tag:smokeleafindustries:weed_buds",
-      "text": "This produces 6400 RF per item."
-    },
-    {
-      "type": "patchouli:spotlight",
-      "title": "Weeds",
-      "item": "tag:smokeleafindustries:weeds",
-      "text": "This produces 3200 RF per item."
+      "text": "1,600 RF. Craft from 1 Coal + 2 Hemp Leaf. An early-game fuel option."
     },
     {
       "type": "patchouli:spotlight",
       "title": "Hemp Oil Bucket",
       "item": "smokeleafindustries:hemp_oil_bucket",
-      "text": "This produces 48000 RF per item (bucket consumed)."
+      "text": "48,000 RF per bucket — the most efficient fuel. Requires the Liquifier to produce Hemp Oil."
     }
   ]
 }

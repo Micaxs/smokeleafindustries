@@ -5,14 +5,13 @@
   "sortnum": 4,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:bio_composite",
-      "text": "Bio Composite is generally used to make Hemp Plastic. It is also used in a few other recipes and thus an item you want to keep around."
+      "type": "patchouli:text",
+      "text": "$(bold)Bio Composite$() is the base material for Hemp Plastic and is used in several other recipes.$(br)$(br)$(bold)Two ways to make it:$()$(br)$(br)$(bold)Early game (Crafting Table):$() Use the Hemp Hammer with 3 Hemp Leaf + 1 Hemp Fiber. This consumes 1 hammer durability per craft (12 crafts per hammer).$(br)$(br)$(bold)Mid game (Extractor):$() Put Hemp Leaf in the Extractor for a cheaper and renewable source of Bio Composite that does not consume a hammer."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:hemp_plastic_from_hammering",
-      "text": "Optionally you can put hemp leaves through an Extractor to get Bio Composite that way, which is a lot cheaper."
+      "text": "Early-game route: Hemp Hammer + 3 Hemp Leaf + 1 Hemp Fiber → Bio Composite."
     }
   ]
 }

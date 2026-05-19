@@ -6,11 +6,16 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The synthesizer is a machine that fills a DNA Strand with items to create a filled DNA Strand. It requires Power and a DNA Strand to operate."
+      "text": "The $(bold)Synthesizer$() embeds 3 reagent items into a $(bold)DNA Strand$() to create a $(bold)Filled DNA Strand$(). The Filled DNA Strand is then used in the Sequencer to produce a specific strain extract.$(br)$(br)$(bold)Inputs (5 slots):$()$(br)• Slot 1: DNA Strand$(br)• Slots 2–4: $(bold)3 Reagent items$() (specific to the desired strain)$(br)• Slot 5: Output$(br)$(br)$(bold)Output:$() DNA Strand with embedded reagent data$(br)$(br)Check each Strain's guide entry for the exact 3 reagents needed."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:synthesizer"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Example Reagents",
+      "text": "$(bold)White Widow$(): Bone Meal + Sugar + White Dye$(br)$(bold)OG Kush$(): Green Dye + Slime Ball + Hemp Coal$(br)$(bold)Moonbow$(): Prismarine Shard + Glow Ink Sac + Kelp$(br)$(bold)Ghost Train$(): Soul Sand + Phantom Membrane + Ghast Tear$(br)$(br)The DNA Strand item stores reagent data as a component — the resulting Filled DNA Strand looks the same but carries the embedded reagent information for the Sequencer."
     }
   ]
 }

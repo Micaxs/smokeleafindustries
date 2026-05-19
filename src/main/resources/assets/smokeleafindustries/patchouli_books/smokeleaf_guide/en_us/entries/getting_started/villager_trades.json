@@ -1,0 +1,23 @@
+{
+  "name": "Villager Traders",
+  "icon": "minecraft:emerald",
+  "category": "smokeleafindustries:getting_started_category",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Dealer Villager",
+      "text": "The $(bold)Dealer$() uses the $(bold)Grinder block$() as their workstation. Place a Grinder near an unemployed villager to create one.$(br)$(br)$(bold)Level 1 trades (1 emerald each):$()$(br)• 1 Hemp Seeds$(br)• 1 Tobacco Seeds$(br)$(br)$(bold)Level 2 trades (3–6 emeralds each):$()$(br)• All 25 weed strains (ground weed, 1 piece per trade)$(br)$(br)The Dealer is your shortcut to weed strains before you set up the full DNA engineering chain."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Stoner Villager",
+      "text": "The $(bold)Stoner$() uses $(bold)Hemp Chiseled Stone$() as their workstation. Craft hemp chiseled stone (requires Hemp Oil from the Liquifier) and place near a villager.$(br)$(br)$(bold)Level 1 sells (give to stoner):$()$(br)• 18 Hemp Fibers → 1 emerald$(br)• 5 Hemp Coal → 1 emerald$(br)• 5 Hemp Leaf → 1 emerald$(br)• 8 Dried Tobacco → 1 emerald$(br)$(br)$(bold)Level 2 sells:$()$(br)• All 25 strain bags → 1 emerald$(br)• 10 Tobacco → 1 emerald$(br)• 1 Bio Composite → 3 emeralds"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Stoner - Higher Levels",
+      "text": "$(bold)Level 3 (give to stoner):$()$(br)• Hash Oil bucket → 3 emeralds$(br)• Hemp Oil bucket → 3 emeralds$(br)• 4 Empty Tincture → 1 emerald$(br)• 3 Infused Butter → 1 emerald$(br)$(br)$(bold)Level 4:$()$(br)• 1 Weed Cookie → 2 emeralds$(br)• 1 Hash Brownie → 3 emeralds$(br)• Dab Rig → 3 emeralds, Bong → 4 emeralds$(br)$(br)$(bold)Level 5:$()$(br)• Herb Cake → 6 emeralds$(br)• Hash Oil Tincture → 5 emeralds$(br)• 2 Blunts → 3 emeralds"
+    }
+  ]
+}

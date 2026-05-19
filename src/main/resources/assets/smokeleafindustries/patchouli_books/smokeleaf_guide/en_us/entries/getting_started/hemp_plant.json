@@ -6,14 +6,18 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "its time to start growing your own hemp.$(br)$(br)These Drop Hemp Leaf, Hemp Seeds & Hemp Fibers $(br)These will provide resources you'll require throughout the progression of the mod, so plant lots!"
+      "text": "Hemp is the core resource crop of this mod. Plant hemp seeds on $(bold)tilled farmland$() adjacent to water and wait — or speed things up with $(bold)fertilizers$().$(br)$(br)Hemp grows through $(bold)11 age stages (0–10)$(). The plant is two blocks tall once fully grown. You can shear leaves from the plant up to 3 times before it must be fully harvested.$(br)$(br)$(bold)Fully grown harvest drops:$()$(br)• Hemp Leaf$(br)• Hemp Seeds$(br)• Hemp Fibers$(br)$(br)These are your primary resources for building the entire material chain."
     },
     {
       "type": "patchouli:image",
       "title": "Hemp Plant",
       "images": ["smokeleafindustries:textures/guide/hemp_plant.png"],
       "border": true,
-      "text": "This is an example of a fully grown Hemp plant."
+      "text": "A fully grown Hemp plant (age 10). Two blocks tall."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)What you need Hemp for:$()$(br)• $(bold)Hemp Leaf$() → Bio Composite (crafting) or via Extractor$(br)• $(bold)Hemp Fibers$() → Hemp Hammer, Drying Rack, Manual Grinder, Hemp Fabric$(br)• $(bold)Hemp Seeds$() → DNA Strands (via Extractor), first compost$(br)$(br)$(bold)Tip:$() Use $(bold)Bone Meal$() on the crop to accelerate growth. Plant many hemp crops early — you will need large quantities of all three drops."
     }
   ]
 }

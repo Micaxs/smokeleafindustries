@@ -5,9 +5,8 @@
   "sortnum": 17,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:hemp_hammer",
-      "text": "This is a tool used in various crafting recipes. It has 12 uses, so be careful what you use it for, it will break after 12 uses!"
+      "type": "patchouli:text",
+      "text": "The $(bold)Hemp Hammer$() is a crafting tool with $(bold)12 uses$() that is consumed in crafting recipes. It is used to craft $(bold)Bio Composite$() — one of the most important early-game materials.$(br)$(br)$(bold)Warning:$() The Hammer is consumed $(italic)during crafting$(). Each Bio Composite recipe uses 1 hammer durability. With 12 uses, one hammer makes 12 Bio Composites. Craft extras before you run out!$(br)$(br)The Hammer is also required to craft $(bold)Hemp Core$(), the mid-game progression gate that unlocks all machines."
     },
     {
       "type": "patchouli:crafting",

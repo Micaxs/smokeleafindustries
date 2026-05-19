@@ -2,33 +2,27 @@
   "name": "Purple Haze",
   "icon": "smokeleafindustries:purple_haze_bud",
   "category": "smokeleafindustries:strains_category",
-  "sortnum": 3,
+  "sortnum": 6,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:purple_haze_bud",
-      "text": "The Purple Haze Strain$(br2)Base THC: 16% $(br)Base CBD: 9% $(br)Effect: Luck"
+      "type": "patchouli:text",
+      "title": "Purple Haze",
+      "text": "$(bold)Base THC:$() 16% — $(bold)Base CBD:$() 9%$(br)$(bold)Effect:$() Luck (10 seconds)$(br)$(bold)Extra Effects:$() None (THC ≤ 20)$(br)$(br)Obtain via DNA route or buy from Dealer Villager.$(br)$(br)$(bold)Synthesizer Reagents:$()$(br)Purple Dye + Chorus Fruit + Fermented Spider Eye"
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:purple_haze_weed",
-      "text": "Purple Haze Weed can be obtained by grinding your Fresh or Dried buds in a Grinder machine or using the manual grinder."
+      "text": "Grind Purple Haze Buds in the Grinder (2 weed) or Manual Grinder (1 weed)."
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:purple_haze_seeds",
-      "text": "Purple Haze Seeds can be planted on farmland or inside the Grow Pot"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:purple_haze_extract",
-      "text": "Purple Haze Extract can be gained through the DNA Process or by extracting Purple Haze Weed in an Extractor"
+      "text": "Plant on farmland or in a Grow Pot. Harvest at age 10. Get seeds via DNA route or Mutator."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:purple_haze_bag",
-      "text": "You can package your purple haze weed for easier distribution or selling to the stoner villager."
+      "text": "Pack weed into a bag for selling to the Stoner Villager or compact storage."
     }
   ]
 }
-

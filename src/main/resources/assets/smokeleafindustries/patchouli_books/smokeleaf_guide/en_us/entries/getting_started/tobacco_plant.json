@@ -6,14 +6,14 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "its time to start growing your own hemp.$(br)$(br)These drop Tobacco Leaves and Tobacco Seeds $(br)These will be used within some recipes for specific items."
+      "text": "Tobacco plants grow on tilled farmland and produce $(bold)Tobacco Leaves$() when harvested. Dry them in the $(bold)Drying Rack$() or $(bold)Dryer machine$() to create $(bold)Dried Tobacco Leaves$(). Process dried leaves further to get $(bold)Tobacco$() — the ingredient for Joints.$(br)$(br)$(bold)Processing chain:$()$(br)Tobacco Leaves → (dry) → Dried Tobacco Leaves → (grind) → Tobacco$(br)$(br)Tobacco is also sellable to the $(bold)Stoner villager$() for emeralds."
     },
     {
       "type": "patchouli:image",
-      "title": "Hemp Plant",
+      "title": "Tobacco Plant",
       "images": ["smokeleafindustries:textures/guide/tobacco_plant.png"],
       "border": true,
-      "text": "This is an example of a fully grown tobacco plant."
+      "text": "A fully grown Tobacco plant."
     }
   ]
 }
