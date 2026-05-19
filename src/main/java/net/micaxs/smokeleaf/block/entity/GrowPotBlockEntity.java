@@ -465,6 +465,9 @@ public class GrowPotBlockEntity extends BlockEntity {
 
     // Virtual crop "stats" API for the magnifying glass or UI
     public Config.NutrientTarget getOptimalNutrientsLevels() {
+        if (hasCustomStrain() && customStrain != null) {
+            return new Config.NutrientTarget(customStrain.nitrogen(), customStrain.phosphorus(), customStrain.potassium());
+        }
         if (cropBlock == null) return new Config.NutrientTarget(0, 0, 0);
         var cropId = BuiltInRegistries.BLOCK.getKey(cropBlock);
         return Config.getNutrientTargetFor(cropId).orElseGet(() -> new Config.NutrientTarget(0, 0, 0));

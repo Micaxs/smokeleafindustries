@@ -8,6 +8,7 @@ import net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock;
 import net.micaxs.smokeleaf.compat.jade.DryingRackProvider;
 import net.micaxs.smokeleaf.compat.jade.GrowPotProvider;
 import net.micaxs.smokeleaf.compat.jade.ReflectorProvider;
+import net.micaxs.smokeleaf.compat.jade.UnidentifiedCropNameProvider;
 import net.micaxs.smokeleaf.compat.jade.WeedCropProvider;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
@@ -31,6 +32,7 @@ public class JadeSmokeleafIndustriesPlugin implements IWailaPlugin {
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(WeedCropProvider.INSTANCE, BaseWeedCropBlock.class);
         registration.registerBlockComponent(WeedCropProvider.INSTANCE, UnidentifiedWeedCropBlock.class);
+        registration.registerBlockComponent(UnidentifiedCropNameProvider.INSTANCE, UnidentifiedWeedCropBlock.class);
         registration.registerBlockComponent(GrowPotProvider.INSTANCE, GrowPotBlock.class);
         registration.registerBlockComponent(DryingRackProvider.INSTANCE, DryingRackBlock.class);
         registration.registerBlockComponent(ReflectorProvider.INSTANCE, ReflectorBlock.class);
