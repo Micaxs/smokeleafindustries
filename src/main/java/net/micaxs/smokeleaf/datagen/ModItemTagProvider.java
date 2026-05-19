@@ -25,6 +25,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         this.tag(ModTags.WEED_SEEDS).add(
+                ModItems.GENERIC_SEEDS.get(),
                 ModItems.HEMP_SEEDS.get(),
                 ModItems.WHITE_WIDOW_SEEDS.get(),
                 ModItems.SOUR_DIESEL_SEEDS.get(),
@@ -54,6 +55,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         );
 
         this.tag(ModTags.WEEDS).add(
+                ModItems.GENERIC_WEED.get(),
                 ModItems.WHITE_WIDOW_WEED.get(),
                 ModItems.SOUR_DIESEL_WEED.get(),
                 ModItems.LEMON_HAZE_WEED.get(),
@@ -82,6 +84,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         );
 
         this.tag(ModTags.WEED_BUDS).add(
+                ModItems.GENERIC_BUD.get(),
                 ModItems.WHITE_WIDOW_BUD.get(),
                 ModItems.SOUR_DIESEL_BUD.get(),
                 ModItems.LEMON_HAZE_BUD.get(),
@@ -111,6 +114,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         );
 
         this.tag(ModTags.WEED_EXTRACTS).add(
+                ModItems.GENERIC_EXTRACT.get(),
                 ModItems.WHITE_WIDOW_EXTRACT.get(),
                 ModItems.SOUR_DIESEL_EXTRACT.get(),
                 ModItems.LEMON_HAZE_EXTRACT.get(),

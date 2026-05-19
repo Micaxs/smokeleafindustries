@@ -397,7 +397,11 @@ public class SmokeleafIndustriesClient {
                 ModItems.STRAWBERRY_SHORTCAKE_BUD.get(),
                 ModItems.PINK_KUSH_BUD.get(),
 
-                // Custom strains
+                // Generic + custom strain carriers
+                ModItems.GENERIC_SEEDS.get(),
+                ModItems.GENERIC_BUD.get(),
+                ModItems.GENERIC_WEED.get(),
+                ModItems.GENERIC_EXTRACT.get(),
                 ModItems.UNIDENTIFIED_SEEDS.get(),
                 ModItems.UNIDENTIFIED_BUD.get(),
                 ModItems.UNIDENTIFIED_WEED.get(),

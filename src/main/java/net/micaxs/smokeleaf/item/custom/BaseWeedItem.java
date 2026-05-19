@@ -157,6 +157,14 @@ public class BaseWeedItem extends Item {
     }
 
     public MobEffect getEffect(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        if (d != StrainData.EMPTY && !d.effects().isEmpty()) {
+            MobEffect strainEffect = BuiltInRegistries.MOB_EFFECT.get(d.effects().get(0));
+            if (strainEffect != null) {
+                return strainEffect;
+            }
+        }
+
         String effectId = stack.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get());
         if (effectId == null) {
             effectId = BuiltInRegistries.MOB_EFFECT.getKey(this.effect).toString();
@@ -170,11 +178,19 @@ public class BaseWeedItem extends Item {
     }
 
     public int getTHC(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        if (d != StrainData.EMPTY) {
+            return d.thc();
+        }
         Integer thc = stack.get(ModDataComponentTypes.THC.get());
         return thc != null ? thc : this.thcLevel;
     }
 
     public int getCBD(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        if (d != StrainData.EMPTY) {
+            return d.cbd();
+        }
         Integer cbd = stack.get(ModDataComponentTypes.CBD.get());
         return cbd != null ? cbd : this.cbdLevel;
     }

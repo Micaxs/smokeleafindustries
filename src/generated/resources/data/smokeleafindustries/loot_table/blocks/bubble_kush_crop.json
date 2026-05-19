@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": 4293120658,
+                  "thc": 20,
+                  "cbd": 5,
+                  "n": 10,
+                  "p": 8,
+                  "k": 16,
+                  "effects": [
+                    "minecraft:strength"
+                  ],
+                  "amp": 1,
+                  "dur": 180,
+                  "identified": true,
+                  "name": "Bubble Kush"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:bubble_kush_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0
