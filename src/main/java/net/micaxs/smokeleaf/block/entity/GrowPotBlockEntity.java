@@ -266,8 +266,18 @@ public class GrowPotBlockEntity extends BlockEntity {
                 if (drop.getCount() > 0 && budFactor > 1) {
                     drop.setCount(drop.getCount() * budFactor);
                 }
-                BaseBudItem.setThc(drop, thcVal);
-                BaseBudItem.setCbd(drop, cbdVal);
+                StrainData existing = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
+                if (existing != null) {
+                    drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                            existing.colorArgb(), thcVal, cbdVal,
+                            existing.nitrogen(), existing.phosphorus(), existing.potassium(),
+                            existing.effects(), existing.amplifier(), existing.durationTicks(),
+                            existing.identified(), existing.displayName()
+                    ));
+                } else {
+                    BaseBudItem.setThc(drop, thcVal);
+                    BaseBudItem.setCbd(drop, cbdVal);
+                }
             }
         }
 
@@ -408,8 +418,18 @@ public class GrowPotBlockEntity extends BlockEntity {
                 if (drop.getCount() > 0 && budFactor > 1) {
                     drop.setCount(drop.getCount() * budFactor);
                 }
-                BaseBudItem.setThc(drop, thcVal);
-                BaseBudItem.setCbd(drop, cbdVal);
+                StrainData existing = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
+                if (existing != null) {
+                    drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                            existing.colorArgb(), thcVal, cbdVal,
+                            existing.nitrogen(), existing.phosphorus(), existing.potassium(),
+                            existing.effects(), existing.amplifier(), existing.durationTicks(),
+                            existing.identified(), existing.displayName()
+                    ));
+                } else {
+                    BaseBudItem.setThc(drop, thcVal);
+                    BaseBudItem.setCbd(drop, cbdVal);
+                }
             }
         }
 

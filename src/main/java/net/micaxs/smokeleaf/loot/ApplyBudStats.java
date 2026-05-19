@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
+import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -40,8 +41,19 @@ public class ApplyBudStats extends LootItemConditionalFunction {
         if (be instanceof BaseWeedCropBlockEntity crop) {
             int buds = Mth.clamp(crop.getBudCount(), 1, 3);
             stack.setCount(buds);
-            stack.set(ModDataComponentTypes.THC.get(), crop.getThc());
-            stack.set(ModDataComponentTypes.CBD.get(), crop.getCbd());
+            StrainData existing = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (existing != null) {
+                // Patch actual grown THC/CBD into STRAIN_DATA, preserving all other fields
+                stack.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                        existing.colorArgb(), crop.getThc(), crop.getCbd(),
+                        existing.nitrogen(), existing.phosphorus(), existing.potassium(),
+                        existing.effects(), existing.amplifier(), existing.durationTicks(),
+                        existing.identified(), existing.displayName()
+                ));
+            } else {
+                stack.set(ModDataComponentTypes.THC.get(), crop.getThc());
+                stack.set(ModDataComponentTypes.CBD.get(), crop.getCbd());
+            }
         }
         return stack;
     }
