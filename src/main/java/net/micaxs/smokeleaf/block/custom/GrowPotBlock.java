@@ -97,10 +97,14 @@ public class GrowPotBlock extends BaseEntityBlock {
                 && stack.getItem() instanceof BlockItem bi
                 && bi.getBlock().builtInRegistryHolder().is(ModTags.POT_SOILS);
 
+        // Unidentified seeds are handled separately: they don't have a BaseWeedCropBlock via the resolver
+        // (UnidentifiedWeedCropBlock extends CropBlock, not BaseWeedCropBlock), but the GrowPot
+        // supports them by proxying through the hemp crop for growth/rendering.
+        boolean isUnidentifiedSeeds = stack.is(ModItems.UNIDENTIFIED_SEEDS.get());
         boolean canPlantCrop = pot.hasSoil()
                 && !pot.hasCrop()
-                && (stack.is(ModTags.WEED_SEEDS) || stack.is(ModItems.UNIDENTIFIED_SEEDS.get()))
-                && GrowPotBlockEntity.resolveCropBySeed(stack.getItem()) != null;
+                && (isUnidentifiedSeeds
+                    || (stack.is(ModTags.WEED_SEEDS) && GrowPotBlockEntity.resolveCropBySeed(stack.getItem()) != null));
 
         boolean canFertilize = pot.hasCrop() && holdingFertilizer && !pot.canHarvest();
         boolean tryingFertilizeFullyGrown = pot.hasCrop() && holdingFertilizer && pot.canHarvest();

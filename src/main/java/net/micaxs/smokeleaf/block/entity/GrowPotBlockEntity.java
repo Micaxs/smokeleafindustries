@@ -225,6 +225,22 @@ public class GrowPotBlockEntity extends BlockEntity {
     private List<ItemStack> getHarvestDrops(ServerLevel serverLevel) {
         if (cropBlock == null) return List.of();
 
+        // Custom strain: emit UNIDENTIFIED_BUD with strain data (mirrors harvest() logic)
+        if (hasCustomStrain()) {
+            ItemStack bud = new ItemStack(ModItems.UNIDENTIFIED_BUD.get());
+            StrainData d = customStrain;
+            if (d != null) {
+                d = new StrainData(d.colorArgb(), getThc(), getCbd(),
+                        getNitrogen(), getPhosphorus(), getPotassium(),
+                        d.effects(), d.amplifier(), d.durationTicks(),
+                        d.identified(), d.displayName());
+                bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+            }
+            int budFactor = getBudCount();
+            if (budFactor > 1) bud.setCount(bud.getCount() * budFactor);
+            return List.of(bud);
+        }
+
         BlockState lootState = cropBlock.defaultBlockState()
                 .setValue(BaseWeedCropBlock.AGE, cropBlock.getMaxAge())
                 .setValue(cropBlock.getTop(), Boolean.FALSE);
@@ -587,8 +603,16 @@ public class GrowPotBlockEntity extends BlockEntity {
             inventory.setItem(slot++, new ItemStack(soilState.getBlock()));
         }
         if (hasCrop() && cropBlock != null) {
-            Item seedItem = cropBlock.getBaseSeedId().asItem();
-            inventory.setItem(slot, new ItemStack(seedItem));
+            ItemStack seedStack;
+            if (hasCustomStrain()) {
+                seedStack = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+                if (customStrain != null && customStrain != StrainData.EMPTY) {
+                    seedStack.set(ModDataComponentTypes.STRAIN_DATA.get(), customStrain);
+                }
+            } else {
+                seedStack = new ItemStack(cropBlock.getBaseSeedId().asItem());
+            }
+            inventory.setItem(slot, seedStack);
         }
         if (level != null) {
             Containers.dropContents(level, worldPosition, inventory);
