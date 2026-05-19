@@ -2,6 +2,8 @@ package net.micaxs.smokeleaf.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
+import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -33,7 +35,20 @@ public record ExtractorRecipe(Ingredient inputItem, ItemStack output) implements
 
     @Override
     public ItemStack assemble(ExtractorRecipeInput extractorRecipeInput, HolderLookup.Provider provider) {
-        return output.copy();
+        ItemStack out = output.copy();
+        ItemStack in = extractorRecipeInput.getItem(0);
+        if (!in.isEmpty()) {
+            StrainData sd = in.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (sd != null) {
+                out.set(ModDataComponentTypes.STRAIN_DATA.get(), sd);
+            } else {
+                Integer thc = in.get(ModDataComponentTypes.THC.get());
+                Integer cbd = in.get(ModDataComponentTypes.CBD.get());
+                if (thc != null) out.set(ModDataComponentTypes.THC.get(), thc);
+                if (cbd != null) out.set(ModDataComponentTypes.CBD.get(), cbd);
+            }
+        }
+        return out;
     }
 
     @Override

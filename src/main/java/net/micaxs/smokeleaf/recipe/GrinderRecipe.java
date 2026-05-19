@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
+import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -34,21 +35,23 @@ public record GrinderRecipe(Ingredient inputItem, ItemStack output) implements R
     public ItemStack assemble(GrinderRecipeInput grinderRecipeInput, HolderLookup.Provider provider) {
         ItemStack out = output.copy();
         ItemStack in = grinderRecipeInput.getItem(0);
-
         if (!in.isEmpty()) {
             // Initialize weed defaults first (effect, duration, default THC/CBD)
             if (out.getItem() instanceof BaseWeedItem weedItem) {
                 weedItem.initializeStack(out);
             }
-
-            // Only overwrite if present on the bud to avoid reverting to defaults
-            Integer thc = in.get(ModDataComponentTypes.THC.get());
-            Integer cbd = in.get(ModDataComponentTypes.CBD.get());
-
-            if (thc != null) out.set(ModDataComponentTypes.THC.get(), thc);
-            if (cbd != null) out.set(ModDataComponentTypes.CBD.get(), cbd);
+            // If input has STRAIN_DATA, use that as the complete source of truth
+            StrainData sd = in.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (sd != null) {
+                out.set(ModDataComponentTypes.STRAIN_DATA.get(), sd);
+            } else {
+                // Legacy: copy individual THC/CBD components
+                Integer thc = in.get(ModDataComponentTypes.THC.get());
+                Integer cbd = in.get(ModDataComponentTypes.CBD.get());
+                if (thc != null) out.set(ModDataComponentTypes.THC.get(), thc);
+                if (cbd != null) out.set(ModDataComponentTypes.CBD.get(), cbd);
+            }
         }
-
         return out;
     }
 

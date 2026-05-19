@@ -1,0 +1,10 @@
+{
+  "type": "smokeleafindustries:grinder",
+  "ingredient": {
+    "tag": "smokeleafindustries:weed_buds"
+  },
+  "result": {
+    "id": "smokeleafindustries:weed",
+    "count": 2
+  }
+}

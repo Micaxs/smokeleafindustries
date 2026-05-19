@@ -89,6 +89,7 @@ public class ModRecipes {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<LoadManualGrinderRecipe>> LOAD_MANUAL_GRINDER_SERIALIZER = SERIALIZERS.register("load_manual_grinder", () -> LoadManualGrinderRecipe.Serializer.INSTANCE);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ManualGrinderRecipe>> MANUAL_GRINDER_SERIALIZER = SERIALIZERS.register("manual_grinder", ManualGrinderRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StrainCopyShapelessRecipe>> STRAIN_COPY_SHAPELESS_SERIALIZER = SERIALIZERS.register("strain_copy_shapeless", StrainCopyShapelessRecipe.Serializer::new);
     public static final DeferredHolder<RecipeType<?>, RecipeType<ManualGrinderRecipe>> MANUAL_GRINDER_TYPE = TYPES.register("manual_grinder", () -> new RecipeType<ManualGrinderRecipe>() {
         @Override
         public String toString() {

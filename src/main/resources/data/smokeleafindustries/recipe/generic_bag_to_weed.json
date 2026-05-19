@@ -1,0 +1,11 @@
+{
+  "type": "smokeleafindustries:strain_copy_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "smokeleafindustries:bag" }
+  ],
+  "result": {
+    "count": 8,
+    "id": "smokeleafindustries:weed"
+  }
+}
