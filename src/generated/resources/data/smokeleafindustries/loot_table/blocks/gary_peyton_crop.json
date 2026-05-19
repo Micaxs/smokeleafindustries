@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -1846346,
+                  "thc": 22,
+                  "cbd": 3,
+                  "n": 14,
+                  "p": 15,
+                  "k": 9,
+                  "effects": [
+                    "smokeleafindustries:uplifted"
+                  ],
+                  "amp": 1,
+                  "dur": 195,
+                  "identified": true,
+                  "name": "Gary Peyton"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:gary_peyton_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

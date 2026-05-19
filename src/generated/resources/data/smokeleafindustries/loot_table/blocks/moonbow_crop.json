@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -3285360,
+                  "thc": 30,
+                  "cbd": 13,
+                  "n": 15,
+                  "p": 2,
+                  "k": 22,
+                  "effects": [
+                    "minecraft:night_vision"
+                  ],
+                  "amp": 1,
+                  "dur": 215,
+                  "identified": true,
+                  "name": "Moonbow"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:moonbow_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

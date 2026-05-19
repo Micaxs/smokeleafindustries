@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -5917315,
+                  "thc": 19,
+                  "cbd": 6,
+                  "n": 10,
+                  "p": 13,
+                  "k": 9,
+                  "effects": [
+                    "smokeleafindustries:zombified"
+                  ],
+                  "amp": 1,
+                  "dur": 185,
+                  "identified": true,
+                  "name": "Amnesia Haze"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:amnesia_haze_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

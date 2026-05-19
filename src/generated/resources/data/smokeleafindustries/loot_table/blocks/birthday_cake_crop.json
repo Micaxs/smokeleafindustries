@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -1442351,
+                  "thc": 23,
+                  "cbd": 2,
+                  "n": 11,
+                  "p": 13,
+                  "k": 16,
+                  "effects": [
+                    "minecraft:oozing"
+                  ],
+                  "amp": 1,
+                  "dur": 170,
+                  "identified": true,
+                  "name": "Birthday Cake"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:birthday_cake_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

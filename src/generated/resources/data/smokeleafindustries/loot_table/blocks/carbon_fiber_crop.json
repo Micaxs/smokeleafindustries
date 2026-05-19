@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -6182743,
+                  "thc": 24,
+                  "cbd": 1,
+                  "n": 14,
+                  "p": 13,
+                  "k": 20,
+                  "effects": [
+                    "smokeleafindustries:vein_high"
+                  ],
+                  "amp": 1,
+                  "dur": 230,
+                  "identified": true,
+                  "name": "Carbon Fiber"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:carbon_fiber_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

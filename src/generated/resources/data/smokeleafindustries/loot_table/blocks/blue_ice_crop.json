@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -4789830,
+                  "thc": 20,
+                  "cbd": 5,
+                  "n": 14,
+                  "p": 9,
+                  "k": 14,
+                  "effects": [
+                    "minecraft:night_vision"
+                  ],
+                  "amp": 1,
+                  "dur": 190,
+                  "identified": true,
+                  "name": "Blue Ice"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:blue_ice_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0
