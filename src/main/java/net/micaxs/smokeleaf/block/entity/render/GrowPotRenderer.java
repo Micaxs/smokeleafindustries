@@ -2,27 +2,31 @@
 package net.micaxs.smokeleaf.block.entity.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.micaxs.smokeleaf.block.entity.GrowPotBlockEntity;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.model.data.ModelData;
+
+import java.util.List;
 
 public class GrowPotRenderer implements BlockEntityRenderer<GrowPotBlockEntity> {
     private final BlockRenderDispatcher dispatcher;
 
-    /**
-     * Set by this renderer before calling {@code renderSingleBlock} on an unidentified crop so
-     * that the {@code BlockColor} handler can read the strain tint even though
-     * {@code renderSingleBlock} passes {@code level=null, pos=null}.
-     * Always cleared after rendering, even on exception.
-     */
-    public static final ThreadLocal<Integer> RENDER_STRAIN_COLOR = new ThreadLocal<>();
+    /** Fixed base-layer tint color (same as the in-world BlockColor handler for tintIndex 0). */
+    private static final int BASE_GREEN = 0xFF99D335;
 
     private static final float XZ_SCALE = 12f / 16f;
     private static final float Y_BASE = 1.0f;
@@ -54,32 +58,76 @@ public class GrowPotRenderer implements BlockEntityRenderer<GrowPotBlockEntity> 
         }
 
         BlockState cropBottom = be.getBottomCropStateForRender();
-        if (cropBottom != null) {
-            // Push strain color for the BlockColor handler if this is a custom strain.
-            // renderSingleBlock passes level=null/pos=null so the handler can't look up
-            // the BE itself — we thread the color through a ThreadLocal instead.
-            StrainData customStrain = be.getCustomStrain();
-            if (customStrain != null && customStrain != StrainData.EMPTY) {
-                RENDER_STRAIN_COLOR.set(customStrain.colorArgb());
-            }
+        if (cropBottom == null) return;
 
-            try {
-                pose.pushPose();
-                pose.translate(0.5D, 0.0D, 0.5D);
-                pose.scale(XZ_SCALE, CROP_Y_SCALE, XZ_SCALE);
-                pose.translate(-0.5D, 0.0D, -0.5D);
-                pose.translate(0.0D, 0.6f, 0.0D);
-                dispatcher.renderSingleBlock(cropBottom, pose, buffers, packedLight, OverlayTexture.NO_OVERLAY);
+        StrainData customStrain = be.getCustomStrain();
+        boolean isCustom = customStrain != null && customStrain != StrainData.EMPTY;
 
-                BlockState cropTop = be.getTopCropStateForRender();
-                if (cropTop != null) {
-                    pose.translate(0.0D, 1.0D, 0.0D);
-                    dispatcher.renderSingleBlock(cropTop, pose, buffers, packedLight, OverlayTexture.NO_OVERLAY);
-                }
-                pose.popPose();
-            } finally {
-                RENDER_STRAIN_COLOR.remove();
+        pose.pushPose();
+        pose.translate(0.5D, 0.0D, 0.5D);
+        pose.scale(XZ_SCALE, CROP_Y_SCALE, XZ_SCALE);
+        pose.translate(-0.5D, 0.0D, -0.5D);
+        pose.translate(0.0D, 0.6f, 0.0D);
+
+        if (isCustom) {
+            // renderSingleBlock only queries BlockColors at tintIndex=0 and applies that
+            // single color to every quad. For the two-layer unidentified crop model we need
+            // tintIndex=0 → base green and tintIndex=1 → strain color, so we render the
+            // quads ourselves with per-quad tinting.
+            renderTintedModel(cropBottom, customStrain.colorArgb(), pose.last(), buffers, packedLight, packedOverlay);
+            BlockState cropTop = be.getTopCropStateForRender();
+            if (cropTop != null) {
+                pose.translate(0.0D, 1.0D, 0.0D);
+                renderTintedModel(cropTop, customStrain.colorArgb(), pose.last(), buffers, packedLight, packedOverlay);
             }
+        } else {
+            dispatcher.renderSingleBlock(cropBottom, pose, buffers, packedLight, OverlayTexture.NO_OVERLAY);
+            BlockState cropTop = be.getTopCropStateForRender();
+            if (cropTop != null) {
+                pose.translate(0.0D, 1.0D, 0.0D);
+                dispatcher.renderSingleBlock(cropTop, pose, buffers, packedLight, OverlayTexture.NO_OVERLAY);
+            }
+        }
+
+        pose.popPose();
+    }
+
+    /**
+     * Renders all quads of {@code state}'s model with per-quad tinting:
+     * tintIndex 0 → base green, tintIndex 1 → {@code maskColor} (the strain color).
+     * This bypasses {@code renderSingleBlock}, which only supports a single tint color
+     * derived from tintIndex 0.
+     */
+    private void renderTintedModel(BlockState state, int maskColor,
+            PoseStack.Pose pose, MultiBufferSource buffers, int packedLight, int packedOverlay) {
+        BakedModel model = dispatcher.getBlockModel(state);
+        RandomSource random = RandomSource.create();
+
+        for (RenderType renderType : model.getRenderTypes(state, random, ModelData.EMPTY)) {
+            VertexConsumer consumer = buffers.getBuffer(renderType);
+            // null direction = unculled quads (cross models place all faces here)
+            renderQuadList(model.getQuads(state, null, random, ModelData.EMPTY, renderType),
+                    consumer, pose, maskColor, packedLight, packedOverlay);
+            for (Direction dir : Direction.values()) {
+                renderQuadList(model.getQuads(state, dir, random, ModelData.EMPTY, renderType),
+                        consumer, pose, maskColor, packedLight, packedOverlay);
+            }
+        }
+    }
+
+    private static void renderQuadList(List<BakedQuad> quads, VertexConsumer consumer,
+            PoseStack.Pose pose, int maskColor, int packedLight, int packedOverlay) {
+        for (BakedQuad quad : quads) {
+            int color;
+            if (quad.isTinted()) {
+                color = (quad.getTintIndex() == 1) ? maskColor : BASE_GREEN;
+            } else {
+                color = 0xFFFFFFFF;
+            }
+            float r = ((color >> 16) & 0xFF) / 255.0f;
+            float g = ((color >> 8) & 0xFF) / 255.0f;
+            float b = (color & 0xFF) / 255.0f;
+            consumer.putBulkData(pose, quad, r, g, b, 1.0f, packedLight, packedOverlay);
         }
     }
 
