@@ -1,0 +1,19 @@
+{
+  "type": "smokeleafindustries:strain_copy_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "smokeleafindustries:empty_bag" },
+    { "item": "smokeleafindustries:weed" },
+    { "item": "smokeleafindustries:weed" },
+    { "item": "smokeleafindustries:weed" },
+    { "item": "smokeleafindustries:weed" },
+    { "item": "smokeleafindustries:weed" },
+    { "item": "smokeleafindustries:weed" },
+    { "item": "smokeleafindustries:weed" },
+    { "item": "smokeleafindustries:weed" }
+  ],
+  "result": {
+    "count": 1,
+    "id": "smokeleafindustries:bag"
+  }
+}

@@ -62,9 +62,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
                 return false;
             }
 
-            // Custom strains can't be extracted.
-            if (stack.is(ModItems.UNIDENTIFIED_BUD.get()) || stack.is(ModItems.UNIDENTIFIED_WEED.get())
-                    || stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+            if (stack.isEmpty() || level == null || stack.is(ModItems.UNIDENTIFIED_BUD.get()) || stack.is(ModItems.UNIDENTIFIED_WEED.get())) {
                 return false;
             }
 
@@ -155,6 +153,12 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     private ItemStack buildOutputWithWeedData(ItemStack input, ItemStack recipeOutput) {
         ItemStack result = new ItemStack(recipeOutput.getItem(), recipeOutput.getCount());
 
+        var strainData = input.get(ModDataComponentTypes.STRAIN_DATA.get());
+        if (strainData != null) {
+            result.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+            return result;
+        }
+
         Integer thc = input.get(ModDataComponentTypes.THC.get());
         if (thc != null) result.set(ModDataComponentTypes.THC.get(), thc);
 
@@ -169,6 +173,10 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private boolean areWeedDataEqual(ItemStack a, ItemStack b) {
+        var aStrain = a.get(ModDataComponentTypes.STRAIN_DATA.get());
+        var bStrain = b.get(ModDataComponentTypes.STRAIN_DATA.get());
+        if (!Objects.equals(aStrain, bStrain)) return false;
+
         Integer aTHC = a.get(ModDataComponentTypes.THC.get());
         Integer bTHC = b.get(ModDataComponentTypes.THC.get());
         if (!Objects.equals(aTHC, bTHC)) return false;
@@ -228,9 +236,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
 
     private boolean hasRecipe() {
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
-        // Custom strains can't be extracted (double check for automation insertion).
-        if (input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())
-                || input.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+        if (input.isEmpty() || level == null || input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())) {
             return false;
         }
 
@@ -268,9 +274,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
         if (recipe.isEmpty()) return;
 
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
-        // Custom strains can't be extracted (safety).
-        if (input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())
-                || input.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+        if (input.isEmpty() || level == null || input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())) {
             return;
         }
 

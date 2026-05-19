@@ -33,6 +33,8 @@ public class ModItems {
             () -> new BaseWeedItem(new Item.Properties(), MobEffects.WIND_CHARGED.value(), 200, 1, 15, 10, true));
     public static final DeferredItem<Item> GENERIC_EXTRACT = ITEMS.register("extract",
             () -> new BaseWeedItem(new Item.Properties(), MobEffects.WIND_CHARGED.value(), 400, 2, 15, 10, false));
+    public static final DeferredItem<Item> GENERIC_BAG = ITEMS.register("bag",
+            () -> new GenericBagItem(new Item.Properties().stacksTo(64)));
 
     // Deprecated named strain seeds. Superseded by GENERIC_SEEDS + STRAIN_DATA and kept for world compatibility.
     public static final DeferredItem<Item>  HEMP_SEEDS = ITEMS.register("hemp_seeds",
