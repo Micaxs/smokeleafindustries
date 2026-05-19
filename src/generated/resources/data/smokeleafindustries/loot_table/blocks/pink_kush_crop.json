@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -4285286,
+                  "thc": 19,
+                  "cbd": 6,
+                  "n": 17,
+                  "p": 9,
+                  "k": 12,
+                  "effects": [
+                    "minecraft:regeneration"
+                  ],
+                  "amp": 1,
+                  "dur": 205,
+                  "identified": true,
+                  "name": "Pink Kush"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:pink_kush_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

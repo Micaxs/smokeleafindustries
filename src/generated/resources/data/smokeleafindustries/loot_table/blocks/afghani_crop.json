@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -13163,
+                  "thc": 18,
+                  "cbd": 7,
+                  "n": 11,
+                  "p": 10,
+                  "k": 19,
+                  "effects": [
+                    "minecraft:bad_omen"
+                  ],
+                  "amp": 1,
+                  "dur": 240,
+                  "identified": true,
+                  "name": "Afghani"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:afghani_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

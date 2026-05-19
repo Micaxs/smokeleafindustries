@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -6311265,
+                  "thc": 17,
+                  "cbd": 8,
+                  "n": 10,
+                  "p": 13,
+                  "k": 9,
+                  "effects": [
+                    "smokeleafindustries:linguists_high"
+                  ],
+                  "amp": 1,
+                  "dur": 180,
+                  "identified": true,
+                  "name": "Blue Cookies"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:blue_cookies_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -3881,
+                  "thc": 19,
+                  "cbd": 6,
+                  "n": 13,
+                  "p": 12,
+                  "k": 10,
+                  "effects": [
+                    "smokeleafindustries:shy"
+                  ],
+                  "amp": 1,
+                  "dur": 220,
+                  "identified": true,
+                  "name": "Ghost Train"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:ghost_train_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

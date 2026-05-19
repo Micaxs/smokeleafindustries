@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -7226512,
+                  "thc": 25,
+                  "cbd": 10,
+                  "n": 12,
+                  "p": 13,
+                  "k": 15,
+                  "effects": [
+                    "minecraft:resistance"
+                  ],
+                  "amp": 1,
+                  "dur": 210,
+                  "identified": true,
+                  "name": "OG Kush"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:og_kush_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

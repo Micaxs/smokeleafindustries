@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -6771042,
+                  "thc": 18,
+                  "cbd": 7,
+                  "n": 15,
+                  "p": 13,
+                  "k": 15,
+                  "effects": [
+                    "smokeleafindustries:aroused"
+                  ],
+                  "amp": 1,
+                  "dur": 175,
+                  "identified": true,
+                  "name": "Grape Ape"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:grape_ape_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

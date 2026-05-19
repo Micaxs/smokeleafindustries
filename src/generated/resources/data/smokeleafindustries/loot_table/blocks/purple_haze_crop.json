@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -2850317,
+                  "thc": 16,
+                  "cbd": 9,
+                  "n": 11,
+                  "p": 13,
+                  "k": 7,
+                  "effects": [
+                    "minecraft:luck"
+                  ],
+                  "amp": 1,
+                  "dur": 140,
+                  "identified": true,
+                  "name": "Purple Haze"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:purple_haze_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

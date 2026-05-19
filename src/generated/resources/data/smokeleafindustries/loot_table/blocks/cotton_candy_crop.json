@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": -1063455,
+                  "thc": 19,
+                  "cbd": 6,
+                  "n": 10,
+                  "p": 13,
+                  "k": 9,
+                  "effects": [
+                    "smokeleafindustries:chillout"
+                  ],
+                  "amp": 1,
+                  "dur": 165,
+                  "identified": true,
+                  "name": "Cotton Candy"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:cotton_candy_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0
