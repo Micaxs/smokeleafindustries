@@ -303,40 +303,29 @@ public class SmokeleafIndustriesClient {
     @SubscribeEvent
     public static void onBlockColor(RegisterColorHandlersEvent.Block event) {
         BlockColor blockColor = (state, level, pos, tintIndex) -> {
-            // Only tint our unidentified crop (bottom/top both use the same block).
             if (state == null || state.getBlock() != ModBlocks.UNIDENTIFIED_WEED_CROP.get()) {
                 return 0xFFFFFFFF;
             }
 
-            // tintIndex 0 => base layer, fixed color.
+            // tintIndex 0 => base layer, fixed green.
             if (tintIndex == 0) {
-                String[] baseColors = new String[]{"99d335"};
-                return Integer.parseInt(baseColors[0], 16) | 0xFF000000;
+                return 0xFF99D335;
             }
 
-            // tintIndex 1 => mask layer, strain color.
-            if (tintIndex == 1) {
-                // When called from GrowPotRenderer.renderSingleBlock, level and pos are null.
-                // The renderer pushes the strain color into a ThreadLocal for us to read here.
-                if (level == null) {
-                    Integer threadColor = GrowPotRenderer.RENDER_STRAIN_COLOR.get();
-                    return threadColor != null ? threadColor : 0xFFFFFFFF;
+            // tintIndex 1 => mask layer, strain color (in-world rendering only).
+            if (tintIndex == 1 && level != null && pos != null) {
+                BlockEntity be = level.getBlockEntity(pos);
+
+                // StrainData is stored on the bottom half BE; top half has no BE, so look down one block.
+                if (!(be instanceof UnidentifiedWeedCropBlockEntity) && state.hasProperty(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP)
+                        && Boolean.TRUE.equals(state.getValue(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP))) {
+                    be = level.getBlockEntity(pos.below());
                 }
 
-                if (pos != null) {
-                    BlockEntity be = level.getBlockEntity(pos);
-
-                    // StrainData is stored on the bottom half BE; top half has no BE, so look down one block.
-                    if (!(be instanceof UnidentifiedWeedCropBlockEntity) && state.hasProperty(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP)
-                            && Boolean.TRUE.equals(state.getValue(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP))) {
-                        be = level.getBlockEntity(pos.below());
-                    }
-
-                    if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
-                        StrainData d = cropBe.getStrain();
-                        if (d != null && d != StrainData.EMPTY) {
-                            return d.colorArgb();
-                        }
+                if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
+                    StrainData d = cropBe.getStrain();
+                    if (d != null && d != StrainData.EMPTY) {
+                        return d.colorArgb();
                     }
                 }
             }
