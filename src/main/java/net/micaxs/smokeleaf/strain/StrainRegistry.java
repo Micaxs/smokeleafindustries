@@ -21,6 +21,7 @@ public final class StrainRegistry {
     static {
         register("white_widow", preset(
                 0xFFCAD9B3,
+                0xFF5A8A3A,
                 15, 10,
                 9, 6, 11,
                 List.of(rl("minecraft", "wind_charged")),
@@ -30,6 +31,7 @@ public final class StrainRegistry {
         ));
         register("bubble_kush", preset(
                 0xFFE3D292,
+                0xFF3D6B2A,
                 20, 5,
                 10, 8, 16,
                 List.of(rl("minecraft", "strength")),
@@ -39,6 +41,7 @@ public final class StrainRegistry {
         ));
         register("lemon_haze", preset(
                 0xFFCDDC98,
+                0xFF6A9A20,
                 19, 6,
                 9, 12, 15,
                 List.of(rl("minecraft", "speed")),
@@ -48,6 +51,7 @@ public final class StrainRegistry {
         ));
         register("sour_diesel", preset(
                 0xFFFFBDB8,
+                0xFF4A8A18,
                 19, 6,
                 11, 13, 10,
                 List.of(rl("minecraft", "haste")),
@@ -57,6 +61,7 @@ public final class StrainRegistry {
         ));
         register("blue_ice", preset(
                 0xFFB6E9BA,
+                0xFF2A5A4A,
                 20, 5,
                 14, 9, 14,
                 List.of(rl("minecraft", "night_vision")),
@@ -66,6 +71,7 @@ public final class StrainRegistry {
         ));
         register("bubblegum", preset(
                 0xFFCAA375,
+                0xFF5A7A2A,
                 17, 8,
                 14, 14, 12,
                 List.of(rl("minecraft", "health_boost")),
@@ -75,6 +81,7 @@ public final class StrainRegistry {
         ));
         register("purple_haze", preset(
                 0xFFD481F3,
+                0xFF3A5A2A,
                 16, 9,
                 11, 13, 7,
                 List.of(rl("minecraft", "luck")),
@@ -84,6 +91,7 @@ public final class StrainRegistry {
         ));
         register("og_kush", preset(
                 0xFF91BB70,
+                0xFF2A5A1A,
                 25, 10,
                 12, 13, 15,
                 List.of(rl("minecraft", "resistance")),
@@ -93,6 +101,7 @@ public final class StrainRegistry {
         ));
         register("jack_herer", preset(
                 0xFFDDD084,
+                0xFF4A7A2E,
                 18, 7,
                 10, 15, 10,
                 List.of(rl("smokeleafindustries", "r_trees")),
@@ -102,6 +111,7 @@ public final class StrainRegistry {
         ));
         register("gary_peyton", preset(
                 0xFFE3D3B6,
+                0xFF3A6A3A,
                 22, 3,
                 14, 15, 9,
                 List.of(rl("smokeleafindustries", "uplifted")),
@@ -111,6 +121,7 @@ public final class StrainRegistry {
         ));
         register("amnesia_haze", preset(
                 0xFFA5B57D,
+                0xFF6A9A30,
                 19, 6,
                 10, 13, 9,
                 List.of(rl("smokeleafindustries", "zombified")),
@@ -120,6 +131,7 @@ public final class StrainRegistry {
         ));
         register("ak47", preset(
                 0xFFAFAE61,
+                0xFF3A6A1A,
                 19, 6,
                 17, 8, 11,
                 List.of(rl("smokeleafindustries", "relaxed")),
@@ -129,6 +141,7 @@ public final class StrainRegistry {
         ));
         register("ghost_train", preset(
                 0xFFFFF0D7,
+                0xFF2A4A2A,
                 19, 6,
                 13, 12, 10,
                 List.of(rl("smokeleafindustries", "shy")),
@@ -138,6 +151,7 @@ public final class StrainRegistry {
         ));
         register("grape_ape", preset(
                 0xFF98AE9E,
+                0xFF3A5A2A,
                 18, 7,
                 15, 13, 15,
                 List.of(rl("smokeleafindustries", "aroused")),
@@ -147,6 +161,7 @@ public final class StrainRegistry {
         ));
         register("cotton_candy", preset(
                 0xFFEFC5E1,
+                0xFF5A8A4A,
                 19, 6,
                 10, 13, 9,
                 List.of(rl("smokeleafindustries", "chillout")),
@@ -156,6 +171,7 @@ public final class StrainRegistry {
         ));
         register("banana_kush", preset(
                 0xFFD8D6A1,
+                0xFF6A8A20,
                 21, 4,
                 15, 13, 15,
                 List.of(rl("smokeleafindustries", "sticky_icky")),
@@ -165,6 +181,7 @@ public final class StrainRegistry {
         ));
         register("carbon_fiber", preset(
                 0xFFA1A8A9,
+                0xFF2A3A2A,
                 24, 1,
                 14, 13, 20,
                 List.of(rl("smokeleafindustries", "vein_high")),
@@ -174,6 +191,7 @@ public final class StrainRegistry {
         ));
         register("birthday_cake", preset(
                 0xFFE9FDD1,
+                0xFF5A7A3A,
                 23, 2,
                 11, 13, 16,
                 List.of(rl("minecraft", "oozing")),
@@ -183,6 +201,7 @@ public final class StrainRegistry {
         ));
         register("blue_cookies", preset(
                 0xFF9FB29F,
+                0xFF2A5A3A,
                 17, 8,
                 10, 13, 9,
                 List.of(rl("smokeleafindustries", "linguists_high")),
@@ -192,6 +211,7 @@ public final class StrainRegistry {
         ));
         register("afghani", preset(
                 0xFFFFCC95,
+                0xFF3A6A1A,
                 18, 7,
                 11, 10, 19,
                 List.of(rl("minecraft", "bad_omen")),
@@ -201,6 +221,7 @@ public final class StrainRegistry {
         ));
         register("moonbow", preset(
                 0xFFCDDE90,
+                0xFF4A7A4A,
                 30, 13,
                 15, 2, 22,
                 List.of(rl("minecraft", "night_vision")),
@@ -210,6 +231,7 @@ public final class StrainRegistry {
         ));
         register("lava_cake", preset(
                 0xFFE5916C,
+                0xFF3A5A2A,
                 22, 3,
                 14, 12, 11,
                 List.of(rl("minecraft", "glowing")),
@@ -219,6 +241,7 @@ public final class StrainRegistry {
         ));
         register("jelly_rancher", preset(
                 0xFFFFF7B5,
+                0xFF5A8A3A,
                 20, 5,
                 11, 14, 9,
                 List.of(rl("minecraft", "dolphins_grace")),
@@ -228,6 +251,7 @@ public final class StrainRegistry {
         ));
         register("strawberry_shortcake", preset(
                 0xFFDBCDC6,
+                0xFF5A8A3A,
                 16, 9,
                 14, 11, 15,
                 List.of(rl("smokeleafindustries", "high_flyer")),
@@ -237,6 +261,7 @@ public final class StrainRegistry {
         ));
         register("pink_kush", preset(
                 0xFFBE9C9A,
+                0xFF4A7A2A,
                 19, 6,
                 17, 9, 12,
                 List.of(rl("minecraft", "regeneration")),
@@ -270,6 +295,7 @@ public final class StrainRegistry {
     }
 
     private static StrainData preset(int colorArgb,
+                                     int leafColor,
                                      int thc,
                                      int cbd,
                                      int nitrogen,
@@ -281,6 +307,7 @@ public final class StrainRegistry {
                                      String displayName) {
         return new StrainData(
                 colorArgb,
+                leafColor,
                 thc,
                 cbd,
                 nitrogen,

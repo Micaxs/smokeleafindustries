@@ -45,7 +45,7 @@ public class ApplyBudStats extends LootItemConditionalFunction {
             if (existing != null) {
                 // Patch actual grown THC/CBD into STRAIN_DATA, preserving all other fields
                 stack.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
-                        existing.colorArgb(), crop.getThc(), crop.getCbd(),
+                        existing.colorArgb(), existing.leafColor(), crop.getThc(), crop.getCbd(),
                         existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                         existing.effects(), existing.amplifier(), existing.durationTicks(),
                         existing.identified(), existing.displayName()

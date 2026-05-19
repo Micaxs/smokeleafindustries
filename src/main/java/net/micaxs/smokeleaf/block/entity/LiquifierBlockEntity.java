@@ -184,17 +184,21 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
         // If we are producing the player-made mixture, ensure it carries strain data + effects + stable stat rolls.
         // (MixtureWeedFluidType uses STRAIN_DATA to tint dynamically.)
         if (!in.isEmpty() && out.getFluid() == net.micaxs.smokeleaf.fluid.ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
+            // Read STRAIN_DATA from input item (generic extract with strain data)
+            StrainData inputSD = in.get(ModDataComponentTypes.STRAIN_DATA.get());
+
             // Ensure STRAIN_DATA exists.
-            StrainData base = out.has(ModDataComponentTypes.STRAIN_DATA.get()) ? StrainUtil.getStrain(out) : null;
-            if (base == null || base == StrainData.EMPTY) {
+            StrainData base;
+            if (inputSD != null && inputSD != StrainData.EMPTY) {
+                base = inputSD;
+            } else if (out.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+                base = StrainUtil.getStrain(out);
+            } else {
                 base = new StrainData(
-                        StrainUtil.DEFAULT_UNIDENTIFIED_COLOR,
+                        StrainUtil.DEFAULT_UNIDENTIFIED_COLOR, 0xFF4A7A2E,
                         0, 0, 0, 0, 0,
-                        java.util.List.of(),
-                        0,
-                        0,
-                        false,
-                        ""
+                        java.util.List.of(), 0, 0,
+                        false, ""
                 );
             }
 
@@ -203,6 +207,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
             if (weed != null && !weed.effects().isEmpty() && base.effects().isEmpty()) {
                 base = new StrainData(
                         base.colorArgb(),
+                        base.leafColor(),
                         base.thc(),
                         base.cbd(),
                         base.nitrogen(),

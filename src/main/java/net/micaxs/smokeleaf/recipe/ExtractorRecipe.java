@@ -26,10 +26,6 @@ public record ExtractorRecipe(Ingredient inputItem, ItemStack output) implements
 
     @Override
     public boolean matches(ExtractorRecipeInput extractorRecipeInput, Level level) {
-        if (level.isClientSide()) {
-            return false;
-        }
-
         return inputItem.test(extractorRecipeInput.getItem(0));
     }
 
