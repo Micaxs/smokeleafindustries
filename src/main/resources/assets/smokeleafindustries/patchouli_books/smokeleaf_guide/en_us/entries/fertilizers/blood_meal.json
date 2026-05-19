@@ -7,7 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:blood_meal",
-      "text": "This applies various Nutrients to a Weed Crop when right clicked onto a crop or grow pot.$(br2)Nitrogen (N): +4$(br)Phosphorus (P): 0$(br)Potassium (K): 0"
+      "text": "A high-nitrogen fertilizer. Good for early vegetative growth.$(br2)Nitrogen (N): +4$(br)Phosphorus (P): 0$(br)Potassium (K): 0"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Cat Urine Bottle",
+      "text": "Blood Meal requires a $(bold)Cat Urine Bottle$() — here's how to get one:$(br)$(br)1. Find a $(bold)Cat$() (spawns in villages)$(br)2. Hold a $(bold)Glass Bottle$() in your hand$(br)3. $(bold)Right-click$() the cat$(br)$(br)The cat will fill your bottle! Each cat has a $(bold)5 minute cooldown$() before it can be collected from again. Keep a few cats around for a steady supply."
     },
     {
       "type": "patchouli:crafting",

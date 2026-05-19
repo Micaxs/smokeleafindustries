@@ -6,12 +6,16 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Obtaining Hemp Seeds is one of the first things you'll have to achieve. Don't worry its fairly simple.$(br)$(br)You simply break short or tall grass for a chance of these seeds to drop!"
+      "text": "$(bold)Hemp Seeds$() are the foundation of everything in Smokeleaf Industries. Without them, you cannot progress.$(br)$(br)Break $(bold)short grass$() or $(bold)tall grass$() anywhere in the world for a chance to receive Hemp Seeds. No special tools needed — just punch grass!$(br)$(br)Once you have seeds, plant them on tilled farmland near water. They grow through $(bold)11 age stages (0–10)$() and must fully mature before harvesting."
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:hemp_seeds",
-      "text": "Hemp Seeds can be obtained by breaking short or tall grass in the world."
+      "text": "Drops from short and tall grass. Plant on farmland. Harvest at age 10 for Hemp Leaf, Hemp Fibers, and more seeds."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)First Steps:$()$(br)1. Break grass → get Hemp Seeds$(br)2. Till dirt + plant seeds$(br)3. Wait for full growth (age 10)$(br)4. Harvest drops: Hemp Leaf, Hemp Fibers, Seeds$(br)$(br)Hemp Leaf + a Book crafts your $(bold)Smokeleaf Guide$() — this very book!$(br)$(br)$(bold)Tobacco Seeds$() also drop from grass and unlock the Joint and other tobacco recipes."
     }
   ]
 }

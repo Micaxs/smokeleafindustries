@@ -2,11 +2,11 @@
   "name": "Dryer",
   "icon": "smokeleafindustries:dryer",
   "category": "smokeleafindustries:machines_category",
-  "sortnum": 7,
+  "sortnum": 4,
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The Dryer is a machine that dries specific items into dried items using Power."
+      "text": "The $(bold)Dryer$() is the powered version of the Drying Rack. It dries items faster using RF energy.$(br)$(br)$(bold)What it dries:$()$(br)• $(bold)Any Strain Bud$() → Dried Bud of that strain$(br)• $(bold)Tobacco Leaves$() → Dried Tobacco Leaves$(br)$(br)$(bold)Why dry buds?$() Dried buds give stronger effects when consumed. They can then be ground in the Grinder or Manual Grinder to produce weed.$(br)$(br)The Dryer is crafted using the $(bold)Drying Rack$() as a component — craft the Drying Rack first (no Hemp Core needed), then upgrade to this powered version."
     },
     {
       "type": "patchouli:crafting",

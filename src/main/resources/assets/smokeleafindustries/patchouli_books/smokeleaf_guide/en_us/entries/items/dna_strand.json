@@ -5,9 +5,13 @@
   "sortnum": 14,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:dna_strand",
-      "text": "This item is used to be filled with random items to create different strains. You can craft it by putting Hemp Seeds in an Extractor machine."
+      "type": "patchouli:text",
+      "text": "The $(bold)DNA Strand$() is the starting point of the strain engineering chain. Extract it from Hemp Seeds using the $(bold)Extractor$() machine.$(br)$(br)A blank DNA Strand must be filled with $(bold)3 specific reagent items$() in the $(bold)Synthesizer$() to create a Filled DNA Strand. The Filled DNA Strand is then processed in the $(bold)Sequencer$() with a Base Extract to produce a specific strain extract.$(br)$(br)The resulting extract goes into the $(bold)Mutator$() with seeds and Hemp Oil to create that strain's seeds."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Full DNA Chain",
+      "text": "$(bold)1.$() Extractor + Hemp Seeds → DNA Strand$(br)$(bold)2.$() Synthesizer + DNA Strand + 3 Reagents → Filled DNA Strand$(br)$(bold)3.$() Sequencer + Filled DNA Strand + Base Extract → Strain Extract$(br)$(bold)4.$() Mutator + Seeds + Strain Extract + Hemp Oil → Strain Seeds$(br)$(br)Check each Strain's guide entry for the exact 3 reagents required for the Synthesizer."
     }
   ]
 }

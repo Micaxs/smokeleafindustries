@@ -5,9 +5,8 @@
   "sortnum": 19,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:manual_grinder",
-      "text": "This is a tool is used to grind specific items into other items without power and operates manually.$(br)To use simply craft the Manual Grinder along with an item to fill, then hold right click with the item in hand to start processing."
+      "type": "patchouli:text",
+      "text": "The $(bold)Manual Grinder$() is an early-game hand tool for grinding items without any RF power.$(br)$(br)$(bold)How to use:$() Put the Manual Grinder and the item to grind together in a crafting grid (shapeless). The grinder durability decreases with use.$(br)$(br)$(bold)What it grinds:$()$(br)• Any Strain Bud → 1 Weed (half the output of the machine Grinder)$(br)• Hemp Leaf → Hemp Fibers$(br)$(br)$(bold)Note:$() The machine $(bold)Grinder$() outputs 2 weed per bud. Switch to it as soon as you have the materials to double your yield."
     },
     {
       "type": "patchouli:crafting",

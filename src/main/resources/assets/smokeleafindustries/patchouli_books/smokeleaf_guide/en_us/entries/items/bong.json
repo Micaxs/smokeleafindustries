@@ -5,9 +5,8 @@
   "sortnum": 12,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:bong",
-      "text": "The Bong is used to smoke your weed items directly without rolling it up. You can smoke your weed directly by holding the weed in your offhand and the bong in mainhand and holding right click to take a hit."
+      "type": "patchouli:text",
+      "text": "The $(bold)Bong$() is the simplest way to consume weed and receive its effects. No rolling required.$(br)$(br)$(bold)How to use:$()$(br)1. Hold any $(bold)weed item$() in your $(bold)offhand$()$(br)2. Hold the $(bold)Bong$() in your main hand$(br)3. Hold $(bold)right-click$() to take a hit$(br)$(br)The weed in your offhand is consumed and you receive the strain's effects based on its $(bold)THC$() and $(bold)CBD$() values.$(br)$(br)$(bold)Also:$() Bongs can be found as loot in $(bold)Trial Chambers$() — an early alternative before crafting your own."
     },
     {
       "type": "patchouli:crafting",

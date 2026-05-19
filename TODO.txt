@@ -1,6 +1,3 @@
-| The strain data should go from bucket to fluid renderring in the mutator machine, so that the fluid gets colored correctly inside the machine as well, when crafting the unidentified seed, it should apply this strain data to the seed as well when crafted.
-
-| Make the unidentified seeds texture (with a mask and then color the mask based on the data)
 
 | Make it so you can plant this seed and it grows into a new unique plant. The plant texture should also have 2 masks, 1 for the buds and 1 for the plant color (plant color will be randomly picked from an array of values) mask that I can recolor based on the data. The plant should also have a unique name when the seed has been identified (can get from the seed data).
 | Make a Block to identify the seeds (1 input slot that can hold the seed and then input field to change name and some info to show the N/P/K and THC/CDB values) (should show the N/P/K and THC/CDB values and allow the person the name the weed/seed) -> this should add it to the seed data.

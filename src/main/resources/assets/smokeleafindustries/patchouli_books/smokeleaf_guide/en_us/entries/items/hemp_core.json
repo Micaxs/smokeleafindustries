@@ -1,0 +1,22 @@
+{
+  "name": "Hemp Core",
+  "icon": "smokeleafindustries:hemp_core",
+  "category": "smokeleafindustries:items_category",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(bold)Hemp Core$() is the mid-game progression gate. Every machine in this mod requires one. Without it, you cannot build the Generator, Grinder, Extractor, Liquifier, Mutator, Sequencer, or Synthesizer.$(br)$(br)$(bold)Crafting requires:$()$(br)1. First craft $(bold)Unfinished Hemp Core$() (Diamond + Amethyst Shard + Redstone + Glowstone Dust)$(br)2. Then combine: Hemp Hammer + Hemp Plastic + Unfinished Hemp Core → Hemp Core$(br)$(br)$(bold)Required resources:$() 1 Diamond, 1 Amethyst Shard, Redstone, Glowstone Dust, Hemp Plastic, Hemp Hammer"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "smokeleafindustries:unfinished_hemp_core",
+      "text": "Step 1: Craft the Unfinished Hemp Core."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "smokeleafindustries:hemp_core",
+      "text": "Step 2: Combine with Hemp Hammer and Hemp Plastic to finish it."
+    }
+  ]
+}

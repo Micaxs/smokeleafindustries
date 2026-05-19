@@ -6,11 +6,16 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The extractor uses energy to extract specific items to create other specific items."
+      "text": "The $(bold)Extractor$() is a versatile powered machine for extracting useful items from raw hemp materials.$(br)$(br)$(bold)What it processes:$()$(br)• $(bold)Hemp Leaf$() → Bio Composite (efficient, no hammer needed)$(br)• $(bold)Hemp Seeds$() → DNA Strand (needed for strain engineering)$(br)• $(bold)Any Strain Weed$() → That Strain's Extract (for the Mutator)$(br)$(br)The Extractor is critical for two major chains: $(bold)Bio Composite production$() and $(bold)DNA Strand extraction$() for unlocking new strains."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:extractor"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "smokeleafindustries:dna_strand",
+      "text": "DNA Strands come from extracting Hemp Seeds. Fill them in the Synthesizer with 3 reagents, then use in the Sequencer to get a specific strain extract."
     }
   ]
 }

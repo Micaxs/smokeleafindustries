@@ -2,32 +2,27 @@
   "name": "Birthday Cake",
   "icon": "smokeleafindustries:birthday_cake_bud",
   "category": "smokeleafindustries:strains_category",
-  "sortnum": 19,
+  "sortnum": 17,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:birthday_cake_bud",
-      "text": "The birthday_cake Strain$(br2)Base THC: 23% $(br)Base CBD: 2% $(br)Effect: Oozing"
+      "type": "patchouli:text",
+      "title": "Birthday Cake",
+      "text": "$(bold)Base THC:$() 23% — $(bold)Base CBD:$() 2%$(br)$(bold)Effect:$() Oozing (10 seconds)$(br)$(bold)Extra Effects:$() +1 extra effect (THC 21-34)$(br)$(br)Obtain via DNA route or buy from Dealer Villager. High THC grants one bonus random effect.$(br)$(br)$(bold)Synthesizer Reagents:$()$(br)Cake + Butter + Lime Dye"
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:birthday_cake_weed",
-      "text": "birthday_cake Weed can be obtained by grinding your Fresh or Dried buds in a Grinder machine or using the manual grinder."
+      "text": "Grind Birthday Cake Buds in the Grinder (2 weed) or Manual Grinder (1 weed)."
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:birthday_cake_seeds",
-      "text": "birthday_cake Seeds can be planted on farmland or inside the Grow Pot"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:birthday_cake_extract",
-      "text": "birthday_cake Extract can be gained through the DNA Process or by extracting birthday_cake Weed in an Extractor"
+      "text": "Plant on farmland or in a Grow Pot. Harvest at age 10. Get seeds via DNA route or Mutator."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:birthday_cake_bag",
-      "text": "You can package your birthday_cake weed for easier distribution or selling to the stoner villager."
+      "text": "Pack weed into a bag for selling to the Stoner Villager or compact storage."
     }
   ]
 }

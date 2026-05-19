@@ -6,11 +6,16 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The sequencer is a machine that creates an extract of a specific filled DNA strand! It requires Power, base Extract and a filled DNA Strand to operate."
+      "text": "The $(bold)Sequencer$() reads a Filled DNA Strand and combines it with a Base Extract to produce a $(bold)specific strain extract$(). This is the final step in the DNA engineering chain before using the Mutator.$(br)$(br)$(bold)Inputs:$()$(br)• Filled DNA Strand (from Synthesizer)$(br)• Base Extract$(br)$(br)$(bold)Output:$() A specific strain's extract$(br)$(br)The Sequencer checks that the 3 embedded reagents in the DNA Strand match a known recipe, then produces the matching extract. No guessing — the output is deterministic based on the reagents."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:sequencer"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Full DNA Chain",
+      "text": "$(bold)Step 1:$() Extractor + Hemp Seeds → DNA Strand$(br)$(bold)Step 2:$() Synthesizer + DNA Strand + 3 Reagents → Filled DNA Strand$(br)$(bold)Step 3:$() Sequencer + Filled DNA Strand + Base Extract → Strain Extract$(br)$(bold)Step 4:$() Mutator + Any Seeds + Strain Extract + 300 mB Hemp Oil → Strain Seeds$(br)$(br)See each strain's entry for the exact 3 reagents to put in the Synthesizer."
     }
   ]
 }

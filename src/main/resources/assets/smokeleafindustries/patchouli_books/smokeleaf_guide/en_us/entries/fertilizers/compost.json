@@ -6,12 +6,18 @@
   "pages": [
     {
       "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:worm_castings",
-      "text": "This applies various Nutrients to a Weed Crop when right clicked onto a crop or grow pot.$(br2)Nitrogen (N): +1$(br)Phosphorus (P): +1$(br)Potassium (K): +1"
+      "item": "smokeleafindustries:compost",
+      "text": "A balanced fertilizer that adds small amounts of all three nutrients.$(br2)Nitrogen (N): +1$(br)Phosphorus (P): +1$(br)Potassium (K): +1"
     },
     {
       "type": "patchouli:crafting",
-      "recipe": "smokeleafindustries:compost"
+      "recipe": "smokeleafindustries:compost_bootstrap",
+      "text": "Bootstrap recipe: 2x Oak Leaves + Hemp Seeds + Dirt → 1 Compost. Use this to make your first batch!"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "smokeleafindustries:compost",
+      "text": "Once you have compost, use this recipe to double your supply: Leaves + Hemp Seeds + Leaves tag + Compost → 2 Compost."
     }
   ]
 }

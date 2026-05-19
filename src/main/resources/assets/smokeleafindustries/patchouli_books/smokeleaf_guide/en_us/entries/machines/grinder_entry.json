@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The grinder uses energy to grind specific items into other items."
+      "text": "The $(bold)Grinder$() is a powered machine that grinds buds into smokable weed, yielding $(bold)2 weed per bud$() — double the output of the Manual Grinder.$(br)$(br)It requires $(bold)RF energy$() to operate. Connect it to a Generator or other power source.$(br)$(br)$(bold)What it grinds:$()$(br)• Any strain Bud → 2x Weed$(br)• Hemp Leaf → 2x Hemp Fibers$(br)$(br)$(bold)Note:$() The Grinder block also doubles as the $(bold)Dealer Villager workstation$(). Placing it in a village converts unemployed villagers into Dealers who sell hemp seeds, tobacco seeds, and weed."
     },
     {
       "type": "patchouli:crafting",

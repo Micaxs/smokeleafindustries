@@ -6,11 +6,15 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The Mutator is the machine to get different strains from their extracts. Simply provide the machine with Power, Hemp Oil or Hash Oil, some seeds and the required strain extracts to get the new strain seeds."
+      "text": "The $(bold)Mutator$() is the machine for producing $(bold)specific strain seeds$(). It combines seeds, a strain extract, and fluid oil to mutate the seeds into a named strain.$(br)$(br)$(bold)Inputs:$()$(br)• Any weed seeds (slot 1)$(br)• A strain's extract (slot 2)$(br)• $(bold)300 mB Hemp Oil or Hash Oil$() (fluid tank)$(br)$(br)$(bold)Output:$() The corresponding strain's seeds$(br)$(br)Example: Any seeds + White Widow Extract + 300 mB Hemp Oil → White Widow Seeds"
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:mutator"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Getting Strain Extracts:$()$(br)$(br)$(bold)Option A — Extract from existing weed:$()$(br)Grind the strain's weed → put in Extractor → get that strain's extract$(br)$(br)$(bold)Option B — DNA Route (for strains you don't have):$()$(br)1. Extractor: Hemp Seeds → DNA Strand$(br)2. Synthesizer: DNA Strand + 3 strain reagents → Filled DNA Strand$(br)3. Sequencer: Filled DNA Strand + Base Extract → Strain Extract$(br)$(br)See the Synthesizer and Sequencer entries, and each Strain's entry for specific reagents."
     }
   ]
 }

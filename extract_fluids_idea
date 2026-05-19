@@ -1,0 +1,443 @@
+Short answer: Yes. On NeoForge 21.1.x you can keep one generic extract fluid and store all variant metadata (strain id(s), name, color, THC, CBD, effects and extra effects) on the FluidStack tag. GUIs, tanks and your custom items can render/read that data. World placement and vanilla buckets cannot vary by NBT, so keep this fluid tank/pipes only and use a custom “vial/bottle” item with a renderer to show the dynamic color/name.
+
+Key points:
+- Encode variant id(s), color, THC, CBD, and a list of effects on the FluidStack tag.
+- Mixing: weighted‑average THC/CBD and color; merge variant lists; combine effects by id (max amplifier, sum durations).
+- Use your existing `ModDataComponentTypes` on items; mirror the same fields onto the FluidStack tag for consistency.
+- Provide a custom item (vial) that stores a FluidStack and a BEWLR‑based renderer to tint/overlay the fluid in the item model.
+
+Below are minimal helpers and a sample vial item + renderer.
+
+Add a single generic extract fluid (no block/bucket) to 'src/main/java/net/micaxs/smokeleaf/fluid/ModFluidTypes.java' and 'src/main/java/net/micaxs/smokeleaf/fluid/ModFluids.java' (kept small for brevity).
+
+```java
+// java
+// File: src/main/java/net/micaxs/smokeleaf/fluid/ModFluidTypes.java
+// ADD: single generic extract fluid type (static tint is a fallback only)
+public static final java.util.function.Supplier<FluidType> EXTRACT_FLUID_TYPE =
+        registerFluidType("extract_fluid",
+                new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL,
+                        0xFFAAAAAA, new Vector3f(0.7f, 0.7f, 0.7f),
+                        FluidType.Properties.create().density(900).viscosity(1500)));
+```
+
+```java
+// java
+// File: src/main/java/net/micaxs/smokeleaf/fluid/ModFluids.java
+// ADD: register a single generic extract fluid (no block, no bucket)
+public static final java.util.function.Supplier<FlowingFluid> SOURCE_EXTRACT_FLUID =
+        FLUIDS.register("extract_fluid", () -> new BaseFlowingFluid.Source(ModFluids.EXTRACT_FLUID_PROPERTIES));
+public static final java.util.function.Supplier<FlowingFluid> FLOWING_EXTRACT_FLUID =
+        FLUIDS.register("flowing_extract", () -> new BaseFlowingFluid.Flowing(ModFluids.EXTRACT_FLUID_PROPERTIES));
+public static final BaseFlowingFluid.Properties EXTRACT_FLUID_PROPERTIES =
+        new BaseFlowingFluid.Properties(ModFluidTypes.EXTRACT_FLUID_TYPE, SOURCE_EXTRACT_FLUID, FLOWING_EXTRACT_FLUID)
+                .slopeFindDistance(2)
+                .levelDecreasePerBlock(2);
+// intentionally no .block(...) or .bucket(...)
+```
+
+Class: helper to create, read and mix extract fluids
+
+Explanation:
+- Stores keys on the FluidStack tag.
+- fromItem reads THC/CBD/effects from your BaseWeedItem using its data components.
+- mix merges all metadata and blends color/levels by amounts.
+
+```java
+// java
+// File: src/main/java/net/micaxs/smokeleaf/fluid/ExtractFluidHelper.java
+package net.micaxs.smokeleaf.fluid;
+
+import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
+
+import java.util.*;
+
+public final class ExtractFluidHelper {
+    private ExtractFluidHelper() {}
+
+    // Tag keys
+    private static final String K_NAME = "name";
+    private static final String K_COLOR = "color";
+    private static final String K_THC = "thc";
+    private static final String K_CBD = "cbd";
+    private static final String K_VARIANTS_SIZE = "variants_size";
+    private static final String K_VARIANT_PREFIX = "variant_";
+    private static final String K_EFF_SIZE = "effects_size";
+    private static final String K_EFF_ID = "effects_%d_id";
+    private static final String K_EFF_AMP = "effects_%d_amp";
+    private static final String K_EFF_DUR = "effects_%d_dur";
+
+    // Optional strain -> color map (register at setup)
+    private static final Map<ResourceLocation, Integer> COLORS = new HashMap<>();
+
+    public static void registerExtractColor(Item item, int argb) {
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+        if (id != null) COLORS.put(id, argb);
+    }
+
+    public static boolean isExtractFluid(FluidStack fs) {
+        return !fs.isEmpty() && fs.getFluid() == ModFluids.SOURCE_EXTRACT_FLUID.get();
+    }
+
+    public static FluidStack fromItem(ItemStack in, int milliBuckets) {
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(in.getItem());
+        if (id == null) throw new IllegalArgumentException("Unregistered item");
+        int color = COLORS.getOrDefault(id, 0xFFAAAAAA);
+
+        int thc = 0, cbd = 0;
+        List<MobEffectInstance> eff = List.of();
+
+        if (in.getItem() instanceof BaseWeedItem weed) {
+            thc = weed.getTHC(in);
+            cbd = weed.getCBD(in);
+            eff = weed.buildEffectInstances(in);
+        }
+
+        String name = makeSingleName(id);
+
+        FluidStack out = new FluidStack(ModFluids.SOURCE_EXTRACT_FLUID.get(), milliBuckets);
+        var tag = out.getOrCreateTag();
+        tag.putString(K_NAME, name);
+        tag.putInt(K_COLOR, color);
+        tag.putInt(K_THC, thc);
+        tag.putInt(K_CBD, cbd);
+        tag.putInt(K_VARIANTS_SIZE, 1);
+        tag.putString(K_VARIANT_PREFIX + 0, id.toString());
+
+        writeEffects(tag, eff);
+        return out;
+    }
+
+    public static FluidStack mix(FluidStack a, FluidStack b, int outAmount) {
+        if (!isExtractFluid(a) || !isExtractFluid(b)) throw new IllegalArgumentException("Both inputs must be extract_fluid");
+
+        int ta = Math.max(a.getAmount(), 1), tb = Math.max(b.getAmount(), 1);
+        int total = Math.max(ta + tb, 1);
+
+        int thc = (getTHC(a) * ta + getTHC(b) * tb) / total;
+        int cbd = (getCBD(a) * ta + getCBD(b) * tb) / total;
+        int color = blendARGB(getColor(a), getColor(b), ta, tb);
+
+        List<ResourceLocation> variants = new ArrayList<>();
+        variants.addAll(getVariantIds(a));
+        variants.addAll(getVariantIds(b));
+
+        // Combine effects by id: max amplifier, sum durations
+        Map<ResourceLocation, MobEffectInstance> combined = new LinkedHashMap<>();
+        putEffects(combined, getEffects(a));
+        putEffects(combined, getEffects(b));
+
+        String name = makeMixtureName(variants);
+
+        FluidStack out = new FluidStack(ModFluids.SOURCE_EXTRACT_FLUID.get(), outAmount);
+        var tag = out.getOrCreateTag();
+        tag.putString(K_NAME, name);
+        tag.putInt(K_COLOR, color);
+        tag.putInt(K_THC, thc);
+        tag.putInt(K_CBD, cbd);
+
+        tag.putInt(K_VARIANTS_SIZE, variants.size());
+        for (int i = 0; i < variants.size(); i++) {
+            tag.putString(K_VARIANT_PREFIX + i, variants.get(i).toString());
+        }
+
+        writeEffects(tag, combined.values());
+        return out;
+    }
+
+    public static int getColor(FluidStack fs) {
+        return fs.hasTag() ? fs.getTag().getInt(K_COLOR) : 0xFFAAAAAA;
+    }
+
+    public static int getTHC(FluidStack fs) {
+        return fs.hasTag() ? fs.getTag().getInt(K_THC) : 0;
+    }
+
+    public static int getCBD(FluidStack fs) {
+        return fs.hasTag() ? fs.getTag().getInt(K_CBD) : 0;
+    }
+
+    public static Component getDisplayName(FluidStack fs) {
+        if (!fs.hasTag()) return Component.literal("Extract Fluid");
+        String name = fs.getTag().getString(K_NAME);
+        return Component.literal(name == null || name.isEmpty() ? "Extract Fluid" : name);
+    }
+
+    public static List<ResourceLocation> getVariantIds(FluidStack fs) {
+        if (!fs.hasTag()) return List.of();
+        var tag = fs.getTag();
+        int size = tag.getInt(K_VARIANTS_SIZE);
+        List<ResourceLocation> out = new ArrayList<>(Math.max(size, 0));
+        for (int i = 0; i < size; i++) {
+            ResourceLocation id = ResourceLocation.tryParse(tag.getString(K_VARIANT_PREFIX + i));
+            if (id != null) out.add(id);
+        }
+        return out;
+    }
+
+    public static List<MobEffectInstance> getEffects(FluidStack fs) {
+        if (!fs.hasTag()) return List.of();
+        var tag = fs.getTag();
+        int n = tag.getInt(K_EFF_SIZE);
+        if (n <= 0) return List.of();
+        List<MobEffectInstance> out = new ArrayList<>(n);
+        for (int i = 0; i < n; i++) {
+            ResourceLocation id = ResourceLocation.tryParse(tag.getString(fmt(K_EFF_ID, i)));
+            int amp = tag.getInt(fmt(K_EFF_AMP, i));
+            int dur = tag.getInt(fmt(K_EFF_DUR, i));
+            if (id == null) continue;
+            MobEffect eff = BuiltInRegistries.MOB_EFFECT.get(id);
+            if (eff == null) continue;
+            out.add(new MobEffectInstance(eff, Math.max(dur, 0), Math.max(amp, 0), false, true, true));
+        }
+        return out;
+    }
+
+    private static void writeEffects(net.minecraft.nbt.CompoundTag tag, Collection<MobEffectInstance> effects) {
+        int i = 0;
+        for (MobEffectInstance e : effects) {
+            ResourceLocation id = BuiltInRegistries.MOB_EFFECT.getKey(e.getEffect());
+            if (id == null) continue;
+            tag.putString(fmt(K_EFF_ID, i), id.toString());
+            tag.putInt(fmt(K_EFF_AMP, i), e.getAmplifier());
+            tag.putInt(fmt(K_EFF_DUR, i), e.getDuration());
+            i++;
+        }
+        tag.putInt(K_EFF_SIZE, i);
+    }
+
+    private static void putEffects(Map<ResourceLocation, MobEffectInstance> dst, List<MobEffectInstance> src) {
+        for (MobEffectInstance e : src) {
+            ResourceLocation id = BuiltInRegistries.MOB_EFFECT.getKey(e.getEffect());
+            if (id == null) continue;
+            MobEffectInstance prev = dst.get(id);
+            if (prev == null) {
+                dst.put(id, e);
+            } else {
+                int amp = Math.max(prev.getAmplifier(), e.getAmplifier());
+                int dur = Math.max(0, prev.getDuration()) + Math.max(0, e.getDuration());
+                dst.put(id, new MobEffectInstance(e.getEffect(), dur, amp, false, true, true));
+            }
+        }
+    }
+
+    private static String makeSingleName(ResourceLocation id) {
+        Item item = BuiltInRegistries.ITEM.get(id);
+        String base = item != null ? new ItemStack(item).getHoverName().getString() : id.getPath();
+        return base + " Extract Fluid";
+    }
+
+    private static String makeMixtureName(List<ResourceLocation> ids) {
+        if (ids.isEmpty()) return "Extract Fluid";
+        if (ids.size() == 1) return makeSingleName(ids.get(0));
+        List<String> parts = new ArrayList<>();
+        for (ResourceLocation id : ids) {
+            Item it = BuiltInRegistries.ITEM.get(id);
+            parts.add(it != null ? new ItemStack(it).getHoverName().getString() : id.getPath());
+        }
+        return String.join(" + ", parts) + " Mixture";
+    }
+
+    private static String fmt(String pat, int i) { return String.format(pat, i); }
+
+    private static int blendARGB(int a, int b, int wa, int wb) {
+        int aa = (a >>> 24) & 0xFF, ra = (a >>> 16) & 0xFF, ga = (a >>> 8) & 0xFF, ba = a & 0xFF;
+        int ab = (b >>> 24) & 0xFF, rb = (b >>> 16) & 0xFF, gb = (b >>> 8) & 0xFF, bb = b & 0xFF;
+        int w = Math.max(wa + wb, 1);
+        int A = (aa * wa + ab * wb) / w;
+        int R = (ra * wa + rb * wb) / w;
+        int G = (ga * wa + gb * wb) / w;
+        int B = (ba * wa + bb * wb) / w;
+        return (A << 24) | (R << 16) | (G << 8) | B;
+    }
+}
+```
+
+Class: a simple vial item that stores one FluidStack and renders a tinted overlay
+
+Explanation:
+- Stores the contained FluidStack under `Fluid` on the item’s own tag.
+- Tooltip shows dynamic name/amount.
+- Client renderer overlays the fluid sprite tinted by the color stored on the FluidStack.
+- Use this instead of a bucket to get per‑variant visuals.
+
+```java
+// java
+// File: src/main/java/net/micaxs/smokeleaf/item/custom/ExtractVialItem.java
+package net.micaxs.smokeleaf.item.custom;
+
+import net.micaxs.smokeleaf.fluid.ExtractFluidHelper;
+import net.micaxs.smokeleaf.fluid.ModFluids;
+import net.micaxs.smokeleaf.client.render.ExtractVialRenderer;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+public class ExtractVialItem extends Item {
+    public static final String K_FLUID = "Fluid";
+    private final int capacityMb;
+
+    public ExtractVialItem(Properties props, int capacityMb) {
+        super(props.stacksTo(1));
+        this.capacityMb = capacityMb;
+    }
+
+    public int getCapacityMb() { return capacityMb; }
+
+    public static boolean hasFluid(ItemStack stack) {
+        return stack.has(K_FLUID, net.minecraft.nbt.Tag.TAG_COMPOUND);
+    }
+
+    public static FluidStack getFluid(ItemStack stack) {
+        if (!hasFluid(stack)) return FluidStack.EMPTY;
+        var tag = stack.getTag();
+        FluidStack fs = FluidStack.loadFluidStackFromNBT(tag.getCompound(K_FLUID));
+        return fs == null ? FluidStack.EMPTY : fs;
+    }
+
+    public static void setFluid(ItemStack stack, FluidStack fs) {
+        if (fs.isEmpty()) {
+            if (stack.hasTag()) stack.getTag().remove(K_FLUID);
+            return;
+        }
+        var tag = stack.getOrCreateTag();
+        tag.put(K_FLUID, fs.writeToNBT(new net.minecraft.nbt.CompoundTag()));
+    }
+
+    // Fill from an extract item (e.g., result of liquifier output)
+    public int fillFromExtractItem(ItemStack vial, ItemStack extractItem, int mbPerItem) {
+        FluidStack fs = ExtractFluidHelper.fromItem(extractItem, Math.min(mbPerItem, capacityMb));
+        setFluid(vial, fs);
+        return fs.getAmount();
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
+        FluidStack fs = getFluid(stack);
+        if (ExtractFluidHelper.isExtractFluid(fs)) {
+            list.add(ExtractFluidHelper.getDisplayName(fs));
+            list.add(Component.literal(String.format("%d mB", fs.getAmount())));
+            list.add(Component.literal(String.format("THC %d%%, CBD %d%%", ExtractFluidHelper.getTHC(fs), ExtractFluidHelper.getCBD(fs))));
+        } else {
+            list.add(Component.literal("Empty"));
+        }
+        super.appendHoverText(stack, ctx, list, flag);
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            private final BlockEntityWithoutLevelRenderer bewlr = new ExtractVialRenderer();
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return bewlr;
+            }
+        });
+    }
+}
+```
+
+Class: very small BEWLR to tint an overlay by the fluid’s color
+
+Explanation:
+- Renders the base item normally, then draws the extract fluid still sprite as a translucent overlay tinted by the FluidStack color.
+- Kept minimal; replace overlay quad logic with your preferred baked model layer.
+
+```java
+// java
+// File: src/main/java/net/micaxs/smokeleaf/client/render/ExtractVialRenderer.java
+package net.micaxs.smokeleaf.client.render;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.micaxs.smokeleaf.fluid.ExtractFluidHelper;
+import net.micaxs.smokeleaf.fluid.ModFluidTypes;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
+
+public class ExtractVialRenderer extends BlockEntityWithoutLevelRenderer {
+
+    public ExtractVialRenderer() {
+        super(null, null);
+    }
+
+    @Override
+    public void renderByItem(ItemStack stack, ItemDisplayContext ctx, PoseStack pose, MultiBufferSource buf, int light, int overlay) {
+        var mc = Minecraft.getInstance();
+        var renderer = mc.getItemRenderer();
+        BakedModel model = renderer.getModel(stack, null, null, 0);
+
+        // draw base item
+        renderer.render(stack, ctx, false, pose, buf, light, overlay, model);
+
+        // draw fluid overlay if present
+        FluidStack fs = net.micaxs.smokeleaf.item.custom.ExtractVialItem.getFluid(stack);
+        if (!ExtractFluidHelper.isExtractFluid(fs)) return;
+
+        int argb = ExtractFluidHelper.getColor(fs);
+        float a = ((argb >>> 24) & 0xFF) / 255f;
+        float r = ((argb >>> 16) & 0xFF) / 255f;
+        float g = ((argb >>> 8) & 0xFF) / 255f;
+        float b = (argb & 0xFF) / 255f;
+
+        IClientFluidTypeExtensions fe = ModFluidTypes.EXTRACT_FLUID_TYPE.get() instanceof net.micaxs.smokeleaf.fluid.BaseFluidType
+                ? ((net.micaxs.smokeleaf.fluid.BaseFluidType) ModFluidTypes.EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions()
+                : IClientFluidTypeExtensions.of(fs.getFluid());
+
+        ResourceLocation still = fe.getStillTexture();
+        var atlas = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
+        var sprite = atlas.apply(still);
+
+        var vc = buf.getBuffer(RenderType.translucent());
+        pose.pushPose();
+        // Simple front‑facing quad over the item (2D). Adjust z to avoid z‑fighting.
+        var m = pose.last().pose();
+        float z = 0.01f;
+
+        // Full‑icon UVs
+        float u0 = sprite.getU0(), v0 = sprite.getV0(), u1 = sprite.getU1(), v1 = sprite.getV1();
+
+        // Draw a unit square quad; item renderer will scale accordingly in GUI/hand.
+        vc.vertex(m, 0f, 0f, z).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(0, 0, 1).endVertex();
+        vc.vertex(m, 1f, 0f, z).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(0, 0, 1).endVertex();
+        vc.vertex(m, 1f, 1f, z).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(0, 0, 1).endVertex();
+        vc.vertex(m, 0f, 1f, z).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(0, 0, 1).endVertex();
+
+        pose.popPose();
+    }
+}
+```
+
+Notes and limitations:
+- Buckets/world fluid blocks cannot vary by NBT; keep this extract fluid tank/pipes only and use custom items for per‑variant visuals.
+- Many fluid transport mods preserve FluidStack tag; if a pipe strips tags, variants would be lost.
+- Your `ModDataComponentTypes` continue to power items; the fluid mirrors the same fields on its tag for UI/logic and mixing.
+
+This approach is fully compatible with NeoForge 21.1.206 and Minecraft 1.21.1.

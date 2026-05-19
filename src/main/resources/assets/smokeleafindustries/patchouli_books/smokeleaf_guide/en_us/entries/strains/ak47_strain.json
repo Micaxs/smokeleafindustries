@@ -1,33 +1,28 @@
 {
-  "name": "AK47",
+  "name": "AK-47",
   "icon": "smokeleafindustries:ak47_bud",
   "category": "smokeleafindustries:strains_category",
-  "sortnum": 19,
+  "sortnum": 11,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:ak47_bud",
-      "text": "The ak47 Strain$(br2)Base THC: 19% $(br)Base CBD: 6% $(br)Effect: Relaxed"
+      "type": "patchouli:text",
+      "title": "AK-47",
+      "text": "$(bold)Base THC:$() 19% — $(bold)Base CBD:$() 6%$(br)$(bold)Effect:$() Relaxed (10 seconds)$(br)$(bold)Extra Effects:$() None (THC ≤ 20)$(br)$(br)Obtain via DNA route or buy from Dealer Villager.$(br)$(br)$(bold)Synthesizer Reagents:$()$(br)TNT + Iron Ingot + Redstone"
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:ak47_weed",
-      "text": "ak47 Weed can be obtained by grinding your Fresh or Dried buds in a Grinder machine or using the manual grinder."
+      "text": "Grind AK-47 Buds in the Grinder (2 weed) or Manual Grinder (1 weed)."
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:ak47_seeds",
-      "text": "ak47 Seeds can be planted on farmland or inside the Grow Pot"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:ak47_extract",
-      "text": "ak47 Extract can be gained through the DNA Process or by extracting ak47 Weed in an Extractor"
+      "text": "Plant on farmland or in a Grow Pot. Harvest at age 10. Get seeds via DNA route or Mutator."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:ak47_bag",
-      "text": "You can package your ak47 weed for easier distribution or selling to the stoner villager."
+      "text": "Pack weed into a bag for selling to the Stoner Villager or compact storage."
     }
   ]
 }

@@ -5,9 +5,8 @@
   "sortnum": 16,
   "pages": [
     {
-      "type": "patchouli:spotlight",
-      "item": "smokeleafindustries:base_extract",
-      "text": "This item is used to craft various strain extracts within the Sequencer machine."
+      "type": "patchouli:text",
+      "text": "$(bold)Base Extract$() is a reagent required by the $(bold)Sequencer$() machine to create specific strain extracts. You need one Base Extract per Sequencer operation.$(br)$(br)It is crafted in the crafting table and is consumed each time you sequence a strain extract.$(br)$(br)$(bold)Tip:$() Keep a supply of Base Extract ready before running the Synthesizer → Sequencer chain. You will need one per strain extract you want to create."
     },
     {
       "type": "patchouli:crafting",

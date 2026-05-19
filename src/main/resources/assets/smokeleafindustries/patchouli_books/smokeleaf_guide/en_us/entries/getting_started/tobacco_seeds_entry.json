@@ -6,12 +6,12 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Obtaining Tobacco Seeds you obtain the same way as Hemp Seeds.$(br)$(br)You simply break short or tall grass for a chance of these seeds to drop!"
+      "text": "$(bold)Tobacco Seeds$() drop from $(bold)short grass$() and $(bold)tall grass$(), just like Hemp Seeds. They can also be found in $(bold)Plains Village chests$().$(br)$(br)Plant tobacco seeds on tilled farmland near water. Tobacco grows through several age stages and drops $(bold)Tobacco Leaves$() and more seeds when fully grown.$(br)$(br)Tobacco is needed for crafting $(bold)Joints$() — a smokable item that provides effects from any weed strain mixed with tobacco."
     },
     {
       "type": "patchouli:spotlight",
       "item": "smokeleafindustries:tobacco_seeds",
-      "text": "Tobacco Seeds can be obtained by breaking short or tall grass in the world."
+      "text": "Drops from short and tall grass, and found in Plains Village chests. Plant on farmland to grow Tobacco."
     }
   ]
 }

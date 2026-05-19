@@ -6,11 +6,15 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The liquifier uses energy to liquify specific items into Hemp Oil or Hash Oil."
+      "text": "The $(bold)Liquifier$() converts hemp materials into fluid oils and other liquid products.$(br)$(br)$(bold)What it produces:$()$(br)• $(bold)Hemp Seeds$() → Hemp Oil (fluid)$(br)• $(bold)Any Strain Weed (ground)$() → Hash Oil (fluid)$(br)• $(bold)Strain Extracts$() → Unidentified Mixture (fluid, used in Mutator)$(br)$(br)Fluids fill the internal tank and can be extracted into buckets. $(bold)Hemp Oil$() is used for: efficient Hemp Plastic crafting (1 bucket + Bio Composite → 4 plastic), Generator fuel (48,000 RF), and Mutator operation."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "smokeleafindustries:liquifier"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Hash Oil$() is used as an alternative Mutator fluid for making strain seeds, and as Generator fuel.$(br)$(br)$(bold)Important:$() Hemp Oil is also required to craft $(bold)Hemp Stone$() blocks, which serve as the $(bold)Stoner Villager$() workstation. Get your Liquifier running early to unlock the trading economy."
     }
   ]
 }

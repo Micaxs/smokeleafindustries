@@ -1,0 +1,16 @@
+{
+  "name": "Grow Pot",
+  "icon": "smokeleafindustries:grow_pot",
+  "category": "smokeleafindustries:machines_category",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(bold)Grow Pot$() lets you grow any weed strain crop $(bold)indoors$() without farmland or sunlight. It acts as the grow medium for potted cultivation.$(br)$(br)Place the Grow Pot down and right-click it with any weed seeds to plant them. The crop grows inside the pot. Harvest when fully grown.$(br)$(br)$(bold)Tip:$() Pair with $(bold)LED Light$() or $(bold)HPS Lamp$() above the pot and a $(bold)Reflector$() to boost growth speed. Apply $(bold)Fertilizers$() to the pot to boost THC and CBD values of the harvested buds."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "smokeleafindustries:grow_pot"
+    }
+  ]
+}
