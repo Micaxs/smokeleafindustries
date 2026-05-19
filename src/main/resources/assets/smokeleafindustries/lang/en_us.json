@@ -464,5 +464,6 @@
   "item.smokeleafindustries.guide_book": "Smokeleaf Guide",
   "block.smokeleafindustries.mixer": "Mixer",
   "item.smokeleafindustries.unidentified_seeds": "Unidentified Seeds",
-  "block.smokeleafindustries.unidentified_weed_crop": "Unidentified Plant"
+  "block.smokeleafindustries.unidentified_weed_crop": "Unidentified Plant",
+  "item.smokeleafindustries.unidentified_weed": "Unidentified Weed"
 }

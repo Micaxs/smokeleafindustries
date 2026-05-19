@@ -7,7 +7,8 @@ import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +26,6 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +42,6 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
     public static final int SECOND_STAGE_MAX_AGE = BaseWeedCropBlock.SECOND_STAGE_MAX_AGE;
     public static final IntegerProperty AGE = BaseWeedCropBlock.AGE;
     public static final BooleanProperty TOP = BaseWeedCropBlock.TOP;
-
-    public static UnidentifiedWeedCropBlockEntity blockEntity;
 
     private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{
             Block.box(0.0, 0.0, 0.0, 16.0, 2.0, 16.0),
@@ -169,8 +167,6 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
             return null;
         }
 
-        blockEntity = ModBlockEntities.UNIDENTIFIED_WEED_CROP_BE.get().create(pos, state);
-
         return ModBlockEntities.UNIDENTIFIED_WEED_CROP_BE.get().create(pos, state);
     }
 
@@ -246,14 +242,17 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
         return java.util.List.of(weed, seeds, leaf);
     }
 
-
     @Override
-    public MutableComponent getName() {
-        if (!blockEntity.getStrain().displayName().trim().isEmpty()) {
-            return Component.literal(blockEntity.getStrain().displayName() + " Plant");
+    public @NotNull ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+        ItemStack stack = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+        StrainData d = getStrainAt(level, isTop(state) ? pos.below() : pos);
+        if (d != StrainData.EMPTY) {
+            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+            String name = d.displayName() == null ? "" : d.displayName();
+            if (!name.isEmpty()) {
+                stack.set(DataComponents.CUSTOM_NAME, Component.literal(name + " Plant"));
+            }
         }
-        return super.getName();
+        return stack;
     }
-
-
 }

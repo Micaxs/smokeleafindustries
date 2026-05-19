@@ -72,15 +72,6 @@ public enum WeedCropProvider implements IBlockComponentProvider, IServerDataProv
         CompoundTag data = accessor.getServerData();
 
         BlockState state = accessor.getBlockState();
-        if (state.getBlock() instanceof UnidentifiedWeedCropBlock) {
-            String trimmed = (data.contains("strain_name") ? data.getString("strain_name") : "").trim();
-            Component title = trimmed.isEmpty()
-                    ? Component.literal("Unidentified Plant")
-                    : Component.literal(trimmed + " Plant");
-
-            // Add as a styled title-like line so it visually replaces the header.
-            tooltip.add(IThemeHelper.get().title(title));
-        }
 
         if (!hasAll(data, "n", "p", "k", "tn", "tp", "tk")) return;
 
