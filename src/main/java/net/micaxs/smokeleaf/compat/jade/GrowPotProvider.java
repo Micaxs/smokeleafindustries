@@ -2,6 +2,7 @@ package net.micaxs.smokeleaf.compat.jade;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.entity.GrowPotBlockEntity;
+import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -54,6 +55,19 @@ public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvi
             if (cropId != null) tag.putString("crop", cropId.toString());
         }
 
+        // Custom strain name and base stats (so tooltip can show strain name + THC/CBD)
+        if (pot.hasCustomStrain()) {
+            StrainData strain = pot.getCustomStrain();
+            if (strain != null && strain != StrainData.EMPTY) {
+                String name = strain.displayName();
+                if (name != null && !name.isBlank()) {
+                    tag.putString("strain_name", name);
+                }
+                tag.putInt("thc", strain.thc());
+                tag.putInt("cbd", strain.cbd());
+            }
+        }
+
         // Growth data (age/maxAge)
         int age = pot.getCropAge();
         int maxAge = pot.getCropMaxAge();
@@ -79,12 +93,25 @@ public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvi
 
         // Crop line
         if (data.contains("crop")) {
-            ResourceLocation cropId = ResourceLocation.tryParse(data.getString("crop"));
-            Block cropBlock = cropId != null ? BuiltInRegistries.BLOCK.get(cropId) : null;
-            Component cropName = cropBlock != null
-                    ? Component.translatable(cropBlock.getDescriptionId())
-                    : Component.literal("Unknown");
+            Component cropName;
+            if (data.contains("strain_name")) {
+                cropName = Component.literal(data.getString("strain_name")).withStyle(ChatFormatting.LIGHT_PURPLE);
+            } else {
+                ResourceLocation cropId = ResourceLocation.tryParse(data.getString("crop"));
+                Block cropBlock = cropId != null ? BuiltInRegistries.BLOCK.get(cropId) : null;
+                cropName = cropBlock != null
+                        ? Component.translatable(cropBlock.getDescriptionId())
+                        : Component.literal("Unknown");
+            }
             tooltip.add(Component.literal("Crop: ").append(cropName));
+
+            if (data.contains("thc") && data.contains("cbd")) {
+                tooltip.add(Component.literal("THC: ")
+                        .withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(data.getInt("thc") + "%").withStyle(ChatFormatting.GREEN))
+                        .append(Component.literal("  CBD: ").withStyle(ChatFormatting.GRAY))
+                        .append(Component.literal(data.getInt("cbd") + "%").withStyle(ChatFormatting.AQUA)));
+            }
         } else {
             tooltip.add(Component.literal("Crop: None"));
         }
