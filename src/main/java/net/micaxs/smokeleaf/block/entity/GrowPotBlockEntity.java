@@ -232,7 +232,7 @@ public class GrowPotBlockEntity extends BlockEntity {
             ItemStack bud = new ItemStack(ModItems.UNIDENTIFIED_BUD.get());
             StrainData d = customStrain;
             if (d != null) {
-                d = new StrainData(d.colorArgb(), getThc(), getCbd(),
+                d = new StrainData(d.colorArgb(), d.leafColor(), getThc(), getCbd(),
                         getNitrogen(), getPhosphorus(), getPotassium(),
                         d.effects(), d.amplifier(), d.durationTicks(),
                         d.identified(), d.displayName());
@@ -269,7 +269,7 @@ public class GrowPotBlockEntity extends BlockEntity {
                 StrainData existing = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
                 if (existing != null) {
                     drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
-                            existing.colorArgb(), thcVal, cbdVal,
+                            existing.colorArgb(), existing.leafColor(), thcVal, cbdVal,
                             existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                             existing.effects(), existing.amplifier(), existing.durationTicks(),
                             existing.identified(), existing.displayName()
@@ -382,7 +382,7 @@ public class GrowPotBlockEntity extends BlockEntity {
             StrainData d = customStrain;
             if (d != null) {
                 // Apply current pot nutrient-derived THC/CBD into the strain data (so player care matters)
-                d = new StrainData(d.colorArgb(), getThc(), getCbd(), getNitrogen(), getPhosphorus(), getPotassium(),
+                d = new StrainData(d.colorArgb(), d.leafColor(), getThc(), getCbd(), getNitrogen(), getPhosphorus(), getPotassium(),
                         d.effects(), d.amplifier(), d.durationTicks(), d.identified(), d.displayName());
                 bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
             }
@@ -421,7 +421,7 @@ public class GrowPotBlockEntity extends BlockEntity {
                 StrainData existing = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
                 if (existing != null) {
                     drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
-                            existing.colorArgb(), thcVal, cbdVal,
+                            existing.colorArgb(), existing.leafColor(), thcVal, cbdVal,
                             existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                             existing.effects(), existing.amplifier(), existing.durationTicks(),
                             existing.identified(), existing.displayName()

@@ -2,8 +2,10 @@ package net.micaxs.smokeleaf.item;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.item.custom.*;
+import net.micaxs.smokeleaf.strain.StrainRegistry;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemNameBlockItem;
@@ -41,79 +43,129 @@ public class ModItems {
             () -> new ItemNameBlockItem(ModBlocks.HEMP_CROP.get(), new Item.Properties()));
     @Deprecated
     public static final DeferredItem<Item>  WHITE_WIDOW_SEEDS = ITEMS.register("white_widow_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.WHITE_WIDOW_CROP.get(), new Item.Properties()));
+            () -> new ItemNameBlockItem(ModBlocks.WHITE_WIDOW_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("white_widow"))));
     @Deprecated
     public static final DeferredItem<Item>  BUBBLE_KUSH_SEEDS = ITEMS.register("bubble_kush_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.BUBBLE_KUSH_CROP.get(), new Item.Properties()));
+            () -> new ItemNameBlockItem(ModBlocks.BUBBLE_KUSH_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("bubble_kush"))));
     @Deprecated
-    public static final DeferredItem<Item> LEMON_HAZE_SEEDS = ITEMS.register("lemon_haze_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.LEMON_HAZE_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  LEMON_HAZE_SEEDS = ITEMS.register("lemon_haze_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.LEMON_HAZE_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("lemon_haze"))));
     @Deprecated
-    public static final DeferredItem<Item> SOUR_DIESEL_SEEDS = ITEMS.register("sour_diesel_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.SOUR_DIESEL_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  SOUR_DIESEL_SEEDS = ITEMS.register("sour_diesel_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.SOUR_DIESEL_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("sour_diesel"))));
     @Deprecated
-    public static final DeferredItem<Item> BLUE_ICE_SEEDS = ITEMS.register("blue_ice_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.BLUE_ICE_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  BLUE_ICE_SEEDS = ITEMS.register("blue_ice_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.BLUE_ICE_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("blue_ice"))));
     @Deprecated
-    public static final DeferredItem<Item> BUBBLEGUM_SEEDS = ITEMS.register("bubblegum_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.BUBBLEGUM_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  BUBBLEGUM_SEEDS = ITEMS.register("bubblegum_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.BUBBLEGUM_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("bubblegum"))));
     @Deprecated
-    public static final DeferredItem<Item> PURPLE_HAZE_SEEDS = ITEMS.register("purple_haze_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.PURPLE_HAZE_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  PURPLE_HAZE_SEEDS = ITEMS.register("purple_haze_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.PURPLE_HAZE_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("purple_haze"))));
     @Deprecated
-    public static final DeferredItem<Item> OG_KUSH_SEEDS = ITEMS.register("og_kush_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.OG_KUSH_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  OG_KUSH_SEEDS = ITEMS.register("og_kush_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.OG_KUSH_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("og_kush"))));
     @Deprecated
-    public static final DeferredItem<Item> JACK_HERER_SEEDS = ITEMS.register("jack_herer_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.JACK_HERER_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  JACK_HERER_SEEDS = ITEMS.register("jack_herer_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.JACK_HERER_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("jack_herer"))));
     @Deprecated
-    public static final DeferredItem<Item> GARY_PEYTON_SEEDS = ITEMS.register("gary_peyton_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.GARY_PEYTON_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  GARY_PEYTON_SEEDS = ITEMS.register("gary_peyton_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.GARY_PEYTON_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("gary_peyton"))));
     @Deprecated
-    public static final DeferredItem<Item> AMNESIA_HAZE_SEEDS = ITEMS.register("amnesia_haze_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.AMNESIA_HAZE_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  AMNESIA_HAZE_SEEDS = ITEMS.register("amnesia_haze_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.AMNESIA_HAZE_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("amnesia_haze"))));
     @Deprecated
-    public static final DeferredItem<Item> AK47_SEEDS = ITEMS.register("ak47_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.AK47_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  AK47_SEEDS = ITEMS.register("ak47_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.AK47_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("ak47"))));
     @Deprecated
-    public static final DeferredItem<Item> GHOST_TRAIN_SEEDS = ITEMS.register("ghost_train_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.GHOST_TRAIN_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  GHOST_TRAIN_SEEDS = ITEMS.register("ghost_train_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.GHOST_TRAIN_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("ghost_train"))));
     @Deprecated
-    public static final DeferredItem<Item> GRAPE_APE_SEEDS = ITEMS.register("grape_ape_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.GRAPE_APE_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  GRAPE_APE_SEEDS = ITEMS.register("grape_ape_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.GRAPE_APE_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("grape_ape"))));
     @Deprecated
-    public static final DeferredItem<Item> COTTON_CANDY_SEEDS = ITEMS.register("cotton_candy_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.COTTON_CANDY_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  COTTON_CANDY_SEEDS = ITEMS.register("cotton_candy_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.COTTON_CANDY_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("cotton_candy"))));
     @Deprecated
-    public static final DeferredItem<Item> BANANA_KUSH_SEEDS = ITEMS.register("banana_kush_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.BANANA_KUSH_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  BANANA_KUSH_SEEDS = ITEMS.register("banana_kush_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.BANANA_KUSH_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("banana_kush"))));
     @Deprecated
-    public static final DeferredItem<Item> CARBON_FIBER_SEEDS = ITEMS.register("carbon_fiber_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.CARBON_FIBER_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  CARBON_FIBER_SEEDS = ITEMS.register("carbon_fiber_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.CARBON_FIBER_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("carbon_fiber"))));
     @Deprecated
-    public static final DeferredItem<Item> BIRTHDAY_CAKE_SEEDS = ITEMS.register("birthday_cake_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.BIRTHDAY_CAKE_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  BIRTHDAY_CAKE_SEEDS = ITEMS.register("birthday_cake_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.BIRTHDAY_CAKE_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("birthday_cake"))));
     @Deprecated
-    public static final DeferredItem<Item> BLUE_COOKIES_SEEDS = ITEMS.register("blue_cookies_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.BLUE_COOKIES_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  BLUE_COOKIES_SEEDS = ITEMS.register("blue_cookies_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.BLUE_COOKIES_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("blue_cookies"))));
     @Deprecated
-    public static final DeferredItem<Item> AFGHANI_SEEDS = ITEMS.register("afghani_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.AFGHANI_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  AFGHANI_SEEDS = ITEMS.register("afghani_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.AFGHANI_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("afghani"))));
     @Deprecated
-    public static final DeferredItem<Item> MOONBOW_SEEDS = ITEMS.register("moonbow_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.MOONBOW_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  MOONBOW_SEEDS = ITEMS.register("moonbow_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.MOONBOW_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("moonbow"))));
     @Deprecated
-    public static final DeferredItem<Item> LAVA_CAKE_SEEDS = ITEMS.register("lava_cake_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.LAVA_CAKE_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  LAVA_CAKE_SEEDS = ITEMS.register("lava_cake_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.LAVA_CAKE_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("lava_cake"))));
     @Deprecated
-    public static final DeferredItem<Item> JELLY_RANCHER_SEEDS = ITEMS.register("jelly_rancher_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.JELLY_RANCHER_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  JELLY_RANCHER_SEEDS = ITEMS.register("jelly_rancher_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.JELLY_RANCHER_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("jelly_rancher"))));
     @Deprecated
-    public static final DeferredItem<Item> STRAWBERRY_SHORTCAKE_SEEDS = ITEMS.register("strawberry_shortcake_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.STRAWBERRY_SHORTCAKE_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  STRAWBERRY_SHORTCAKE_SEEDS = ITEMS.register("strawberry_shortcake_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.STRAWBERRY_SHORTCAKE_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("strawberry_shortcake"))));
     @Deprecated
-    public static final DeferredItem<Item> PINK_KUSH_SEEDS = ITEMS.register("pink_kush_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.PINK_KUSH_CROP.get(), new Item.Properties()));
+    public static final DeferredItem<Item>  PINK_KUSH_SEEDS = ITEMS.register("pink_kush_seeds",
+            () -> new ItemNameBlockItem(ModBlocks.PINK_KUSH_CROP.get(),
+                    new Item.Properties().component(ModDataComponentTypes.STRAIN_DATA.get(),
+                            StrainRegistry.getRequired("pink_kush"))));
 
 
     // Deprecated named strain buds. Superseded by GENERIC_BUD + STRAIN_DATA and kept for world compatibility.

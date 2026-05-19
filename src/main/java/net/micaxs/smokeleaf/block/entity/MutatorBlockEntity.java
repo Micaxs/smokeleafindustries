@@ -292,7 +292,7 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                 // If still no strain, at least use fluid tint.
                 if (base == StrainData.EMPTY) {
                     int color = IClientFluidTypeExtensions.of(mix.getFluid()).getTintColor(mix);
-                    base = new StrainData(color, 0, 0, 0, 0, 0, java.util.List.of(), 0, 0, false, "");
+                    base = new StrainData(color, 0xFF4A7A2E, 0, 0, 0, 0, 0, java.util.List.of(), 0, 0, false, "");
                 }
 
                 output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);

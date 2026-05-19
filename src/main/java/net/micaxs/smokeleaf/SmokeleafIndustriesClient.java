@@ -339,7 +339,12 @@ public class SmokeleafIndustriesClient {
     @SubscribeEvent
     public static void onItemColor(RegisterColorHandlersEvent.Item event) {
         ItemColor itemColor = (stack, tintIndex) -> {
-            // Custom strain tint: apply STRAIN_DATA color to tint layer 1.
+            // tintIndex 0 → base plant/leaf color from STRAIN_DATA.leafColor
+            if (tintIndex == 0 && stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+                StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+                if (d != null) return d.leafColor();
+            }
+            // tintIndex 1 → strain color from STRAIN_DATA.colorArgb
             if (tintIndex == 1 && stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
                 StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
                 if (d != null) return d.colorArgb();

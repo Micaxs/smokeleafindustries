@@ -177,7 +177,7 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
         StrainData existing = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
         if (existing != null) {
             stack.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
-                    existing.colorArgb(), thc, cbd,
+                    existing.colorArgb(), existing.leafColor(), thc, cbd,
                     existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                     existing.effects(), existing.amplifier(), existing.durationTicks(),
                     existing.identified(), existing.displayName()

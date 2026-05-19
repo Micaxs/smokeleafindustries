@@ -27,7 +27,6 @@ public record GrinderRecipe(Ingredient inputItem, ItemStack output) implements R
 
     @Override
     public boolean matches(GrinderRecipeInput grinderRecipeInput, Level level) {
-        if (level.isClientSide()) return false;
         return inputItem.test(grinderRecipeInput.getItem(0));
     }
 

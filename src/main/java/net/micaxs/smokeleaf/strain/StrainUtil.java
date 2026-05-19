@@ -62,8 +62,11 @@ public final class StrainUtil {
 
         int cA = hasStrain(a) ? getStrain(a).colorArgb() : aTint;
         int cB = hasStrain(b) ? getStrain(b).colorArgb() : bTint;
+        int leafA = hasStrain(a) ? getStrain(a).leafColor() : 0xFF4A7A2E;
+        int leafB = hasStrain(b) ? getStrain(b).leafColor() : 0xFF4A7A2E;
 
         int mixedColor = mixColors(cA, amtA, cB, amtB);
+        int mixedLeafColor = mixColors(leafA, amtA, leafB, amtB);
 
         // Effects union
         var effects = new LinkedHashSet<ResourceLocation>();
@@ -93,6 +96,7 @@ public final class StrainUtil {
 
         return new StrainData(
                 mixedColor,
+                mixedLeafColor,
                 thc,
                 cbd,
                 n,
@@ -128,6 +132,7 @@ public final class StrainUtil {
 
         return new StrainData(
                 base.colorArgb(),
+                base.leafColor(),
                 thc,
                 cbd,
                 n,
