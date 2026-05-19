@@ -1,38 +1,34 @@
 package net.micaxs.smokeleaf.item.custom;
 
-import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.ItemNameBlockItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.material.Fluid;
 
 import java.util.List;
 
 /**
- * Seeds that carry custom strain data.
+ * Bucket item for unidentified mixture fluid.
+ * Shows strain name and stats when the strain has been identified/named.
  */
-public class UnidentifiedSeedsItem extends ItemNameBlockItem {
-    public UnidentifiedSeedsItem(Properties properties) {
-        super(ModBlocks.UNIDENTIFIED_WEED_CROP.get(), properties);
+public class UnidentifiedMixtureBucketItem extends BucketItem {
+
+    public UnidentifiedMixtureBucketItem(Fluid fluid, Properties properties) {
+        super(fluid, properties);
     }
 
     @Override
     public Component getName(ItemStack stack) {
         StrainData d = StrainUtil.getStrain(stack);
         if (d.identified() && d.displayName() != null && !d.displayName().isBlank()) {
-            return Component.literal(d.displayName() + " Seeds");
+            return Component.literal(d.displayName() + " Extract Bucket");
         }
         return super.getName(stack);
-    }
-
-    @Override
-    public boolean isFoil(ItemStack stack) {
-        StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
-        return d != null && d.identified();
     }
 
     @Override

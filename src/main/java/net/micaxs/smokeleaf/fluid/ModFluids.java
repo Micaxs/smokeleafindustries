@@ -4,6 +4,7 @@ import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.micaxs.smokeleaf.item.custom.UnidentifiedMixtureBucketItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -404,7 +405,7 @@ public class ModFluids {
     public static final DeferredBlock<LiquidBlock> UNIDENTIFIED_MIXTURE_FLUID_BLOCK = ModBlocks.BLOCKS.register("unidentified_mixture_fluid_block",
             () -> new LiquidBlock(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
     public static final DeferredItem<Item> UNIDENTIFIED_MIXTURE_BUCKET = ModItems.ITEMS.registerItem("unidentified_mixture_bucket",
-            properties -> new BucketItem(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), properties.craftRemainder(Items.BUCKET).stacksTo(1)));
+            properties -> new UnidentifiedMixtureBucketItem(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), properties.craftRemainder(Items.BUCKET).stacksTo(1)));
     public static final BaseFlowingFluid.Properties UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES = new BaseFlowingFluid.Properties(
             ModFluidTypes.UNIDENTIFIED_MIXTURE_FLUID_TYPE, SOURCE_UNIDENTIFIED_MIXTURE_FLUID, FLOWING_UNIDENTIFIED_MIXTURE_FLUID)
             .slopeFindDistance(2)

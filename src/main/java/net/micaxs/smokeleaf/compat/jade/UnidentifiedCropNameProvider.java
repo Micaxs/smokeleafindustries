@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
+import snownee.jade.api.JadeIds;
 import snownee.jade.api.config.IPluginConfig;
 
 public enum UnidentifiedCropNameProvider implements IBlockComponentProvider {
@@ -29,8 +30,7 @@ public enum UnidentifiedCropNameProvider implements IBlockComponentProvider {
 
         if (!trimmed.isEmpty()) {
             Component title = Component.literal(trimmed + " Plant");
-            tooltip.clear();
-            tooltip.add(title);
+            tooltip.replace(JadeIds.CORE_OBJECT_NAME, title);
         }
     }
 }
