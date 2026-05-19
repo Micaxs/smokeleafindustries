@@ -315,19 +315,28 @@ public class SmokeleafIndustriesClient {
             }
 
             // tintIndex 1 => mask layer, strain color.
-            if (tintIndex == 1 && level != null && pos != null) {
-                BlockEntity be = level.getBlockEntity(pos);
-
-                // StrainData is stored on the bottom half BE; top half has no BE, so look down one block.
-                if (!(be instanceof UnidentifiedWeedCropBlockEntity) && state.hasProperty(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP)
-                        && Boolean.TRUE.equals(state.getValue(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP))) {
-                    be = level.getBlockEntity(pos.below());
+            if (tintIndex == 1) {
+                // When called from GrowPotRenderer.renderSingleBlock, level and pos are null.
+                // The renderer pushes the strain color into a ThreadLocal for us to read here.
+                if (level == null) {
+                    Integer threadColor = GrowPotRenderer.RENDER_STRAIN_COLOR.get();
+                    return threadColor != null ? threadColor : 0xFFFFFFFF;
                 }
 
-                if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
-                    StrainData d = cropBe.getStrain();
-                    if (d != null && d != StrainData.EMPTY) {
-                        return d.colorArgb();
+                if (pos != null) {
+                    BlockEntity be = level.getBlockEntity(pos);
+
+                    // StrainData is stored on the bottom half BE; top half has no BE, so look down one block.
+                    if (!(be instanceof UnidentifiedWeedCropBlockEntity) && state.hasProperty(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP)
+                            && Boolean.TRUE.equals(state.getValue(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.TOP))) {
+                        be = level.getBlockEntity(pos.below());
+                    }
+
+                    if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
+                        StrainData d = cropBe.getStrain();
+                        if (d != null && d != StrainData.EMPTY) {
+                            return d.colorArgb();
+                        }
                     }
                 }
             }

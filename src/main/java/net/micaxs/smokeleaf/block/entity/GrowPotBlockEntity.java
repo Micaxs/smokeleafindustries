@@ -3,7 +3,9 @@ package net.micaxs.smokeleaf.block.entity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.Config;
+import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
+import net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
@@ -313,14 +315,28 @@ public class GrowPotBlockEntity extends BlockEntity {
     @Nullable
     public BlockState getBottomCropStateForRender() {
         if (cropBlock == null) return null;
+        int age = Math.min(cropAge, cropBlock.getMaxAge());
+        if (hasCustomStrain()) {
+            return ModBlocks.UNIDENTIFIED_WEED_CROP.get().defaultBlockState()
+                    .setValue(UnidentifiedWeedCropBlock.AGE, age)
+                    .setValue(UnidentifiedWeedCropBlock.TOP, Boolean.FALSE);
+        }
         return cropBlock.defaultBlockState()
-                .setValue(BaseWeedCropBlock.AGE, Math.min(cropAge, cropBlock.getMaxAge()))
+                .setValue(BaseWeedCropBlock.AGE, age)
                 .setValue(cropBlock.getTop(), Boolean.FALSE);
     }
 
     @Nullable
     public BlockState getTopCropStateForRender() {
         if (cropBlock == null) return null;
+        if (hasCustomStrain()) {
+            int tallAge = UnidentifiedWeedCropBlock.FIRST_STAGE_MAX_AGE + 1;
+            if (cropAge < tallAge) return null;
+            int age = Math.min(cropAge, cropBlock.getMaxAge());
+            return ModBlocks.UNIDENTIFIED_WEED_CROP.get().defaultBlockState()
+                    .setValue(UnidentifiedWeedCropBlock.AGE, age)
+                    .setValue(UnidentifiedWeedCropBlock.TOP, Boolean.TRUE);
+        }
         int tallAge = cropBlock.getTallAge();
         if (cropAge < tallAge) return null;
         return cropBlock.defaultBlockState()
