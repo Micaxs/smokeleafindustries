@@ -55,10 +55,30 @@
           "type": "minecraft:item",
           "functions": [
             {
+              "function": "minecraft:set_components",
+              "components": {
+                "smokeleafindustries:strain_data": {
+                  "color": 4291484083,
+                  "thc": 15,
+                  "cbd": 10,
+                  "n": 9,
+                  "p": 6,
+                  "k": 11,
+                  "effects": [
+                    "minecraft:wind_charged"
+                  ],
+                  "amp": 1,
+                  "dur": 200,
+                  "identified": true,
+                  "name": "White Widow"
+                }
+              }
+            },
+            {
               "function": "smokeleafindustries:apply_bud_stats"
             }
           ],
-          "name": "smokeleafindustries:white_widow_bud"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0

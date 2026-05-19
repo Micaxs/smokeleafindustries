@@ -71,6 +71,19 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         basicItem(ModItems.HASH_OIL_TINCTURE.get());
         basicItem(ModItems.BASE_EXTRACT.get());
+        getBuilder("seeds")
+                .parent(getExistingFile(mcLoc("item/generated")))
+                .texture("layer0", modLoc("item/unidentified_seeds_base"))
+                .texture("layer1", modLoc("item/unidentified_seeds_top"));
+        getBuilder("bud")
+                .parent(getExistingFile(mcLoc("item/generated")))
+                .texture("layer0", modLoc("item/white_widow_bud"));
+        getBuilder("weed")
+                .parent(getExistingFile(mcLoc("item/generated")))
+                .texture("layer0", modLoc("item/white_widow_weed"));
+        getBuilder("extract")
+                .parent(getExistingFile(mcLoc("item/generated")))
+                .texture("layer0", modLoc("item/base_extract"));
         basicItem(ModItems.HEMP_COAL.get());
 
         basicItem(ModItems.BUTTER.get());
