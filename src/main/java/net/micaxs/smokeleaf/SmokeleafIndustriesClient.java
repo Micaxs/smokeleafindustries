@@ -402,6 +402,7 @@ public class SmokeleafIndustriesClient {
                 ModItems.GENERIC_BUD.get(),
                 ModItems.GENERIC_WEED.get(),
                 ModItems.GENERIC_EXTRACT.get(),
+                ModItems.GENERIC_BAG.get(),
                 ModItems.UNIDENTIFIED_SEEDS.get(),
                 ModItems.UNIDENTIFIED_BUD.get(),
                 ModItems.UNIDENTIFIED_WEED.get(),

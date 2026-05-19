@@ -2,6 +2,7 @@ package net.micaxs.smokeleaf.block.entity;
 
 import net.micaxs.smokeleaf.Config;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
+import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -173,8 +174,18 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
     }
 
     public void writeToItem(ItemStack stack) {
-        stack.set(ModDataComponentTypes.THC.get(), thc);
-        stack.set(ModDataComponentTypes.CBD.get(), cbd);
+        StrainData existing = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+        if (existing != null) {
+            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                    existing.colorArgb(), thc, cbd,
+                    existing.nitrogen(), existing.phosphorus(), existing.potassium(),
+                    existing.effects(), existing.amplifier(), existing.durationTicks(),
+                    existing.identified(), existing.displayName()
+            ));
+        } else {
+            stack.set(ModDataComponentTypes.THC.get(), thc);
+            stack.set(ModDataComponentTypes.CBD.get(), cbd);
+        }
     }
 
 
