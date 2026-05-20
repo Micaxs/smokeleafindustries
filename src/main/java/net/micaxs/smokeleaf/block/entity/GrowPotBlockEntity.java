@@ -314,7 +314,8 @@ public class GrowPotBlockEntity extends BlockEntity {
         this.cropBlock = crop;
         this.cropAge = 0;
         this.growthProgressTicks = 0;
-        initFromCrop(crop);
+        // initFromCrop is called by the caller before plantCrop (and setCustomStrain may
+        // override the values afterward), so we must NOT call it again here.
         setChangedAndSync();
     }
 
