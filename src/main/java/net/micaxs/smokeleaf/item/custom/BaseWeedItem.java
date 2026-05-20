@@ -3,6 +3,7 @@ package net.micaxs.smokeleaf.item.custom;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainEffectsUtil;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.utils.WeedEffectHelper;
 import net.minecraft.ChatFormatting;
@@ -201,87 +202,15 @@ public class BaseWeedItem extends Item {
         return cbd != null ? cbd : this.cbdLevel;
     }
 
-    // Unified duration derived from CBD, in ticks
+    // Unified duration derived from CBD, delegated to StrainEffectsUtil
     private int computeUnifiedDurationTicks(ItemStack stack) {
-        int cbd = getCBD(stack);
-        int seconds;
-        if (cbd > 30) seconds = 60;
-        else if (cbd > 15) seconds = 20;
-        else seconds = 10; // cbd <= 15
-        // Allow multiplier to tweak final duration if needed
-        return (int) (seconds * 20 * this.durationMultiplier);
-    }
-
-    // Extra effects count derived from THC
-    private int computeExtraEffectCount(int thc) {
-        if (thc > 35) return 2;
-        if (thc > 20 && thc < 35) return 1;
-        return 0;
-    }
-
-    // Deterministic extra effects based on seed from item id, base effect id, THC, CBD
-    private List<MobEffect> getDeterministicExtraEffects(ItemStack stack, int count) {
-        if (count <= 0 || ADDITIONAL_EFFECT_POOL.isEmpty()) return List.of();
-
-        MobEffect base = getEffect(stack);
-        ResourceLocation baseId = base != null ? BuiltInRegistries.MOB_EFFECT.getKey(base) : null;
-
-        int thc = getTHC(stack);
-        int cbd = getCBD(stack);
-        long seed = 1469598103934665603L; // FNV offset basis
-        seed ^= (baseId != null ? baseId.toString().hashCode() : 0);
-        seed = (seed * 1099511628211L) ^ thc;
-        seed = (seed * 1099511628211L) ^ cbd;
-
-        String activeStr = stack.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get());
-        if (activeStr != null) {
-            seed = (seed * 1099511628211L) ^ activeStr.hashCode();
-        }
-
-        List<MobEffect> candidates = new ArrayList<>();
-        for (ResourceLocation rl : ADDITIONAL_EFFECT_POOL) {
-            if (rl == null) continue;
-            if (baseId != null && rl.equals(baseId)) continue;
-            MobEffect eff = BuiltInRegistries.MOB_EFFECT.get(rl);
-            if (eff != null) candidates.add(eff);
-        }
-        if (candidates.isEmpty()) return List.of();
-
-        Collections.shuffle(candidates, new Random(seed));
-        if (count >= candidates.size()) return List.copyOf(candidates);
-        return List.copyOf(candidates.subList(0, count));
-    }
-
-    private static Holder<MobEffect> toHolder(MobEffect effect) {
-        if (effect == null) return null;
-        var registry = BuiltInRegistries.MOB_EFFECT;
-        var keyOpt = registry.getResourceKey(effect);
-        if (keyOpt.isPresent()) {
-            return registry.getHolderOrThrow(keyOpt.get());
-        }
-        return Holder.direct(effect);
+        return StrainEffectsUtil.computeDurationTicks(getCBD(stack), this.durationMultiplier);
     }
 
     public List<MobEffectInstance> buildEffectInstances(ItemStack stack) {
-        int durationTicks = computeUnifiedDurationTicks(stack);
-        int amp = this.effectAmplifier;
-
-        List<MobEffectInstance> out = new ArrayList<>();
-
-        MobEffect base = getEffect(stack);
-        Holder<MobEffect> baseHolder = toHolder(base);
-        if (baseHolder != null) {
-            out.add(new MobEffectInstance(baseHolder, durationTicks, amp, false, true, true));
-        }
-
-        int extraCount = computeExtraEffectCount(getTHC(stack));
-        for (MobEffect eff : getDeterministicExtraEffects(stack, extraCount)) {
-            Holder<MobEffect> effHolder = toHolder(eff);
-            if (effHolder != null) {
-                out.add(new MobEffectInstance(effHolder, durationTicks, amp, false, true, true));
-            }
-        }
-        return out;
+        return StrainEffectsUtil.buildEffectInstances(
+                getTHC(stack), getCBD(stack), this.effectAmplifier,
+                getEffect(stack), this.durationMultiplier, ADDITIONAL_EFFECT_POOL);
     }
 
     // Apply effects on consume/use
