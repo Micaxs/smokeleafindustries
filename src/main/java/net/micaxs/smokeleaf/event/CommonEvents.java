@@ -623,7 +623,7 @@ public class CommonEvents {
             StrainUtil.setStrain(output, namedData);
 
             event.setOutput(output);
-            event.setCost(0);
+            event.setCost(1);
             event.setMaterialCost(0);
             return;
         }
@@ -640,7 +640,7 @@ public class CommonEvents {
             ItemStack output = left.copy();
             StrainUtil.setStrain(output, namedData);
             event.setOutput(output);
-            event.setCost(0);
+            event.setCost(1);
             event.setMaterialCost(0);
             return;
         }
@@ -664,7 +664,7 @@ public class CommonEvents {
         output.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
 
         event.setOutput(output);
-        event.setCost(0);
+        event.setCost(1);
         event.setMaterialCost(0);
     }
 
