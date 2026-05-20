@@ -60,6 +60,7 @@ public class BaseWeedItem extends Item {
     private boolean variableDuration;
     private final String[] weedNameParts = new String[2];
     private float durationMultiplier = 1;
+    private String nameSuffix = " Weed";
 
     public BaseWeedItem(Properties pProperties, MobEffect effect, int iDuration, int iAmplifier, int iThc, int iCbd, String weedNamePart1, String weedNamePart2) {
         this(pProperties, effect, iDuration, iAmplifier, iThc, iCbd, true);
@@ -85,11 +86,17 @@ public class BaseWeedItem extends Item {
         stack.set(ModDataComponentTypes.CBD.get(), this.cbdLevel);
     }
 
+    /** Sets the name suffix appended after the strain name (e.g. " Weed", " Extract"). */
+    public BaseWeedItem withNameSuffix(String suffix) {
+        this.nameSuffix = suffix;
+        return this;
+    }
+
     @Override
     public Component getName(ItemStack stack) {
         StrainData d = StrainUtil.getStrain(stack);
         if (d != StrainData.EMPTY && d.displayName() != null && !d.displayName().isBlank()) {
-            return Component.literal(d.displayName() + " Weed");
+            return Component.literal(d.displayName() + nameSuffix);
         }
         return super.getName(stack);
     }

@@ -31,8 +31,7 @@ public class UnidentifiedSeedsItem extends ItemNameBlockItem {
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
-        return d != null && d.identified();
+        return false;
     }
 
     @Override
