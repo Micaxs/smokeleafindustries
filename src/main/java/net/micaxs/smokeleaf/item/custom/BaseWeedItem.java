@@ -108,7 +108,6 @@ public class BaseWeedItem extends Item {
         StrainData d = StrainUtil.getStrain(stack);
         if (d != StrainData.EMPTY) {
             tooltipComponents.add(Component.literal("THC: " + d.thc() + "%  CBD: " + d.cbd() + "%"));
-            tooltipComponents.add(Component.literal("NPK: " + d.nitrogen() + "/" + d.phosphorus() + "/" + d.potassium()));
         }
 
         List<MobEffectInstance> previews = buildEffectInstances(stack);

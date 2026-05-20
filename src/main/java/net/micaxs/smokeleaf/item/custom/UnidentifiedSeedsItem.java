@@ -41,7 +41,6 @@ public class UnidentifiedSeedsItem extends ItemNameBlockItem {
         if (d == null) return;
         MutableComponent stats = Component.literal("THC: " + d.thc() + "%  CBD: " + d.cbd() + "%");
         tooltip.add(stats);
-        tooltip.add(Component.literal("NPK: " + d.nitrogen() + "/" + d.phosphorus() + "/" + d.potassium()));
         if (!d.effects().isEmpty()) {
             tooltip.add(Component.literal("Effects: " + d.effects().size()));
         }
