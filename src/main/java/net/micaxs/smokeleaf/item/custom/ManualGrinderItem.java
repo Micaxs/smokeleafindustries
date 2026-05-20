@@ -82,6 +82,12 @@ public class ManualGrinderItem extends Item {
                         level.registryAccess()
                 );
 
+                // Propagate strain lineage from bud to weed
+                var strainData = stored.get(ModDataComponentTypes.STRAIN_DATA.get());
+                if (strainData != null) result.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+                var strainId = stored.get(ModDataComponentTypes.STRAIN_ID.get());
+                if (strainId != null) result.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+
                 boolean bonus = isDriedBud(stored);
 
                 // Consume one input and persist the remainder

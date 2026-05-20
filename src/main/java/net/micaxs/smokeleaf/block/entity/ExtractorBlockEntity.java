@@ -156,6 +156,9 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
         var strainData = input.get(ModDataComponentTypes.STRAIN_DATA.get());
         if (strainData != null) {
             result.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+            // Propagate strain ID for lineage tracking
+            var strainId = input.get(ModDataComponentTypes.STRAIN_ID.get());
+            if (strainId != null) result.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
             return result;
         }
 

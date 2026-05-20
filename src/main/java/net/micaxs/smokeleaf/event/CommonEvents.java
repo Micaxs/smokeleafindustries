@@ -12,6 +12,7 @@ import net.micaxs.smokeleaf.item.custom.ManualGrinderItem;
 import net.micaxs.smokeleaf.item.custom.UnidentifiedMixtureBucketItem;
 import net.micaxs.smokeleaf.strain.MixedStrainSavedData;
 import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.micaxs.smokeleaf.utils.WeedDataUtil;
@@ -592,25 +593,49 @@ public class CommonEvents {
     // -----------------------------------------------------------------------
 
     /**
-     * When a player renames an {@link UnidentifiedMixtureBucketItem} in an anvil, compute the
-     * output bucket with the custom strain name stored in StrainData (identified=true).
-     * This preview fires on the server when the AnvilMenu calculates its result.
+     * Handles renaming any strain-bearing item (seeds, buds, weeds, extracts, oil buckets) in an
+     * anvil. Two paths:
+     * <ol>
+     *   <li>Item has {@code STRAIN_ID} → generic lineage rename for any custom strain.</li>
+     *   <li>Item is a bucket with {@code MIX_KEY} but no {@code STRAIN_ID} (legacy) → bucket-only rename.</li>
+     * </ol>
      */
     @SubscribeEvent
     public static void onAnvilUpdate(AnvilUpdateEvent event) {
-        if (!(event.getLeft().getItem() instanceof UnidentifiedMixtureBucketItem)) return;
         String newName = event.getName();
         if (newName == null || newName.isBlank()) return;
 
         ItemStack left = event.getLeft();
+
+        // Generic path: any item with STRAIN_ID
+        String strainId = left.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (strainId != null) {
+            StrainData d = StrainUtil.getStrain(left);
+            if (d == StrainData.EMPTY) return;
+
+            StrainData namedData = new StrainData(
+                    d.colorArgb(), d.leafColor(), d.thc(), d.cbd(),
+                    d.nitrogen(), d.phosphorus(), d.potassium(),
+                    d.effects(), d.amplifier(), d.durationTicks(),
+                    true, newName, d.typeColors()
+            );
+            ItemStack output = left.copy();
+            StrainUtil.setStrain(output, namedData);
+
+            event.setOutput(output);
+            event.setCost(0);
+            event.setMaterialCost(0);
+            return;
+        }
+
+        // Legacy bucket-only path (no STRAIN_ID yet)
+        if (!(left.getItem() instanceof UnidentifiedMixtureBucketItem)) return;
         StrainData d = StrainUtil.getStrain(left);
-        if (d == StrainData.EMPTY) return;
-        if (d.identified()) return; // already named — skip
+        if (d == StrainData.EMPTY || d.identified()) return;
 
         String mixKey = left.get(ModDataComponentTypes.MIX_KEY.get());
         if (mixKey == null || mixKey.isBlank()) return;
 
-        // Build named StrainData
         StrainData namedData = new StrainData(
                 d.colorArgb(), d.leafColor(), d.thc(), d.cbd(),
                 d.nitrogen(), d.phosphorus(), d.potassium(),
@@ -627,22 +652,43 @@ public class CommonEvents {
     }
 
     /**
-     * When the player actually takes the renamed mixture bucket from the anvil, register the
-     * combination in the server-wide {@link MixedStrainSavedData} so it persists across restarts.
+     * When the player takes the renamed item from the anvil, persist the name server-wide and
+     * propagate to all online players carrying items with the same strain ID.
      */
     @SubscribeEvent
     public static void onAnvilRepair(AnvilRepairEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer sp)) return;
         ItemStack output = event.getOutput();
-        if (!(output.getItem() instanceof UnidentifiedMixtureBucketItem)) return;
 
         StrainData d = StrainUtil.getStrain(output);
         if (d == StrainData.EMPTY || !d.identified() || d.displayName().isBlank()) return;
 
+        // Generic path: item has STRAIN_ID
+        String strainId = output.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (strainId != null) {
+            StrainRegistrySavedData.get(sp.server).propagateRename(sp.server, strainId, d.displayName(), sp.getName().getString());
+            // If this is also a mixer-blend, keep MixedStrainSavedData in sync for re-identification
+            if (output.getItem() instanceof UnidentifiedMixtureBucketItem) {
+                String mixKey = output.get(ModDataComponentTypes.MIX_KEY.get());
+                if (mixKey != null) MixedStrainSavedData.get(sp.server).register(mixKey, d.displayName());
+            }
+            return;
+        }
+
+        // Legacy bucket path
+        if (!(output.getItem() instanceof UnidentifiedMixtureBucketItem)) return;
         String mixKey = output.get(ModDataComponentTypes.MIX_KEY.get());
         if (mixKey == null || mixKey.isBlank()) return;
+        MixedStrainSavedData.get(sp.server).register(mixKey, d.displayName());
+    }
 
-        if (event.getEntity() instanceof ServerPlayer sp) {
-            MixedStrainSavedData.get(sp.server).register(mixKey, d.displayName());
-        }
+    /**
+     * On player login, sync embedded strain names from the server registry so offline-obtained
+     * items reflect any renames that happened while the player was away.
+     */
+    @SubscribeEvent
+    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer sp)) return;
+        StrainRegistrySavedData.get(sp.server).syncPlayerInventory(sp);
     }
 }

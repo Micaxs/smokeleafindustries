@@ -7,6 +7,7 @@ import net.micaxs.smokeleaf.screen.custom.MutatorMenu;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.nbt.NbtOps;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -296,6 +297,14 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                 }
 
                 output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);
+
+                // Assign a new UUID as the strain ID and register it in the server-wide registry.
+                String strainId = java.util.UUID.randomUUID().toString();
+                output.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+                if (this.level instanceof net.minecraft.server.level.ServerLevel sl) {
+                    String displayName = base.identified() && !base.displayName().isBlank() ? base.displayName() : "";
+                    StrainRegistrySavedData.get(sl.getServer()).register(strainId, displayName, "");
+                }
             }
         }
 
@@ -316,6 +325,9 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         ItemStack newStack = new ItemStack(output.getItem(), newCount);
         if (output.has(ModDataComponentTypes.STRAIN_DATA.get())) {
             newStack.set(ModDataComponentTypes.STRAIN_DATA.get(), output.get(ModDataComponentTypes.STRAIN_DATA.get()));
+        }
+        if (output.has(ModDataComponentTypes.STRAIN_ID.get())) {
+            newStack.set(ModDataComponentTypes.STRAIN_ID.get(), output.get(ModDataComponentTypes.STRAIN_ID.get()));
         }
         itemHandler.setStackInSlot(OUTPUT_SLOT, newStack);
     }

@@ -226,6 +226,10 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
             // Roll THC/CBD + N/P/K once, only if unset.
             base = StrainUtil.finalizeMixtureStats(base, level != null ? level.random : null);
             StrainUtil.setStrain(out, base);
+
+            // Propagate strain ID from extract to fluid for lineage tracking
+            var strainId = in.get(ModDataComponentTypes.STRAIN_ID.get());
+            if (strainId != null) out.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
         }
 
         FLUID_TANK.fill(out, IFluidHandler.FluidAction.EXECUTE);

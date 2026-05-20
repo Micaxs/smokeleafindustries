@@ -224,6 +224,12 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
                 level.registryAccess()
         );
 
+        // Propagate strain lineage from bud to weed
+        var strainData = inputStack.get(ModDataComponentTypes.STRAIN_DATA.get());
+        if (strainData != null) result.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+        var strainId = inputStack.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (strainId != null) result.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+
         // Apply bonus amount (+1 if bud is dry)
         int bonus = 0;
         if (inputStack.getItem() instanceof BaseBudItem) {

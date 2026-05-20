@@ -71,6 +71,10 @@ public class ModDataComponentTypes {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> MIX_KEY =
             register("mix_key", builder -> builder.persistent(Codec.STRING));
 
+    /** Universal strain lineage identifier (UUID string for mutator-created strains, MIX_KEY value for mixer-blended strains). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> STRAIN_ID =
+            register("strain_id", builder -> builder.persistent(Codec.STRING));
+
     private static <T>DeferredHolder<DataComponentType<?>, DataComponentType<T>> register(String name, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
         return DATA_COMPONENT_TYPES.register(name, () -> builderOperator.apply(DataComponentType.builder()).build());
     }

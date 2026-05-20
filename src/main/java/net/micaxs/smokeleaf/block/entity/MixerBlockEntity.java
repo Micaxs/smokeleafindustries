@@ -405,6 +405,7 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         FluidStack out = new FluidStack(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), 500);
         StrainUtil.setStrain(out, mixed);
         out.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
+        out.set(ModDataComponentTypes.STRAIN_ID.get(), mixKey);
 
         // Also carry effect payload for consumption.
         if (!mixed.effects().isEmpty()) {
