@@ -34,7 +34,7 @@ public class ModItems {
     public static final DeferredItem<Item> GENERIC_WEED = ITEMS.register("weed",
             () -> new BaseWeedItem(new Item.Properties(), MobEffects.WIND_CHARGED.value(), 200, 1, 15, 10, true));
     public static final DeferredItem<Item> GENERIC_EXTRACT = ITEMS.register("extract",
-            () -> new BaseWeedItem(new Item.Properties(), MobEffects.WIND_CHARGED.value(), 400, 2, 15, 10, false));
+            () -> new BaseWeedItem(new Item.Properties(), MobEffects.WIND_CHARGED.value(), 400, 2, 15, 10, false).withNameSuffix(" Extract"));
     public static final DeferredItem<Item> GENERIC_BAG = ITEMS.register("bag",
             () -> new GenericBagItem(new Item.Properties().stacksTo(64)));
 
