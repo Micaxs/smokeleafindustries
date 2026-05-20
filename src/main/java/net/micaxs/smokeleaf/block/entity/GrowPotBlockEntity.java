@@ -229,7 +229,7 @@ public class GrowPotBlockEntity extends BlockEntity {
 
         // Custom strain: emit UNIDENTIFIED_BUD with strain data (mirrors harvest() logic)
         if (hasCustomStrain()) {
-            ItemStack bud = new ItemStack(ModItems.UNIDENTIFIED_BUD.get());
+            ItemStack bud = new ItemStack(ModItems.GENERIC_BUD.get());
             StrainData d = customStrain;
             if (d != null) {
                 d = new StrainData(d.colorArgb(), d.leafColor(), getThc(), getCbd(),
@@ -380,7 +380,7 @@ public class GrowPotBlockEntity extends BlockEntity {
 
         // Custom strain harvest: bypass vanilla crop drops and directly emit Unidentified Bud.
         if (hasCustomStrain()) {
-            ItemStack bud = new ItemStack(ModItems.UNIDENTIFIED_BUD.get());
+            ItemStack bud = new ItemStack(ModItems.GENERIC_BUD.get());
             StrainData d = customStrain;
             if (d != null) {
                 // Apply current pot nutrient-derived THC/CBD into the strain data (so player care matters)
@@ -451,7 +451,7 @@ public class GrowPotBlockEntity extends BlockEntity {
 
         // Return correct seed for custom strains
         if (hasCustomStrain()) {
-            ItemStack seed = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+            ItemStack seed = new ItemStack(ModItems.GENERIC_SEEDS.get());
             StrainData d = customStrain;
             if (d != null) seed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
             if (!player.addItem(seed)) {
@@ -648,7 +648,7 @@ public class GrowPotBlockEntity extends BlockEntity {
         if (hasCrop() && cropBlock != null) {
             ItemStack seedStack;
             if (hasCustomStrain()) {
-                seedStack = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+                seedStack = new ItemStack(ModItems.GENERIC_SEEDS.get());
                 if (customStrain != null && customStrain != StrainData.EMPTY) {
                     seedStack.set(ModDataComponentTypes.STRAIN_DATA.get(), customStrain);
                 }

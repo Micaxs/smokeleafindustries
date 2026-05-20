@@ -404,8 +404,7 @@ public class SmokeleafIndustriesClient {
                 ModItems.JELLY_RANCHER_BUD.get(),
                 ModItems.STRAWBERRY_SHORTCAKE_BUD.get(),
                 ModItems.PINK_KUSH_BUD.get(),
-                ModItems.GENERIC_BUD.get(),
-                ModItems.UNIDENTIFIED_BUD.get()
+                ModItems.GENERIC_BUD.get()
         );
 
         // Mixture bucket: base texture uncolored, only mask (layer1) gets the strain color
@@ -445,8 +444,7 @@ public class SmokeleafIndustriesClient {
                 ModItems.JELLY_RANCHER_WEED.get(),
                 ModItems.STRAWBERRY_SHORTCAKE_WEED.get(),
                 ModItems.PINK_KUSH_WEED.get(),
-                ModItems.GENERIC_WEED.get(),
-                ModItems.UNIDENTIFIED_WEED.get()
+                ModItems.GENERIC_WEED.get()
         );
 
         // Seeds items
@@ -476,8 +474,7 @@ public class SmokeleafIndustriesClient {
                 ModItems.JELLY_RANCHER_SEEDS.get(),
                 ModItems.STRAWBERRY_SHORTCAKE_SEEDS.get(),
                 ModItems.PINK_KUSH_SEEDS.get(),
-                ModItems.GENERIC_SEEDS.get(),
-                ModItems.UNIDENTIFIED_SEEDS.get()
+                ModItems.GENERIC_SEEDS.get()
         );
 
         // Extract items
