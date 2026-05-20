@@ -26,7 +26,7 @@ public class UnidentifiedMixtureBucketItem extends BucketItem {
     public Component getName(ItemStack stack) {
         StrainData d = StrainUtil.getStrain(stack);
         if (d.displayName() != null && !d.displayName().isBlank()) {
-            return Component.literal(d.displayName() + " Oil");
+            return Component.literal(d.displayName() + " Oil Bucket");
         }
         return super.getName(stack);
     }
