@@ -5,6 +5,7 @@ import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
+import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -317,14 +318,18 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         List<ItemStack> drops = super.getDrops(state, builder);
 
-        // Apply nutrient-scaled THC/CBD to any bud drops that carry STRAIN_DATA
+        // Apply nutrient-scaled THC/CBD and bud count to any bud drops
         BlockEntity be = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (!(be instanceof BaseWeedCropBlockEntity cropBe)) return drops;
 
         int scaledThc = cropBe.getThc();
         int scaledCbd = cropBe.getCbd();
+        int budCount = cropBe.getBudCount();
 
         for (ItemStack drop : drops) {
+            if (drop.getItem() instanceof BaseBudItem && budCount > 1) {
+                drop.setCount(drop.getCount() * budCount);
+            }
             StrainData d = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
             if (d != null) {
                 drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
