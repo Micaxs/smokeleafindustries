@@ -405,9 +405,18 @@ public class SmokeleafIndustriesClient {
                 ModItems.STRAWBERRY_SHORTCAKE_BUD.get(),
                 ModItems.PINK_KUSH_BUD.get(),
                 ModItems.GENERIC_BUD.get(),
-                ModItems.UNIDENTIFIED_BUD.get(),
-                ModFluids.UNIDENTIFIED_MIXTURE_BUCKET.get()
+                ModItems.UNIDENTIFIED_BUD.get()
         );
+
+        // Mixture bucket: base texture uncolored, only mask (layer1) gets the strain color
+        ItemColor bucketItemColor = (stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+                if (d != null) return d.colorArgb();
+            }
+            return 0xFFFFFFFF;
+        };
+        event.register(bucketItemColor, ModFluids.UNIDENTIFIED_MIXTURE_BUCKET.get());
 
         // Weed items
         event.register(weedItemColor,

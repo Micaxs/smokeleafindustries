@@ -91,7 +91,9 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
 
             @Override
             public boolean isFluidValid(FluidStack stack) {
-                return !stack.isEmpty() && ModFluids.isExtractFluid(stack.getFluid());
+                return !stack.isEmpty()
+                        && (ModFluids.isExtractFluid(stack.getFluid())
+                            || stack.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get());
             }
         };
     }
@@ -335,13 +337,18 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
+    /** Returns true for any fluid that is valid as a mixer input: named extract fluids and the generic mixture fluid. */
+    private static boolean isOilFluid(net.minecraft.world.level.material.Fluid fluid) {
+        return ModFluids.isExtractFluid(fluid) || fluid == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get();
+    }
+
     private boolean canMix() {
         if (TANK_A.isEmpty() || TANK_B.isEmpty()) return false;
 
-        // Inputs must be extract fluids.
+        // Inputs must be extract or named mixture fluids.
         FluidStack a = TANK_A.getFluid();
         FluidStack b = TANK_B.getFluid();
-        if (!ModFluids.isExtractFluid(a.getFluid()) || !ModFluids.isExtractFluid(b.getFluid())) return false;
+        if (!isOilFluid(a.getFluid()) || !isOilFluid(b.getFluid())) return false;
 
         int drainEach = 250;
         if (a.getAmount() < drainEach || b.getAmount() < drainEach) return false;
