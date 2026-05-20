@@ -67,6 +67,10 @@ public class ModDataComponentTypes {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<StrainData>> STRAIN_DATA =
             register("strain_data", b -> b.persistent(StrainData.CODEC));
 
+    // Canonical mix key for mixer-produced strains (sorted "strainA||strainB"), used for server-wide naming
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> MIX_KEY =
+            register("mix_key", builder -> builder.persistent(Codec.STRING));
+
     private static <T>DeferredHolder<DataComponentType<?>, DataComponentType<T>> register(String name, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
         return DATA_COMPONENT_TYPES.register(name, () -> builderOperator.apply(DataComponentType.builder()).build());
     }

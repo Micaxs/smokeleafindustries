@@ -1,8 +1,10 @@
 package net.micaxs.smokeleaf.block.entity;
 
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
+import net.micaxs.smokeleaf.strain.MixedStrainSavedData;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.screen.custom.MixerMenu;
@@ -13,6 +15,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -374,8 +377,27 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
 
         StrainData mixed = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
 
+        // Compute canonical mix key from the two parent strain names
+        String nameA = StrainUtil.hasStrain(a) ? StrainUtil.getStrain(a).displayName() : "";
+        String nameB = StrainUtil.hasStrain(b) ? StrainUtil.getStrain(b).displayName() : "";
+        String mixKey = MixedStrainSavedData.canonicalKey(nameA, nameB);
+
+        // Look up existing name for this combination (server-wide persistent registry)
+        if (level instanceof ServerLevel sl) {
+            String registeredName = MixedStrainSavedData.get(sl.getServer()).lookup(mixKey);
+            if (registeredName != null && !registeredName.isBlank()) {
+                mixed = new StrainData(
+                        mixed.colorArgb(), mixed.leafColor(), mixed.thc(), mixed.cbd(),
+                        mixed.nitrogen(), mixed.phosphorus(), mixed.potassium(),
+                        mixed.effects(), mixed.amplifier(), mixed.durationTicks(),
+                        true, registeredName, mixed.typeColors()
+                );
+            }
+        }
+
         FluidStack out = new FluidStack(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), 500);
         StrainUtil.setStrain(out, mixed);
+        out.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
 
         // Also carry effect payload for consumption.
         if (!mixed.effects().isEmpty()) {
