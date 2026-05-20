@@ -1,8 +1,11 @@
 package net.micaxs.smokeleaf.fluid;
 
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.joml.Vector3f;
@@ -67,7 +70,7 @@ public class MixtureWeedFluidType extends WeedFluidType {
             public int getTintColor(FluidStack stack) {
                 StrainData strain = StrainUtil.getStrain(stack);
                 if (strain != StrainData.EMPTY) {
-                    return strain.colorArgb();
+                    return applyThcVibrancy(strain.colorArgb(), strain.thc());
                 }
                 return base.getTintColor(stack);
             }
@@ -77,5 +80,62 @@ public class MixtureWeedFluidType extends WeedFluidType {
                 return base.getTintColor();
             }
         };
+    }
+
+    // -----------------------------------------------------------------------
+    // Description (fluid name in GUIs and tooltips)
+    // -----------------------------------------------------------------------
+
+    @Override
+    public Component getDescription(FluidStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        if (d != StrainData.EMPTY && d.identified() && d.displayName() != null && !d.displayName().isBlank()) {
+            return Component.literal(d.displayName() + " Oil");
+        }
+        return super.getDescription(stack);
+    }
+
+    // -----------------------------------------------------------------------
+    // Bucket filling — copy StrainData + MIX_KEY from FluidStack to bucket ItemStack
+    // -----------------------------------------------------------------------
+
+    @Override
+    public ItemStack getBucket(FluidStack stack) {
+        ItemStack bucket = super.getBucket(stack);
+        StrainData strain = StrainUtil.getStrain(stack);
+        if (strain != StrainData.EMPTY) {
+            bucket.set(ModDataComponentTypes.STRAIN_DATA.get(), strain);
+        }
+        String mixKey = stack.get(ModDataComponentTypes.MIX_KEY.get());
+        if (mixKey != null && !mixKey.isBlank()) {
+            bucket.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
+        }
+        return bucket;
+    }
+
+    // -----------------------------------------------------------------------
+    // THC-based saturation vibrancy
+    // -----------------------------------------------------------------------
+
+    /**
+     * Scales the color saturation based on THC value.
+     * THC 0 → 50% saturation (desaturated), THC 30 → 100% saturation (full color).
+     */
+    private static int applyThcVibrancy(int argb, int thc) {
+        float thcFactor = Math.min(1.0f, Math.max(0.0f, thc / 30.0f));
+        float satScale = 0.5f + 0.5f * thcFactor;
+
+        int a = (argb >> 24) & 0xFF;
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+
+        // Perceived luminance
+        float luma = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+        r = Math.clamp((int) (luma + satScale * (r - luma)), 0, 255);
+        g = Math.clamp((int) (luma + satScale * (g - luma)), 0, 255);
+        b = Math.clamp((int) (luma + satScale * (b - luma)), 0, 255);
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 }

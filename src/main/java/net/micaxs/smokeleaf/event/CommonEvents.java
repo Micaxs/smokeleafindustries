@@ -9,6 +9,10 @@ import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.item.custom.ManualGrinderItem;
+import net.micaxs.smokeleaf.item.custom.UnidentifiedMixtureBucketItem;
+import net.micaxs.smokeleaf.strain.MixedStrainSavedData;
+import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.micaxs.smokeleaf.utils.WeedDataUtil;
 import net.micaxs.smokeleaf.villager.ModVillagers;
@@ -31,6 +35,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -44,13 +49,14 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.event.entity.player.AnvilRepairEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-
 import java.util.*;
 
 @EventBusSubscriber(modid = SmokeleafIndustries.MODID)
@@ -579,5 +585,64 @@ public class CommonEvents {
         Collections.shuffle(pool);
         List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing> levelList = trades.get(level);
         levelList.addAll(pool.subList(0, Math.min(pick, pool.size())));
+    }
+
+    // -----------------------------------------------------------------------
+    // Mixed-strain naming via Anvil
+    // -----------------------------------------------------------------------
+
+    /**
+     * When a player renames an {@link UnidentifiedMixtureBucketItem} in an anvil, compute the
+     * output bucket with the custom strain name stored in StrainData (identified=true).
+     * This preview fires on the server when the AnvilMenu calculates its result.
+     */
+    @SubscribeEvent
+    public static void onAnvilUpdate(AnvilUpdateEvent event) {
+        if (!(event.getLeft().getItem() instanceof UnidentifiedMixtureBucketItem)) return;
+        String newName = event.getName();
+        if (newName == null || newName.isBlank()) return;
+
+        ItemStack left = event.getLeft();
+        StrainData d = StrainUtil.getStrain(left);
+        if (d == StrainData.EMPTY) return;
+        if (d.identified()) return; // already named — skip
+
+        String mixKey = left.get(ModDataComponentTypes.MIX_KEY.get());
+        if (mixKey == null || mixKey.isBlank()) return;
+
+        // Build named StrainData
+        StrainData namedData = new StrainData(
+                d.colorArgb(), d.leafColor(), d.thc(), d.cbd(),
+                d.nitrogen(), d.phosphorus(), d.potassium(),
+                d.effects(), d.amplifier(), d.durationTicks(),
+                true, newName, d.typeColors()
+        );
+        ItemStack output = left.copy();
+        StrainUtil.setStrain(output, namedData);
+        output.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
+
+        event.setOutput(output);
+        event.setCost(0);
+        event.setMaterialCost(0);
+    }
+
+    /**
+     * When the player actually takes the renamed mixture bucket from the anvil, register the
+     * combination in the server-wide {@link MixedStrainSavedData} so it persists across restarts.
+     */
+    @SubscribeEvent
+    public static void onAnvilRepair(AnvilRepairEvent event) {
+        ItemStack output = event.getOutput();
+        if (!(output.getItem() instanceof UnidentifiedMixtureBucketItem)) return;
+
+        StrainData d = StrainUtil.getStrain(output);
+        if (d == StrainData.EMPTY || !d.identified() || d.displayName().isBlank()) return;
+
+        String mixKey = output.get(ModDataComponentTypes.MIX_KEY.get());
+        if (mixKey == null || mixKey.isBlank()) return;
+
+        if (event.getEntity() instanceof ServerPlayer sp) {
+            MixedStrainSavedData.get(sp.server).register(mixKey, d.displayName());
+        }
     }
 }
