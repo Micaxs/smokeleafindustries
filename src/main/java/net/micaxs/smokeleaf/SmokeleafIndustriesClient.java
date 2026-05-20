@@ -370,13 +370,10 @@ public class SmokeleafIndustriesClient {
             return 0xFFFFFFFF;
         };
 
-        // Extract item color: uses per-type extract colors, falling back to bud colors
+        // Extract item color: base layer is untinted; only the mask (layer1) gets the strain color
         ItemColor extractItemColor = (stack, tintIndex) -> {
             StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
-            if (d != null) {
-                if (tintIndex == 0) return d.extractLeafColorEffective();
-                if (tintIndex == 1) return d.extractColorArgbEffective();
-            }
+            if (d != null && tintIndex == 1) return d.extractColorArgbEffective();
             return 0xFFFFFFFF;
         };
 
