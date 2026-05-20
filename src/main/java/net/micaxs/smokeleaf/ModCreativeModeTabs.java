@@ -1,11 +1,15 @@
 package net.micaxs.smokeleaf;
 
 import net.micaxs.smokeleaf.block.ModBlocks;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
+import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -15,6 +19,23 @@ import java.util.function.Supplier;
 public class ModCreativeModeTabs {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TAB =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, SmokeleafIndustries.MODID);
+
+    /** Creates a GENERIC item stack carrying the preset StrainData for the given strain id. */
+    private static ItemStack strainedStack(Item item, String strainId) {
+        StrainData data = StrainRegistry.get(strainId).orElse(null);
+        if (data == null) return new ItemStack(item);
+        ItemStack stack = new ItemStack(item);
+        stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+        return stack;
+    }
+
+    /** Adds seeds, bud, weed, and extract for the given strain to the output. */
+    private static void addStrain(CreativeModeTab.Output output, String strainId) {
+        output.accept(strainedStack(ModItems.GENERIC_SEEDS.get(), strainId));
+        output.accept(strainedStack(ModItems.GENERIC_BUD.get(), strainId));
+        output.accept(strainedStack(ModItems.GENERIC_WEED.get(), strainId));
+        output.accept(strainedStack(ModItems.GENERIC_EXTRACT.get(), strainId));
+    }
 
 
     public static final Supplier<CreativeModeTab> SMOKELEAF_ITEMS_TAB = CREATIVE_MODE_TAB.register("smokeleaf_items_tab",
@@ -59,8 +80,6 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.HEMP_CHISELED_STONE_STAIRS);
                         output.accept(ModBlocks.HEMP_CHISELED_STONE_WALL);
 
-
-
                         output.accept(ModItems.TOBACCO);
                         output.accept(ModItems.TOBACCO_LEAF);
                         output.accept(ModItems.DRIED_TOBACCO_LEAF);
@@ -79,8 +98,6 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.BLUNT);
                         output.accept(ModItems.BONG);
                         output.accept(ModItems.DAB_RIG);
-//                        output.accept(ModItems.EMPTY_TINCTURE);       // Liquifier to get the liquid from the extracts, then mixer to mix the new liquids to then fill the tincture's.
-//                        output.accept(ModItems.HASH_OIL_TINCTURE);    // Same applies for VAPE cartriges when implementing this.
                         output.accept(ModItems.BASE_EXTRACT);
                         output.accept(ModItems.DNA_STRAND);
 
@@ -104,7 +121,6 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.SEQUENCER);
                         output.accept(ModBlocks.DRYING_RACK);
 
-
                         output.accept(ModItems.WORM_CASTINGS);
                         output.accept(ModItems.COMPOST);
                         output.accept(ModItems.MYCORRHIZAE);
@@ -123,120 +139,48 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.BALANCED_BOOST);
                         output.accept(ModItems.PHOSPHORUS_REDUCER);
                         output.accept(ModItems.POTASSIUM_REDUCER);
-
-
                     }).build());
 
     public static final Supplier<CreativeModeTab> SMOKELEAF_HERB_TAB = CREATIVE_MODE_TAB.register("smokeleaf_herb_tab",
-            () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.AMNESIA_HAZE_BUD.get()))
+            () -> CreativeModeTab.builder().icon(() -> strainedStack(ModItems.GENERIC_BUD.get(), "amnesia_haze"))
                     .title(Component.translatable("creativetab.smokeleafindustries.smokeleaf_herb_tab"))
                     .displayItems((itemDisplayParameters, output) -> {
                         output.accept(ModItems.TOBACCO_SEEDS);
                         output.accept(ModItems.HEMP_SEEDS);
-                        output.accept(ModItems.WHITE_WIDOW_SEEDS);
-                        output.accept(ModItems.BUBBLE_KUSH_SEEDS);
-                        output.accept(ModItems.LEMON_HAZE_SEEDS);
-                        output.accept(ModItems.SOUR_DIESEL_SEEDS);
-                        output.accept(ModItems.BLUE_ICE_SEEDS);
-                        output.accept(ModItems.BUBBLEGUM_SEEDS);
-                        output.accept(ModItems.PURPLE_HAZE_SEEDS);
-                        output.accept(ModItems.OG_KUSH_SEEDS);
-                        output.accept(ModItems.JACK_HERER_SEEDS);
-                        output.accept(ModItems.GARY_PEYTON_SEEDS);
-                        output.accept(ModItems.AMNESIA_HAZE_SEEDS);
-                        output.accept(ModItems.AK47_SEEDS);
-                        output.accept(ModItems.GHOST_TRAIN_SEEDS);
-                        output.accept(ModItems.GRAPE_APE_SEEDS);
-                        output.accept(ModItems.COTTON_CANDY_SEEDS);
-                        output.accept(ModItems.BANANA_KUSH_SEEDS);
-                        output.accept(ModItems.CARBON_FIBER_SEEDS);
-                        output.accept(ModItems.BIRTHDAY_CAKE_SEEDS);
-                        output.accept(ModItems.BLUE_COOKIES_SEEDS);
-                        output.accept(ModItems.AFGHANI_SEEDS);
-                        output.accept(ModItems.MOONBOW_SEEDS);
-                        output.accept(ModItems.LAVA_CAKE_SEEDS);
-                        output.accept(ModItems.JELLY_RANCHER_SEEDS);
-                        output.accept(ModItems.STRAWBERRY_SHORTCAKE_SEEDS);
-                        output.accept(ModItems.PINK_KUSH_SEEDS);
 
-                        output.accept(ModItems.WHITE_WIDOW_BUD);
-                        output.accept(ModItems.BUBBLE_KUSH_WEED);
-                        output.accept(ModItems.LEMON_HAZE_BUD);
-                        output.accept(ModItems.SOUR_DIESEL_BUD);
-                        output.accept(ModItems.BLUE_ICE_BUD);
-                        output.accept(ModItems.BUBBLEGUM_BUD);
-                        output.accept(ModItems.PURPLE_HAZE_BUD);
-                        output.accept(ModItems.OG_KUSH_BUD);
-                        output.accept(ModItems.JACK_HERER_BUD);
-                        output.accept(ModItems.GARY_PEYTON_BUD);
-                        output.accept(ModItems.AMNESIA_HAZE_BUD);
-                        output.accept(ModItems.AK47_BUD);
-                        output.accept(ModItems.GHOST_TRAIN_BUD);
-                        output.accept(ModItems.GRAPE_APE_BUD);
-                        output.accept(ModItems.COTTON_CANDY_BUD);
-                        output.accept(ModItems.BANANA_KUSH_BUD);
-                        output.accept(ModItems.CARBON_FIBER_BUD);
-                        output.accept(ModItems.BIRTHDAY_CAKE_BUD);
-                        output.accept(ModItems.BLUE_COOKIES_BUD);
-                        output.accept(ModItems.AFGHANI_BUD);
-                        output.accept(ModItems.MOONBOW_BUD);
-                        output.accept(ModItems.LAVA_CAKE_BUD);
-                        output.accept(ModItems.JELLY_RANCHER_BUD);
-                        output.accept(ModItems.STRAWBERRY_SHORTCAKE_BUD);
-                        output.accept(ModItems.PINK_KUSH_BUD);
+                        // Unidentified items
+                        output.accept(ModItems.UNIDENTIFIED_SEEDS);
+                        output.accept(ModItems.UNIDENTIFIED_BUD);
+                        output.accept(ModItems.UNIDENTIFIED_WEED);
 
-                        output.accept(ModItems.WHITE_WIDOW_WEED);
-                        output.accept(ModItems.BUBBLE_KUSH_WEED);
-                        output.accept(ModItems.LEMON_HAZE_WEED);
-                        output.accept(ModItems.SOUR_DIESEL_WEED);
-                        output.accept(ModItems.BLUE_ICE_WEED);
-                        output.accept(ModItems.BUBBLEGUM_WEED);
-                        output.accept(ModItems.PURPLE_HAZE_WEED);
-                        output.accept(ModItems.OG_KUSH_WEED);
-                        output.accept(ModItems.JACK_HERER_WEED);
-                        output.accept(ModItems.GARY_PEYTON_WEED);
-                        output.accept(ModItems.AMNESIA_HAZE_WEED);
-                        output.accept(ModItems.AK47_WEED);
-                        output.accept(ModItems.GHOST_TRAIN_WEED);
-                        output.accept(ModItems.GRAPE_APE_WEED);
-                        output.accept(ModItems.COTTON_CANDY_WEED);
-                        output.accept(ModItems.BANANA_KUSH_WEED);
-                        output.accept(ModItems.CARBON_FIBER_WEED);
-                        output.accept(ModItems.BIRTHDAY_CAKE_WEED);
-                        output.accept(ModItems.BLUE_COOKIES_WEED);
-                        output.accept(ModItems.AFGHANI_WEED);
-                        output.accept(ModItems.MOONBOW_WEED);
-                        output.accept(ModItems.LAVA_CAKE_WEED);
-                        output.accept(ModItems.JELLY_RANCHER_WEED);
-                        output.accept(ModItems.STRAWBERRY_SHORTCAKE_WEED);
-                        output.accept(ModItems.PINK_KUSH_WEED);
+                        // All 25 named strains — seeds, bud, weed, extract grouped by strain
+                        addStrain(output, "white_widow");
+                        addStrain(output, "bubble_kush");
+                        addStrain(output, "lemon_haze");
+                        addStrain(output, "sour_diesel");
+                        addStrain(output, "blue_ice");
+                        addStrain(output, "bubblegum");
+                        addStrain(output, "purple_haze");
+                        addStrain(output, "og_kush");
+                        addStrain(output, "jack_herer");
+                        addStrain(output, "gary_peyton");
+                        addStrain(output, "amnesia_haze");
+                        addStrain(output, "ak47");
+                        addStrain(output, "ghost_train");
+                        addStrain(output, "grape_ape");
+                        addStrain(output, "cotton_candy");
+                        addStrain(output, "banana_kush");
+                        addStrain(output, "carbon_fiber");
+                        addStrain(output, "birthday_cake");
+                        addStrain(output, "blue_cookies");
+                        addStrain(output, "afghani");
+                        addStrain(output, "moonbow");
+                        addStrain(output, "lava_cake");
+                        addStrain(output, "jelly_rancher");
+                        addStrain(output, "strawberry_shortcake");
+                        addStrain(output, "pink_kush");
 
-                        output.accept(ModItems.WHITE_WIDOW_EXTRACT);
-                        output.accept(ModItems.BUBBLE_KUSH_EXTRACT);
-                        output.accept(ModItems.LEMON_HAZE_EXTRACT);
-                        output.accept(ModItems.SOUR_DIESEL_EXTRACT);
-                        output.accept(ModItems.BLUE_ICE_EXTRACT);
-                        output.accept(ModItems.BUBBLEGUM_EXTRACT);
-                        output.accept(ModItems.PURPLE_HAZE_EXTRACT);
-                        output.accept(ModItems.OG_KUSH_EXTRACT);
-                        output.accept(ModItems.JACK_HERER_EXTRACT);
-                        output.accept(ModItems.GARY_PEYTON_EXTRACT);
-                        output.accept(ModItems.AMNESIA_HAZE_EXTRACT);
-                        output.accept(ModItems.AK47_EXTRACT);
-                        output.accept(ModItems.GHOST_TRAIN_EXTRACT);
-                        output.accept(ModItems.GRAPE_APE_EXTRACT);
-                        output.accept(ModItems.COTTON_CANDY_EXTRACT);
-                        output.accept(ModItems.BANANA_KUSH_EXTRACT);
-                        output.accept(ModItems.CARBON_FIBER_EXTRACT);
-                        output.accept(ModItems.BIRTHDAY_CAKE_EXTRACT);
-                        output.accept(ModItems.BLUE_COOKIES_EXTRACT);
-                        output.accept(ModItems.AFGHANI_EXTRACT);
-                        output.accept(ModItems.MOONBOW_EXTRACT);
-                        output.accept(ModItems.LAVA_CAKE_EXTRACT);
-                        output.accept(ModItems.JELLY_RANCHER_EXTRACT);
-                        output.accept(ModItems.STRAWBERRY_SHORTCAKE_EXTRACT);
-                        output.accept(ModItems.PINK_KUSH_EXTRACT);
-
+                        // Bags and gummies retain per-strain items (own textures)
                         output.accept(ModItems.WHITE_WIDOW_BAG);
                         output.accept(ModItems.BUBBLE_KUSH_BAG);
                         output.accept(ModItems.LEMON_HAZE_BAG);
@@ -268,7 +212,6 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SOUR_DIESEL_GUMMY);
                         output.accept(ModItems.PURPLE_HAZE_GUMMY);
                         output.accept(ModItems.LEMON_HAZE_GUMMY);
-                        output.accept(ModItems.BUBBLE_KUSH_GUMMY);
                         output.accept(ModItems.BLUE_ICE_GUMMY);
                         output.accept(ModItems.BUBBLEGUM_GUMMY);
                         output.accept(ModItems.OG_KUSH_GUMMY);
@@ -289,7 +232,6 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.JELLY_RANCHER_GUMMY);
                         output.accept(ModItems.STRAWBERRY_SHORTCAKE_GUMMY);
                         output.accept(ModItems.PINK_KUSH_GUMMY);
-
                     }).build());
 
 
@@ -299,3 +241,5 @@ public class ModCreativeModeTabs {
     }
 
 }
+
+

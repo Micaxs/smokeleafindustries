@@ -1,0 +1,6 @@
+{
+  "type": "smokeleafindustries:manual_grinder",
+  "ingredient": { "item": "smokeleafindustries:bud" },
+  "result": { "id": "smokeleafindustries:weed", "count": 1 },
+  "grind_time": 60
+}
