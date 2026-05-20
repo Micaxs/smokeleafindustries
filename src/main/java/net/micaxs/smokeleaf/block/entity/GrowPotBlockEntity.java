@@ -583,13 +583,15 @@ public class GrowPotBlockEntity extends BlockEntity {
         this.customStrain = (d != null && d != StrainData.EMPTY) ? d : null;
         this.customStrainId = seedStack.get(ModDataComponentTypes.STRAIN_ID.get());
 
-        // Seed's strain values override the crop-block defaults so growth starts at the right baseline
+        // Copy only the genetic traits (thc/cbd) from the strain — the strain's NPK values
+        // are the OPTIMAL TARGET the player must reach via fertilizers, not starting values.
+        // N/P/K remain at 0 until the player applies fertilizer.
         if (this.customStrain != null) {
             this.thc = this.customStrain.thc();
             this.cbd = this.customStrain.cbd();
-            this.nitrogen = this.customStrain.nitrogen();
-            this.phosphorus = this.customStrain.phosphorus();
-            this.potassium = this.customStrain.potassium();
+            this.nitrogen = 0;
+            this.phosphorus = 0;
+            this.potassium = 0;
         }
     }
 
