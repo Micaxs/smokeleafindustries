@@ -536,11 +536,18 @@ public class GrowPotBlockEntity extends BlockEntity {
 
     private int computeWithNutrients(int base) {
         if (cropBlock == null) return base;
-        var cropId = BuiltInRegistries.BLOCK.getKey(cropBlock);
-        var targetOpt = Config.getNutrientTargetFor(cropId);
-        if (targetOpt.isEmpty()) return base;
 
-        var t = targetOpt.get();
+        // For custom strains, the strain's own NPK values are the optimal target
+        Config.NutrientTarget t;
+        if (hasCustomStrain() && customStrain != null) {
+            t = new Config.NutrientTarget(customStrain.nitrogen(), customStrain.phosphorus(), customStrain.potassium());
+        } else {
+            var cropId = BuiltInRegistries.BLOCK.getKey(cropBlock);
+            var targetOpt = Config.getNutrientTargetFor(cropId);
+            if (targetOpt.isEmpty()) return base;
+            t = targetOpt.get();
+        }
+
         int dn = Math.abs(this.nitrogen - t.n);
         int dp = Math.abs(this.phosphorus - t.p);
         int dk = Math.abs(this.potassium - t.k);
