@@ -66,28 +66,19 @@ public class MixerMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot == null || !slot.hasItem()) return ItemStack.EMPTY;
 
         ItemStack stack = slot.getItem();
-        itemstack = stack.copy();
+        ItemStack itemstack = stack.copy();
 
-        int vanillaSlots = 36;
-        int teSlots = 2;
-        int teStart = 0;
-        int teEnd = teSlots;
-        int invStart = teSlots;
-        int invEnd = teSlots + vanillaSlots;
-
-        if (index < teSlots) {
-            if (!this.moveItemStackTo(stack, invStart, invEnd, true)) {
-                return ItemStack.EMPTY;
-            }
+        // The mixer has no item input/output slots — only fluid tanks accessed via buttons.
+        // Menu slots are: 0-26 = player main inventory, 27-35 = player hotbar.
+        // Shift-click cycles between main inventory and hotbar.
+        if (index < 27) {
+            if (!this.moveItemStackTo(stack, 27, 36, false)) return ItemStack.EMPTY;
         } else {
-            if (!this.moveItemStackTo(stack, teStart, teEnd, false)) {
-                return ItemStack.EMPTY;
-            }
+            if (!this.moveItemStackTo(stack, 0, 27, false)) return ItemStack.EMPTY;
         }
 
         if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
