@@ -67,7 +67,6 @@ public class BaseBudItem extends Item {
         StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
         if (d == null) return;
         tooltip.add(Component.literal("THC: " + d.thc() + "%  CBD: " + d.cbd() + "%"));
-        tooltip.add(Component.literal("NPK: " + d.nitrogen() + "/" + d.phosphorus() + "/" + d.potassium()));
         if (!d.effects().isEmpty()) {
             tooltip.add(Component.literal("Effects: " + d.effects().size()));
         }
