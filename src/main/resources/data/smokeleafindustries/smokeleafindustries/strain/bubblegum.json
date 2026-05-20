@@ -1,0 +1,16 @@
+{
+  "color": -3497099,
+  "leaf_color": -10847702,
+  "thc": 17,
+  "cbd": 8,
+  "n": 14,
+  "p": 14,
+  "k": 12,
+  "effects": [
+    "minecraft:health_boost"
+  ],
+  "amp": 1,
+  "dur": 150,
+  "identified": true,
+  "name": "Bubblegum"
+}

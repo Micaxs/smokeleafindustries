@@ -1,0 +1,16 @@
+{
+  "color": -4789830,
+  "leaf_color": -14001590,
+  "thc": 20,
+  "cbd": 5,
+  "n": 14,
+  "p": 9,
+  "k": 14,
+  "effects": [
+    "minecraft:night_vision"
+  ],
+  "amp": 1,
+  "dur": 190,
+  "identified": true,
+  "name": "Blue Ice"
+}

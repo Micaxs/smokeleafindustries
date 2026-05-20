@@ -1,0 +1,16 @@
+{
+  "color": -1732244,
+  "leaf_color": -12953046,
+  "thc": 22,
+  "cbd": 3,
+  "n": 14,
+  "p": 12,
+  "k": 11,
+  "effects": [
+    "minecraft:glowing"
+  ],
+  "amp": 1,
+  "dur": 175,
+  "identified": true,
+  "name": "Lava Cake"
+}

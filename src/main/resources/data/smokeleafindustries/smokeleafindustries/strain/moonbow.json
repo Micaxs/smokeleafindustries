@@ -1,0 +1,16 @@
+{
+  "color": -3285360,
+  "leaf_color": -11896246,
+  "thc": 30,
+  "cbd": 13,
+  "n": 15,
+  "p": 2,
+  "k": 22,
+  "effects": [
+    "minecraft:night_vision"
+  ],
+  "amp": 1,
+  "dur": 215,
+  "identified": true,
+  "name": "Moonbow"
+}
