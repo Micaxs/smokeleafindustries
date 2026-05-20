@@ -2,10 +2,12 @@ package net.micaxs.smokeleaf.event;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.entity.*;
+import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 @EventBusSubscriber(modid = SmokeleafIndustries.MODID)
 public class ModBusEvents {
@@ -49,6 +51,11 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.MIXER_BE.get(), MixerBlockEntity::getEnergyStorage);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MIXER_BE.get(), MixerBlockEntity::getFluidHandler);
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MIXER_BE.get(), MixerBlockEntity::getItemHandler);
+
+        // Item fluid handler capability for custom oil bucket (needed for FluidUtil compatibility)
+        event.registerItem(Capabilities.FluidHandler.ITEM,
+                (stack, ctx) -> new FluidBucketWrapper(stack),
+                ModFluids.UNIDENTIFIED_MIXTURE_BUCKET.get());
 
     }
 

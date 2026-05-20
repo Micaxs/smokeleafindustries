@@ -1,6 +1,9 @@
 package net.micaxs.smokeleaf.screen.custom;
 
 import net.micaxs.smokeleaf.block.entity.MixerBlockEntity;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
+import net.micaxs.smokeleaf.fluid.ModFluids;
+import net.micaxs.smokeleaf.item.custom.UnidentifiedMixtureBucketItem;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
@@ -106,6 +109,15 @@ public class MixerMenu extends AbstractContainerMenu {
         // Carried (mouse cursor)
         ItemStack carried = getCarried();
         if (!carried.isEmpty()) {
+            if (carried.getItem() instanceof UnidentifiedMixtureBucketItem) {
+                if (emptyCustomOilBucket(carried, tank)) {
+                    setCarried(new ItemStack(Items.BUCKET));
+                    blockEntity.setChanged();
+                    broadcastChanges();
+                    return true;
+                }
+                return false; // bucket present but tank rejected it — don't fall through
+            }
             FluidActionResult res = FluidUtil.tryEmptyContainer(carried, tank, 1000, player, true);
             if (res.isSuccess()) {
                 setCarried(res.getResult());
@@ -152,11 +164,42 @@ public class MixerMenu extends AbstractContainerMenu {
     private boolean tryEmptyHandInto(Player player, InteractionHand hand, IFluidHandler handler) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty()) return false;
+        if (held.getItem() instanceof UnidentifiedMixtureBucketItem) {
+            if (emptyCustomOilBucket(held, handler)) {
+                player.setItemInHand(hand, new ItemStack(Items.BUCKET));
+                blockEntity.setChanged();
+                broadcastChanges();
+                return true;
+            }
+            return false;
+        }
         FluidActionResult res = FluidUtil.tryEmptyContainer(held, handler, 1000, player, true);
         if (res.isSuccess()) {
             player.setItemInHand(hand, res.getResult());
             blockEntity.setChanged();
             broadcastChanges();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Drains a {@link UnidentifiedMixtureBucketItem} into the given tank, preserving {@code STRAIN_DATA}
+     * (which {@link net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper} would strip).
+     */
+    private boolean emptyCustomOilBucket(ItemStack bucket, IFluidHandler tank) {
+        FluidStack fluid = new FluidStack(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), 1000);
+        StrainData strain = StrainUtil.getStrain(bucket);
+        if (strain != StrainData.EMPTY) {
+            StrainUtil.setStrain(fluid, strain);
+        }
+        String mixKey = bucket.get(ModDataComponentTypes.MIX_KEY.get());
+        if (mixKey != null) {
+            fluid.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
+        }
+        int filled = tank.fill(fluid, IFluidHandler.FluidAction.SIMULATE);
+        if (filled == 1000) {
+            tank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
             return true;
         }
         return false;
