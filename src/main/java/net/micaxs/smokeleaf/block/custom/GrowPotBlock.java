@@ -161,8 +161,8 @@ public class GrowPotBlock extends BaseEntityBlock {
             if (stack.is(ModItems.GENERIC_SEEDS.get()) || stack.is(ModItems.GENERIC_SEEDS.get())) {
                 BaseWeedCropBlock crop = GrowPotBlockEntity.resolveCropBySeed(ModItems.HEMP_SEEDS.get());
                 if (crop != null) {
-                    pot.setCustomStrain(stack);
                     pot.initFromCrop(crop);
+                    pot.setCustomStrain(stack);
                     pot.plantCrop(crop);
                     if (!player.isCreative()) stack.shrink(1);
                     pot.setChangedAndSync();
