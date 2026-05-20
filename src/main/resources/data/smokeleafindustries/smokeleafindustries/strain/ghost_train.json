@@ -1,6 +1,6 @@
 {
-  "color": -6207,
-  "leaf_color": -20941,
+  "color": -3229029,
+  "leaf_color": -17598,
   "thc": 19,
   "cbd": 6,
   "n": 13,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 220,
   "identified": true,
-  "name": "Ghost Train"
+  "name": "Ghost Train",
+  "weed_leaf_color": -2450634,
+  "weed_color": -3689840,
+  "seeds_leaf_color": -6855141,
+  "seeds_color": -2438743,
+  "extract_leaf_color": -5433,
+  "extract_color": -271193
 }

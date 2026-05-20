@@ -12,9 +12,7 @@ import net.micaxs.smokeleaf.fluid.BaseFluidType;
 import net.micaxs.smokeleaf.fluid.ModFluidTypes;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
-import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.item.custom.DNAStrandItem;
-import net.micaxs.smokeleaf.item.custom.UnidentifiedSeedsItem;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
 import net.micaxs.smokeleaf.screen.custom.*;
 import net.micaxs.smokeleaf.strain.StrainData;
@@ -338,44 +336,52 @@ public class SmokeleafIndustriesClient {
 
     @SubscribeEvent
     public static void onItemColor(RegisterColorHandlersEvent.Item event) {
-        ItemColor itemColor = (stack, tintIndex) -> {
-            // tintIndex 0 → base plant/leaf color from STRAIN_DATA.leafColor
-            if (tintIndex == 0 && stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
-                StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
-                if (d != null) return d.leafColor();
-            }
-            // tintIndex 1 → strain color from STRAIN_DATA.colorArgb
-            if (tintIndex == 1 && stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
-                StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
-                if (d != null) return d.colorArgb();
-            }
-
-            // Custom StrainData Color onto the Unidentified Seeds
-            if (stack.getItem() instanceof UnidentifiedSeedsItem) {
-                if (tintIndex == 0) {
-                    // Base of seeds (pick from array)
-                    String[] baseColors = new String[]{"99d335"};
-                    int color = Integer.parseInt(baseColors[stack.getDamageValue() % baseColors.length], 16) | 0xFF000000;
-                    return color;
-                } else if (tintIndex == 1) {
-                    // Tint by the StrainData color if present, to match the bud/weed it grows into.
-                    StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
-                    if (d != null) return d.colorArgb();
+        // Bud item color: uses leafColor (layer0) and colorArgb (layer1)
+        ItemColor budItemColor = (stack, tintIndex) -> {
+            StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (d != null) {
+                if (tintIndex == 0) return d.leafColor();
+                if (tintIndex == 1) {
+                    Boolean isDry = stack.get(ModDataComponentTypes.DRY);
+                    if (Boolean.TRUE.equals(isDry)) return 0xFFD6CEC3;
+                    return d.colorArgb();
                 }
             }
-
-            if (stack.getItem() instanceof BaseBudItem) {
-                Boolean isDry = stack.get(ModDataComponentTypes.DRY);
-                if (Boolean.TRUE.equals(isDry)) {
-                    return 0xFFD6CEC3;
-                }
-            }
-            return 0xFFFFFFFF; // no tint
+            return 0xFFFFFFFF;
         };
 
-        // Use the non-deprecated event.register(...)
-        event.register(
-                itemColor,
+        // Weed item color: uses per-type weed colors, falling back to bud colors
+        ItemColor weedItemColor = (stack, tintIndex) -> {
+            StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (d != null) {
+                if (tintIndex == 0) return d.weedLeafColorEffective();
+                if (tintIndex == 1) return d.weedColorArgbEffective();
+            }
+            return 0xFFFFFFFF;
+        };
+
+        // Seeds item color: uses per-type seeds colors, falling back to bud colors
+        ItemColor seedsItemColor = (stack, tintIndex) -> {
+            StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (d != null) {
+                if (tintIndex == 0) return d.seedsLeafColorEffective();
+                if (tintIndex == 1) return d.seedsColorArgbEffective();
+            }
+            return 0xFFFFFFFF;
+        };
+
+        // Extract item color: uses per-type extract colors, falling back to bud colors
+        ItemColor extractItemColor = (stack, tintIndex) -> {
+            StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (d != null) {
+                if (tintIndex == 0) return d.extractLeafColorEffective();
+                if (tintIndex == 1) return d.extractColorArgbEffective();
+            }
+            return 0xFFFFFFFF;
+        };
+
+        // Bud items
+        event.register(budItemColor,
                 ModItems.WHITE_WIDOW_BUD.get(),
                 ModItems.BUBBLE_KUSH_BUD.get(),
                 ModItems.LEMON_HAZE_BUD.get(),
@@ -401,20 +407,105 @@ public class SmokeleafIndustriesClient {
                 ModItems.JELLY_RANCHER_BUD.get(),
                 ModItems.STRAWBERRY_SHORTCAKE_BUD.get(),
                 ModItems.PINK_KUSH_BUD.get(),
-
-                // Generic + custom strain carriers
-                ModItems.GENERIC_SEEDS.get(),
                 ModItems.GENERIC_BUD.get(),
-                ModItems.GENERIC_WEED.get(),
-                ModItems.GENERIC_EXTRACT.get(),
-                ModItems.GENERIC_BAG.get(),
-                ModItems.UNIDENTIFIED_SEEDS.get(),
                 ModItems.UNIDENTIFIED_BUD.get(),
-                ModItems.UNIDENTIFIED_WEED.get(),
-
-                // Mixture bucket (mask tinted by strain)
                 ModFluids.UNIDENTIFIED_MIXTURE_BUCKET.get()
         );
+
+        // Weed items
+        event.register(weedItemColor,
+                ModItems.WHITE_WIDOW_WEED.get(),
+                ModItems.BUBBLE_KUSH_WEED.get(),
+                ModItems.LEMON_HAZE_WEED.get(),
+                ModItems.SOUR_DIESEL_WEED.get(),
+                ModItems.BLUE_ICE_WEED.get(),
+                ModItems.BUBBLEGUM_WEED.get(),
+                ModItems.PURPLE_HAZE_WEED.get(),
+                ModItems.OG_KUSH_WEED.get(),
+                ModItems.JACK_HERER_WEED.get(),
+                ModItems.GARY_PEYTON_WEED.get(),
+                ModItems.AMNESIA_HAZE_WEED.get(),
+                ModItems.AK47_WEED.get(),
+                ModItems.GHOST_TRAIN_WEED.get(),
+                ModItems.GRAPE_APE_WEED.get(),
+                ModItems.COTTON_CANDY_WEED.get(),
+                ModItems.BANANA_KUSH_WEED.get(),
+                ModItems.CARBON_FIBER_WEED.get(),
+                ModItems.BIRTHDAY_CAKE_WEED.get(),
+                ModItems.BLUE_COOKIES_WEED.get(),
+                ModItems.AFGHANI_WEED.get(),
+                ModItems.MOONBOW_WEED.get(),
+                ModItems.LAVA_CAKE_WEED.get(),
+                ModItems.JELLY_RANCHER_WEED.get(),
+                ModItems.STRAWBERRY_SHORTCAKE_WEED.get(),
+                ModItems.PINK_KUSH_WEED.get(),
+                ModItems.GENERIC_WEED.get(),
+                ModItems.UNIDENTIFIED_WEED.get()
+        );
+
+        // Seeds items
+        event.register(seedsItemColor,
+                ModItems.WHITE_WIDOW_SEEDS.get(),
+                ModItems.BUBBLE_KUSH_SEEDS.get(),
+                ModItems.LEMON_HAZE_SEEDS.get(),
+                ModItems.SOUR_DIESEL_SEEDS.get(),
+                ModItems.BLUE_ICE_SEEDS.get(),
+                ModItems.BUBBLEGUM_SEEDS.get(),
+                ModItems.PURPLE_HAZE_SEEDS.get(),
+                ModItems.OG_KUSH_SEEDS.get(),
+                ModItems.JACK_HERER_SEEDS.get(),
+                ModItems.GARY_PEYTON_SEEDS.get(),
+                ModItems.AMNESIA_HAZE_SEEDS.get(),
+                ModItems.AK47_SEEDS.get(),
+                ModItems.GHOST_TRAIN_SEEDS.get(),
+                ModItems.GRAPE_APE_SEEDS.get(),
+                ModItems.COTTON_CANDY_SEEDS.get(),
+                ModItems.BANANA_KUSH_SEEDS.get(),
+                ModItems.CARBON_FIBER_SEEDS.get(),
+                ModItems.BIRTHDAY_CAKE_SEEDS.get(),
+                ModItems.BLUE_COOKIES_SEEDS.get(),
+                ModItems.AFGHANI_SEEDS.get(),
+                ModItems.MOONBOW_SEEDS.get(),
+                ModItems.LAVA_CAKE_SEEDS.get(),
+                ModItems.JELLY_RANCHER_SEEDS.get(),
+                ModItems.STRAWBERRY_SHORTCAKE_SEEDS.get(),
+                ModItems.PINK_KUSH_SEEDS.get(),
+                ModItems.GENERIC_SEEDS.get(),
+                ModItems.UNIDENTIFIED_SEEDS.get()
+        );
+
+        // Extract items
+        event.register(extractItemColor,
+                ModItems.WHITE_WIDOW_EXTRACT.get(),
+                ModItems.BUBBLE_KUSH_EXTRACT.get(),
+                ModItems.LEMON_HAZE_EXTRACT.get(),
+                ModItems.SOUR_DIESEL_EXTRACT.get(),
+                ModItems.BLUE_ICE_EXTRACT.get(),
+                ModItems.BUBBLEGUM_EXTRACT.get(),
+                ModItems.PURPLE_HAZE_EXTRACT.get(),
+                ModItems.OG_KUSH_EXTRACT.get(),
+                ModItems.JACK_HERER_EXTRACT.get(),
+                ModItems.GARY_PEYTON_EXTRACT.get(),
+                ModItems.AMNESIA_HAZE_EXTRACT.get(),
+                ModItems.AK47_EXTRACT.get(),
+                ModItems.GHOST_TRAIN_EXTRACT.get(),
+                ModItems.GRAPE_APE_EXTRACT.get(),
+                ModItems.COTTON_CANDY_EXTRACT.get(),
+                ModItems.BANANA_KUSH_EXTRACT.get(),
+                ModItems.CARBON_FIBER_EXTRACT.get(),
+                ModItems.BIRTHDAY_CAKE_EXTRACT.get(),
+                ModItems.BLUE_COOKIES_EXTRACT.get(),
+                ModItems.AFGHANI_EXTRACT.get(),
+                ModItems.MOONBOW_EXTRACT.get(),
+                ModItems.LAVA_CAKE_EXTRACT.get(),
+                ModItems.JELLY_RANCHER_EXTRACT.get(),
+                ModItems.STRAWBERRY_SHORTCAKE_EXTRACT.get(),
+                ModItems.PINK_KUSH_EXTRACT.get(),
+                ModItems.GENERIC_EXTRACT.get()
+        );
+
+        // Bag uses bud colors
+        event.register(budItemColor, ModItems.GENERIC_BAG.get());
     }
 
 }

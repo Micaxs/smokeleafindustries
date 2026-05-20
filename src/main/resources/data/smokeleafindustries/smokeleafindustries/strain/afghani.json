@@ -1,6 +1,6 @@
 {
-  "color": -20879,
-  "leaf_color": -14242,
+  "color": -2780834,
+  "leaf_color": -1326011,
   "thc": 18,
   "cbd": 7,
   "n": 11,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 240,
   "identified": true,
-  "name": "Afghani"
+  "name": "Afghani",
+  "weed_leaf_color": -3825096,
+  "weed_color": -3371944,
+  "seeds_leaf_color": -6456483,
+  "seeds_color": -2384538,
+  "extract_leaf_color": -5178,
+  "extract_color": -8807
 }

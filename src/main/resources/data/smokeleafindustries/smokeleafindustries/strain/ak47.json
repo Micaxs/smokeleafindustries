@@ -1,6 +1,6 @@
 {
-  "color": -393321,
-  "leaf_color": -14789,
+  "color": -2959489,
+  "leaf_color": -1390520,
   "thc": 19,
   "cbd": 6,
   "n": 17,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 190,
   "identified": true,
-  "name": "AK-47"
+  "name": "AK-47",
+  "weed_leaf_color": -3889094,
+  "weed_color": -3552138,
+  "seeds_leaf_color": -6855141,
+  "seeds_color": -2499702,
+  "extract_leaf_color": -4422,
+  "extract_color": -1055084
 }

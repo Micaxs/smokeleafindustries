@@ -1,6 +1,6 @@
 {
-  "color": -1441888,
-  "leaf_color": -2556073,
+  "color": -3679607,
+  "leaf_color": -4662667,
   "thc": 19,
   "cbd": 6,
   "n": 10,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 185,
   "identified": true,
-  "name": "Amnesia Haze"
+  "name": "Amnesia Haze",
+  "weed_leaf_color": -6637984,
+  "weed_color": -4337791,
+  "seeds_leaf_color": -4992472,
+  "seeds_color": -3285100,
+  "extract_leaf_color": -3645,
+  "extract_color": -2429524
 }

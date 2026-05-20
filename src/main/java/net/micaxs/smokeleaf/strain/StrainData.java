@@ -1,6 +1,7 @@
 package net.micaxs.smokeleaf.strain;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 
@@ -27,19 +28,50 @@ public record StrainData(
         int amplifier,
         int durationTicks,
         boolean identified,
-        String displayName
+        String displayName,
+        TypeColors typeColors
 ) {
 
+    /** Per-item-type tint overrides; all-zero values fall back to the base bud colors. */
+    public record TypeColors(
+            int weedColorArgb,
+            int weedLeafColor,
+            int seedsColorArgb,
+            int seedsLeafColor,
+            int extractColorArgb,
+            int extractLeafColor
+    ) {
+        public static final TypeColors NONE = new TypeColors(0, 0, 0, 0, 0, 0);
+
+        static final MapCodec<TypeColors> MAP_CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+                Codec.INT.optionalFieldOf("weed_color", 0).forGetter(TypeColors::weedColorArgb),
+                Codec.INT.optionalFieldOf("weed_leaf_color", 0).forGetter(TypeColors::weedLeafColor),
+                Codec.INT.optionalFieldOf("seeds_color", 0).forGetter(TypeColors::seedsColorArgb),
+                Codec.INT.optionalFieldOf("seeds_leaf_color", 0).forGetter(TypeColors::seedsLeafColor),
+                Codec.INT.optionalFieldOf("extract_color", 0).forGetter(TypeColors::extractColorArgb),
+                Codec.INT.optionalFieldOf("extract_leaf_color", 0).forGetter(TypeColors::extractLeafColor)
+        ).apply(inst, TypeColors::new));
+    }
+
+    /** Returns the weed highlight color, falling back to the base colorArgb. */
+    public int weedColorArgbEffective()    { int v = typeColors.weedColorArgb();   return v != 0 ? v : colorArgb; }
+    /** Returns the weed body color, falling back to the base leafColor. */
+    public int weedLeafColorEffective()    { int v = typeColors.weedLeafColor();   return v != 0 ? v : leafColor; }
+    /** Returns the seeds highlight color, falling back to the base colorArgb. */
+    public int seedsColorArgbEffective()   { int v = typeColors.seedsColorArgb();  return v != 0 ? v : colorArgb; }
+    /** Returns the seeds body color, falling back to the base leafColor. */
+    public int seedsLeafColorEffective()   { int v = typeColors.seedsLeafColor();  return v != 0 ? v : leafColor; }
+    /** Returns the extract highlight color, falling back to the base colorArgb. */
+    public int extractColorArgbEffective() { int v = typeColors.extractColorArgb();return v != 0 ? v : colorArgb; }
+    /** Returns the extract body color, falling back to the base leafColor. */
+    public int extractLeafColorEffective() { int v = typeColors.extractLeafColor();return v != 0 ? v : leafColor; }
+
     public static final StrainData EMPTY = new StrainData(
-            0xFFFFFFFF,
-            0xFF4A7A2E,
-            0, 0,
-            0, 0, 0,
-            List.of(),
-            0,
-            0,
-            false,
-            ""
+            0xFFFFFFFF, 0xFF4A7A2E,
+            0, 0, 0, 0, 0,
+            List.of(), 0, 0,
+            false, "",
+            TypeColors.NONE
     );
 
     public static final Codec<StrainData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -54,6 +86,8 @@ public record StrainData(
             Codec.INT.fieldOf("amp").forGetter(StrainData::amplifier),
             Codec.INT.fieldOf("dur").forGetter(StrainData::durationTicks),
             Codec.BOOL.fieldOf("identified").forGetter(StrainData::identified),
-            Codec.STRING.fieldOf("name").forGetter(StrainData::displayName)
+            Codec.STRING.fieldOf("name").forGetter(StrainData::displayName),
+            TypeColors.MAP_CODEC.forGetter(StrainData::typeColors)
     ).apply(inst, StrainData::new));
 }
+

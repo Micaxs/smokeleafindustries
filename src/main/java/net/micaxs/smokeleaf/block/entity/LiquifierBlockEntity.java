@@ -198,7 +198,8 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
                         StrainUtil.DEFAULT_UNIDENTIFIED_COLOR, 0xFF4A7A2E,
                         0, 0, 0, 0, 0,
                         java.util.List.of(), 0, 0,
-                        false, ""
+                        false, "",
+                        StrainData.TypeColors.NONE
                 );
             }
 
@@ -217,7 +218,8 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
                         weed.amplifier(),
                         weed.durationTicks(),
                         base.identified(),
-                        base.displayName()
+                        base.displayName(),
+                        base.typeColors()
                 );
             }
 

@@ -1,6 +1,6 @@
 {
-  "color": -786979,
-  "leaf_color": -3149188,
+  "color": -4537687,
+  "leaf_color": -4728457,
   "thc": 15,
   "cbd": 10,
   "n": 9,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 200,
   "identified": true,
-  "name": "White Widow"
+  "name": "White Widow",
+  "weed_leaf_color": -6704029,
+  "weed_color": -5129569,
+  "seeds_leaf_color": -9864130,
+  "seeds_color": -3878217,
+  "extract_leaf_color": -3892,
+  "extract_color": -2496065
 }

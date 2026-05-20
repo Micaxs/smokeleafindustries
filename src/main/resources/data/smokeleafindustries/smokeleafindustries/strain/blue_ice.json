@@ -1,6 +1,6 @@
 {
-  "color": -5177395,
-  "leaf_color": -4328865,
+  "color": -7748193,
+  "leaf_color": -5185445,
   "thc": 20,
   "cbd": 5,
   "n": 14,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 190,
   "identified": true,
-  "name": "Blue Ice"
+  "name": "Blue Ice",
+  "weed_leaf_color": -5907589,
+  "weed_color": -10320828,
+  "seeds_leaf_color": -9864130,
+  "seeds_color": -10509182,
+  "extract_leaf_color": -3125,
+  "extract_color": -3869255
 }

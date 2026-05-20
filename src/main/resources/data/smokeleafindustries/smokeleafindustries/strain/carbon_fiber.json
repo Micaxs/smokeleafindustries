@@ -1,6 +1,6 @@
 {
-  "color": -3874561,
-  "leaf_color": -2825502,
+  "color": -6178608,
+  "leaf_color": -4536635,
   "thc": 24,
   "cbd": 1,
   "n": 14,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 230,
   "identified": true,
-  "name": "Carbon Fiber"
+  "name": "Carbon Fiber",
+  "weed_leaf_color": -6642523,
+  "weed_color": -6639419,
+  "seeds_leaf_color": -9801617,
+  "seeds_color": -5454378,
+  "extract_leaf_color": -4641,
+  "extract_color": -2824981
 }

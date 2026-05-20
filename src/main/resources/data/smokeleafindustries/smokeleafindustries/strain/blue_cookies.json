@@ -1,6 +1,6 @@
 {
-  "color": -5443599,
-  "leaf_color": -984392,
+  "color": -8079431,
+  "leaf_color": -4011371,
   "thc": 17,
   "cbd": 8,
   "n": 10,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 180,
   "identified": true,
-  "name": "Blue Cookies"
+  "name": "Blue Cookies",
+  "weed_leaf_color": -6248323,
+  "weed_color": -8409169,
+  "seeds_leaf_color": -6447244,
+  "seeds_color": -7355202,
+  "extract_leaf_color": -4140,
+  "extract_color": -2823982
 }
