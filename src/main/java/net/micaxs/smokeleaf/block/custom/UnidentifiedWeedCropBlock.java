@@ -236,6 +236,16 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
         StrainData d = (be instanceof UnidentifiedWeedCropBlockEntity cropBe) ? cropBe.getStrain() : StrainData.EMPTY;
         String sid = (be instanceof UnidentifiedWeedCropBlockEntity cropBe2) ? cropBe2.getStrainId() : "";
 
+        // Apply nutrient-scaled THC/CBD to the bud drop
+        if (d != StrainData.EMPTY && be instanceof UnidentifiedWeedCropBlockEntity cropBe3) {
+            int scaledThc = cropBe3.getThc();
+            int scaledCbd = cropBe3.getCbd();
+            d = new StrainData(d.colorArgb(), d.leafColor(), scaledThc, scaledCbd,
+                    d.nitrogen(), d.phosphorus(), d.potassium(),
+                    d.effects(), d.amplifier(), d.durationTicks(),
+                    d.identified(), d.displayName(), d.typeColors());
+        }
+
         // Bud + seeds with strain + hemp leaf.
         ItemStack bud = new ItemStack(ModItems.GENERIC_BUD.get());
         ItemStack seeds = new ItemStack(ModItems.GENERIC_SEEDS.get());
