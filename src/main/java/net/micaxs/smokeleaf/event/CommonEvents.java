@@ -628,6 +628,23 @@ public class CommonEvents {
             return;
         }
 
+        // Fallback: any item with STRAIN_DATA (preset strains without a lineage ID)
+        StrainData anyStrain = StrainUtil.getStrain(left);
+        if (anyStrain != StrainData.EMPTY) {
+            StrainData namedData = new StrainData(
+                    anyStrain.colorArgb(), anyStrain.leafColor(), anyStrain.thc(), anyStrain.cbd(),
+                    anyStrain.nitrogen(), anyStrain.phosphorus(), anyStrain.potassium(),
+                    anyStrain.effects(), anyStrain.amplifier(), anyStrain.durationTicks(),
+                    true, newName, anyStrain.typeColors()
+            );
+            ItemStack output = left.copy();
+            StrainUtil.setStrain(output, namedData);
+            event.setOutput(output);
+            event.setCost(0);
+            event.setMaterialCost(0);
+            return;
+        }
+
         // Legacy bucket-only path (no STRAIN_ID yet)
         if (!(left.getItem() instanceof UnidentifiedMixtureBucketItem)) return;
         StrainData d = StrainUtil.getStrain(left);
