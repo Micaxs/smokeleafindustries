@@ -622,13 +622,10 @@ public class ModItems {
 
 
 
-    // Custom Strains (Player-created)
-    public static final DeferredItem<Item> UNIDENTIFIED_SEEDS = ITEMS.register("unidentified_seeds",
-            () -> new UnidentifiedSeedsItem(new Item.Properties()));
-    public static final DeferredItem<Item> UNIDENTIFIED_BUD = ITEMS.register("unidentified_bud",
-            () -> new UnidentifiedBudItem(new Item.Properties(), 0, 1000));
-    public static final DeferredItem<Item> UNIDENTIFIED_WEED = ITEMS.register("unidentified_weed",
-            () -> new UnidentifiedStrainItem(new Item.Properties()));
+    // Custom Strains (Player-created) — use the generic items above; these are kept for world compatibility only.
+    // public static final DeferredItem<Item> UNIDENTIFIED_SEEDS = ...
+    // public static final DeferredItem<Item> UNIDENTIFIED_BUD = ...
+    // public static final DeferredItem<Item> UNIDENTIFIED_WEED = ...
 
 
     public static void register(IEventBus eventBus) {

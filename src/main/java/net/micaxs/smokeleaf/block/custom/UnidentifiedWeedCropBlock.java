@@ -144,7 +144,7 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
 
     @Override
     protected ItemLike getBaseSeedId() {
-        return ModItems.UNIDENTIFIED_SEEDS.get();
+        return ModItems.GENERIC_SEEDS.get();
     }
 
     @Override
@@ -221,7 +221,7 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
 
         // If not fully grown, drop 1 seed.
         if (state.getValue(AGE) < getMaxAge()) {
-            ItemStack seed = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+            ItemStack seed = new ItemStack(ModItems.GENERIC_SEEDS.get());
         BlockEntity be = builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
         if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
             StrainData d = cropBe.getStrain();
@@ -237,8 +237,8 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
         String sid = (be instanceof UnidentifiedWeedCropBlockEntity cropBe2) ? cropBe2.getStrainId() : "";
 
         // Bud + seeds with strain + hemp leaf.
-        ItemStack bud = new ItemStack(ModItems.UNIDENTIFIED_BUD.get());
-        ItemStack seeds = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+        ItemStack bud = new ItemStack(ModItems.GENERIC_BUD.get());
+        ItemStack seeds = new ItemStack(ModItems.GENERIC_SEEDS.get());
         ItemStack leaf = new ItemStack(ModItems.HEMP_LEAF.get());
         if (d != StrainData.EMPTY) {
             bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
@@ -253,7 +253,7 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
 
     @Override
     public @NotNull ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
-        ItemStack stack = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+        ItemStack stack = new ItemStack(ModItems.GENERIC_SEEDS.get());
         StrainData d = getStrainAt(level, isTop(state) ? pos.below() : pos);
         if (d != StrainData.EMPTY) {
             stack.set(ModDataComponentTypes.STRAIN_DATA.get(), d);

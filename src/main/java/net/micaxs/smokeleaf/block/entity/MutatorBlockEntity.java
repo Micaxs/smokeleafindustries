@@ -275,7 +275,7 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         ItemStack output = rec.output().copy();
 
         // If this is the custom strain recipe, copy strain data from the mixture fluid.
-        if (output.is(ModItems.UNIDENTIFIED_SEEDS.get())) {
+        if (output.is(ModItems.GENERIC_SEEDS.get())) {
             FluidStack mix = FLUID_TANK.getFluid();
             if (!mix.isEmpty() && mix.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
                 // Prefer persisted mixtureStrain (FluidStack components may be lost in tank serialization).

@@ -62,7 +62,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
                 return false;
             }
 
-            if (stack.isEmpty() || level == null || stack.is(ModItems.UNIDENTIFIED_BUD.get()) || stack.is(ModItems.UNIDENTIFIED_WEED.get())) {
+            if (stack.isEmpty() || level == null || stack.is(ModItems.GENERIC_BUD.get()) || stack.is(ModItems.GENERIC_WEED.get())) {
                 return false;
             }
 
@@ -239,7 +239,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
 
     private boolean hasRecipe() {
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
-        if (input.isEmpty() || level == null || input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())) {
+        if (input.isEmpty() || level == null || input.is(ModItems.GENERIC_BUD.get()) || input.is(ModItems.GENERIC_WEED.get())) {
             return false;
         }
 
@@ -277,7 +277,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
         if (recipe.isEmpty()) return;
 
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
-        if (input.isEmpty() || level == null || input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())) {
+        if (input.isEmpty() || level == null || input.is(ModItems.GENERIC_BUD.get()) || input.is(ModItems.GENERIC_WEED.get())) {
             return;
         }
 

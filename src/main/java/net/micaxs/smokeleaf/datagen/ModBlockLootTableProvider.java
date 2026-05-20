@@ -77,7 +77,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         addHempCropLoot(ModBlocks.HEMP_CROP, ModItems.HEMP_FIBERS, ModItems.HEMP_SEEDS, ModItems.HEMP_LEAF);
 
         // Player-made strain crop
-        addUnidentifiedCropLoot(ModBlocks.UNIDENTIFIED_WEED_CROP, ModItems.UNIDENTIFIED_WEED, ModItems.UNIDENTIFIED_SEEDS, ModItems.HEMP_LEAF);
+        addUnidentifiedCropLoot(ModBlocks.UNIDENTIFIED_WEED_CROP, ModItems.GENERIC_BUD, ModItems.GENERIC_SEEDS, ModItems.HEMP_LEAF);
 
         addCropLoot(ModBlocks.WHITE_WIDOW_CROP, ModItems.WHITE_WIDOW_BUD, ModItems.WHITE_WIDOW_SEEDS, ModItems.HEMP_LEAF);
         addCropLoot(ModBlocks.BUBBLE_KUSH_CROP, ModItems.BUBBLE_KUSH_BUD, ModItems.BUBBLE_KUSH_SEEDS, ModItems.HEMP_LEAF);
