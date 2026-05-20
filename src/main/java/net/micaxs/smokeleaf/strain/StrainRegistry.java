@@ -28,7 +28,7 @@ public final class StrainRegistry {
         register("white_widow", preset(
                 0xFFBAC2A9, 0xFFB7D977,
                 0xFFB1BA9F, 0xFF99B463,
-                0xFFC4D2B7, 0xFF697C3E,
+                0, 0,
                 0xFFD9E9BF, 0xFFFFF0CC,
                 15, 10,
                 9, 6, 11,
@@ -39,7 +39,7 @@ public final class StrainRegistry {
         register("bubble_kush", preset(
                 0xFFC2A756, 0xFFD7D04E,
                 0xFF82772F, 0xFFD1C350,
-                0xFFB98A3A, 0xFF979407,
+                0, 0,
                 0xFFF6E199, 0xFFFFEDC3,
                 20, 5,
                 10, 8, 16,
@@ -50,7 +50,7 @@ public final class StrainRegistry {
         register("lemon_haze", preset(
                 0xFFB7C558, 0xFFB1E058,
                 0xFFAFBC57, 0xFF93BB44,
-                0xFFD7D36F, 0xFF697C3E,
+                0, 0,
                 0xFFDEEDA0, 0xFFFFF1BF,
                 19, 6,
                 9, 12, 15,
@@ -61,7 +61,7 @@ public final class StrainRegistry {
         register("sour_diesel", preset(
                 0xFFFF797B, 0xFFE2B7A0,
                 0xFFB16661, 0xFFE39C8E,
-                0xFFF88383, 0xFF9D7B5D,
+                0, 0,
                 0xFFFFCAC4, 0xFFFFE8D4,
                 19, 6,
                 11, 13, 10,
@@ -72,7 +72,7 @@ public final class StrainRegistry {
         register("blue_ice", preset(
                 0xFF89C59F, 0xFFB0E05B,
                 0xFF628444, 0xFFA5DB7B,
-                0xFF5FA482, 0xFF697C3E,
+                0, 0,
                 0xFFC4F5B9, 0xFFFFF3CB,
                 20, 5,
                 14, 9, 14,
@@ -83,7 +83,7 @@ public final class StrainRegistry {
         register("bubblegum", preset(
                 0xFFC18359, 0xFFD4D825,
                 0xFFB98352, 0xFFB0B01D,
-                0xFFA05649, 0xFF979407,
+                0, 0,
                 0xFFFFD9A4, 0xFFFFEBC8,
                 17, 8,
                 14, 14, 12,
@@ -94,7 +94,7 @@ public final class StrainRegistry {
         register("purple_haze", preset(
                 0xFFE179FF, 0xFFE0B7A8,
                 0xFFD675F6, 0xFFBC9690,
-                0xFFC264ED, 0xFF9D7B5D,
+                0, 0,
                 0xFFFFC7FF, 0xFFFFE7DF,
                 16, 9,
                 11, 13, 7,
@@ -105,7 +105,7 @@ public final class StrainRegistry {
         register("og_kush", preset(
                 0xFFADDE88, 0xFFC5D853,
                 0xFFA6D380, 0xFFA3B544,
-                0xFFB9E096, 0xFF90AD5A,
+                0, 0,
                 0xFFD2F3A1, 0xFFFFF2C3,
                 25, 10,
                 12, 13, 15,
@@ -116,7 +116,7 @@ public final class StrainRegistry {
         register("jack_herer", preset(
                 0xFFDEC38B, 0xFFE4D419,
                 0xFFD3BA81, 0xFFBEB018,
-                0xFFE2D286, 0xFF827909,
+                0, 0,
                 0xFFF7E09D, 0xFFFFECC3,
                 18, 7,
                 10, 15, 10,
@@ -127,7 +127,7 @@ public final class StrainRegistry {
         register("gary_peyton", preset(
                 0xFFD6C4A2, 0xFFB9D977,
                 0xFFCBBC98, 0xFF9BB462,
-                0xFFB9A289, 0xFF677930,
+                0, 0,
                 0xFFE8E3B9, 0xFFFFEDCA,
                 22, 3,
                 14, 15, 9,
@@ -138,7 +138,7 @@ public final class StrainRegistry {
         register("amnesia_haze", preset(
                 0xFFC7DA89, 0xFFB8DA75,
                 0xFFBDCF81, 0xFF9AB660,
-                0xFFCDDF94, 0xFFB3D228,
+                0, 0,
                 0xFFDAEDAC, 0xFFFFF1C3,
                 19, 6,
                 10, 13, 9,
@@ -149,7 +149,7 @@ public final class StrainRegistry {
         register("ak47", preset(
                 0xFFD2D77F, 0xFFEAC848,
                 0xFFC9CC76, 0xFFC4A83A,
-                0xFFD9DB8A, 0xFF97661B,
+                0, 0,
                 0xFFEFE694, 0xFFFFEEBA,
                 19, 6,
                 17, 8, 11,
@@ -160,7 +160,7 @@ public final class StrainRegistry {
         register("ghost_train", preset(
                 0xFFCEBA9B, 0xFFFFBB42,
                 0xFFC7B290, 0xFFDA9B36,
-                0xFFDAC9A9, 0xFF97661B,
+                0, 0,
                 0xFFFBDCA7, 0xFFFFEAC7,
                 19, 6,
                 13, 12, 10,
@@ -171,7 +171,7 @@ public final class StrainRegistry {
         register("grape_ape", preset(
                 0xFFA6D0BB, 0xFFD6C29E,
                 0xFFA0C5B1, 0xFFB1A283,
-                0xFFB2D6C5, 0xFF796B54,
+                0, 0,
                 0xFFD8E6D3, 0xFFFFEED4,
                 18, 7,
                 15, 13, 15,
@@ -182,7 +182,7 @@ public final class StrainRegistry {
         register("cotton_candy", preset(
                 0xFFD797CB, 0xFFC4C898,
                 0xFFCC91BF, 0xFFA4A680,
-                0xFFDAA3CE, 0xFF9D9F74,
+                0, 0,
                 0xFFF2D7DF, 0xFFFFE9D8,
                 19, 6,
                 10, 13, 9,
@@ -193,7 +193,7 @@ public final class StrainRegistry {
         register("banana_kush", preset(
                 0xFFE1CE7A, 0xFFB9CDAB,
                 0xFFD4C475, 0xFF9CAC8C,
-                0xFFDFD684, 0xFF65725E,
+                0, 0,
                 0xFFE5E6B2, 0xFFFFEEC8,
                 21, 4,
                 15, 13, 15,
@@ -204,7 +204,7 @@ public final class StrainRegistry {
         register("carbon_fiber", preset(
                 0xFFA1B8D0, 0xFFBAC6C5,
                 0xFF9AB0C5, 0xFF9AA4A5,
-                0xFFACC5D6, 0xFF6A706F,
+                0, 0,
                 0xFFD4E4EB, 0xFFFFEDDF,
                 24, 1,
                 14, 13, 20,
@@ -215,7 +215,7 @@ public final class StrainRegistry {
         register("birthday_cake", preset(
                 0xFFAAD198, 0xFFC5CB93,
                 0xFFA3C691, 0xFFA3AA7B,
-                0xFFB7D79F, 0xFF9D9F74,
+                0, 0,
                 0xFFD7EBBC, 0xFFFFF0CB,
                 23, 2,
                 11, 13, 16,
@@ -226,7 +226,7 @@ public final class StrainRegistry {
         register("blue_cookies", preset(
                 0xFF84B7B9, 0xFFC2CA95,
                 0xFF7FAFAF, 0xFFA0A87D,
-                0xFF8FC4BE, 0xFF9D9F74,
+                0, 0,
                 0xFFD4E8D2, 0xFFFFEFD4,
                 17, 8,
                 10, 13, 9,
@@ -237,7 +237,7 @@ public final class StrainRegistry {
         register("afghani", preset(
                 0xFFD5915E, 0xFFEBC445,
                 0xFFCC8C58, 0xFFC5A238,
-                0xFFDB9D66, 0xFF9D7B5D,
+                0, 0,
                 0xFFFFDD99, 0xFFFFEBC6,
                 18, 7,
                 11, 10, 19,
@@ -248,7 +248,7 @@ public final class StrainRegistry {
         register("moonbow", preset(
                 0xFFC1D97C, 0xFFC3E12C,
                 0xFFB8CE73, 0xFFA2BC25,
-                0xFFD9ED7C, 0xFFA6BD3E,
+                0, 0,
                 0xFFDCF097, 0xFFFFF2BC,
                 30, 13,
                 15, 2, 22,
@@ -259,7 +259,7 @@ public final class StrainRegistry {
         register("lava_cake", preset(
                 0xFFE27661, 0xFFC4A017,
                 0xFF945931, 0xFFBB8A25,
-                0xFFD76F5A, 0xFF9D7B5D,
+                0, 0,
                 0xFFFFD495, 0xFFFFEACA,
                 22, 3,
                 14, 12, 11,
@@ -270,7 +270,7 @@ public final class StrainRegistry {
         register("jelly_rancher", preset(
                 0xFFDACE72, 0xFFD5B51B,
                 0xFF90822D, 0xFFD4BD3F,
-                0xFFBFB963, 0xFF9D7B5D,
+                0, 0,
                 0xFFF7E48C, 0xFFFFEDBD,
                 20, 5,
                 11, 14, 9,
@@ -281,7 +281,7 @@ public final class StrainRegistry {
         register("strawberry_shortcake", preset(
                 0xFF93A6C9, 0xFFC4A27C,
                 0xFF808695, 0xFFA99A92,
-                0xFF6A799A, 0xFF9D7B5D,
+                0, 0,
                 0xFFEBDCD5, 0xFFFFEAD7,
                 16, 9,
                 14, 11, 15,
@@ -292,7 +292,7 @@ public final class StrainRegistry {
         register("pink_kush", preset(
                 0xFFD3A8A7, 0xFFDED713,
                 0xFF8B7B3C, 0xFFD7C349,
-                0xFFA88784, 0xFF979407,
+                0, 0,
                 0xFFF2E39B, 0xFFFFEDC1,
                 19, 6,
                 17, 9, 12,

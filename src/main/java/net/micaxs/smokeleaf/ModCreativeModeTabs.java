@@ -149,9 +149,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.HEMP_SEEDS);
 
                         // Unidentified items
-                        output.accept(ModItems.UNIDENTIFIED_SEEDS);
-                        output.accept(ModItems.UNIDENTIFIED_BUD);
-                        output.accept(ModItems.UNIDENTIFIED_WEED);
+//                        output.accept(ModItems.UNIDENTIFIED_SEEDS);
+//                        output.accept(ModItems.UNIDENTIFIED_BUD);
+//                        output.accept(ModItems.UNIDENTIFIED_WEED);
 
                         // All 25 named strains — seeds, bud, weed, extract grouped by strain
                         addStrain(output, "white_widow");
