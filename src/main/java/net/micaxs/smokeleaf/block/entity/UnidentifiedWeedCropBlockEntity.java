@@ -26,6 +26,7 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
     private static final int NPK_TOLERANCE = 3;
 
     private StrainData strain = StrainData.EMPTY;
+    private String strainId = "";
 
     public UnidentifiedWeedCropBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.UNIDENTIFIED_WEED_CROP_BE.get(), pos, state);
@@ -37,6 +38,15 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
 
     public void setStrain(StrainData d) {
         this.strain = d != null ? d : StrainData.EMPTY;
+        this.setChanged();
+    }
+
+    public String getStrainId() {
+        return strainId != null ? strainId : "";
+    }
+
+    public void setStrainId(String id) {
+        this.strainId = id != null ? id : "";
         this.setChanged();
     }
 
@@ -112,6 +122,9 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
         if (strain != null && strain != StrainData.EMPTY) {
             tag.put("strain_data", StrainData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, strain).result().orElse(new CompoundTag()));
         }
+        if (strainId != null && !strainId.isBlank()) {
+            tag.putString("strain_id", strainId);
+        }
     }
 
     @Override
@@ -123,6 +136,7 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
                     .result()
                     .ifPresent(d -> strain = d);
         }
+        strainId = tag.contains("strain_id") ? tag.getString("strain_id") : "";
     }
 
     @Override

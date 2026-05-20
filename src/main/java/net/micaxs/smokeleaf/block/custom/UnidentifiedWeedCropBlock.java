@@ -181,6 +181,8 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
             cropBe.setStrain(d);
+            String sid = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+            if (sid != null && !sid.isBlank()) cropBe.setStrainId(sid);
             cropBe.sync();
         }
     }
@@ -220,26 +222,33 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
         // If not fully grown, drop 1 seed.
         if (state.getValue(AGE) < getMaxAge()) {
             ItemStack seed = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
-            BlockEntity be = builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
-            if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
-                StrainData d = cropBe.getStrain();
-                if (d != StrainData.EMPTY) seed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
-            }
+        BlockEntity be = builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
+        if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
+            StrainData d = cropBe.getStrain();
+            if (d != StrainData.EMPTY) seed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+            String sid = cropBe.getStrainId();
+            if (!sid.isBlank()) seed.set(ModDataComponentTypes.STRAIN_ID.get(), sid);
+        }
             return java.util.List.of(seed);
         }
 
         BlockEntity be = builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
         StrainData d = (be instanceof UnidentifiedWeedCropBlockEntity cropBe) ? cropBe.getStrain() : StrainData.EMPTY;
+        String sid = (be instanceof UnidentifiedWeedCropBlockEntity cropBe2) ? cropBe2.getStrainId() : "";
 
-        // Weed + seeds with strain + hemp leaf.
-        ItemStack weed = new ItemStack(ModItems.UNIDENTIFIED_WEED.get());
+        // Bud + seeds with strain + hemp leaf.
+        ItemStack bud = new ItemStack(ModItems.UNIDENTIFIED_BUD.get());
         ItemStack seeds = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
         ItemStack leaf = new ItemStack(ModItems.HEMP_LEAF.get());
         if (d != StrainData.EMPTY) {
-            weed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+            bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
             seeds.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
         }
-        return java.util.List.of(weed, seeds, leaf);
+        if (!sid.isBlank()) {
+            bud.set(ModDataComponentTypes.STRAIN_ID.get(), sid);
+            seeds.set(ModDataComponentTypes.STRAIN_ID.get(), sid);
+        }
+        return java.util.List.of(bud, seeds, leaf);
     }
 
     @Override
