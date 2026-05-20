@@ -1,7 +1,7 @@
-// 1.21.1	2025-10-11T17:40:52.400005485	Tags for minecraft:item mod id smokeleafindustries
+// 1.21.1	2026-05-20T08:04:21.71579381	Tags for minecraft:item mod id smokeleafindustries
 057e8df857095bf868a59fc280fb876b4b7c3d3a data/smokeleafindustries/tags/item/leaves.json
-cdda6a9cfb8edd7aef6326fb4054c872971fca7d data/smokeleafindustries/tags/item/weed_buds.json
-33447c3e12cecb075d2c9a23fd95bf5de9471f99 data/smokeleafindustries/tags/item/weed_extracts.json
-33e312f9c079efb90ef1fe042082eb9bc2e07f3c data/smokeleafindustries/tags/item/weed_seeds.json
-800e97154e11f4fbeda79a175b8f38cb66a58755 data/smokeleafindustries/tags/item/weeds.json
+b4dfa599b20ded7894f8ecdd3a64362d350ac64a data/smokeleafindustries/tags/item/weed_buds.json
+97613c2c36d89fb64e957b7cde64ebf39f1684bc data/smokeleafindustries/tags/item/weed_extracts.json
+5e1eba5e7e599686536077a9ce651725b76d02cf data/smokeleafindustries/tags/item/weed_seeds.json
+8dc47d224311fc320b92cda3960a576faa601eab data/smokeleafindustries/tags/item/weeds.json
 1a3d01b40948ecf25d2002adbd9c92f90b314ef2 data/smokeleafindustries/tags/item/white_widow_strain.json

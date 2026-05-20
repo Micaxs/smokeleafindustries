@@ -71,19 +71,36 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         basicItem(ModItems.HASH_OIL_TINCTURE.get());
         basicItem(ModItems.BASE_EXTRACT.get());
+        // Generic strain-data carriers — two layers: base (leafColor, tint 0) + mask (colorArgb, tint 1)
         getBuilder("seeds")
                 .parent(getExistingFile(mcLoc("item/generated")))
-                .texture("layer0", modLoc("item/unidentified_seeds_base"))
-                .texture("layer1", modLoc("item/unidentified_seeds_top"));
+                .texture("layer0", modLoc("item/generic_seeds_base"))
+                .texture("layer1", modLoc("item/generic_seeds_mask"));
         getBuilder("bud")
                 .parent(getExistingFile(mcLoc("item/generated")))
-                .texture("layer0", modLoc("item/white_widow_bud"));
+                .texture("layer0", modLoc("item/generic_bud_base"))
+                .texture("layer1", modLoc("item/generic_bud_mask"));
         getBuilder("weed")
                 .parent(getExistingFile(mcLoc("item/generated")))
-                .texture("layer0", modLoc("item/white_widow_weed"));
+                .texture("layer0", modLoc("item/generic_weed_base"))
+                .texture("layer1", modLoc("item/generic_weed_mask"));
         getBuilder("extract")
                 .parent(getExistingFile(mcLoc("item/generated")))
-                .texture("layer0", modLoc("item/base_extract"));
+                .texture("layer0", modLoc("item/generic_extract_base"))
+                .texture("layer1", modLoc("item/generic_extract_mask"));
+        // Bag — single layer until bag_base/bag_mask textures are ready
+        getBuilder("bag")
+                .parent(getExistingFile(mcLoc("item/generated")))
+                .texture("layer0", modLoc("item/empty_bag"));
+        // Unidentified items share the generic textures (STRAIN_DATA tinting applies the same way)
+        getBuilder("unidentified_bud")
+                .parent(getExistingFile(mcLoc("item/generated")))
+                .texture("layer0", modLoc("item/generic_bud_base"))
+                .texture("layer1", modLoc("item/generic_bud_mask"));
+        getBuilder("unidentified_weed")
+                .parent(getExistingFile(mcLoc("item/generated")))
+                .texture("layer0", modLoc("item/generic_weed_base"))
+                .texture("layer1", modLoc("item/generic_weed_mask"));
         basicItem(ModItems.HEMP_COAL.get());
 
         basicItem(ModItems.BUTTER.get());

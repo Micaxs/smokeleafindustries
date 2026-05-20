@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "smokeleafindustries:item/base_extract"
+    "layer0": "smokeleafindustries:item/generic_extract_base",
+    "layer1": "smokeleafindustries:item/generic_extract_mask"
   }
 }
