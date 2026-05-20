@@ -106,7 +106,8 @@ public final class StrainUtil {
                 amp,
                 dur,
                 false,
-                ""
+                "",
+                StrainData.TypeColors.NONE
         );
     }
 
@@ -142,7 +143,8 @@ public final class StrainUtil {
                 base.amplifier(),
                 base.durationTicks(),
                 base.identified(),
-                base.displayName()
+                base.displayName(),
+                base.typeColors()
         );
     }
 

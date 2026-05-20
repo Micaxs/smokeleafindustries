@@ -235,7 +235,8 @@ public class GrowPotBlockEntity extends BlockEntity {
                 d = new StrainData(d.colorArgb(), d.leafColor(), getThc(), getCbd(),
                         getNitrogen(), getPhosphorus(), getPotassium(),
                         d.effects(), d.amplifier(), d.durationTicks(),
-                        d.identified(), d.displayName());
+                        d.identified(), d.displayName(),
+                        d.typeColors());
                 bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
             }
             int budFactor = getBudCount();
@@ -272,7 +273,8 @@ public class GrowPotBlockEntity extends BlockEntity {
                             existing.colorArgb(), existing.leafColor(), thcVal, cbdVal,
                             existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                             existing.effects(), existing.amplifier(), existing.durationTicks(),
-                            existing.identified(), existing.displayName()
+                            existing.identified(), existing.displayName(),
+                            existing.typeColors()
                     ));
                 } else {
                     BaseBudItem.setThc(drop, thcVal);
@@ -383,7 +385,8 @@ public class GrowPotBlockEntity extends BlockEntity {
             if (d != null) {
                 // Apply current pot nutrient-derived THC/CBD into the strain data (so player care matters)
                 d = new StrainData(d.colorArgb(), d.leafColor(), getThc(), getCbd(), getNitrogen(), getPhosphorus(), getPotassium(),
-                        d.effects(), d.amplifier(), d.durationTicks(), d.identified(), d.displayName());
+                        d.effects(), d.amplifier(), d.durationTicks(), d.identified(), d.displayName(),
+                        d.typeColors());
                 bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
             }
             int budFactor = getBudCount();
@@ -424,7 +427,8 @@ public class GrowPotBlockEntity extends BlockEntity {
                             existing.colorArgb(), existing.leafColor(), thcVal, cbdVal,
                             existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                             existing.effects(), existing.amplifier(), existing.durationTicks(),
-                            existing.identified(), existing.displayName()
+                            existing.identified(), existing.displayName(),
+                            existing.typeColors()
                     ));
                 } else {
                     BaseBudItem.setThc(drop, thcVal);

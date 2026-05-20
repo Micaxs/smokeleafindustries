@@ -1,6 +1,6 @@
 {
-  "color": -13366,
-  "leaf_color": -330745,
+  "color": -2905945,
+  "leaf_color": -2173165,
   "thc": 19,
   "cbd": 6,
   "n": 17,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 205,
   "identified": true,
-  "name": "Pink Kush"
+  "name": "Pink Kush",
+  "weed_leaf_color": -2636983,
+  "weed_color": -7636164,
+  "seeds_leaf_color": -6843385,
+  "seeds_color": -5732476,
+  "extract_leaf_color": -4671,
+  "extract_color": -859237
 }

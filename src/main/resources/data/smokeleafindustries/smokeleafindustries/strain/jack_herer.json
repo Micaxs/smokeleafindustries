@@ -1,6 +1,6 @@
 {
-  "color": -8288,
-  "leaf_color": -597480,
+  "color": -2178165,
+  "leaf_color": -1780711,
   "thc": 18,
   "cbd": 7,
   "n": 10,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 205,
   "identified": true,
-  "name": "Jack Herer"
+  "name": "Jack Herer",
+  "weed_leaf_color": -4280296,
+  "weed_color": -2901375,
+  "seeds_leaf_color": -8226551,
+  "seeds_color": -1912186,
+  "extract_leaf_color": -4925,
+  "extract_color": -532323
 }

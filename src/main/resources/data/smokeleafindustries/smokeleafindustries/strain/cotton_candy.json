@@ -1,6 +1,6 @@
 {
-  "color": -19727,
-  "leaf_color": -657222,
+  "color": -2648117,
+  "leaf_color": -3880808,
   "thc": 19,
   "cbd": 6,
   "n": 10,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 165,
   "identified": true,
-  "name": "Cotton Candy"
+  "name": "Cotton Candy",
+  "weed_leaf_color": -5986688,
+  "weed_color": -3370561,
+  "seeds_leaf_color": -6447244,
+  "seeds_color": -2448434,
+  "extract_leaf_color": -5672,
+  "extract_color": -862241
 }

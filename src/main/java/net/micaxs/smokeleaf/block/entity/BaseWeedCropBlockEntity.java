@@ -180,7 +180,8 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
                     existing.colorArgb(), existing.leafColor(), thc, cbd,
                     existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                     existing.effects(), existing.amplifier(), existing.durationTicks(),
-                    existing.identified(), existing.displayName()
+                    existing.identified(), existing.displayName(),
+                    existing.typeColors()
             ));
         } else {
             stack.set(ModDataComponentTypes.THC.get(), thc);

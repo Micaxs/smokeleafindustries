@@ -48,7 +48,8 @@ public class ApplyBudStats extends LootItemConditionalFunction {
                         existing.colorArgb(), existing.leafColor(), crop.getThc(), crop.getCbd(),
                         existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                         existing.effects(), existing.amplifier(), existing.durationTicks(),
-                        existing.identified(), existing.displayName()
+                        existing.identified(), existing.displayName(),
+                        existing.typeColors()
                 ));
             } else {
                 stack.set(ModDataComponentTypes.THC.get(), crop.getThc());

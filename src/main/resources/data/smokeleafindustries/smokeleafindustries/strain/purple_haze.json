@@ -1,6 +1,6 @@
 {
-  "color": -2525953,
-  "leaf_color": -15435,
+  "color": -2000385,
+  "leaf_color": -2050136,
   "thc": 16,
   "cbd": 9,
   "n": 11,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 140,
   "identified": true,
-  "name": "Purple Haze"
+  "name": "Purple Haze",
+  "weed_leaf_color": -4417904,
+  "weed_color": -2722314,
+  "seeds_leaf_color": -6456483,
+  "seeds_color": -4037395,
+  "extract_leaf_color": -6177,
+  "extract_color": -14337
 }

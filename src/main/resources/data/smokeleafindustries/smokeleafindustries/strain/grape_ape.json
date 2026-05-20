@@ -1,6 +1,6 @@
 {
-  "color": -3407900,
-  "leaf_color": -795986,
+  "color": -5844805,
+  "leaf_color": -2702690,
   "thc": 18,
   "cbd": 7,
   "n": 15,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 175,
   "identified": true,
-  "name": "Grape Ape"
+  "name": "Grape Ape",
+  "weed_leaf_color": -5135741,
+  "weed_color": -6240847,
+  "seeds_leaf_color": -8819884,
+  "seeds_color": -5056827,
+  "extract_leaf_color": -4396,
+  "extract_color": -2562349
 }

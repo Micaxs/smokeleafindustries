@@ -1,6 +1,6 @@
 {
-  "color": -3735652,
-  "leaf_color": -2228382,
+  "color": -5382520,
+  "leaf_color": -3811245,
   "thc": 25,
   "cbd": 10,
   "n": 12,
@@ -12,5 +12,11 @@
   "amp": 1,
   "dur": 210,
   "identified": true,
-  "name": "OG Kush"
+  "name": "OG Kush",
+  "weed_leaf_color": -6048444,
+  "weed_color": -5844096,
+  "seeds_leaf_color": -7295654,
+  "seeds_color": -4595562,
+  "extract_leaf_color": -3389,
+  "extract_color": -2952287
 }
