@@ -560,7 +560,9 @@ public class GrowPotBlockEntity extends BlockEntity {
         int totalDiff = dn + dp + dk;
         int reduction = (int) Math.round(base * 0.10 * totalDiff);
         int value = base - reduction;
-        return Mth.clamp(value, 0, 100);
+        // Floor: always at least 1, and never below half the base genetic value
+        int floor = Math.max(1, base / 2);
+        return Mth.clamp(value, floor, 100);
     }
 
     @Nullable
