@@ -1,0 +1,16 @@
+{
+  "color": -3483213,
+  "leaf_color": -10843590,
+  "thc": 15,
+  "cbd": 10,
+  "n": 9,
+  "p": 6,
+  "k": 11,
+  "effects": [
+    "minecraft:wind_charged"
+  ],
+  "amp": 1,
+  "dur": 200,
+  "identified": true,
+  "name": "White Widow"
+}

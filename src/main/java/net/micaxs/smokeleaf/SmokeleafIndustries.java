@@ -15,6 +15,8 @@ import net.micaxs.smokeleaf.network.ModPayloads;
 import net.micaxs.smokeleaf.recipe.ModRecipes;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
 import net.micaxs.smokeleaf.sound.ModSounds;
+import net.micaxs.smokeleaf.strain.ModStrainRegistry;
+import net.micaxs.smokeleaf.strain.StrainRegistry;
 import net.micaxs.smokeleaf.villager.ModVillagers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.ComposterBlock;
@@ -46,6 +48,7 @@ public class SmokeleafIndustries {
     public SmokeleafIndustries(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
+        ModStrainRegistry.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (SmokeleafIndustries) to respond directly to events.
@@ -104,5 +107,12 @@ public class SmokeleafIndustries {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("Smokeleaf Industries server starting...");
+        try {
+            var registry = event.getServer().registryAccess()
+                    .registryOrThrow(ModStrainRegistry.STRAIN_REGISTRY_KEY);
+            StrainRegistry.reload(registry);
+        } catch (Exception e) {
+            LOGGER.error("Failed to reload StrainRegistry from datapack registry", e);
+        }
     }
 }

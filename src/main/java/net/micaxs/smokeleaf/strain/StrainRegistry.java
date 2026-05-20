@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.strain;
 
+import net.micaxs.smokeleaf.SmokeleafIndustries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.LinkedHashMap;
@@ -14,9 +16,13 @@ import java.util.Set;
  * <p>Per-strain items are being phased out in favour of generic items that carry
  * {@link StrainData}. This registry is the source of truth for known/default
  * named-strain payloads.</p>
+ *
+ * <p>Built-in datapack definitions live under
+ * {@code data/smokeleafindustries/smokeleafindustries/strain/}.</p>
  */
 public final class StrainRegistry {
     private static final Map<String, StrainData> PRESETS = new LinkedHashMap<>();
+    private static final Map<String, StrainData> BUILTIN_PRESETS = new LinkedHashMap<>();
 
     static {
         register("white_widow", preset(
@@ -269,6 +275,8 @@ public final class StrainRegistry {
                 205,
                 "Pink Kush"
         ));
+
+        BUILTIN_PRESETS.putAll(PRESETS);
     }
 
     private StrainRegistry() {
@@ -276,6 +284,16 @@ public final class StrainRegistry {
 
     public static void register(String strainId, StrainData data) {
         PRESETS.put(normalize(strainId), data);
+    }
+
+    public static void reload(Registry<StrainData> registry) {
+        PRESETS.clear();
+        PRESETS.putAll(BUILTIN_PRESETS);
+        registry.entrySet().forEach(entry -> {
+            String id = entry.getKey().location().getPath();
+            PRESETS.put(normalize(id), entry.getValue());
+        });
+        SmokeleafIndustries.LOGGER.info("StrainRegistry reloaded: {} strains available", PRESETS.size());
     }
 
     public static Optional<StrainData> get(String strainId) {
