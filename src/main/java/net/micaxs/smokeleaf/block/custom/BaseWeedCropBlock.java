@@ -3,7 +3,9 @@ package net.micaxs.smokeleaf.block.custom;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
+import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -28,11 +30,14 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
@@ -306,6 +311,30 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
 
         stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
         return ItemInteractionResult.CONSUME;
+    }
+
+    @Override
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
+        List<ItemStack> drops = super.getDrops(state, builder);
+
+        // Apply nutrient-scaled THC/CBD to any bud drops that carry STRAIN_DATA
+        BlockEntity be = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (!(be instanceof BaseWeedCropBlockEntity cropBe)) return drops;
+
+        int scaledThc = cropBe.getThc();
+        int scaledCbd = cropBe.getCbd();
+
+        for (ItemStack drop : drops) {
+            StrainData d = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (d != null) {
+                drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                        d.colorArgb(), d.leafColor(), scaledThc, scaledCbd,
+                        d.nitrogen(), d.phosphorus(), d.potassium(),
+                        d.effects(), d.amplifier(), d.durationTicks(),
+                        d.identified(), d.displayName(), d.typeColors()));
+            }
+        }
+        return drops;
     }
 
     /** 0..3 shear clicks; on S3 the next shear harvests the plant. */

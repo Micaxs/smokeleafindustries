@@ -113,7 +113,8 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
 
         int totalDiff = dn + dp + dk;
         int reduction = (int) Math.round(base * 0.10 * totalDiff);
-        return Mth.clamp(base - reduction, 0, MAX_PERCENT);
+        int floor = Math.max(1, base / 2);
+        return Mth.clamp(base - reduction, floor, MAX_PERCENT);
     }
 
     @Override
