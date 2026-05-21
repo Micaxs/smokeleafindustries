@@ -11,12 +11,16 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
+import net.micaxs.smokeleaf.item.custom.BaseBudItem;
+import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.recipe.GrinderRecipe;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class GrinderRecipeCategory implements IRecipeCategory<GrinderRecipe> {
 
@@ -56,8 +60,13 @@ public class GrinderRecipeCategory implements IRecipeCategory<GrinderRecipe> {
     public void setRecipe(IRecipeLayoutBuilder builder, GrinderRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, 75, 6)
                 .addIngredients(recipe.getIngredients().get(0));
+
+        ItemStack result = recipe.getResultItem(null);
+        List<ItemStack> outputs = (result.getItem() instanceof BaseWeedItem || result.getItem() instanceof BaseBudItem)
+                ? JeiStrainHelper.coloredStacks(result.getItem())
+                : List.of(result);
         builder.addSlot(RecipeIngredientRole.OUTPUT, 75, 54)
-                .addItemStack(recipe.getResultItem(null));
+                .addItemStacks(outputs);
     }
 
     @Override
