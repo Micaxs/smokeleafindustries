@@ -112,9 +112,13 @@ public class BaseWeedItem extends Item {
 
         List<MobEffectInstance> previews = buildEffectInstances(stack);
         if (!previews.isEmpty()) {
-            MobEffect baseEff = previews.get(0).getEffect().value();
+            MobEffectInstance first = previews.get(0);
+            MobEffect baseEff = first.getEffect().value();
+            int seconds = first.getDuration() / 20;
             tooltipComponents.add(
-                    Component.translatable(baseEff.getDescriptionId()).withStyle(ChatFormatting.GREEN)
+                    Component.translatable(baseEff.getDescriptionId())
+                            .append(Component.literal(" (" + seconds + "s)").withStyle(ChatFormatting.GRAY))
+                            .withStyle(ChatFormatting.GREEN)
             );
         }
 
