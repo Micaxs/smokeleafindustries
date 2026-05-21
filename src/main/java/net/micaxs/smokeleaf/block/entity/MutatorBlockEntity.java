@@ -449,6 +449,10 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                 this.mixtureStrain = inStrain;
                 // Adopt or generate the stable strain ID for this mixture batch.
                 String bucketStrainId = bucketStack.get(ModDataComponentTypes.STRAIN_ID.get());
+                if (bucketStrainId == null || bucketStrainId.isBlank()) {
+                    // Fallback: mixer-produced buckets carry MIX_KEY which equals STRAIN_ID.
+                    bucketStrainId = bucketStack.get(ModDataComponentTypes.MIX_KEY.get());
+                }
                 this.mixtureStrainId = (bucketStrainId != null && !bucketStrainId.isBlank())
                         ? bucketStrainId
                         : java.util.UUID.randomUUID().toString();
