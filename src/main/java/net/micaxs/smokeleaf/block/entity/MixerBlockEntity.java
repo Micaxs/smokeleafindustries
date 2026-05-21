@@ -5,6 +5,7 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
 import net.micaxs.smokeleaf.strain.MixedStrainSavedData;
+import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.screen.custom.MixerMenu;
@@ -353,20 +354,31 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         int drainEach = 250;
         if (a.getAmount() < drainEach || b.getAmount() < drainEach) return false;
 
+        // Block mix if the combined effect count would exceed the per-strain maximum.
+        int aTint = IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
+        int bTint = IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
+        StrainData preview = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
+        // mixFromExtracts already caps at MAX_EFFECTS; but if input oils each have MAX_EFFECTS and
+        // they are different, the total union would exceed the cap before truncation. We enforce it here.
+        var combinedEffects = new java.util.LinkedHashSet<net.minecraft.resources.ResourceLocation>();
+        net.micaxs.smokeleaf.fluid.WeedFluidData wa = WeedFluidStackUtil.getWeedData(a);
+        net.micaxs.smokeleaf.fluid.WeedFluidData wb = WeedFluidStackUtil.getWeedData(b);
+        if (wa != null) combinedEffects.addAll(wa.effects());
+        if (wb != null) combinedEffects.addAll(wb.effects());
+        if (StrainUtil.hasStrain(a)) combinedEffects.addAll(StrainUtil.getStrain(a).effects());
+        if (StrainUtil.hasStrain(b)) combinedEffects.addAll(StrainUtil.getStrain(b).effects());
+        if (combinedEffects.size() > StrainUtil.MAX_EFFECTS) return false;
+
         // Output space
         FluidStack out = TANK_OUT.getFluid();
         if (!out.isEmpty() && out.getFluid() != ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) return false;
 
         // If output already has mixture in it, only allow stacking if the resulting strain matches.
         if (!out.isEmpty() && out.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
-            int aTint = IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
-            int bTint = IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
-            StrainData next = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
-
             StrainData existing = StrainUtil.getStrain(out);
             // If the tank lost components somehow, treat it as non-stackable to avoid overwriting.
             if (existing == StrainData.EMPTY) return false;
-            if (!existing.equals(next)) return false;
+            if (!existing.equals(preview)) return false;
         }
 
         return TANK_OUT.getFluidAmount() + 500 <= TANK_OUT.getCapacity();
@@ -391,7 +403,12 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
 
         // Look up existing name for this combination (server-wide persistent registry)
         if (level instanceof ServerLevel sl) {
+            // Check MixedStrainSavedData first (mixer-blend specific registry)
             String registeredName = MixedStrainSavedData.get(sl.getServer()).lookup(mixKey);
+            // Also check StrainRegistrySavedData by mixKey (covers renamed buckets)
+            if (registeredName == null || registeredName.isBlank()) {
+                registeredName = StrainRegistrySavedData.get(sl.getServer()).lookupName(mixKey);
+            }
             if (registeredName != null && !registeredName.isBlank()) {
                 mixed = new StrainData(
                         mixed.colorArgb(), mixed.leafColor(), mixed.thc(), mixed.cbd(),
