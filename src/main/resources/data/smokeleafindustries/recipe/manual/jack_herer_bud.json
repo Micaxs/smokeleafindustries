@@ -1,6 +1,0 @@
-{
-  "type": "smokeleafindustries:manual_grinder",
-  "ingredient": { "item": "smokeleafindustries:jack_herer_bud" },
-  "result": { "id": "smokeleafindustries:jack_herer_weed", "count": 1 },
-  "grind_time": 60
-}

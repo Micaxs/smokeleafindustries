@@ -79,32 +79,6 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         // Player-made strain crop
         addUnidentifiedCropLoot(ModBlocks.UNIDENTIFIED_WEED_CROP, ModItems.GENERIC_BUD, ModItems.GENERIC_SEEDS, ModItems.HEMP_LEAF);
 
-        addCropLoot(ModBlocks.WHITE_WIDOW_CROP, ModItems.WHITE_WIDOW_BUD, ModItems.WHITE_WIDOW_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.BUBBLE_KUSH_CROP, ModItems.BUBBLE_KUSH_BUD, ModItems.BUBBLE_KUSH_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.LEMON_HAZE_CROP, ModItems.LEMON_HAZE_BUD, ModItems.LEMON_HAZE_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.SOUR_DIESEL_CROP, ModItems.SOUR_DIESEL_BUD, ModItems.SOUR_DIESEL_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.BLUE_ICE_CROP, ModItems.BLUE_ICE_BUD, ModItems.BLUE_ICE_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.PURPLE_HAZE_CROP, ModItems.PURPLE_HAZE_BUD, ModItems.PURPLE_HAZE_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.BUBBLEGUM_CROP, ModItems.BUBBLEGUM_BUD, ModItems.BUBBLEGUM_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.OG_KUSH_CROP, ModItems.OG_KUSH_BUD, ModItems.OG_KUSH_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.JACK_HERER_CROP, ModItems.JACK_HERER_BUD, ModItems.JACK_HERER_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.GARY_PEYTON_CROP, ModItems.GARY_PEYTON_BUD, ModItems.GARY_PEYTON_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.AMNESIA_HAZE_CROP, ModItems.AMNESIA_HAZE_BUD, ModItems.AMNESIA_HAZE_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.AK47_CROP, ModItems.AK47_BUD, ModItems.AK47_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.GHOST_TRAIN_CROP, ModItems.GHOST_TRAIN_BUD, ModItems.GHOST_TRAIN_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.GRAPE_APE_CROP, ModItems.GRAPE_APE_BUD, ModItems.GRAPE_APE_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.COTTON_CANDY_CROP, ModItems.COTTON_CANDY_BUD, ModItems.COTTON_CANDY_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.BANANA_KUSH_CROP, ModItems.BANANA_KUSH_BUD, ModItems.BANANA_KUSH_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.CARBON_FIBER_CROP, ModItems.CARBON_FIBER_BUD, ModItems.CARBON_FIBER_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.BIRTHDAY_CAKE_CROP, ModItems.BIRTHDAY_CAKE_BUD, ModItems.BIRTHDAY_CAKE_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.BLUE_COOKIES_CROP, ModItems.BLUE_COOKIES_BUD, ModItems.BLUE_COOKIES_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.AFGHANI_CROP, ModItems.AFGHANI_BUD, ModItems.AFGHANI_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.MOONBOW_CROP, ModItems.MOONBOW_BUD, ModItems.MOONBOW_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.LAVA_CAKE_CROP, ModItems.LAVA_CAKE_BUD, ModItems.LAVA_CAKE_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.JELLY_RANCHER_CROP, ModItems.JELLY_RANCHER_BUD, ModItems.JELLY_RANCHER_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.STRAWBERRY_SHORTCAKE_CROP, ModItems.STRAWBERRY_SHORTCAKE_BUD, ModItems.STRAWBERRY_SHORTCAKE_SEEDS, ModItems.HEMP_LEAF);
-        addCropLoot(ModBlocks.PINK_KUSH_CROP, ModItems.PINK_KUSH_BUD, ModItems.PINK_KUSH_SEEDS, ModItems.HEMP_LEAF);
-
         // Tobacco Crop
         addSimpleCropLoot(ModBlocks.TOBACCO_CROP, ModItems.TOBACCO_LEAF, ModItems.TOBACCO_SEEDS);
 

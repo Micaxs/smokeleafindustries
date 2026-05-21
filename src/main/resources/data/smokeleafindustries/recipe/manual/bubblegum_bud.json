@@ -1,6 +1,0 @@
-{
-  "type": "smokeleafindustries:manual_grinder",
-  "ingredient": { "item": "smokeleafindustries:bubblegum_bud" },
-  "result": { "id": "smokeleafindustries:bubblegum_weed", "count": 1 },
-  "grind_time": 60
-}

@@ -1,6 +1,0 @@
-{
-  "type": "smokeleafindustries:manual_grinder",
-  "ingredient": { "item": "smokeleafindustries:lava_cake_bud" },
-  "result": { "id": "smokeleafindustries:lava_cake_weed", "count": 1 },
-  "grind_time": 60
-}
