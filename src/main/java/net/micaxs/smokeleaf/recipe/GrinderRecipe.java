@@ -35,16 +35,16 @@ public record GrinderRecipe(Ingredient inputItem, ItemStack output) implements R
         ItemStack out = output.copy();
         ItemStack in = grinderRecipeInput.getItem(0);
         if (!in.isEmpty()) {
-            // Initialize weed defaults first (effect, duration, default THC/CBD)
-            if (out.getItem() instanceof BaseWeedItem weedItem) {
-                weedItem.initializeStack(out);
-            }
-            // If input has STRAIN_DATA, use that as the complete source of truth
             StrainData sd = in.get(ModDataComponentTypes.STRAIN_DATA.get());
             if (sd != null) {
+                // STRAIN_DATA is the source of truth — skip legacy initializeStack to avoid
+                // stamping individual thc/cbd/active_ingredient/effect_duration components.
                 out.set(ModDataComponentTypes.STRAIN_DATA.get(), sd);
             } else {
-                // Legacy: copy individual THC/CBD components
+                // Legacy path: initialize weed defaults then copy individual components.
+                if (out.getItem() instanceof BaseWeedItem weedItem) {
+                    weedItem.initializeStack(out);
+                }
                 Integer thc = in.get(ModDataComponentTypes.THC.get());
                 Integer cbd = in.get(ModDataComponentTypes.CBD.get());
                 if (thc != null) out.set(ModDataComponentTypes.THC.get(), thc);
