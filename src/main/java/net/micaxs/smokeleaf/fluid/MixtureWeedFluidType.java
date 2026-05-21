@@ -110,6 +110,14 @@ public class MixtureWeedFluidType extends WeedFluidType {
         if (mixKey != null && !mixKey.isBlank()) {
             bucket.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
         }
+        // Also copy STRAIN_ID so the Mutator can reuse the stable mix key for every seed batch.
+        String strainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (strainId != null && !strainId.isBlank()) {
+            bucket.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+        } else if (mixKey != null && !mixKey.isBlank()) {
+            // Fallback: STRAIN_ID and MIX_KEY are the same for mixer-produced fluids.
+            bucket.set(ModDataComponentTypes.STRAIN_ID.get(), mixKey);
+        }
         return bucket;
     }
 
