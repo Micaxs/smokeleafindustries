@@ -1,0 +1,12 @@
+{
+  "type": "smokeleafindustries:sequencer",
+  "dna": { "item": "smokeleafindustries:dna_strand" },
+  "base_extract": { "item": "smokeleafindustries:base_extract" },
+  "required_reagents": [
+    { "item": "minecraft:purple_dye" },
+    { "item": "minecraft:feather" },
+    { "item": "minecraft:amethyst_shard" }
+  ],
+  "result": { "id": "smokeleafindustries:extract", "count": 1 },
+  "strain_id": "purple_haze"
+}

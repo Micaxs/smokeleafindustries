@@ -10,9 +10,8 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
+import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.recipe.BluntRecipe;
-import net.micaxs.smokeleaf.utils.ModTags;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -29,9 +28,7 @@ public class BluntRecipeCategory implements IRecipeCategory<BluntRecipe> {
             ResourceLocation.withDefaultNamespace("textures/gui/container/crafting_table.png");
 
     private static List<ItemStack> weedStacks() {
-        return BuiltInRegistries.ITEM.getTag(ModTags.WEEDS)
-                .map(tag -> tag.stream().map(h -> new ItemStack(h.value())).toList())
-                .orElse(List.of());
+        return JeiStrainHelper.coloredStacks(ModItems.GENERIC_WEED.get());
     }
 
     private final IDrawableStatic background;

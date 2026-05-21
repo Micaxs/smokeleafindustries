@@ -22,11 +22,13 @@ import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public record SequencerRecipe(Ingredient dnaIngredient,
                               Ingredient baseExtractIngredient,
                               Ingredient[] requiredReagents,
-                              ItemStack result) implements Recipe<SequencerRecipeInput> {
+                              ItemStack result,
+                              Optional<String> strainId) implements Recipe<SequencerRecipeInput> {
 
     public static final int REAGENT_SLOTS = 3;
 
@@ -86,7 +88,14 @@ public record SequencerRecipe(Ingredient dnaIngredient,
 
     @Override
     public ItemStack assemble(SequencerRecipeInput input, HolderLookup.Provider provider) {
-        return result.copy();
+        ItemStack out = result.copy();
+        strainId.ifPresent(id -> {
+            net.micaxs.smokeleaf.strain.StrainRegistry.get(id).ifPresent(strainData -> {
+                out.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+                out.set(ModDataComponentTypes.STRAIN_ID.get(), id);
+            });
+        });
+        return out;
     }
 
     @Override
@@ -96,7 +105,14 @@ public record SequencerRecipe(Ingredient dnaIngredient,
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return result.copy();
+        ItemStack out = result.copy();
+        strainId.ifPresent(id -> {
+            net.micaxs.smokeleaf.strain.StrainRegistry.get(id).ifPresent(strainData -> {
+                out.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+                out.set(ModDataComponentTypes.STRAIN_ID.get(), id);
+            });
+        });
+        return out;
     }
 
     @Override
@@ -136,9 +152,10 @@ public record SequencerRecipe(Ingredient dnaIngredient,
                                                 : DataResult.error(() -> "required_reagents must have exactly " + REAGENT_SLOTS),
                                         DataResult::success)
                                 .forGetter(r -> java.util.List.of(r.requiredReagents)),
-                        RESULT_STACK_CODEC.fieldOf("result").forGetter(SequencerRecipe::result)
-                ).apply(instance, (dna, base, reagentsList, result) ->
-                        new SequencerRecipe(dna, base, reagentsList.toArray(Ingredient[]::new), result))
+                        RESULT_STACK_CODEC.fieldOf("result").forGetter(SequencerRecipe::result),
+                        Codec.STRING.optionalFieldOf("strain_id").forGetter(SequencerRecipe::strainId)
+                ).apply(instance, (dna, base, reagentsList, result, strainId) ->
+                        new SequencerRecipe(dna, base, reagentsList.toArray(Ingredient[]::new), result, strainId))
         );
 
         private static final StreamCodec<RegistryFriendlyByteBuf, SequencerRecipe> STREAM_CODEC =
@@ -152,7 +169,9 @@ public record SequencerRecipe(Ingredient dnaIngredient,
                             req[i] = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
                         }
                         ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-                        return new SequencerRecipe(dna, base, req, result);
+                        boolean hasStrainId = buf.readBoolean();
+                        Optional<String> strainId = hasStrainId ? Optional.of(buf.readUtf()) : Optional.empty();
+                        return new SequencerRecipe(dna, base, req, result, strainId);
                     }
 
                     @Override
@@ -163,6 +182,9 @@ public record SequencerRecipe(Ingredient dnaIngredient,
                             Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ing);
                         }
                         ItemStack.STREAM_CODEC.encode(buf, value.result);
+                        boolean hasId = value.strainId.isPresent();
+                        buf.writeBoolean(hasId);
+                        if (hasId) buf.writeUtf(value.strainId.get());
                     }
                 };
 

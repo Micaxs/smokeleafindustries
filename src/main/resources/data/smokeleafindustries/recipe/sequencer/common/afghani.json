@@ -1,0 +1,12 @@
+{
+  "type": "smokeleafindustries:sequencer",
+  "dna": { "item": "smokeleafindustries:dna_strand" },
+  "base_extract": { "item": "smokeleafindustries:base_extract" },
+  "required_reagents": [
+    { "item": "minecraft:sand" },
+    { "item": "minecraft:blaze_rod" },
+    { "item": "minecraft:brown_dye" }
+  ],
+  "result": { "id": "smokeleafindustries:extract", "count": 1 },
+  "strain_id": "afghani"
+}

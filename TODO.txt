@@ -1,5 +1,11 @@
 
-| Make it so you can plant this seed and it grows into a new unique plant. The plant texture should also have 2 masks, 1 for the buds and 1 for the plant color (plant color will be randomly picked from an array of values) mask that I can recolor based on the data. The plant should also have a unique name when the seed has been identified (can get from the seed data).
-| Make a Block to identify the seeds (1 input slot that can hold the seed and then input field to change name and some info to show the N/P/K and THC/CDB values) (should show the N/P/K and THC/CDB values and allow the person the name the weed/seed) -> this should add it to the seed data.
 
-| When harvesting the unique plant it should give you the drops correctly. (Bud, seeds, and leaves) -> apply the THC/CDB values on the bud, and the same data from the planted seed should be applied to the seeds that drop as well. (so you can plant the seeds from the unique plant and get the same plant with the same data).
+- unidentified mixture bucket has THC/CDB values, this should be the same Levels: tooltip similarly to wehat is shows on weed items.
+- the sequencer machine does not have any recipes (to make dna strands) to actually make the 25 strains, I want to make fileld dna strands to further process these in the sequencer to make a specific extract.
+- putting an extract in the liquifier should give 250mb of oil.
+- the cake and the brownie should also have the strain data (from the weed it is crafted with) when crafted and apply the effects when eaten.
+- the input items in JEI recipe screens shows a grayscale item (seed, weed, bud, item) instead of the colored variants. it should not show the unidentified versions which are gray scale only show the colored one's with strain data.
+- this also applies to crafting table recipes, joint and blunt recipes, the input weed items are all grayscaled and called unidentified weed, this should be the 25 strains and correctly colored.
+- the liquifier jei screen should show each of the 25 strains (colored correctly) and their correct output oil (also colored correctly offcourse).
+- the JEI tags, only show the unidentified weed/bud/etc. it should show the default 25 strains and correctly colored. It shouldn't show the unidentified versions at all.
+

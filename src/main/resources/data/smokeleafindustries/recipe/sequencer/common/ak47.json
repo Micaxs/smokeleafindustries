@@ -1,0 +1,12 @@
+{
+  "type": "smokeleafindustries:sequencer",
+  "dna": { "item": "smokeleafindustries:dna_strand" },
+  "base_extract": { "item": "smokeleafindustries:base_extract" },
+  "required_reagents": [
+    { "item": "minecraft:iron_ingot" },
+    { "item": "minecraft:redstone" },
+    { "item": "minecraft:gunpowder" }
+  ],
+  "result": { "id": "smokeleafindustries:extract", "count": 1 },
+  "strain_id": "ak47"
+}
