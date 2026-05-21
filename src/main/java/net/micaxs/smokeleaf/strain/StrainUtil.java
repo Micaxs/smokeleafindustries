@@ -81,10 +81,21 @@ public final class StrainUtil {
         if (wa != null) { amp = Math.max(amp, wa.amplifier()); dur = Math.max(dur, wa.durationTicks()); }
         if (wb != null) { amp = Math.max(amp, wb.amplifier()); dur = Math.max(dur, wb.durationTicks()); }
 
-        // N/P/K (and optionally THC/CBD) derived from input extract stats.
-        // This makes mixture stats deterministic for a given pair of extract fluids.
+        // N/P/K (and THC/CBD) derived from input extract stats.
+        // Prefer STRAIN_DATA on the fluid stack (set by the liquifier for generic extracts).
+        // Fall back to static ExtractFluidStats for named extract fluids.
         var sa = (a != null) ? ExtractFluidStats.get(a.getFluid()) : ExtractFluidStats.Stats.EMPTY;
         var sb = (b != null) ? ExtractFluidStats.get(b.getFluid()) : ExtractFluidStats.Stats.EMPTY;
+
+        // If ExtractFluidStats has no data for this fluid, read from STRAIN_DATA component.
+        if (sa == ExtractFluidStats.Stats.EMPTY && hasStrain(a)) {
+            StrainData sda = getStrain(a);
+            sa = new ExtractFluidStats.Stats(sda.nitrogen(), sda.phosphorus(), sda.potassium(), sda.thc(), sda.cbd());
+        }
+        if (sb == ExtractFluidStats.Stats.EMPTY && hasStrain(b)) {
+            StrainData sdb = getStrain(b);
+            sb = new ExtractFluidStats.Stats(sdb.nitrogen(), sdb.phosphorus(), sdb.potassium(), sdb.thc(), sdb.cbd());
+        }
         int total = Math.max(1, amtA + amtB);
 
         int n = (sa.n() * amtA + sb.n() * amtB) / total;
@@ -116,20 +127,40 @@ public final class StrainUtil {
      *
      * If THC/CBD or N/P/K are unset (all zeros), we roll them once and return a new StrainData.
      * If any of those values are already present, we keep the data as-is.
+     * When a strainId is provided, stat generation is deterministic (same ID → same stats).
      */
     public static StrainData finalizeMixtureStats(StrainData base, RandomSource random) {
+        return finalizeMixtureStats(base, random, null);
+    }
+
+    public static StrainData finalizeMixtureStats(StrainData base, RandomSource random, @org.jetbrains.annotations.Nullable String strainId) {
         if (base == null || base == StrainData.EMPTY) return StrainData.EMPTY;
-        if (random == null) return base;
 
         boolean needsCannabinoids = base.thc() == 0 && base.cbd() == 0;
         boolean needsNpk = base.nitrogen() == 0 && base.phosphorus() == 0 && base.potassium() == 0;
         if (!needsCannabinoids && !needsNpk) return base;
 
-        int thc = needsCannabinoids ? random.nextInt(31) : base.thc();
-        int cbd = needsCannabinoids ? random.nextInt(31) : base.cbd();
-        int n = needsNpk ? random.nextInt(15) : base.nitrogen();
-        int p = needsNpk ? random.nextInt(15) : base.phosphorus();
-        int k = needsNpk ? random.nextInt(15) : base.potassium();
+        // If a strain ID is known, use a deterministic seed so the same strain always gets the same stats.
+        final java.util.Random deterministicRng;
+        if (strainId != null && !strainId.isBlank()) {
+            long seed = strainId.chars().asLongStream().reduce(1L, (acc, c) -> acc * 31L + c);
+            deterministicRng = new java.util.Random(seed);
+        } else if (random != null) {
+            deterministicRng = null;
+        } else {
+            return base;
+        }
+
+        java.util.function.IntSupplier rng31 = deterministicRng != null
+                ? () -> deterministicRng.nextInt(31) : () -> random.nextInt(31);
+        java.util.function.IntSupplier rng15 = deterministicRng != null
+                ? () -> deterministicRng.nextInt(15) : () -> random.nextInt(15);
+
+        int thc = needsCannabinoids ? Math.max(1, rng31.getAsInt()) : base.thc();
+        int cbd = needsCannabinoids ? Math.max(1, rng31.getAsInt()) : base.cbd();
+        int n = needsNpk ? Math.max(1, rng15.getAsInt()) : base.nitrogen();
+        int p = needsNpk ? Math.max(1, rng15.getAsInt()) : base.phosphorus();
+        int k = needsNpk ? Math.max(1, rng15.getAsInt()) : base.potassium();
 
         return new StrainData(
                 base.colorArgb(),
