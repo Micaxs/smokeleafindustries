@@ -25,6 +25,7 @@ public final class JeiStrainHelper {
                         .map(data -> {
                             ItemStack stack = new ItemStack(item);
                             stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+                            stack.set(ModDataComponentTypes.STRAIN_ID.get(), id);
                             return stack;
                         })
                         .orElse(null))

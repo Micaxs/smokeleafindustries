@@ -3,6 +3,6 @@
   "ingredient": { "tag": "smokeleafindustries:weed_extracts" },
   "output": {
     "fluid": "smokeleafindustries:unidentified_mixture_fluid",
-    "amount": 100
+    "amount": 250
   }
 }

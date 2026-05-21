@@ -357,7 +357,8 @@ public class CommonEvents {
             boolean hasWeedData =
                     src.has(ModDataComponentTypes.ACTIVE_INGREDIENT.get()) ||
                             src.has(ModDataComponentTypes.THC.get()) ||
-                            src.has(ModDataComponentTypes.CBD.get());
+                            src.has(ModDataComponentTypes.CBD.get()) ||
+                            src.has(ModDataComponentTypes.STRAIN_DATA.get());
 
             if (hasWeedData) {
                 WeedDataUtil.copyWeedComponents(src, result);

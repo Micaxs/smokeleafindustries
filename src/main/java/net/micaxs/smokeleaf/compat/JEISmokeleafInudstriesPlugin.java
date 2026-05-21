@@ -6,9 +6,11 @@ import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.compat.jei.*;
+import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.recipe.*;
 import net.micaxs.smokeleaf.screen.custom.*;
@@ -64,10 +66,12 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
                         .stream().map(RecipeHolder::value).toList();
         registration.addRecipes(GeneratorRecipeCategory.GENERATOR_RECIPE_TYPE, generatorRecipes);
 
-        List<LiquifierRecipe> liquifierRecipes =
+        List<LiquifierRecipeCategory.Display> liquifierDisplays =
                 recipeManager.getAllRecipesFor(ModRecipes.LIQUIFIER_TYPE.get())
-                        .stream().map(RecipeHolder::value).toList();
-        registration.addRecipes(LiquifierRecipeCategory.LIQUIFIER_RECIPE_TYPE, liquifierRecipes);
+                        .stream().map(RecipeHolder::value)
+                        .flatMap(r -> LiquifierRecipeCategory.buildStrainDisplays(r).stream())
+                        .collect(java.util.stream.Collectors.toList());
+        registration.addRecipes(LiquifierRecipeCategory.LIQUIFIER_RECIPE_TYPE, liquifierDisplays);
 
         List<GrinderRecipe> grinderRecipes =
                 recipeManager.getAllRecipesFor(ModRecipes.GRINDER_TYPE.get())
@@ -144,5 +148,19 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
         registration.addRecipeClickArea(MutatorScreen.class, 102, 37, 8, 18, MutatorRecipeCategory.MUTATOR_RECIPE_TYPE);
         registration.addRecipeClickArea(SequencerScreen.class, 62, 33, 37, 16, SequencerRecipeCategory.SEQUENCER_RECIPE_TYPE);
         registration.addRecipeClickArea(SynthesizerScreen.class, 130, 30, 8, 26, SynthesizerRecipeCategory.SYNTHESIZER_RECIPE_TYPE);
+    }
+
+    @Override
+    public void registerItemSubtypes(mezz.jei.api.registration.ISubtypeRegistration registration) {
+        mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter<ItemStack> strainSubtype =
+            (stack, context) -> {
+                String id = stack.get(net.micaxs.smokeleaf.component.ModDataComponentTypes.STRAIN_ID.get());
+                return id != null ? id : mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter.NONE;
+            };
+        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModItems.GENERIC_BUD.get(), strainSubtype);
+        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModItems.GENERIC_WEED.get(), strainSubtype);
+        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModItems.GENERIC_EXTRACT.get(), strainSubtype);
+        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModItems.GENERIC_SEEDS.get(), strainSubtype);
+        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModFluids.UNIDENTIFIED_MIXTURE_BUCKET.get(), strainSubtype);
     }
 }
