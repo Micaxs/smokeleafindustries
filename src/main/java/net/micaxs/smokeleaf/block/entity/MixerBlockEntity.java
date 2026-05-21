@@ -373,12 +373,13 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         FluidStack out = TANK_OUT.getFluid();
         if (!out.isEmpty() && out.getFluid() != ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) return false;
 
-        // If output already has mixture in it, only allow stacking if the resulting strain matches.
+        // If output already has mixture in it, only allow stacking if the content fields match
+        // (ignoring identified/displayName so a newly-named batch can stack with the first batch).
         if (!out.isEmpty() && out.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
             StrainData existing = StrainUtil.getStrain(out);
             // If the tank lost components somehow, treat it as non-stackable to avoid overwriting.
             if (existing == StrainData.EMPTY) return false;
-            if (!existing.equals(preview)) return false;
+            if (!strainContentMatches(existing, preview)) return false;
         }
 
         return TANK_OUT.getFluidAmount() + 500 <= TANK_OUT.getCapacity();
@@ -396,10 +397,30 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
 
         StrainData mixed = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
 
-        // Compute canonical mix key from the two parent strain names
+        // Compute canonical mix key.
+        // Prefer display names when available; fall back to STRAIN_ID so unnamed strains
+        // still get a stable, unique key that can be looked up in the registry.
         String nameA = StrainUtil.hasStrain(a) ? StrainUtil.getStrain(a).displayName() : "";
         String nameB = StrainUtil.hasStrain(b) ? StrainUtil.getStrain(b).displayName() : "";
-        String mixKey = MixedStrainSavedData.canonicalKey(nameA, nameB);
+        String strainIdA = a.get(ModDataComponentTypes.STRAIN_ID.get());
+        String strainIdB = b.get(ModDataComponentTypes.STRAIN_ID.get());
+
+        // If display names are empty, attempt registry lookup by STRAIN_ID to get the name
+        if (level instanceof ServerLevel sl) {
+            if ((nameA == null || nameA.isBlank()) && strainIdA != null && !strainIdA.isBlank()) {
+                String looked = StrainRegistrySavedData.get(sl.getServer()).lookupName(strainIdA);
+                if (looked != null && !looked.isBlank()) nameA = looked;
+            }
+            if ((nameB == null || nameB.isBlank()) && strainIdB != null && !strainIdB.isBlank()) {
+                String looked = StrainRegistrySavedData.get(sl.getServer()).lookupName(strainIdB);
+                if (looked != null && !looked.isBlank()) nameB = looked;
+            }
+        }
+
+        // Use STRAIN_IDs as key components when names are still empty
+        String keyA = (nameA != null && !nameA.isBlank()) ? nameA : (strainIdA != null ? strainIdA : "");
+        String keyB = (nameB != null && !nameB.isBlank()) ? nameB : (strainIdB != null ? strainIdB : "");
+        String mixKey = MixedStrainSavedData.canonicalKey(keyA, keyB);
 
         // Look up existing name for this combination (server-wide persistent registry)
         if (level instanceof ServerLevel sl) {
@@ -430,6 +451,20 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         }
 
         TANK_OUT.fill(out, IFluidHandler.FluidAction.EXECUTE);
+    }
+
+    /** Compare strain data ignoring identity fields (identified, displayName, typeColors). */
+    private static boolean strainContentMatches(StrainData a, StrainData b) {
+        return a.colorArgb() == b.colorArgb()
+                && a.leafColor() == b.leafColor()
+                && a.thc() == b.thc()
+                && a.cbd() == b.cbd()
+                && a.nitrogen() == b.nitrogen()
+                && a.phosphorus() == b.phosphorus()
+                && a.potassium() == b.potassium()
+                && a.effects().equals(b.effects())
+                && a.amplifier() == b.amplifier()
+                && a.durationTicks() == b.durationTicks();
     }
 
     // NBT

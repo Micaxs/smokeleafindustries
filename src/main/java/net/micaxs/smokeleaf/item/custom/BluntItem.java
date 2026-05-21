@@ -129,23 +129,46 @@ public class BluntItem extends Item {
             if (firstWeed == null) firstWeed = w;
             weed.initializeStack(w);
 
-            MobEffect eff = weed.getEffect(w);
-            if (eff == null) continue;
-
-            String id = BuiltInRegistries.MOB_EFFECT.getKey(eff).toString();
             int baseDuration = weed.getDuration(w);
-            int doubledDuration = baseDuration * 2; // per-item doubling
+            int doubledDuration = baseDuration * 2;
             int amp = weed.getEffectAmplifier();
 
-            if (merged.containsKey(id)) {
-                JsonObject existing = merged.get(id);
-                existing.addProperty("duration", existing.get("duration").getAsInt() + doubledDuration);
+            // Collect all effects from strain data first; fall back to single base effect
+            net.micaxs.smokeleaf.strain.StrainData d = net.micaxs.smokeleaf.strain.StrainUtil.getStrain(w);
+            List<net.minecraft.resources.ResourceLocation> effectIds =
+                    (d != net.micaxs.smokeleaf.strain.StrainData.EMPTY && !d.effects().isEmpty())
+                            ? d.effects()
+                            : java.util.Collections.emptyList();
+
+            if (!effectIds.isEmpty()) {
+                for (net.minecraft.resources.ResourceLocation rl : effectIds) {
+                    if (rl == null) continue;
+                    String id = rl.toString();
+                    if (merged.containsKey(id)) {
+                        JsonObject existing = merged.get(id);
+                        existing.addProperty("duration", existing.get("duration").getAsInt() + doubledDuration);
+                    } else {
+                        JsonObject obj = new JsonObject();
+                        obj.addProperty("id", id);
+                        obj.addProperty("duration", doubledDuration);
+                        obj.addProperty("amp", amp);
+                        merged.put(id, obj);
+                    }
+                }
             } else {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("id", id);
-                obj.addProperty("duration", doubledDuration);
-                obj.addProperty("amp", amp);
-                merged.put(id, obj);
+                MobEffect eff = weed.getEffect(w);
+                if (eff == null) continue;
+                String id = BuiltInRegistries.MOB_EFFECT.getKey(eff).toString();
+                if (merged.containsKey(id)) {
+                    JsonObject existing = merged.get(id);
+                    existing.addProperty("duration", existing.get("duration").getAsInt() + doubledDuration);
+                } else {
+                    JsonObject obj = new JsonObject();
+                    obj.addProperty("id", id);
+                    obj.addProperty("duration", doubledDuration);
+                    obj.addProperty("amp", amp);
+                    merged.put(id, obj);
+                }
             }
         }
 

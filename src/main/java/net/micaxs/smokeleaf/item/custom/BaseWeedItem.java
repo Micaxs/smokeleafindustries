@@ -202,6 +202,13 @@ public class BaseWeedItem extends Item {
     }
 
     public List<MobEffectInstance> buildEffectInstances(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        // If the strain data has explicit effects (from mixing), use them directly.
+        // This ensures all effects in d.effects() are applied, not just the THC-pool-selected ones.
+        if (d != StrainData.EMPTY && !d.effects().isEmpty()) {
+            return StrainEffectsUtil.buildEffectInstancesFromList(
+                    getCBD(stack), this.effectAmplifier, d.effects(), this.durationMultiplier);
+        }
         return StrainEffectsUtil.buildEffectInstances(
                 getTHC(stack), getCBD(stack), this.effectAmplifier,
                 getEffect(stack), this.durationMultiplier, ADDITIONAL_EFFECT_POOL);
