@@ -111,6 +111,13 @@ public class BaseWeedItem extends Item {
         tooltipComponents.add(getLevelsText(stack));
 
         List<MobEffectInstance> previews = buildEffectInstances(stack);
+        if (!previews.isEmpty()) {
+            MobEffect baseEff = previews.get(0).getEffect().value();
+            tooltipComponents.add(
+                    Component.translatable(baseEff.getDescriptionId()).withStyle(ChatFormatting.GREEN)
+            );
+        }
+
         if (previews.size() > 1) {
             MutableComponent joined = Component.empty();
             for (int i = 1; i < previews.size(); i++) {
