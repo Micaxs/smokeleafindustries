@@ -185,6 +185,13 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
                 level.registryAccess()
         );
 
+        // Apply strain lineage so the component-equality check in canInsertItemIntoOutputSlot
+        // matches items already in the output slot that were produced from the same strain.
+        var strainData = input.get(ModDataComponentTypes.STRAIN_DATA.get());
+        if (strainData != null) assembled.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+        var strainId = input.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (strainId != null) assembled.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+
         int bonus = 0;
         if (input.getItem() instanceof BaseBudItem) {
             if (Boolean.TRUE.equals(input.get(ModDataComponentTypes.DRY))) {
