@@ -1,31 +1,6 @@
 {
   "values": [
     "smokeleafindustries:seeds",
-    "smokeleafindustries:hemp_seeds",
-    "smokeleafindustries:white_widow_seeds",
-    "smokeleafindustries:sour_diesel_seeds",
-    "smokeleafindustries:lemon_haze_seeds",
-    "smokeleafindustries:bubble_kush_seeds",
-    "smokeleafindustries:blue_ice_seeds",
-    "smokeleafindustries:bubblegum_seeds",
-    "smokeleafindustries:purple_haze_seeds",
-    "smokeleafindustries:og_kush_seeds",
-    "smokeleafindustries:jack_herer_seeds",
-    "smokeleafindustries:gary_peyton_seeds",
-    "smokeleafindustries:amnesia_haze_seeds",
-    "smokeleafindustries:ak47_seeds",
-    "smokeleafindustries:ghost_train_seeds",
-    "smokeleafindustries:grape_ape_seeds",
-    "smokeleafindustries:cotton_candy_seeds",
-    "smokeleafindustries:banana_kush_seeds",
-    "smokeleafindustries:carbon_fiber_seeds",
-    "smokeleafindustries:birthday_cake_seeds",
-    "smokeleafindustries:blue_cookies_seeds",
-    "smokeleafindustries:afghani_seeds",
-    "smokeleafindustries:moonbow_seeds",
-    "smokeleafindustries:lava_cake_seeds",
-    "smokeleafindustries:jelly_rancher_seeds",
-    "smokeleafindustries:strawberry_shortcake_seeds",
-    "smokeleafindustries:pink_kush_seeds"
+    "smokeleafindustries:hemp_seeds"
   ]
 }
