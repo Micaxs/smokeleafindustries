@@ -3,6 +3,7 @@ package net.micaxs.smokeleaf.item.custom;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -66,10 +67,19 @@ public class BaseBudItem extends Item {
         super.appendHoverText(stack, context, tooltip, flag);
         StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
         if (d == null) return;
-        tooltip.add(Component.literal("THC: " + d.thc() + "%  CBD: " + d.cbd() + "%"));
+        tooltip.add(getLevelsText(d));
         if (!d.effects().isEmpty()) {
             tooltip.add(Component.literal("Effects: " + d.effects().size()));
         }
+    }
+
+    private Component getLevelsText(StrainData d) {
+        return Component.literal("Levels: ")
+                .append(Component.literal(d.thc() + "%").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(" THC").withStyle(ChatFormatting.DARK_GRAY))
+                .append(Component.literal(" & ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(d.cbd() + "%").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(" CBD").withStyle(ChatFormatting.DARK_GRAY));
     }
 
 

@@ -5,7 +5,6 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainEffectsUtil;
 import net.micaxs.smokeleaf.strain.StrainUtil;
-import net.micaxs.smokeleaf.utils.WeedEffectHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -107,25 +106,12 @@ public class BaseWeedItem extends Item {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 
         StrainData d = StrainUtil.getStrain(stack);
-        if (d != StrainData.EMPTY) {
-            tooltipComponents.add(Component.literal("THC: " + d.thc() + "%  CBD: " + d.cbd() + "%"));
-        }
+        if (d == StrainData.EMPTY) return;
 
-        List<MobEffectInstance> previews = buildEffectInstances(stack);
-        if (previews.isEmpty()) {
-            return;
-        }
-
-        MobEffectInstance first = previews.get(0);
-        MobEffect eff = first.getEffect().value();
-        int dur = first.getDuration();
-        tooltipComponents.add(WeedEffectHelper.getEffectTooltip(eff, dur, true));
-
-        tooltipComponents.add(Component.empty());
         tooltipComponents.add(getLevelsText(stack));
 
+        List<MobEffectInstance> previews = buildEffectInstances(stack);
         if (previews.size() > 1) {
-            // use MutableComponent so .append(...) is available
             MutableComponent joined = Component.empty();
             for (int i = 1; i < previews.size(); i++) {
                 MobEffect extra = previews.get(i).getEffect().value();
@@ -139,10 +125,6 @@ public class BaseWeedItem extends Item {
                     Component.translatable("tooltip.smokeleafindustries.extra_effects", joined)
                             .withStyle(ChatFormatting.GRAY)
             );
-        }
-
-        if (this.variableDuration) {
-            tooltipComponents.add(Component.translatable("tooltip.smokeleafindustries.base_weed").withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 
