@@ -223,8 +223,13 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
                 );
             }
 
-            // Propagate strain ID from extract to fluid for lineage tracking
+            // Propagate strain ID from extract to fluid for lineage tracking.
+            // If the extract has no explicit STRAIN_ID, derive a deterministic one from content
+            // so two extracts with identical stats always share the same strain lineage.
             var strainId = in.get(ModDataComponentTypes.STRAIN_ID.get());
+            if (strainId == null && base != StrainData.EMPTY) {
+                strainId = StrainUtil.strainContentId(base);
+            }
             if (strainId != null) out.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
 
             // Roll THC/CBD + N/P/K once, only if unset — deterministic when strain ID is known.

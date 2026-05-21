@@ -454,9 +454,27 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                     // Fallback: mixer-produced buckets carry MIX_KEY which equals STRAIN_ID.
                     bucketStrainId = bucketStack.get(ModDataComponentTypes.MIX_KEY.get());
                 }
-                this.mixtureStrainId = (bucketStrainId != null && !bucketStrainId.isBlank())
-                        ? bucketStrainId
-                        : java.util.UUID.randomUUID().toString();
+                if (bucketStrainId == null || bucketStrainId.isBlank()) {
+                    // Last resort: derive a deterministic ID from strain content so the same stats
+                    // always share the same lineage — even without an explicit STRAIN_ID.
+                    bucketStrainId = StrainUtil.strainContentId(inStrain);
+                }
+                this.mixtureStrainId = bucketStrainId;
+
+                // Immediately sync the registered name (if any) so seeds come out named.
+                if (this.level instanceof net.minecraft.server.level.ServerLevel sl) {
+                    String registeredName = StrainRegistrySavedData.get(sl.getServer()).lookupName(this.mixtureStrainId);
+                    if (registeredName != null && !registeredName.isBlank()
+                            && !registeredName.equals(this.mixtureStrain.displayName())) {
+                        this.mixtureStrain = new StrainData(
+                                this.mixtureStrain.colorArgb(), this.mixtureStrain.leafColor(),
+                                this.mixtureStrain.thc(), this.mixtureStrain.cbd(),
+                                this.mixtureStrain.nitrogen(), this.mixtureStrain.phosphorus(), this.mixtureStrain.potassium(),
+                                this.mixtureStrain.effects(), this.mixtureStrain.amplifier(), this.mixtureStrain.durationTicks(),
+                                true, registeredName, this.mixtureStrain.typeColors()
+                        );
+                    }
+                }
             }
 
             // Build the stack we try to insert, ensuring STRAIN_DATA is present so NeoForge treats it as the same stack.

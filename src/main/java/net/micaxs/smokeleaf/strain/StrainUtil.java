@@ -11,11 +11,24 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.UUID;
 
 public final class StrainUtil {
     private StrainUtil() {}
 
     public static final int DEFAULT_UNIDENTIFIED_COLOR = 0xFFAAAAAA;
+
+    public static final int MAX_EFFECTS = 4;
+
+    /**
+     * Returns a deterministic UUID string derived from the content of a StrainData.
+     * Two StrainData with identical thc/cbd/color/effects will always produce the same ID.
+     * Used when a strain item has no explicit STRAIN_ID (e.g. plain generic extracts from farmland).
+     */
+    public static String strainContentId(StrainData sd) {
+        String key = sd.thc() + ":" + sd.cbd() + ":" + sd.colorArgb() + ":" + sd.effects().toString();
+        return UUID.nameUUIDFromBytes(key.getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+    }
 
     public static boolean hasStrain(ItemStack stack) {
         return stack != null && !stack.isEmpty() && stack.has(ModDataComponentTypes.STRAIN_DATA.get());
@@ -68,13 +81,18 @@ public final class StrainUtil {
         int mixedColor = mixColors(cA, amtA, cB, amtB);
         int mixedLeafColor = mixColors(leafA, amtA, leafB, amtB);
 
-        // Effects union
+        // Effects union: read from WeedFluidStackUtil AND STRAIN_DATA (generic extract fluids store effects in STRAIN_DATA)
         var effects = new LinkedHashSet<ResourceLocation>();
         var wa = (a != null) ? WeedFluidStackUtil.getWeedData(a) : null;
         var wb = (b != null) ? WeedFluidStackUtil.getWeedData(b) : null;
         if (wa != null) effects.addAll(wa.effects());
         if (wb != null) effects.addAll(wb.effects());
-        List<ResourceLocation> effList = new ArrayList<>(effects);
+        // Also pull effects from STRAIN_DATA on each fluid (for generic extract fluids)
+        if (a != null && hasStrain(a)) effects.addAll(getStrain(a).effects());
+        if (b != null && hasStrain(b)) effects.addAll(getStrain(b).effects());
+
+        // Hard cap at MAX_EFFECTS
+        List<ResourceLocation> effList = effects.stream().limit(MAX_EFFECTS).collect(java.util.stream.Collectors.toList());
 
         int amp = 0;
         int dur = 0;
