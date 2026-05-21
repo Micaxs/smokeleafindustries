@@ -284,8 +284,9 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                 StrainData base = this.mixtureStrain != StrainData.EMPTY ? this.mixtureStrain : StrainUtil.getStrain(mix);
 
                 // Legacy support: older mixtures may have only color/effects. If stats are missing, roll ONCE and persist.
+                // Using mixtureStrainId as seed makes this deterministic — same strain always gets same stats.
                 if (this.level != null) {
-                    StrainData finalized = StrainUtil.finalizeMixtureStats(base, this.level.random);
+                    StrainData finalized = StrainUtil.finalizeMixtureStats(base, this.level.random, this.mixtureStrainId);
                     if (finalized != base && finalized != StrainData.EMPTY) {
                         base = finalized;
                         this.mixtureStrain = finalized;
