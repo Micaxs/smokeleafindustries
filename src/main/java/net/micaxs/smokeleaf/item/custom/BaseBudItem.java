@@ -2,12 +2,16 @@ package net.micaxs.smokeleaf.item.custom;
 
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainEffectsUtil;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -69,7 +73,30 @@ public class BaseBudItem extends Item {
         if (d == null) return;
         tooltip.add(getLevelsText(d));
         if (!d.effects().isEmpty()) {
-            tooltip.add(Component.literal("Effects: " + d.effects().size()));
+            // Show first effect as "Effect: ..." and additional as separate lines
+            List<MobEffectInstance> previews = StrainEffectsUtil.buildEffectInstancesFromList(
+                    d.cbd(), 0, d.effects(), 1.0f);
+            if (!previews.isEmpty()) {
+                MobEffectInstance first = previews.get(0);
+                MobEffect baseEff = first.getEffect().value();
+                int seconds = first.getDuration() / 20;
+                tooltip.add(
+                        Component.literal("Effect: ").withStyle(ChatFormatting.GRAY)
+                                .append(Component.translatable(baseEff.getDescriptionId())
+                                        .append(Component.literal(" (" + seconds + "s)").withStyle(ChatFormatting.GRAY))
+                                        .withStyle(ChatFormatting.GREEN))
+                );
+                for (int i = 1; i < previews.size(); i++) {
+                    MobEffect extra = previews.get(i).getEffect().value();
+                    int secs = previews.get(i).getDuration() / 20;
+                    tooltip.add(
+                            Component.literal("       ").withStyle(ChatFormatting.GRAY)
+                                    .append(Component.translatable(extra.getDescriptionId())
+                                            .append(Component.literal(" (" + secs + "s)").withStyle(ChatFormatting.GRAY))
+                                            .withStyle(ChatFormatting.WHITE))
+                    );
+                }
+            }
         }
     }
 

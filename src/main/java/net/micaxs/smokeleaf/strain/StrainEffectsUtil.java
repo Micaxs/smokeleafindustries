@@ -130,6 +130,30 @@ public final class StrainEffectsUtil {
         return out;
     }
 
+    /**
+     * Build MobEffectInstances directly from a list of effect ResourceLocations stored in StrainData.
+     * Used when the strain has explicit effects from mixing (ignores THC-based pool selection).
+     * All effects share the same CBD-derived duration and amplifier.
+     */
+    public static List<MobEffectInstance> buildEffectInstancesFromList(
+            int cbd, int amplifier,
+            List<ResourceLocation> effectIds,
+            float durationMult) {
+
+        int durationTicks = computeDurationTicks(cbd, durationMult);
+        List<MobEffectInstance> out = new ArrayList<>();
+        for (ResourceLocation rl : effectIds) {
+            if (rl == null) continue;
+            MobEffect eff = BuiltInRegistries.MOB_EFFECT.get(rl);
+            if (eff == null) continue;
+            Holder<MobEffect> holder = toHolder(eff);
+            if (holder != null) {
+                out.add(new MobEffectInstance(holder, durationTicks, amplifier, false, true, true));
+            }
+        }
+        return out;
+    }
+
     // -----------------------------------------------------------------------
     // Internal helpers
     // -----------------------------------------------------------------------

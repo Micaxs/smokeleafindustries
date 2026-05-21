@@ -7,7 +7,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -109,9 +108,8 @@ public class DabRigItem extends Item {
 
 
     private boolean isExtract(ItemStack stack) {
-        if (stack.isEmpty() || !(stack.getItem() instanceof BaseWeedItem)) return false;
-        ResourceLocation key = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        return key != null && key.getPath().endsWith("_extract");
+        if (stack.isEmpty()) return false;
+        return stack.is(ModTags.WEED_EXTRACTS);
     }
 
 
