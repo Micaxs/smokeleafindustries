@@ -1,6 +1,0 @@
-{
-  "type": "smokeleafindustries:manual_grinder",
-  "ingredient": { "item": "smokeleafindustries:grape_ape_bud" },
-  "result": { "id": "smokeleafindustries:grape_ape_weed", "count": 1 },
-  "grind_time": 60
-}

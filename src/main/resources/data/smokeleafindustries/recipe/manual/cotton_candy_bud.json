@@ -1,6 +1,0 @@
-{
-  "type": "smokeleafindustries:manual_grinder",
-  "ingredient": { "item": "smokeleafindustries:cotton_candy_bud" },
-  "result": { "id": "smokeleafindustries:cotton_candy_weed", "count": 1 },
-  "grind_time": 60
-}

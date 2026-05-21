@@ -1,6 +1,0 @@
-{
-  "type": "smokeleafindustries:manual_grinder",
-  "ingredient": { "item": "smokeleafindustries:lemon_haze_bud" },
-  "result": { "id": "smokeleafindustries:lemon_haze_weed", "count": 1 },
-  "grind_time": 60
-}

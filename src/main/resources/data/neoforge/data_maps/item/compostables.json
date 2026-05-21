@@ -1,47 +1,5 @@
 {
   "values": {
-    "smokeleafindustries:white_widow_bud": {
-      "chance": 0.5
-    },
-    "smokeleafindustries:white_widow_seeds": {
-      "chance": 0.25
-    },
-    "smokeleafindustries:bubble_kush_bud": {
-      "chance": 0.5
-    },
-    "smokeleafindustries:bubble_kush_seeds": {
-      "chance": 0.25
-    },
-    "smokeleafindustries:lemon_haze_bud": {
-      "chance": 0.5
-    },
-    "smokeleafindustries:lemon_haze_seeds": {
-      "chance": 0.25
-    },
-    "smokeleafindustries:sour_diesel_bud": {
-      "chance": 0.5
-    },
-    "smokeleafindustries:sour_diesel_seeds": {
-      "chance": 0.25
-    },
-    "smokeleafindustries:blue_ice_bud": {
-      "chance": 0.5
-    },
-    "smokeleafindustries:blue_ice_seeds": {
-      "chance": 0.25
-    },
-    "smokeleafindustries:bubblegum_bud": {
-      "chance": 0.5
-    },
-    "smokeleafindustries:bubblegum_seeds": {
-      "chance": 0.25
-    },
-    "smokeleafindustries:purple_haze_bud": {
-      "chance": 0.5
-    },
-    "smokeleafindustries:purple_haze_seeds": {
-      "chance": 0.25
-    },
     "smokeleafindustries:hemp_leaf": {
       "chance": 0.4
     }

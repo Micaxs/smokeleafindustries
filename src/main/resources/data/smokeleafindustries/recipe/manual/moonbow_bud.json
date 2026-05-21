@@ -1,6 +1,0 @@
-{
-  "type": "smokeleafindustries:manual_grinder",
-  "ingredient": { "item": "smokeleafindustries:moonbow_bud" },
-  "result": { "id": "smokeleafindustries:moonbow_weed", "count": 1 },
-  "grind_time": 60
-}

@@ -12,6 +12,7 @@ import net.micaxs.smokeleaf.item.custom.ManualGrinderItem;
 import net.micaxs.smokeleaf.item.custom.UnidentifiedMixtureBucketItem;
 import net.micaxs.smokeleaf.strain.MixedStrainSavedData;
 import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainRegistry;
 import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.utils.ModTags;
@@ -39,6 +40,7 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
@@ -434,31 +436,31 @@ public class CommonEvents {
             );
 
             addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.WHITE_WIDOW_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BUBBLE_KUSH_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.LEMON_HAZE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.SOUR_DIESEL_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BLUE_ICE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BUBBLEGUM_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.PURPLE_HAZE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.OG_KUSH_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.JACK_HERER_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.GARY_PEYTON_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.AMNESIA_HAZE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.AK47_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.GHOST_TRAIN_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.GRAPE_APE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.COTTON_CANDY_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BANANA_KUSH_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.CARBON_FIBER_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BIRTHDAY_CAKE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BLUE_COOKIES_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.AFGHANI_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.MOONBOW_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.LAVA_CAKE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.JELLY_RANCHER_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.STRAWBERRY_SHORTCAKE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.PINK_KUSH_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f)
+                    (pTrader, pRandom) -> weedOffer(4, "white_widow"),
+                    (pTrader, pRandom) -> weedOffer(4, "bubble_kush"),
+                    (pTrader, pRandom) -> weedOffer(5, "lemon_haze"),
+                    (pTrader, pRandom) -> weedOffer(4, "sour_diesel"),
+                    (pTrader, pRandom) -> weedOffer(4, "blue_ice"),
+                    (pTrader, pRandom) -> weedOffer(5, "bubblegum"),
+                    (pTrader, pRandom) -> weedOffer(6, "purple_haze"),
+                    (pTrader, pRandom) -> weedOffer(3, "og_kush"),
+                    (pTrader, pRandom) -> weedOffer(4, "jack_herer"),
+                    (pTrader, pRandom) -> weedOffer(5, "gary_peyton"),
+                    (pTrader, pRandom) -> weedOffer(6, "amnesia_haze"),
+                    (pTrader, pRandom) -> weedOffer(5, "ak47"),
+                    (pTrader, pRandom) -> weedOffer(4, "ghost_train"),
+                    (pTrader, pRandom) -> weedOffer(6, "grape_ape"),
+                    (pTrader, pRandom) -> weedOffer(6, "cotton_candy"),
+                    (pTrader, pRandom) -> weedOffer(5, "banana_kush"),
+                    (pTrader, pRandom) -> weedOffer(4, "carbon_fiber"),
+                    (pTrader, pRandom) -> weedOffer(6, "birthday_cake"),
+                    (pTrader, pRandom) -> weedOffer(5, "blue_cookies"),
+                    (pTrader, pRandom) -> weedOffer(6, "afghani"),
+                    (pTrader, pRandom) -> weedOffer(4, "moonbow"),
+                    (pTrader, pRandom) -> weedOffer(6, "lava_cake"),
+                    (pTrader, pRandom) -> weedOffer(5, "jelly_rancher"),
+                    (pTrader, pRandom) -> weedOffer(6, "strawberry_shortcake"),
+                    (pTrader, pRandom) -> weedOffer(5, "pink_kush")
             );
             addRandomTrades(trades, 2, 1,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.TOBACCO, 10), new ItemStack(Items.EMERALD, 1), 6, 5, 0.01f),
@@ -500,31 +502,31 @@ public class CommonEvents {
             );
 
             addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.WHITE_WIDOW_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BUBBLE_KUSH_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.LEMON_HAZE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.SOUR_DIESEL_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BLUE_ICE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BUBBLEGUM_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.PURPLE_HAZE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 3), new ItemStack(ModItems.OG_KUSH_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.JACK_HERER_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.GARY_PEYTON_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.AMNESIA_HAZE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.AK47_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.GHOST_TRAIN_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.GRAPE_APE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.COTTON_CANDY_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BANANA_KUSH_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.CARBON_FIBER_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.BIRTHDAY_CAKE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BLUE_COOKIES_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.AFGHANI_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.MOONBOW_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.LAVA_CAKE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.JELLY_RANCHER_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.STRAWBERRY_SHORTCAKE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.PINK_KUSH_WEED.get(), 1), 6, 5, 0.01f)
+                    (pTrader, pRandom) -> weedOffer(4, "white_widow"),
+                    (pTrader, pRandom) -> weedOffer(4, "bubble_kush"),
+                    (pTrader, pRandom) -> weedOffer(5, "lemon_haze"),
+                    (pTrader, pRandom) -> weedOffer(4, "sour_diesel"),
+                    (pTrader, pRandom) -> weedOffer(4, "blue_ice"),
+                    (pTrader, pRandom) -> weedOffer(5, "bubblegum"),
+                    (pTrader, pRandom) -> weedOffer(6, "purple_haze"),
+                    (pTrader, pRandom) -> weedOffer(3, "og_kush"),
+                    (pTrader, pRandom) -> weedOffer(4, "jack_herer"),
+                    (pTrader, pRandom) -> weedOffer(5, "gary_peyton"),
+                    (pTrader, pRandom) -> weedOffer(6, "amnesia_haze"),
+                    (pTrader, pRandom) -> weedOffer(5, "ak47"),
+                    (pTrader, pRandom) -> weedOffer(4, "ghost_train"),
+                    (pTrader, pRandom) -> weedOffer(6, "grape_ape"),
+                    (pTrader, pRandom) -> weedOffer(6, "cotton_candy"),
+                    (pTrader, pRandom) -> weedOffer(5, "banana_kush"),
+                    (pTrader, pRandom) -> weedOffer(4, "carbon_fiber"),
+                    (pTrader, pRandom) -> weedOffer(6, "birthday_cake"),
+                    (pTrader, pRandom) -> weedOffer(5, "blue_cookies"),
+                    (pTrader, pRandom) -> weedOffer(6, "afghani"),
+                    (pTrader, pRandom) -> weedOffer(4, "moonbow"),
+                    (pTrader, pRandom) -> weedOffer(6, "lava_cake"),
+                    (pTrader, pRandom) -> weedOffer(5, "jelly_rancher"),
+                    (pTrader, pRandom) -> weedOffer(6, "strawberry_shortcake"),
+                    (pTrader, pRandom) -> weedOffer(5, "pink_kush")
             );
             addRandomTrades(trades, 2, 1,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.WHITE_WIDOW_GUMMY.get(), 1), 4, 5, 0.01f),
@@ -579,6 +581,19 @@ public class CommonEvents {
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 16), new ItemStack(ModItems.HEMP_HAMMER.get(), 1), 1, 20, 0.01f)
             );
         }
+    }
+
+    private static ItemStack strainedStack(Item item, String strainId) {
+        ItemStack stack = new ItemStack(item);
+        StrainRegistry.get(strainId).ifPresent(data -> {
+            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+            stack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+        });
+        return stack;
+    }
+
+    private static MerchantOffer weedOffer(int emeraldCost, String strainId) {
+        return new MerchantOffer(new ItemCost(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_WEED.get(), strainId), 6, 5, 0.01f);
     }
 
     private static void addRandomTrades(Int2ObjectMap<List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing>> trades, int level, int pick, net.minecraft.world.entity.npc.VillagerTrades.ItemListing... candidates) {

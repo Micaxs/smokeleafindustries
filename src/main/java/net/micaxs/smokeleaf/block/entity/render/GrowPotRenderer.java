@@ -25,7 +25,7 @@ import java.util.List;
 public class GrowPotRenderer implements BlockEntityRenderer<GrowPotBlockEntity> {
     private final BlockRenderDispatcher dispatcher;
 
-    /** Fixed base-layer tint color (same as the in-world BlockColor handler for tintIndex 0). */
+    /** Fallback base-layer tint if strain has no leaf color. */
     private static final int BASE_GREEN = 0xFF99D335;
 
     private static final float XZ_SCALE = 12f / 16f;
@@ -72,13 +72,14 @@ public class GrowPotRenderer implements BlockEntityRenderer<GrowPotBlockEntity> 
         if (isCustom) {
             // renderSingleBlock only queries BlockColors at tintIndex=0 and applies that
             // single color to every quad. For the two-layer unidentified crop model we need
-            // tintIndex=0 → base green and tintIndex=1 → strain color, so we render the
+            // tintIndex=0 → leaf color and tintIndex=1 → strain color, so we render the
             // quads ourselves with per-quad tinting.
-            renderTintedModel(cropBottom, customStrain.colorArgb(), pose.last(), buffers, packedLight, packedOverlay);
+            int leafColor = customStrain.leafColor();
+            renderTintedModel(cropBottom, leafColor, customStrain.colorArgb(), pose.last(), buffers, packedLight, packedOverlay);
             BlockState cropTop = be.getTopCropStateForRender();
             if (cropTop != null) {
                 pose.translate(0.0D, 1.0D, 0.0D);
-                renderTintedModel(cropTop, customStrain.colorArgb(), pose.last(), buffers, packedLight, packedOverlay);
+                renderTintedModel(cropTop, leafColor, customStrain.colorArgb(), pose.last(), buffers, packedLight, packedOverlay);
             }
         } else {
             dispatcher.renderSingleBlock(cropBottom, pose, buffers, packedLight, OverlayTexture.NO_OVERLAY);
@@ -94,11 +95,11 @@ public class GrowPotRenderer implements BlockEntityRenderer<GrowPotBlockEntity> 
 
     /**
      * Renders all quads of {@code state}'s model with per-quad tinting:
-     * tintIndex 0 → base green, tintIndex 1 → {@code maskColor} (the strain color).
+     * tintIndex 0 → {@code leafColor} (the strain leaf color), tintIndex 1 → {@code maskColor} (the strain accent color).
      * This bypasses {@code renderSingleBlock}, which only supports a single tint color
      * derived from tintIndex 0.
      */
-    private void renderTintedModel(BlockState state, int maskColor,
+    private void renderTintedModel(BlockState state, int leafColor, int maskColor,
             PoseStack.Pose pose, MultiBufferSource buffers, int packedLight, int packedOverlay) {
         BakedModel model = dispatcher.getBlockModel(state);
         RandomSource random = RandomSource.create();
@@ -107,20 +108,20 @@ public class GrowPotRenderer implements BlockEntityRenderer<GrowPotBlockEntity> 
             VertexConsumer consumer = buffers.getBuffer(renderType);
             // null direction = unculled quads (cross models place all faces here)
             renderQuadList(model.getQuads(state, null, random, ModelData.EMPTY, renderType),
-                    consumer, pose, maskColor, packedLight, packedOverlay);
+                    consumer, pose, leafColor, maskColor, packedLight, packedOverlay);
             for (Direction dir : Direction.values()) {
                 renderQuadList(model.getQuads(state, dir, random, ModelData.EMPTY, renderType),
-                        consumer, pose, maskColor, packedLight, packedOverlay);
+                        consumer, pose, leafColor, maskColor, packedLight, packedOverlay);
             }
         }
     }
 
     private static void renderQuadList(List<BakedQuad> quads, VertexConsumer consumer,
-            PoseStack.Pose pose, int maskColor, int packedLight, int packedOverlay) {
+            PoseStack.Pose pose, int leafColor, int maskColor, int packedLight, int packedOverlay) {
         for (BakedQuad quad : quads) {
             int color;
             if (quad.isTinted()) {
-                color = (quad.getTintIndex() == 1) ? maskColor : BASE_GREEN;
+                color = (quad.getTintIndex() == 1) ? maskColor : leafColor;
             } else {
                 color = 0xFFFFFFFF;
             }

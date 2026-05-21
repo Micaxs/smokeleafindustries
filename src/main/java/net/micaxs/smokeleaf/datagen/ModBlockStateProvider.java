@@ -81,31 +81,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
         makeUnidentifiedWeedCrop((UnidentifiedWeedCropBlock) ModBlocks.UNIDENTIFIED_WEED_CROP.get(), "unidentified_stage_", "unidentified/unidentified_stage_");
 
         makeWeedCrop((BaseWeedCropBlock) ModBlocks.HEMP_CROP.get(), "hemp_stage_", "hemp/hemp_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.WHITE_WIDOW_CROP.get(), "white_widow_stage_", "white_widow/white_widow_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.BUBBLE_KUSH_CROP.get(), "bubble_kush_stage_", "bubble_kush/bubble_kush_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.LEMON_HAZE_CROP.get(), "lemon_haze_stage_", "lemon_haze/lemon_haze_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.SOUR_DIESEL_CROP.get(), "sour_diesel_stage_", "sour_diesel/sour_diesel_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.BLUE_ICE_CROP.get(), "blue_ice_stage_", "blue_ice/blue_ice_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.BUBBLEGUM_CROP.get(), "bubblegum_stage_", "bubblegum/bubblegum_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.PURPLE_HAZE_CROP.get(), "purple_haze_stage_", "purple_haze/purple_haze_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.OG_KUSH_CROP.get(), "og_kush_stage_", "og_kush/og_kush_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.JACK_HERER_CROP.get(), "jack_herer_stage_", "jack_herer/jack_herer_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.GARY_PEYTON_CROP.get(), "gary_peyton_stage_", "gary_peyton/gary_peyton_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.AMNESIA_HAZE_CROP.get(), "amnesia_haze_stage_", "amnesia_haze/amnesia_haze_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.AK47_CROP.get(), "ak47_stage_", "ak47/ak47_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.GHOST_TRAIN_CROP.get(), "ghost_train_stage_", "ghost_train/ghost_train_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.GRAPE_APE_CROP.get(), "grape_ape_stage_", "grape_ape/grape_ape_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.COTTON_CANDY_CROP.get(), "cotton_candy_stage_", "cotton_candy/cotton_candy_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.BANANA_KUSH_CROP.get(), "banana_kush_stage_", "banana_kush/banana_kush_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.CARBON_FIBER_CROP.get(), "carbon_fiber_stage_", "carbon_fiber/carbon_fiber_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.BIRTHDAY_CAKE_CROP.get(), "birthday_cake_stage_", "birthday_cake/birthday_cake_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.BLUE_COOKIES_CROP.get(), "blue_cookies_stage_", "blue_cookies/blue_cookies_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.AFGHANI_CROP.get(), "afghani_stage_", "afghani/afghani_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.MOONBOW_CROP.get(), "moonbow_stage_", "moonbow/moonbow_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.LAVA_CAKE_CROP.get(), "lava_cake_stage_", "lava_cake/lava_cake_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.JELLY_RANCHER_CROP.get(), "jelly_rancher_stage_", "jelly_rancher/jelly_rancher_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.STRAWBERRY_SHORTCAKE_CROP.get(), "strawberry_shortcake_stage_", "strawberry_shortcake/strawberry_shortcake_stage_");
-        makeWeedCrop((BaseWeedCropBlock) ModBlocks.PINK_KUSH_CROP.get(), "pink_kush_stage_", "pink_kush/pink_kush_stage_");
 
         makeTobaccoCrop((TobaccoCropBlock) ModBlocks.TOBACCO_CROP.get(), "tobacco_stage_", "tobacco/tobacco_stage_");
 

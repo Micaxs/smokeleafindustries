@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "smokeleafindustries:item/unidentified_seeds_base",
-    "layer1": "smokeleafindustries:item/unidentified_seeds_top"
-  }
-}
