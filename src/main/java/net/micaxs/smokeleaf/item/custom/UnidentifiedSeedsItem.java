@@ -5,7 +5,6 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -39,8 +38,6 @@ public class UnidentifiedSeedsItem extends ItemNameBlockItem {
         super.appendHoverText(stack, context, tooltip, flag);
         StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
         if (d == null) return;
-        MutableComponent stats = Component.literal("THC: " + d.thc() + "%  CBD: " + d.cbd() + "%");
-        tooltip.add(stats);
         if (!d.effects().isEmpty()) {
             tooltip.add(Component.literal("Effects: " + d.effects().size()));
         }
