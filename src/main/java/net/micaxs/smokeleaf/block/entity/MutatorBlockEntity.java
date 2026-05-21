@@ -64,7 +64,9 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
      * We persist this separately because FluidTank serialization may drop custom FluidStack components.
      */
     private StrainData mixtureStrain = StrainData.EMPTY;
-
+    /** Stable ID for the current mixture batch — assigned once when the mixture is first loaded and reused
+     *  for every seed produced from that batch so all seeds share the same strain lineage. */
+    private String mixtureStrainId = null;
 
 
     // Inventory Capability
@@ -298,12 +300,27 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
 
                 output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);
 
-                // Assign a new UUID as the strain ID and register it in the server-wide registry.
-                String strainId = java.util.UUID.randomUUID().toString();
+                // Use the stable mixture strain ID so all seeds from this batch share lineage.
+                if (this.mixtureStrainId == null) {
+                    this.mixtureStrainId = java.util.UUID.randomUUID().toString();
+                }
+                String strainId = this.mixtureStrainId;
                 output.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
                 if (this.level instanceof net.minecraft.server.level.ServerLevel sl) {
-                    String displayName = base.identified() && !base.displayName().isBlank() ? base.displayName() : "";
-                    StrainRegistrySavedData.get(sl.getServer()).register(strainId, displayName, "");
+                    StrainRegistrySavedData registry = StrainRegistrySavedData.get(sl.getServer());
+                    String existingName = registry.lookupName(strainId);
+                    // Keep any name already registered; only register fresh if unknown.
+                    if (existingName == null || existingName.isBlank()) {
+                        String displayName = base.identified() && !base.displayName().isBlank() ? base.displayName() : "";
+                        registry.register(strainId, displayName, "");
+                    } else if (!existingName.equals(base.displayName())) {
+                        // Sync the name from the registry onto the output so it matches what was named earlier.
+                        base = new StrainData(base.colorArgb(), base.leafColor(), base.thc(), base.cbd(),
+                                base.nitrogen(), base.phosphorus(), base.potassium(),
+                                base.effects(), base.amplifier(), base.durationTicks(),
+                                true, existingName, base.typeColors());
+                        output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);
+                    }
                 }
             }
         }
@@ -317,6 +334,7 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         // If we drained the mixture, clear persisted strain once tank empties.
         if (FLUID_TANK.isEmpty()) {
             mixtureStrain = StrainData.EMPTY;
+            mixtureStrainId = null;
         }
 
         // Insert output
@@ -429,6 +447,11 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
             // Adopt strain if we don't have one yet.
             if (this.mixtureStrain == StrainData.EMPTY && inStrain != StrainData.EMPTY) {
                 this.mixtureStrain = inStrain;
+                // Adopt or generate the stable strain ID for this mixture batch.
+                String bucketStrainId = bucketStack.get(ModDataComponentTypes.STRAIN_ID.get());
+                this.mixtureStrainId = (bucketStrainId != null && !bucketStrainId.isBlank())
+                        ? bucketStrainId
+                        : java.util.UUID.randomUUID().toString();
             }
 
             // Build the stack we try to insert, ensuring STRAIN_DATA is present so NeoForge treats it as the same stack.
@@ -516,6 +539,9 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                     .result()
                     .ifPresent(t -> tag.put("mutator.mixture_strain", t));
         }
+        if (mixtureStrainId != null) {
+            tag.putString("mutator.mixture_strain_id", mixtureStrainId);
+        }
 
         super.saveAdditional(tag, registries);
     }
@@ -533,10 +559,14 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         }
 
         mixtureStrain = StrainData.EMPTY;
+        mixtureStrainId = null;
         if (tag.contains("mutator.mixture_strain")) {
             StrainData.CODEC.parse(NbtOps.INSTANCE, tag.get("mutator.mixture_strain"))
                     .result()
                     .ifPresent(d -> mixtureStrain = d);
+        }
+        if (tag.contains("mutator.mixture_strain_id")) {
+            mixtureStrainId = tag.getString("mutator.mixture_strain_id");
         }
     }
 
