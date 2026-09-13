@@ -6,18 +6,23 @@ import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 import net.micaxs.smokeleaf.recipe.LiquifierRecipe;
+import net.micaxs.smokeleaf.recipe.StrainCopyShapedRecipe;
+import net.micaxs.smokeleaf.recipe.StrainCopyShapelessRecipe;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -61,11 +66,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy(getHasName(Items.MILK_BUCKET), has(Items.GLASS_BOTTLE))
                 .save(recipeOutput);
 
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.INFUSED_BUTTER.get())
-                .requires(ModItems.BUTTER)
-                .requires(ModTags.WEEDS)
-                .unlockedBy(getHasName(ModItems.BUTTER), has(ModItems.BUTTER))
-                .save(recipeOutput);
+        saveStrainCopyShapelessRecipe(recipeOutput, ModItems.INFUSED_BUTTER.get(),
+                Ingredient.of(ModItems.BUTTER.get()), Ingredient.of(ModTags.WEEDS));
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.HEMP_PLASTIC.get(), 4)
                 .requires(ModFluids.HEMP_OIL_BUCKET)
@@ -168,34 +170,23 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy(getHasName(ModItems.BIO_COMPOSITE), has(ModItems.BIO_COMPOSITE))
                 .save(recipeOutput, SmokeleafIndustries.MODID + ":smelting/hemp_plastic_from_bio_composite");
 
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.WEED_COOKIE.get())
-                .requires(Items.COOKIE)
-                .requires(ModItems.INFUSED_BUTTER)
-                .unlockedBy(getHasName(ModItems.INFUSED_BUTTER), has(ModItems.INFUSED_BUTTER))
-                .save(recipeOutput);
+        saveStrainCopyShapelessRecipe(recipeOutput, ModItems.WEED_COOKIE.get(),
+                Ingredient.of(Items.COOKIE), Ingredient.of(ModItems.INFUSED_BUTTER.get()));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HASH_BROWNIE.get())
-                .pattern("WBW")
-                .pattern("CHC")
-                .pattern("WBW")
-                .define('C', Items.COCOA_BEANS)
-                .define('W', ModTags.WEEDS)
-                .define('B', ModItems.INFUSED_BUTTER)
-                .define('H', ModFluids.HASH_OIL_BUCKET)
-                .unlockedBy(getHasName(ModFluids.HASH_OIL_BUCKET), has(ModFluids.HASH_OIL_BUCKET))
-                .save(recipeOutput);
+        saveStrainCopyShapedRecipe(recipeOutput, ModItems.HASH_BROWNIE.get(), Map.of(
+                        'W', Ingredient.of(ModTags.WEEDS),
+                        'B', Ingredient.of(ModItems.INFUSED_BUTTER.get()),
+                        'C', Ingredient.of(Items.COCOA_BEANS),
+                        'H', Ingredient.of(ModFluids.HASH_OIL_BUCKET.get())
+                ), "WBW", "CHC", "WBW");
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HERB_CAKE.get())
-                .pattern("BSB")
-                .pattern("WEW")
-                .pattern("MMM")
-                .define('E', Items.EGG)
-                .define('S', Items.SUGAR)
-                .define('W', ModTags.WEEDS)
-                .define('B', ModItems.INFUSED_BUTTER)
-                .define('M', Items.MILK_BUCKET)
-                .unlockedBy(getHasName(ModItems.INFUSED_BUTTER), has(ModItems.INFUSED_BUTTER))
-                .save(recipeOutput);
+        saveStrainCopyShapedRecipe(recipeOutput, ModItems.HERB_CAKE.get(), Map.of(
+                        'W', Ingredient.of(ModTags.WEEDS),
+                        'B', Ingredient.of(ModItems.INFUSED_BUTTER.get()),
+                        'E', Ingredient.of(Items.EGG),
+                        'S', Ingredient.of(Items.SUGAR),
+                        'M', Ingredient.of(Items.MILK_BUCKET)
+                ), "BSB", "WEW", "MMM");
 
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HEMP_STICK.get())
@@ -242,15 +233,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_plastic_from_hammering"));
 
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.UNFINISHED_HEMP_CORE.get())
-                .pattern("RAR")
-                .pattern("GDG")
-                .pattern("RAR")
-                .define('R', Items.REDSTONE)
-                .define('G', Items.GLOWSTONE_DUST)
-                .define('A', Items.AMETHYST_SHARD)
-                .define('D', Items.DIAMOND)
-                .unlockedBy(getHasName(Items.AMETHYST_SHARD), has(Items.AMETHYST_SHARD))
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.UNFINISHED_HEMP_CORE.get(), 2)
+                .requires(ModItems.BIO_COMPOSITE)
+                .requires(Items.DIAMOND)
+                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE), has(ModItems.BIO_COMPOSITE))
                 .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "unfinished_hemp_core"));
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.HEMP_CORE.get())
@@ -572,6 +558,23 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
                 .save(recipeOutput);
 
+    }
+
+    private void saveStrainCopyShapelessRecipe(RecipeOutput out, net.minecraft.world.item.Item result, Ingredient... ingredients) {
+        ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(result);
+        NonNullList<Ingredient> ingList = NonNullList.create();
+        java.util.Collections.addAll(ingList, ingredients);
+        StrainCopyShapelessRecipe recipe = new StrainCopyShapelessRecipe(
+                "", CraftingBookCategory.MISC, new ItemStack(result), ingList);
+        out.accept(id, recipe, null);
+    }
+
+    private void saveStrainCopyShapedRecipe(RecipeOutput out, net.minecraft.world.item.Item result, Map<Character, Ingredient> key, String... pattern) {
+        ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(result);
+        ShapedRecipePattern shapedPattern = ShapedRecipePattern.of(key, List.of(pattern));
+        StrainCopyShapedRecipe recipe = new StrainCopyShapedRecipe(
+                "", CraftingBookCategory.MISC, shapedPattern, new ItemStack(result), false);
+        out.accept(id, recipe, null);
     }
 
     private static void liquifierExtract(RecipeOutput out,

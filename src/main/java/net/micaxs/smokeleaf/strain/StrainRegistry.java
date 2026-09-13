@@ -361,7 +361,8 @@ public final class StrainRegistry {
                 List.copyOf(effects),
                 amplifier, durationTicks,
                 true, displayName,
-                new StrainData.TypeColors(weedColorArgb, weedLeafColor, seedsColorArgb, seedsLeafColor, extractColorArgb, extractLeafColor)
+                new StrainData.TypeColors(weedColorArgb, weedLeafColor, seedsColorArgb, seedsLeafColor, extractColorArgb, extractLeafColor),
+                "", ""
         );
     }
 

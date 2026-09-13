@@ -1,6 +1,5 @@
 {
-  "type": "minecraft:crafting_shapeless",
-  "category": "misc",
+  "type": "smokeleafindustries:strain_copy_shapeless",
   "ingredients": [
     {
       "item": "smokeleafindustries:butter"

@@ -71,12 +71,24 @@ public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
     public void setRecipe(IRecipeLayoutBuilder builder, MutatorRecipe recipe, IFocusGroup focuses) {
         var ingredients = recipe.getIngredients();
         if (ingredients.size() > 0) {
-            builder.addSlot(RecipeIngredientRole.INPUT, SEED_X, SEED_Y)
-                    .addIngredients(ingredients.get(0));
+            var seedIngredient = ingredients.get(0);
+            if (JeiStrainHelper.isStrainIngredient(seedIngredient)) {
+                builder.addSlot(RecipeIngredientRole.INPUT, SEED_X, SEED_Y)
+                        .addIngredients(JeiStrainHelper.coloredIngredient(seedIngredient, focuses));
+            } else {
+                builder.addSlot(RecipeIngredientRole.INPUT, SEED_X, SEED_Y)
+                        .addIngredients(seedIngredient);
+            }
         }
         if (ingredients.size() > 1) {
-            builder.addSlot(RecipeIngredientRole.INPUT, EXTRACT_X, EXTRACT_Y)
-                    .addIngredients(ingredients.get(1));
+            var extractIngredient = ingredients.get(1);
+            if (JeiStrainHelper.isStrainIngredient(extractIngredient)) {
+                builder.addSlot(RecipeIngredientRole.INPUT, EXTRACT_X, EXTRACT_Y)
+                        .addIngredients(JeiStrainHelper.coloredIngredient(extractIngredient, focuses));
+            } else {
+                builder.addSlot(RecipeIngredientRole.INPUT, EXTRACT_X, EXTRACT_Y)
+                        .addIngredients(extractIngredient);
+            }
         }
 
         FluidStack fluid = recipe.getFluid();

@@ -245,7 +245,8 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
             d = new StrainData(d.colorArgb(), d.leafColor(), scaledThc, scaledCbd,
                     d.nitrogen(), d.phosphorus(), d.potassium(),
                     d.effects(), d.amplifier(), d.durationTicks(),
-                    d.identified(), d.displayName(), d.typeColors());
+                    d.identified(), d.displayName(), d.typeColors(),
+                    "", "");
         }
 
         // Bud + seeds with strain + hemp leaf.

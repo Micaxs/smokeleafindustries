@@ -29,7 +29,9 @@ public record StrainData(
         int durationTicks,
         boolean identified,
         String displayName,
-        TypeColors typeColors
+        TypeColors typeColors,
+        String baseStrain1,
+        String baseStrain2
 ) {
 
     /** Per-item-type tint overrides; all-zero values fall back to the base bud colors. */
@@ -71,7 +73,8 @@ public record StrainData(
             0, 0, 0, 0, 0,
             List.of(), 0, 0,
             false, "",
-            TypeColors.NONE
+            TypeColors.NONE,
+            "", ""
     );
 
     public static final Codec<StrainData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -87,7 +90,9 @@ public record StrainData(
             Codec.INT.fieldOf("dur").forGetter(StrainData::durationTicks),
             Codec.BOOL.fieldOf("identified").forGetter(StrainData::identified),
             Codec.STRING.fieldOf("name").forGetter(StrainData::displayName),
-            TypeColors.MAP_CODEC.forGetter(StrainData::typeColors)
+            TypeColors.MAP_CODEC.forGetter(StrainData::typeColors),
+            Codec.STRING.optionalFieldOf("base_strain_1", "").forGetter(StrainData::baseStrain1),
+            Codec.STRING.optionalFieldOf("base_strain_2", "").forGetter(StrainData::baseStrain2)
     ).apply(inst, StrainData::new));
 }
 

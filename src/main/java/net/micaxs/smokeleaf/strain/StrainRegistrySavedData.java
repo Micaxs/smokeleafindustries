@@ -136,7 +136,8 @@ public class StrainRegistrySavedData extends SavedData {
                 d.colorArgb(), d.leafColor(), d.thc(), d.cbd(),
                 d.nitrogen(), d.phosphorus(), d.potassium(),
                 d.effects(), d.amplifier(), d.durationTicks(),
-                true, newName, d.typeColors()
+                true, newName, d.typeColors(),
+                d.baseStrain1(), d.baseStrain2()
         );
     }
 

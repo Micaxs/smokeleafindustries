@@ -296,7 +296,7 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                 // If still no strain, at least use fluid tint.
                 if (base == StrainData.EMPTY) {
                     int color = IClientFluidTypeExtensions.of(mix.getFluid()).getTintColor(mix);
-                    base = new StrainData(color, 0xFF4A7A2E, 0, 0, 0, 0, 0, java.util.List.of(), 0, 0, false, "", StrainData.TypeColors.NONE);
+                    base = new StrainData(color, 0xFF4A7A2E, 0, 0, 0, 0, 0, java.util.List.of(), 0, 0, false, "", StrainData.TypeColors.NONE, "", "");
                 }
 
                 output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);
@@ -316,11 +316,12 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                         registry.register(strainId, displayName, "");
                     } else if (!existingName.equals(base.displayName())) {
                         // Sync the name from the registry onto the output so it matches what was named earlier.
-                        base = new StrainData(base.colorArgb(), base.leafColor(), base.thc(), base.cbd(),
-                                base.nitrogen(), base.phosphorus(), base.potassium(),
-                                base.effects(), base.amplifier(), base.durationTicks(),
-                                true, existingName, base.typeColors());
-                        output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);
+                    base = new StrainData(base.colorArgb(), base.leafColor(), base.thc(), base.cbd(),
+                            base.nitrogen(), base.phosphorus(), base.potassium(),
+                            base.effects(), base.amplifier(), base.durationTicks(),
+                            true, existingName, base.typeColors(),
+                            base.baseStrain1(), base.baseStrain2());
+                    output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);
                     }
                 }
             }
@@ -471,7 +472,8 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                                 this.mixtureStrain.thc(), this.mixtureStrain.cbd(),
                                 this.mixtureStrain.nitrogen(), this.mixtureStrain.phosphorus(), this.mixtureStrain.potassium(),
                                 this.mixtureStrain.effects(), this.mixtureStrain.amplifier(), this.mixtureStrain.durationTicks(),
-                                true, registeredName, this.mixtureStrain.typeColors()
+                                true, registeredName, this.mixtureStrain.typeColors(),
+                                this.mixtureStrain.baseStrain1(), this.mixtureStrain.baseStrain2()
                         );
                     }
                 }

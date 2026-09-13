@@ -199,7 +199,8 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
                         0, 0, 0, 0, 0,
                         java.util.List.of(), 0, 0,
                         false, "",
-                        StrainData.TypeColors.NONE
+                        StrainData.TypeColors.NONE,
+                        "", ""
                 );
             }
 
@@ -219,7 +220,9 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
                         weed.durationTicks(),
                         base.identified(),
                         base.displayName(),
-                        base.typeColors()
+                        base.typeColors(),
+                        base.baseStrain1(),
+                        base.baseStrain2()
                 );
             }
 
