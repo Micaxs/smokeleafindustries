@@ -21,6 +21,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 
@@ -64,16 +65,24 @@ public class ManualGrinderRecipeCategory implements IRecipeCategory<ManualGrinde
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, ManualGrinderRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
-                .addIngredients(recipe.getIngredients().getFirst());
+        var inputIngredient = recipe.getIngredients().getFirst();
+        if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
+                    .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
+        } else {
+            builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
+                    .addIngredients(inputIngredient);
+        }
 
         ItemStack result = recipe.getResultItem(Minecraft.getInstance().level != null
                 ? Minecraft.getInstance().level.registryAccess() : null).copy();
-        List<ItemStack> outputs = (result.getItem() instanceof BaseWeedItem || result.getItem() instanceof BaseBudItem)
-                ? JeiStrainHelper.coloredStacks(result.getItem())
-                : List.of(result);
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
-                .addItemStacks(outputs);
+        if (result.getItem() instanceof BaseWeedItem || result.getItem() instanceof BaseBudItem) {
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
+                    .addIngredients(Ingredient.of(JeiStrainHelper.coloredStacks(result.getItem(), focuses).stream()));
+        } else {
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
+                    .addItemStack(result);
+        }
     }
 
     @Override

@@ -194,7 +194,7 @@ public class ModItems {
 
 
     // Other Items
-    public static final DeferredItem<Item> HEMP_HAMMER = ITEMS.register("hemp_hammer", () -> new HempHammer(new Item.Properties().stacksTo(1).durability(12)));
+    public static final DeferredItem<Item> HEMP_HAMMER = ITEMS.register("hemp_hammer", () -> new HempHammer(new Item.Properties().stacksTo(1).durability(64)));
 
     public static final DeferredItem<Item> MANUAL_GRINDER = ITEMS.register("manual_grinder", () -> new ManualGrinderItem(new Item.Properties().stacksTo(1).fireResistant()));
 
@@ -229,6 +229,9 @@ public class ModItems {
     public static final DeferredItem<Item> PLANT_ANALYZER = ITEMS.register("plant_analyzer",  () -> new PlantAnalyzerItem(new Item.Properties().stacksTo(1).durability(512)));
 
 
+
+    public static final DeferredItem<Item> STRAIN_BOOK = ITEMS.register("strain_book",
+            () -> new StrainBookItem(new Item.Properties().stacksTo(1)));
 
 //    public static final DeferredItem<Item> SMOKELEAF_GUIDE = ITEMS.register("smokeleaf_guide", () -> new SmokeleafGuideItem(new Item.Properties().stacksTo(1)));
 

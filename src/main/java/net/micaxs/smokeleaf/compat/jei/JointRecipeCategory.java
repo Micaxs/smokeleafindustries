@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 
@@ -26,10 +27,6 @@ public class JointRecipeCategory implements IRecipeCategory<JointRecipe> {
 
     private static final ResourceLocation VANILLA_BG =
             ResourceLocation.withDefaultNamespace("textures/gui/container/crafting_table.png");
-
-    private static List<ItemStack> weedStacks() {
-        return JeiStrainHelper.coloredStacks(ModItems.GENERIC_WEED.get());
-    }
 
     private final IDrawableStatic background;
     private final IDrawable icon;
@@ -59,9 +56,10 @@ public class JointRecipeCategory implements IRecipeCategory<JointRecipe> {
         builder.addSlot(RecipeIngredientRole.INPUT, 19, 1).addItemStack(new ItemStack(Items.PAPER));
         builder.addSlot(RecipeIngredientRole.INPUT, 19, 37).addItemStack(new ItemStack(Items.PAPER));
 
-        var weeds = weedStacks();
-        builder.addSlot(RecipeIngredientRole.INPUT, 1, 19).addItemStacks(weeds);
-        builder.addSlot(RecipeIngredientRole.INPUT, 37, 19).addItemStacks(weeds);
+        var weeds = JeiStrainHelper.coloredStacks(ModItems.GENERIC_WEED.get(), focuses);
+        var weedIngredient = Ingredient.of(weeds.stream());
+        builder.addSlot(RecipeIngredientRole.INPUT, 1, 19).addIngredients(weedIngredient);
+        builder.addSlot(RecipeIngredientRole.INPUT, 37, 19).addIngredients(weedIngredient);
 
         builder.addSlot(RecipeIngredientRole.INPUT, 19, 19).addItemStack(new ItemStack(recipe.getTobaccoItem()));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19).addItemStack(recipe.getResultItem(null));

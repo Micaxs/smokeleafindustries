@@ -181,7 +181,8 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
                     existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                     existing.effects(), existing.amplifier(), existing.durationTicks(),
                     existing.identified(), existing.displayName(),
-                    existing.typeColors()
+                    existing.typeColors(),
+                    "", ""
             ));
         } else {
             stack.set(ModDataComponentTypes.THC.get(), thc);

@@ -123,6 +123,9 @@ public final class StrainUtil {
         int thc = (sa.thc() * amtA + sb.thc() * amtB) / total;
         int cbd = (sa.cbd() * amtA + sb.cbd() * amtB) / total;
 
+        String parent1 = hasStrain(a) ? getStrain(a).displayName() : "";
+        String parent2 = hasStrain(b) ? getStrain(b).displayName() : "";
+
         return new StrainData(
                 mixedColor,
                 mixedLeafColor,
@@ -136,7 +139,9 @@ public final class StrainUtil {
                 dur,
                 false,
                 "",
-                StrainData.TypeColors.NONE
+                StrainData.TypeColors.NONE,
+                parent1,
+                parent2
         );
     }
 
@@ -193,7 +198,9 @@ public final class StrainUtil {
                 base.durationTicks(),
                 base.identified(),
                 base.displayName(),
-                base.typeColors()
+                base.typeColors(),
+                base.baseStrain1(),
+                base.baseStrain2()
         );
     }
 

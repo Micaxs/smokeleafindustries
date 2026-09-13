@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "cross": "smokeleafindustries:block/lava_cake/lava_cake_stage_8"
-  }
-}

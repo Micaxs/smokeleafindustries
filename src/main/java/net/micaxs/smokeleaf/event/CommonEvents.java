@@ -7,6 +7,7 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
+import net.micaxs.smokeleaf.item.custom.StrainBookItem;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.item.custom.ManualGrinderItem;
 import net.micaxs.smokeleaf.item.custom.UnidentifiedMixtureBucketItem;
@@ -55,6 +56,7 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AnvilRepairEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
@@ -633,7 +635,8 @@ public class CommonEvents {
                     d.colorArgb(), d.leafColor(), d.thc(), d.cbd(),
                     d.nitrogen(), d.phosphorus(), d.potassium(),
                     d.effects(), d.amplifier(), d.durationTicks(),
-                    true, newName, d.typeColors()
+                    true, newName, d.typeColors(),
+                    d.baseStrain1(), d.baseStrain2()
             );
             ItemStack output = left.copy();
             StrainUtil.setStrain(output, namedData);
@@ -651,7 +654,8 @@ public class CommonEvents {
                     anyStrain.colorArgb(), anyStrain.leafColor(), anyStrain.thc(), anyStrain.cbd(),
                     anyStrain.nitrogen(), anyStrain.phosphorus(), anyStrain.potassium(),
                     anyStrain.effects(), anyStrain.amplifier(), anyStrain.durationTicks(),
-                    true, newName, anyStrain.typeColors()
+                    true, newName, anyStrain.typeColors(),
+                    anyStrain.baseStrain1(), anyStrain.baseStrain2()
             );
             ItemStack output = left.copy();
             StrainUtil.setStrain(output, namedData);
@@ -673,7 +677,8 @@ public class CommonEvents {
                 d.colorArgb(), d.leafColor(), d.thc(), d.cbd(),
                 d.nitrogen(), d.phosphorus(), d.potassium(),
                 d.effects(), d.amplifier(), d.durationTicks(),
-                true, newName, d.typeColors()
+                true, newName, d.typeColors(),
+                d.baseStrain1(), d.baseStrain2()
         );
         ItemStack output = left.copy();
         StrainUtil.setStrain(output, namedData);
@@ -713,6 +718,29 @@ public class CommonEvents {
         String mixKey = output.get(ModDataComponentTypes.MIX_KEY.get());
         if (mixKey == null || mixKey.isBlank()) return;
         MixedStrainSavedData.get(sp.server).register(mixKey, d.displayName());
+    }
+
+    // -------- Strain Discovery Tracking --------
+
+    @SubscribeEvent
+    public static void onItemPickup(ItemEntityPickupEvent.Post event) {
+        Player player = event.getPlayer();
+        if (player.level().isClientSide) return;
+        recordStrainDiscovery(player, event.getOriginalStack());
+    }
+
+    private static void recordStrainDiscovery(Player player, ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return;
+        String strainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (strainId == null) {
+            StrainData sd = StrainUtil.getStrain(stack);
+            if (sd != StrainData.EMPTY) {
+                strainId = StrainUtil.strainContentId(sd);
+            }
+        }
+        if (strainId != null && !strainId.isBlank()) {
+            StrainBookItem.addDiscovery(player, strainId);
+        }
     }
 
     /**

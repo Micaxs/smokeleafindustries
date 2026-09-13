@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_amethyst_shard": {
+    "has_bio_composite": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:amethyst_shard"
+            "items": "smokeleafindustries:bio_composite"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_amethyst_shard"
+      "has_bio_composite"
     ]
   ],
   "rewards": {

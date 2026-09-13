@@ -403,6 +403,8 @@
   "jei.smokeleafindustries.manual_grinder": "Manual Grinder",
   "jei.smokeleafindustries.grind_time": "Time: %s",
   "jei.smokeleafindustries.category.joint": "Joint Crafting",
+  "jei.smokeleafindustries.category.blunt": "Blunt Crafting",
+  "jei.smokeleafindustries.category.strain_crafting": "Strain Crafting",
   "jei.smokeleafindustries.bucket_use": "You can get a full bucket by right clicking 1000mb of Fluid on the tank with an empty bucket. Alternatively, you can also store fluids by left clicking.",
   "smokeleafindusties.tooltip.liquid.amount.with.capacity": "%s / %s mB",
   "smokeleafindusties.tooltip.liquid.amount": "%s mB",
@@ -471,5 +473,13 @@
   "item.smokeleafindustries.unidentified_seeds": "Unidentified Seeds",
   "item.smokeleafindustries.unidentified_bud": "Unidentified Bud",
   "block.smokeleafindustries.unidentified_weed_crop": "Unidentified Plant",
-  "item.smokeleafindustries.unidentified_weed": "Unidentified Weed"
+  "item.smokeleafindustries.unidentified_weed": "Unidentified Weed",
+  "item.smokeleafindustries.strain_book": "Strain Book",
+  "gui.smokeleafindustries.strain_book": "Strain Book",
+  "gui.smokeleafindustries.strain_book.my_strains": "My Discoveries",
+  "gui.smokeleafindustries.strain_book.server_discoveries": "Server Strains",
+  "gui.smokeleafindustries.strain_book.no_strains": "No strains discovered yet...",
+  "gui.smokeleafindustries.strain_book.no_global": "No server discoveries yet...",
+  "gui.smokeleafindustries.strain_book.cross": "Cross: %s + %s",
+  "gui.smokeleafindustries.strain_book.by": "by %s"
 }

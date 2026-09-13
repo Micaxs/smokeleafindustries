@@ -435,7 +435,8 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
                         mixed.colorArgb(), mixed.leafColor(), mixed.thc(), mixed.cbd(),
                         mixed.nitrogen(), mixed.phosphorus(), mixed.potassium(),
                         mixed.effects(), mixed.amplifier(), mixed.durationTicks(),
-                        true, registeredName, mixed.typeColors()
+                        true, registeredName, mixed.typeColors(),
+                        mixed.baseStrain1(), mixed.baseStrain2()
                 );
             }
         }

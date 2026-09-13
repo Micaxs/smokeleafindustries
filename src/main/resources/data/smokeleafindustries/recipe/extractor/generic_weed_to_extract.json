@@ -1,7 +1,7 @@
 {
   "type": "smokeleafindustries:extractor",
   "ingredient": {
-    "tag": "smokeleafindustries:weeds"
+    "item": "smokeleafindustries:weed"
   },
   "result": {
     "id": "smokeleafindustries:extract",

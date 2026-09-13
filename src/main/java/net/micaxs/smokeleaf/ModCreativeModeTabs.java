@@ -92,6 +92,7 @@ public class ModCreativeModeTabs {
 
                         output.accept(ModItems.HEMP_HAMMER);
                         output.accept(ModItems.PLANT_ANALYZER);
+                        output.accept(ModItems.STRAIN_BOOK);
                         output.accept(ModItems.MANUAL_GRINDER);
                         output.accept(ModItems.EMPTY_BAG);
                         output.accept(ModItems.JOINT);
@@ -119,6 +120,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.MUTATOR);
                         output.accept(ModBlocks.SYNTHESIZER);
                         output.accept(ModBlocks.SEQUENCER);
+                        output.accept(ModBlocks.MIXER);
                         output.accept(ModBlocks.DRYING_RACK);
 
                         output.accept(ModItems.WORM_CASTINGS);

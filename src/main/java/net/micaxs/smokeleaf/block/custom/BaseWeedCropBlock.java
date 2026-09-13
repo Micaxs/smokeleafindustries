@@ -336,7 +336,8 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
                         d.colorArgb(), d.leafColor(), scaledThc, scaledCbd,
                         d.nitrogen(), d.phosphorus(), d.potassium(),
                         d.effects(), d.amplifier(), d.durationTicks(),
-                        d.identified(), d.displayName(), d.typeColors()));
+                        d.identified(), d.displayName(), d.typeColors(),
+                        "", ""));
             }
         }
         return drops;

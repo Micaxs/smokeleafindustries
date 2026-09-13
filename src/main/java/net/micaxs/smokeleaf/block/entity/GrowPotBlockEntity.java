@@ -238,7 +238,8 @@ public class GrowPotBlockEntity extends BlockEntity {
                         getNitrogen(), getPhosphorus(), getPotassium(),
                         d.effects(), d.amplifier(), d.durationTicks(),
                         d.identified(), d.displayName(),
-                        d.typeColors());
+                        d.typeColors(),
+                        "", "");
                 bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
             }
             if (customStrainId != null) {
@@ -279,7 +280,8 @@ public class GrowPotBlockEntity extends BlockEntity {
                             existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                             existing.effects(), existing.amplifier(), existing.durationTicks(),
                             existing.identified(), existing.displayName(),
-                            existing.typeColors()
+                            existing.typeColors(),
+                            "", ""
                     ));
                 } else {
                     BaseBudItem.setThc(drop, thcVal);
@@ -392,7 +394,8 @@ public class GrowPotBlockEntity extends BlockEntity {
                 // Apply current pot nutrient-derived THC/CBD into the strain data (so player care matters)
                 d = new StrainData(d.colorArgb(), d.leafColor(), getThc(), getCbd(), getNitrogen(), getPhosphorus(), getPotassium(),
                         d.effects(), d.amplifier(), d.durationTicks(), d.identified(), d.displayName(),
-                        d.typeColors());
+                        d.typeColors(),
+                        "", "");
                 bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
             }
             if (customStrainId != null) {
@@ -437,7 +440,8 @@ public class GrowPotBlockEntity extends BlockEntity {
                             existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                             existing.effects(), existing.amplifier(), existing.durationTicks(),
                             existing.identified(), existing.displayName(),
-                            existing.typeColors()
+                            existing.typeColors(),
+                            "", ""
                     ));
                 } else {
                     BaseBudItem.setThc(drop, thcVal);

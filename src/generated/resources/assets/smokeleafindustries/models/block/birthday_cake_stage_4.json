@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "cross": "smokeleafindustries:block/birthday_cake/birthday_cake_stage_4"
-  }
-}

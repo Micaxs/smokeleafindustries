@@ -19,5 +19,12 @@ public class ModPayloads {
                 ParanoiaHallucinationPayload.STREAM_CODEC,
                 ParanoiaHallucinationClientHandler::handle
         );
+
+        // Strain Book data -> client
+        registrar.playToClient(
+                StrainBookDataPayload.TYPE,
+                StrainBookDataPayload.STREAM_CODEC,
+                StrainBookClientHandler::handle
+        );
     }
 }

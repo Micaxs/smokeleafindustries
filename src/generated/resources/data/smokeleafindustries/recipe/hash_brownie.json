@@ -1,6 +1,5 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "misc",
+  "type": "smokeleafindustries:strain_copy_shaped",
   "key": {
     "B": {
       "item": "smokeleafindustries:infused_butter"
@@ -23,5 +22,6 @@
   "result": {
     "count": 1,
     "id": "smokeleafindustries:hash_brownie"
-  }
+  },
+  "show_notification": false
 }

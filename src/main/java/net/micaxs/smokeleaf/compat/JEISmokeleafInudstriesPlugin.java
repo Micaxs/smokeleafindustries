@@ -2,11 +2,13 @@ package net.micaxs.smokeleaf.compat;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.compat.jei.*;
@@ -46,7 +48,8 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
                 new SynthesizerRecipeCategory(guiHelper),
                 new ManualGrinderRecipeCategory(guiHelper),
                 new JointRecipeCategory(guiHelper),
-                new BluntRecipeCategory(guiHelper)
+                new BluntRecipeCategory(guiHelper),
+                new StrainCraftingRecipeCategory(guiHelper)
         );
     }
 
@@ -122,6 +125,10 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
                         .map(BluntRecipe.class::cast)
                         .toList();
         registration.addRecipes(BluntRecipeCategory.BLUNT_RECIPE_TYPE, bluntRecipes);
+
+        // Strain-aware crafting table recipes (infused butter, hash brownie, etc.)
+        registration.addRecipes(StrainCraftingRecipeCategory.RECIPE_TYPE,
+                StrainCraftingRecipeCategory.buildDisplays());
     }
 
     @Override
@@ -137,6 +144,7 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.SYNTHESIZER.get()), SynthesizerRecipeCategory.SYNTHESIZER_RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(Items.CRAFTING_TABLE), JointRecipeCategory.JOINT_RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(Items.CRAFTING_TABLE), BluntRecipeCategory.BLUNT_RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(Items.CRAFTING_TABLE), StrainCraftingRecipeCategory.RECIPE_TYPE);
     }
 
     @Override
@@ -152,15 +160,37 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
 
     @Override
     public void registerItemSubtypes(mezz.jei.api.registration.ISubtypeRegistration registration) {
-        mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter<ItemStack> strainSubtype =
-            (stack, context) -> {
-                String id = stack.get(net.micaxs.smokeleaf.component.ModDataComponentTypes.STRAIN_ID.get());
-                return id != null ? id : mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter.NONE;
-            };
-        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModItems.GENERIC_BUD.get(), strainSubtype);
-        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModItems.GENERIC_WEED.get(), strainSubtype);
-        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModItems.GENERIC_EXTRACT.get(), strainSubtype);
-        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModItems.GENERIC_SEEDS.get(), strainSubtype);
-        registration.registerSubtypeInterpreter(mezz.jei.api.constants.VanillaTypes.ITEM_STACK, ModFluids.UNIDENTIFIED_MIXTURE_BUCKET.get(), strainSubtype);
+        // No subtype interpreter — JEI indexes recipes by item ID only.
+        // This ensures EVERY strain variant (preset or custom) matches any recipe
+        // that uses the generic item.  The 25 preset colors are still added as
+        // distinct ItemStacks via addIngredientsAtRuntime() below, so they appear
+        // in JEI's sidebar even though they share a single registry entry.
+    }
+
+    @Override
+    public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        jeiRuntime.getIngredientManager()
+                .addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, JeiStrainHelper.allColoredStacks());
+
+        // Hide duplicated vanilla crafting recipes — the StrainCraftingRecipeCategory,
+        // JointRecipeCategory, and BluntRecipeCategory show proper coloured variants.
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+        var recipeManager = mc.level.getRecipeManager();
+        java.util.Set<ResourceLocation> idsToHide = java.util.Set.of(
+                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "infused_butter"),
+                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hash_brownie"),
+                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "herb_cake"),
+                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "weed_cookie"),
+                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "joint"),
+                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "blunt")
+        );
+        var craftingToHide = recipeManager.getAllRecipesFor(RecipeType.CRAFTING).stream()
+                .filter(h -> idsToHide.contains(h.id()))
+                .toList();
+        if (!craftingToHide.isEmpty()) {
+            jeiRuntime.getRecipeManager().hideRecipes(
+                    mezz.jei.api.constants.RecipeTypes.CRAFTING, craftingToHide);
+        }
     }
 }
