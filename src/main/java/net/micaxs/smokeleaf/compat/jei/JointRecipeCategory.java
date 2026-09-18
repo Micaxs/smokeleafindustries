@@ -12,6 +12,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.item.ModItems;
+import net.micaxs.smokeleaf.item.custom.JointItem;
 import net.micaxs.smokeleaf.recipe.JointRecipe;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -62,6 +63,9 @@ public class JointRecipeCategory implements IRecipeCategory<JointRecipe> {
         builder.addSlot(RecipeIngredientRole.INPUT, 37, 19).addIngredients(weedIngredient);
 
         builder.addSlot(RecipeIngredientRole.INPUT, 19, 19).addItemStack(new ItemStack(recipe.getTobaccoItem()));
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19).addItemStack(recipe.getResultItem(null));
+
+        List<ItemStack> outputs = JeiStrainHelper.coloredBlendOutputs(
+                recipe.getResultItem(null).getItem(), 2, JointItem::storeWeeds, focuses);
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19).addIngredients(Ingredient.of(outputs.stream()));
     }
 }

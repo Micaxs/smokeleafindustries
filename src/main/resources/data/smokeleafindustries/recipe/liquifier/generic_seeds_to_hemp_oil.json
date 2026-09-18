@@ -2,7 +2,7 @@
   "type": "smokeleafindustries:liquifier",
   "ingredient": { "item": "smokeleafindustries:seeds" },
   "output": {
-    "fluid": "smokeleafindustries:hemp_oil_fluid",
+    "fluid": "smokeleafindustries:hash_oil_fluid",
     "amount": 100
   }
 }

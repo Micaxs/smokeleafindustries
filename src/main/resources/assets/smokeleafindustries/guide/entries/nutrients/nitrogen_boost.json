@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:nitrogen_boost",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 13,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:nitrogen_boost" } ]
+}

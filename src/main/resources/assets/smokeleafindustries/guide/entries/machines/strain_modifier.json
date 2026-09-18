@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:strain_modifier",
+  "category": "smokeleafindustries:machines",
+  "sortnum": 10,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:strain_modifier" }
+  ]
+}

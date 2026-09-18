@@ -2,8 +2,10 @@ package net.micaxs.smokeleaf.item;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
+import net.micaxs.smokeleaf.block.entity.pipe.PipeType;
 import net.micaxs.smokeleaf.item.custom.*;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.item.UseAnim;
@@ -17,7 +19,7 @@ public class ModItems {
     // Tobacco
     public static final DeferredItem<Item> TOBACCO = ITEMS.register("tobacco",  () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item>  TOBACCO_SEEDS = ITEMS.register("tobacco_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.TOBACCO_CROP.get(), new Item.Properties()));
+            () -> new BaseSeedItem(ModBlocks.TOBACCO_CROP.get(), new Item.Properties(), "tooltip.smokeleafindustries.seeds.tall_grass"));
     public static final DeferredItem<Item> TOBACCO_LEAF = ITEMS.register("tobacco_leaves",  () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item> DRIED_TOBACCO_LEAF = ITEMS.register("dried_tobacco_leaves",  () -> new Item(new Item.Properties()));
 
@@ -34,10 +36,28 @@ public class ModItems {
             () -> new BaseWeedItem(new Item.Properties(), MobEffects.WIND_CHARGED.value(), 400, 2, 15, 10, false).withNameSuffix(" Extract"));
     public static final DeferredItem<Item> GENERIC_BAG = ITEMS.register("bag",
             () -> new GenericBagItem(new Item.Properties().stacksTo(64)));
+    public static final DeferredItem<Item> GENERIC_GUMMY = ITEMS.register("gummy",
+            () -> new GenericGummyItem(new Item.Properties().food(ModFoods.WEED_GUMMY)));
+    public static final DeferredItem<Item> GUMMY_MOLD = ITEMS.register("gummy_mold",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> GENERIC_GUMMY_WORM = ITEMS.register("gummy_worm",
+            () -> new GenericGummyWormItem(new Item.Properties().food(ModFoods.WEED_GUMMY)));
+    public static final DeferredItem<Item> GUMMY_WORM_MOLD = ITEMS.register("gummy_worm_mold",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+
+    // Pipes — all 3 place/merge into the same ModBlocks.PIPE block position (up to one of each).
+    public static final DeferredItem<Item> ITEM_PIPE = ITEMS.register("item_pipe",
+            () -> new PipeItem(ModBlocks.PIPE.get(), PipeType.ITEM, new Item.Properties()));
+    public static final DeferredItem<Item> FLUID_PIPE = ITEMS.register("fluid_pipe",
+            () -> new PipeItem(ModBlocks.PIPE.get(), PipeType.FLUID, new Item.Properties()));
+    public static final DeferredItem<Item> ENERGY_PIPE = ITEMS.register("energy_pipe",
+            () -> new PipeItem(ModBlocks.PIPE.get(), PipeType.ENERGY, new Item.Properties()));
+    public static final DeferredItem<Item> PIPE_WRENCH = ITEMS.register("pipe_wrench",
+            () -> new PipeWrenchItem(new Item.Properties().stacksTo(1).durability(1561)));
 
     // Non-strain-specific seeds
     public static final DeferredItem<Item>  HEMP_SEEDS = ITEMS.register("hemp_seeds",
-            () -> new ItemNameBlockItem(ModBlocks.HEMP_CROP.get(), new Item.Properties()));
+            () -> new BaseSeedItem(ModBlocks.HEMP_CROP.get(), new Item.Properties(), "tooltip.smokeleafindustries.seeds.tall_grass"));
 
     public static final DeferredItem<Item> BASE_EXTRACT = ITEMS.register("base_extract",  () -> new Item(new Item.Properties()));
 
@@ -47,107 +67,59 @@ public class ModItems {
             () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.empty_bag"));
     public static final DeferredItem<Item> WHITE_WIDOW_BAG = ITEMS.register("white_widow_bag",
             () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.white_widow_bag"));
-    public static final DeferredItem<Item> BUBBLE_KUSH_BAG = ITEMS.register("bubble_kush_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.bubble_kush_bag"));
-    public static final DeferredItem<Item> LEMON_HAZE_BAG = ITEMS.register("lemon_haze_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.lemon_haze_bag"));
-    public static final DeferredItem<Item> SOUR_DIESEL_BAG = ITEMS.register("sour_diesel_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.sour_diesel_bag"));
-    public static final DeferredItem<Item> BLUE_ICE_BAG = ITEMS.register("blue_ice_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.blue_ice_bag"));
-    public static final DeferredItem<Item> BUBBLEGUM_BAG = ITEMS.register("bubblegum_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.bubblegum_bag"));
-    public static final DeferredItem<Item> PURPLE_HAZE_BAG = ITEMS.register("purple_haze_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.purple_haze_bag"));
-    public static final DeferredItem<Item> OG_KUSH_BAG = ITEMS.register("og_kush_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.og_kush_bag"));
-    public static final DeferredItem<Item> JACK_HERER_BAG = ITEMS.register("jack_herer_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.jack_herer_bag"));
-    public static final DeferredItem<Item> GARY_PEYTON_BAG = ITEMS.register("gary_peyton_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.gary_peyton_bag"));
-    public static final DeferredItem<Item> AMNESIA_HAZE_BAG = ITEMS.register("amnesia_haze_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.amnesia_haze_bag"));
-    public static final DeferredItem<Item> AK47_BAG = ITEMS.register("ak47_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.ak47_bag"));
-    public static final DeferredItem<Item> GHOST_TRAIN_BAG = ITEMS.register("ghost_train_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.ghost_train_bag"));
-    public static final DeferredItem<Item> GRAPE_APE_BAG = ITEMS.register("grape_ape_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.grape_ape_bag"));
-    public static final DeferredItem<Item> COTTON_CANDY_BAG = ITEMS.register("cotton_candy_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.cotton_candy_bag"));
-    public static final DeferredItem<Item> BANANA_KUSH_BAG = ITEMS.register("banana_kush_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.banana_kush_bag"));
-    public static final DeferredItem<Item> CARBON_FIBER_BAG = ITEMS.register("carbon_fiber_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.carbon_fiber_bag"));
-    public static final DeferredItem<Item> BIRTHDAY_CAKE_BAG = ITEMS.register("birthday_cake_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.birthday_cake_bag"));
-    public static final DeferredItem<Item> BLUE_COOKIES_BAG = ITEMS.register("blue_cookies_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.blue_cookies_bag"));
-    public static final DeferredItem<Item> AFGHANI_BAG = ITEMS.register("afghani_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.afghani_bag"));
-    public static final DeferredItem<Item> MOONBOW_BAG = ITEMS.register("moonbow_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.moonbow_bag"));
-    public static final DeferredItem<Item> LAVA_CAKE_BAG = ITEMS.register("lava_cake_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.lava_cake_bag"));
-    public static final DeferredItem<Item> JELLY_RANCHER_BAG = ITEMS.register("jelly_rancher_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.jelly_rancher_bag"));
-    public static final DeferredItem<Item> STRAWBERRY_SHORTCAKE_BAG = ITEMS.register("strawberry_shortcake_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.strawberry_shortcake_bag"));
-    public static final DeferredItem<Item> PINK_KUSH_BAG = ITEMS.register("pink_kush_bag",
-            () -> new BaseBagItem(new Item.Properties().stacksTo(64), "tooltip.smokeleafindustries.pink_kush_bag"));
 
 
     // Gummies
     public static final DeferredItem<Item> WHITE_WIDOW_GUMMY = ITEMS.register("white_widow_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> BUBBLE_KUSH_GUMMY = ITEMS.register("bubble_kush_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> LEMON_HAZE_GUMMY = ITEMS.register("lemon_haze_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> SOUR_DIESEL_GUMMY = ITEMS.register("sour_diesel_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> BLUE_ICE_GUMMY = ITEMS.register("blue_ice_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> BUBBLEGUM_GUMMY = ITEMS.register("bubblegum_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> PURPLE_HAZE_GUMMY = ITEMS.register("purple_haze_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> OG_KUSH_GUMMY = ITEMS.register("og_kush_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> JACK_HERER_GUMMY = ITEMS.register("jack_herer_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> GARY_PEYTON_GUMMY = ITEMS.register("gary_peyton_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> AMNESIA_HAZE_GUMMY = ITEMS.register("amnesia_haze_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> AK47_GUMMY = ITEMS.register("ak47_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> GHOST_TRAIN_GUMMY = ITEMS.register("ghost_train_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> GRAPE_APE_GUMMY = ITEMS.register("grape_ape_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> COTTON_CANDY_GUMMY = ITEMS.register("cotton_candy_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> BANANA_KUSH_GUMMY = ITEMS.register("banana_kush_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> CARBON_FIBER_GUMMY = ITEMS.register("carbon_fiber_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> BIRTHDAY_CAKE_GUMMY = ITEMS.register("birthday_cake_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> BLUE_COOKIES_GUMMY = ITEMS.register("blue_cookies_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> AFGHANI_GUMMY = ITEMS.register("afghani_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> MOONBOW_GUMMY = ITEMS.register("moonbow_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> LAVA_CAKE_GUMMY = ITEMS.register("lava_cake_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> JELLY_RANCHER_GUMMY = ITEMS.register("jelly_rancher_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> STRAWBERRY_SHORTCAKE_GUMMY = ITEMS.register("strawberry_shortcake_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
     public static final DeferredItem<Item> PINK_KUSH_GUMMY = ITEMS.register("pink_kush_gummy",
-            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40));
+            () -> new WeedDerivedItem(new Item.Properties().food(ModFoods.WEED_GUMMY), 1.5f, 1f, UseAnim.EAT, 40, 2));
 
 
     // --- FERTILIZER ITEMS ---
@@ -208,6 +180,35 @@ public class ModItems {
     public static final DeferredItem<Item> HEMP_FABRIC = ITEMS.register("hemp_fabric",  () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item> HEMP_STICK = ITEMS.register("hemp_stick",  () -> new Item(new Item.Properties()));
 
+    // Baja Hoodie — cloth armor (leather-tier protection), full set negates the Stoned effect.
+    public static final DeferredItem<ArmorItem> BAJA_HOODIE_HELMET = ITEMS.register("baja_hoodie_helmet",
+            () -> new BajaHoodieArmorItem(ModArmorMaterials.BAJA_HOODIE, ArmorItem.Type.HELMET,
+                    new Item.Properties().durability(ArmorItem.Type.HELMET.getDurability(5))));
+    public static final DeferredItem<ArmorItem> BAJA_HOODIE_CHESTPLATE = ITEMS.register("baja_hoodie_chestplate",
+            () -> new BajaHoodieArmorItem(ModArmorMaterials.BAJA_HOODIE, ArmorItem.Type.CHESTPLATE,
+                    new Item.Properties().durability(ArmorItem.Type.CHESTPLATE.getDurability(5))));
+    public static final DeferredItem<ArmorItem> BAJA_HOODIE_LEGGINGS = ITEMS.register("baja_hoodie_leggings",
+            () -> new BajaHoodieArmorItem(ModArmorMaterials.BAJA_HOODIE, ArmorItem.Type.LEGGINGS,
+                    new Item.Properties().durability(ArmorItem.Type.LEGGINGS.getDurability(5))));
+    public static final DeferredItem<ArmorItem> BAJA_HOODIE_BOOTS = ITEMS.register("baja_hoodie_boots",
+            () -> new BajaHoodieArmorItem(ModArmorMaterials.BAJA_HOODIE, ArmorItem.Type.BOOTS,
+                    new Item.Properties().durability(ArmorItem.Type.BOOTS.getDurability(5))));
+
+    // Reinforced Baja Hoodie — netherite-tier upgrade (Hemp Plastic + Netherite Ingot per piece),
+    // +1 defense over plain netherite armor and also negates the Stoned effect.
+    public static final DeferredItem<ArmorItem> REINFORCED_BAJA_HOODIE_HELMET = ITEMS.register("reinforced_baja_hoodie_helmet",
+            () -> new BajaHoodieArmorItem(ModArmorMaterials.REINFORCED_BAJA_HOODIE, ArmorItem.Type.HELMET,
+                    new Item.Properties().durability(ArmorItem.Type.HELMET.getDurability(37)).fireResistant()));
+    public static final DeferredItem<ArmorItem> REINFORCED_BAJA_HOODIE_CHESTPLATE = ITEMS.register("reinforced_baja_hoodie_chestplate",
+            () -> new BajaHoodieArmorItem(ModArmorMaterials.REINFORCED_BAJA_HOODIE, ArmorItem.Type.CHESTPLATE,
+                    new Item.Properties().durability(ArmorItem.Type.CHESTPLATE.getDurability(37)).fireResistant()));
+    public static final DeferredItem<ArmorItem> REINFORCED_BAJA_HOODIE_LEGGINGS = ITEMS.register("reinforced_baja_hoodie_leggings",
+            () -> new BajaHoodieArmorItem(ModArmorMaterials.REINFORCED_BAJA_HOODIE, ArmorItem.Type.LEGGINGS,
+                    new Item.Properties().durability(ArmorItem.Type.LEGGINGS.getDurability(37)).fireResistant()));
+    public static final DeferredItem<ArmorItem> REINFORCED_BAJA_HOODIE_BOOTS = ITEMS.register("reinforced_baja_hoodie_boots",
+            () -> new BajaHoodieArmorItem(ModArmorMaterials.REINFORCED_BAJA_HOODIE, ArmorItem.Type.BOOTS,
+                    new Item.Properties().durability(ArmorItem.Type.BOOTS.getDurability(37)).fireResistant()));
+
     public static final DeferredItem<Item> DNA_STRAND = ITEMS.register("dna_strand",  () -> new DNAStrandItem(new Item.Properties()));
 
     public static final DeferredItem<Item> BIO_COMPOSITE = ITEMS.register("bio_composite",  () -> new Item(new Item.Properties()));
@@ -233,7 +234,7 @@ public class ModItems {
     public static final DeferredItem<Item> STRAIN_BOOK = ITEMS.register("strain_book",
             () -> new StrainBookItem(new Item.Properties().stacksTo(1)));
 
-//    public static final DeferredItem<Item> SMOKELEAF_GUIDE = ITEMS.register("smokeleaf_guide", () -> new SmokeleafGuideItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> SMOKELEAF_GUIDE = ITEMS.register("smokeleaf_guide", () -> new SmokeleafGuideItem(new Item.Properties().stacksTo(1)));
 
 
 

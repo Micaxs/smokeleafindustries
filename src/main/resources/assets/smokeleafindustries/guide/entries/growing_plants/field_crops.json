@@ -1,0 +1,8 @@
+{
+  "icon": "smokeleafindustries:hemp_leaf",
+  "category": "smokeleafindustries:growing_plants",
+  "sortnum": 1,
+  "pages": [
+    { "type": "text" }
+  ]
+}

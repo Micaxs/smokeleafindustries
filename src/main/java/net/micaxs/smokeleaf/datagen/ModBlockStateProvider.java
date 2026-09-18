@@ -100,12 +100,18 @@ public class ModBlockStateProvider extends BlockStateProvider {
         horizontalBooleanVariants(ModBlocks.SEQUENCER.get(), BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.POWERED, "_on", "", false);
         horizontalBooleanVariants(ModBlocks.DRYER.get(), BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.POWERED, "_on", "", false);
         horizontalBooleanVariants(ModBlocks.MIXER.get(), BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.POWERED, "_on", "", false);
+        horizontalBooleanVariants(ModBlocks.STRAIN_MODIFIER.get(), BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.POWERED, "_on", "", false);
+        horizontalBooleanVariants(ModBlocks.GUMMY_MACHINE.get(), BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.POWERED, "_on", "", false);
 
 
 
         horizontalBlock(ModBlocks.DRYING_RACK.get(), new ModelFile.UncheckedModelFile(modLoc("block/drying_rack")));
 
         horizontalBlock(ModBlocks.GROW_POT.get(), new ModelFile.UncheckedModelFile(modLoc("block/grow_pot")));
+
+        for (var entry : ModBlocks.HEMP_WOOL.entrySet()) {
+            blockWithItem(entry.getValue());
+        }
 
     }
 

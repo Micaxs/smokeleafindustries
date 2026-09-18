@@ -3,6 +3,6 @@
   "ingredient": { "item": "smokeleafindustries:weed" },
   "output": {
     "fluid": "smokeleafindustries:hash_oil_fluid",
-    "amount": 100
+    "amount": 250
   }
 }

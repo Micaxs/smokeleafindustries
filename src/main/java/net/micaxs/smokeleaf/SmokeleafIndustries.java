@@ -57,6 +57,7 @@ public class SmokeleafIndustries {
 
         ModCreativeModeTabs.register(modEventBus);
 
+        net.micaxs.smokeleaf.item.ModArmorMaterials.register(modEventBus);
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);

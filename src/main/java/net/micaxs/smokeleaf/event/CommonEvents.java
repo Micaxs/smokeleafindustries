@@ -22,6 +22,7 @@ import net.micaxs.smokeleaf.villager.ModVillagers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -159,16 +160,74 @@ public class CommonEvents {
 
 
     // -------- ManualGrinder Crafting Recipe --------
+    // LoadManualGrinderRecipe lets 1-3 grind-worths of the same item load a Manual Grinder,
+    // spread across up to 3 grid slots in any stack size. The vanilla crafting grid always
+    // removes exactly 1 item from every contributing slot when the result is taken, no matter
+    // how many are actually needed — fine when the player used 3 separate one-count slots, but
+    // insufficient when (say) a single stack of 8 supplies all 3. This event fires before that
+    // vanilla removal, so it tops up the shortfall by shrinking the surplus out of whichever
+    // ingredient slot(s) have more than 1, leaving the vanilla -1-per-slot pass to finish the job.
     @SubscribeEvent
     public static void onManualGrinderCraft(PlayerEvent.ItemCraftedEvent event) {
         ItemStack result = event.getCrafting();
         if (!(result.getItem() instanceof ManualGrinderItem)) {
             return;
         }
+
+        ManualGrinderContents contents = result.get(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get());
+        if (contents == null) return;
+
+        ItemStack stored = contents.stack();
+        int storedCount = stored.getCount();
+
+        Container matrix = event.getInventory();
+        List<Integer> ingredientSlots = new ArrayList<>();
+        for (int i = 0; i < matrix.getContainerSize(); i++) {
+            ItemStack slotStack = matrix.getItem(i);
+            if (!slotStack.isEmpty() && !(slotStack.getItem() instanceof ManualGrinderItem)
+                    && ItemStack.isSameItemSameComponents(slotStack, stored)) {
+                ingredientSlots.add(i);
+            }
+        }
+
+        int deficit = storedCount - ingredientSlots.size();
+        for (int slot : ingredientSlots) {
+            if (deficit <= 0) break;
+            int surplus = matrix.getItem(slot).getCount() - 1;
+            if (surplus <= 0) continue;
+            int take = Math.min(surplus, deficit);
+            matrix.removeItem(slot, take);
+            deficit -= take;
+        }
     }
 
 
 
+
+
+    // -------- Baja Hoodie: full set negates the Stoned effect --------
+    private static boolean wearsFullSet(Player player, Item helmet, Item chest, Item legs, Item boots) {
+        return player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).is(helmet)
+                && player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST).is(chest)
+                && player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.LEGS).is(legs)
+                && player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET).is(boots);
+    }
+
+    private static boolean wearsFullBajaSet(Player player) {
+        return wearsFullSet(player, ModItems.BAJA_HOODIE_HELMET.get(), ModItems.BAJA_HOODIE_CHESTPLATE.get(),
+                ModItems.BAJA_HOODIE_LEGGINGS.get(), ModItems.BAJA_HOODIE_BOOTS.get())
+                || wearsFullSet(player, ModItems.REINFORCED_BAJA_HOODIE_HELMET.get(), ModItems.REINFORCED_BAJA_HOODIE_CHESTPLATE.get(),
+                ModItems.REINFORCED_BAJA_HOODIE_LEGGINGS.get(), ModItems.REINFORCED_BAJA_HOODIE_BOOTS.get());
+    }
+
+    @SubscribeEvent
+    public static void onStonedApplicable(MobEffectEvent.Applicable event) {
+        if (event.getEffectInstance() == null || event.getEffectInstance().getEffect() != ModEffects.STONED) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (wearsFullBajaSet(player)) {
+            event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+        }
+    }
 
 
     // -------- Player Effects: Chillout, Zombified, Sticky Icky --------
@@ -186,6 +245,12 @@ public class CommonEvents {
         Level lvl = player.level();
         if (lvl.isClientSide) return;
         ServerLevel level = (ServerLevel) lvl;
+
+        // Baja Hoodie: cure Stoned immediately if the full set gets equipped while already high,
+        // rather than just blocking future re-applications.
+        if (player.hasEffect(ModEffects.STONED) && wearsFullBajaSet(player)) {
+            player.removeEffect(ModEffects.STONED);
+        }
 
         // Chillout: pacify nearby zombies + particles
         if (player.hasEffect(ModEffects.CHILLOUT)) {
@@ -472,7 +537,7 @@ public class CommonEvents {
 
             addRandomTrades(trades, 3, 2,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HEMP_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.EMPTY_TINCTURE, 4), new ItemStack(Items.EMERALD, 1), 4, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.INFUSED_BUTTER, 3), new ItemStack(Items.EMERALD, 1), 7, 10, 0.01f)
             );
@@ -532,37 +597,37 @@ public class CommonEvents {
                     (pTrader, pRandom) -> weedOffer(5, "pink_kush")
             );
             addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.WHITE_WIDOW_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BUBBLE_KUSH_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.LEMON_HAZE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.SOUR_DIESEL_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BLUE_ICE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BUBBLEGUM_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.PURPLE_HAZE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 3), new ItemStack(ModItems.OG_KUSH_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.JACK_HERER_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.GARY_PEYTON_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.AMNESIA_HAZE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.AK47_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.GHOST_TRAIN_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.GRAPE_APE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.COTTON_CANDY_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BANANA_KUSH_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.CARBON_FIBER_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.BIRTHDAY_CAKE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BLUE_COOKIES_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.AFGHANI_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.MOONBOW_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.LAVA_CAKE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.JELLY_RANCHER_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.STRAWBERRY_SHORTCAKE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.PINK_KUSH_GUMMY.get(), 1), 4, 5, 0.01f)
+                    (pTrader, pRandom) -> gummyOffer(4, "white_widow"),
+                    (pTrader, pRandom) -> gummyOffer(4, "bubble_kush"),
+                    (pTrader, pRandom) -> gummyOffer(5, "lemon_haze"),
+                    (pTrader, pRandom) -> gummyOffer(4, "sour_diesel"),
+                    (pTrader, pRandom) -> gummyOffer(4, "blue_ice"),
+                    (pTrader, pRandom) -> gummyOffer(5, "bubblegum"),
+                    (pTrader, pRandom) -> gummyOffer(6, "purple_haze"),
+                    (pTrader, pRandom) -> gummyOffer(3, "og_kush"),
+                    (pTrader, pRandom) -> gummyOffer(4, "jack_herer"),
+                    (pTrader, pRandom) -> gummyOffer(5, "gary_peyton"),
+                    (pTrader, pRandom) -> gummyOffer(6, "amnesia_haze"),
+                    (pTrader, pRandom) -> gummyOffer(5, "ak47"),
+                    (pTrader, pRandom) -> gummyOffer(4, "ghost_train"),
+                    (pTrader, pRandom) -> gummyOffer(6, "grape_ape"),
+                    (pTrader, pRandom) -> gummyOffer(6, "cotton_candy"),
+                    (pTrader, pRandom) -> gummyOffer(5, "banana_kush"),
+                    (pTrader, pRandom) -> gummyOffer(4, "carbon_fiber"),
+                    (pTrader, pRandom) -> gummyOffer(6, "birthday_cake"),
+                    (pTrader, pRandom) -> gummyOffer(5, "blue_cookies"),
+                    (pTrader, pRandom) -> gummyOffer(6, "afghani"),
+                    (pTrader, pRandom) -> gummyOffer(4, "moonbow"),
+                    (pTrader, pRandom) -> gummyOffer(6, "lava_cake"),
+                    (pTrader, pRandom) -> gummyOffer(5, "jelly_rancher"),
+                    (pTrader, pRandom) -> gummyOffer(6, "strawberry_shortcake"),
+                    (pTrader, pRandom) -> gummyOffer(5, "pink_kush")
             );
 
             addRandomTrades(trades, 3, 2,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BASE_EXTRACT.get(), 1), 8, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 8), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 7), new ItemStack(ModFluids.HEMP_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 7), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BUTTER.get(), 1), 6, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 14), new ItemStack(ModItems.DNA_STRAND.get(), 1), 6, 10, 0.01f)
             );
@@ -599,6 +664,10 @@ public class CommonEvents {
         return new MerchantOffer(new ItemCost(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_WEED.get(), strainId), 6, 5, 0.01f);
     }
 
+    private static MerchantOffer gummyOffer(int emeraldCost, String strainId) {
+        return new MerchantOffer(new ItemCost(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_GUMMY.get(), strainId), 4, 5, 0.01f);
+    }
+
     private static void addRandomTrades(Int2ObjectMap<List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing>> trades, int level, int pick, net.minecraft.world.entity.npc.VillagerTrades.ItemListing... candidates) {
         List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing> pool = new ArrayList<>(List.of(candidates));
         Collections.shuffle(pool);
@@ -611,113 +680,21 @@ public class CommonEvents {
     // -----------------------------------------------------------------------
 
     /**
-     * Handles renaming any strain-bearing item (seeds, buds, weeds, extracts, oil buckets) in an
-     * anvil. Two paths:
-     * <ol>
-     *   <li>Item has {@code STRAIN_ID} → generic lineage rename for any custom strain.</li>
-     *   <li>Item is a bucket with {@code MIX_KEY} but no {@code STRAIN_ID} (legacy) → bucket-only rename.</li>
-     * </ol>
+     * The anvil naming flow is intentionally disabled; custom strain names are handled by the
+     * dedicated Strain Modifier machine instead.
      */
     @SubscribeEvent
     public static void onAnvilUpdate(AnvilUpdateEvent event) {
-        String newName = event.getName();
-        if (newName == null || newName.isBlank()) return;
-
-        ItemStack left = event.getLeft();
-
-        // Generic path: any item with STRAIN_ID
-        String strainId = left.get(ModDataComponentTypes.STRAIN_ID.get());
-        if (strainId != null) {
-            StrainData d = StrainUtil.getStrain(left);
-            if (d == StrainData.EMPTY) return;
-
-            StrainData namedData = new StrainData(
-                    d.colorArgb(), d.leafColor(), d.thc(), d.cbd(),
-                    d.nitrogen(), d.phosphorus(), d.potassium(),
-                    d.effects(), d.amplifier(), d.durationTicks(),
-                    true, newName, d.typeColors(),
-                    d.baseStrain1(), d.baseStrain2()
-            );
-            ItemStack output = left.copy();
-            StrainUtil.setStrain(output, namedData);
-
-            event.setOutput(output);
-            event.setCost(1);
-            event.setMaterialCost(0);
-            return;
-        }
-
-        // Fallback: any item with STRAIN_DATA (preset strains without a lineage ID)
-        StrainData anyStrain = StrainUtil.getStrain(left);
-        if (anyStrain != StrainData.EMPTY) {
-            StrainData namedData = new StrainData(
-                    anyStrain.colorArgb(), anyStrain.leafColor(), anyStrain.thc(), anyStrain.cbd(),
-                    anyStrain.nitrogen(), anyStrain.phosphorus(), anyStrain.potassium(),
-                    anyStrain.effects(), anyStrain.amplifier(), anyStrain.durationTicks(),
-                    true, newName, anyStrain.typeColors(),
-                    anyStrain.baseStrain1(), anyStrain.baseStrain2()
-            );
-            ItemStack output = left.copy();
-            StrainUtil.setStrain(output, namedData);
-            event.setOutput(output);
-            event.setCost(1);
-            event.setMaterialCost(0);
-            return;
-        }
-
-        // Legacy bucket-only path (no STRAIN_ID yet)
-        if (!(left.getItem() instanceof UnidentifiedMixtureBucketItem)) return;
-        StrainData d = StrainUtil.getStrain(left);
-        if (d == StrainData.EMPTY || d.identified()) return;
-
-        String mixKey = left.get(ModDataComponentTypes.MIX_KEY.get());
-        if (mixKey == null || mixKey.isBlank()) return;
-
-        StrainData namedData = new StrainData(
-                d.colorArgb(), d.leafColor(), d.thc(), d.cbd(),
-                d.nitrogen(), d.phosphorus(), d.potassium(),
-                d.effects(), d.amplifier(), d.durationTicks(),
-                true, newName, d.typeColors(),
-                d.baseStrain1(), d.baseStrain2()
-        );
-        ItemStack output = left.copy();
-        StrainUtil.setStrain(output, namedData);
-        output.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
-
-        event.setOutput(output);
-        event.setCost(1);
-        event.setMaterialCost(0);
+        // intentionally disabled
     }
 
     /**
-     * When the player takes the renamed item from the anvil, persist the name server-wide and
-     * propagate to all online players carrying items with the same strain ID.
+     * The anvil naming flow is intentionally disabled; custom strain names are handled by the
+     * dedicated Strain Modifier machine instead.
      */
     @SubscribeEvent
     public static void onAnvilRepair(AnvilRepairEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer sp)) return;
-        ItemStack output = event.getOutput();
-
-        StrainData d = StrainUtil.getStrain(output);
-        if (d == StrainData.EMPTY || !d.identified() || d.displayName().isBlank()) return;
-
-        // Generic path: item has STRAIN_ID
-        String strainId = output.get(ModDataComponentTypes.STRAIN_ID.get());
-        if (strainId != null) {
-            StrainRegistrySavedData.get(sp.server).propagateRename(sp.server, strainId, d.displayName(), sp.getName().getString());
-            // If this is also a mixer-blend, keep MixedStrainSavedData in sync for re-identification
-            if (output.getItem() instanceof UnidentifiedMixtureBucketItem) {
-                String mixKey = output.get(ModDataComponentTypes.MIX_KEY.get());
-                if (mixKey != null) MixedStrainSavedData.get(sp.server).register(mixKey, d.displayName());
-            }
-            return;
-        }
-
-        // Legacy bucket path
-        if (!(output.getItem() instanceof UnidentifiedMixtureBucketItem)) return;
-        String mixKey = output.get(ModDataComponentTypes.MIX_KEY.get());
-        if (mixKey == null || mixKey.isBlank()) return;
-        MixedStrainSavedData.get(sp.server).register(mixKey, d.displayName());
+        // intentionally disabled
     }
 
     // -------- Strain Discovery Tracking --------

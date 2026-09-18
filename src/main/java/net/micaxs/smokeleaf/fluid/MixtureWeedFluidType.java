@@ -118,6 +118,11 @@ public class MixtureWeedFluidType extends WeedFluidType {
             // Fallback: STRAIN_ID and MIX_KEY are the same for mixer-produced fluids.
             bucket.set(ModDataComponentTypes.STRAIN_ID.get(), mixKey);
         }
+        // Copy STRAIN_CREATOR so "Discovered by" tooltip shows on the bucket.
+        String creator = stack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        if (creator != null && !creator.isBlank()) {
+            bucket.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+        }
         return bucket;
     }
 

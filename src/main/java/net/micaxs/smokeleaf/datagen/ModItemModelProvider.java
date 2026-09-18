@@ -22,6 +22,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         // --- Random Items
         basicItem(ModItems.HEMP_HAMMER.get());
         basicItem(ModItems.PLANT_ANALYZER.get());
+        basicItem(ModItems.GUMMY_MOLD.get());
+        basicItem(ModItems.STRAIN_BOOK.get());
+        basicItem(ModItems.SMOKELEAF_GUIDE.get());
 
         basicItem(ModItems.UNFINISHED_HEMP_CORE.get());
         basicItem(ModItems.HEMP_CORE.get());
@@ -30,6 +33,16 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.HEMP_FIBERS.get());
         basicItem(ModItems.HEMP_FABRIC.get());
         basicItem(ModItems.HEMP_STICK.get());
+
+        basicItem(ModItems.BAJA_HOODIE_HELMET.get());
+        basicItem(ModItems.BAJA_HOODIE_CHESTPLATE.get());
+        basicItem(ModItems.BAJA_HOODIE_LEGGINGS.get());
+        basicItem(ModItems.BAJA_HOODIE_BOOTS.get());
+        basicItem(ModItems.REINFORCED_BAJA_HOODIE_HELMET.get());
+        basicItem(ModItems.REINFORCED_BAJA_HOODIE_CHESTPLATE.get());
+        basicItem(ModItems.REINFORCED_BAJA_HOODIE_LEGGINGS.get());
+        basicItem(ModItems.REINFORCED_BAJA_HOODIE_BOOTS.get());
+
         basicItem(ModItems.EMPTY_BAG.get());
         basicItem(ModItems.JOINT.get());
         basicItem(ModItems.BLUNT.get());
@@ -39,35 +52,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.HERB_CAKE.get());
         basicItem(ModItems.DAB_RIG.get());
         basicItem(ModItems.EMPTY_TINCTURE.get());
-        basicItem(ModFluids.HEMP_OIL_BUCKET.get());
         basicItem(ModFluids.HASH_OIL_BUCKET.get());
         basicItem(ModFluids.HASH_OIL_SLUDGE_BUCKET.get());
 
-        basicItem(ModFluids.WHITE_WIDOW_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.BUBBLE_KUSH_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.LEMON_HAZE_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.SOUR_DIESEL_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.BLUE_ICE_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.BUBBLEGUM_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.PURPLE_HAZE_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.OG_KUSH_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.JACK_HERER_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.GARY_PEYTON_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.AMNESIA_HAZE_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.AK47_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.GHOST_TRAIN_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.GRAPE_APE_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.COTTON_CANDY_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.BANANA_KUSH_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.CARBON_FIBER_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.BIRTHDAY_CAKE_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.BLUE_COOKIES_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.AFGHANI_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.MOONBOW_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.LAVA_CAKE_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.JELLY_RANCHER_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.STRAWBERRY_SHORTCAKE_EXTRACT_BUCKET.get());
-        basicItem(ModFluids.PINK_KUSH_EXTRACT_BUCKET.get());
 
         basicItem(ModItems.HASH_OIL_TINCTURE.get());
         basicItem(ModItems.BASE_EXTRACT.get());
@@ -88,10 +75,38 @@ public class ModItemModelProvider extends ItemModelProvider {
                 .parent(getExistingFile(mcLoc("item/generated")))
                 .texture("layer0", modLoc("item/generic_extract_base"))
                 .texture("layer1", modLoc("item/generic_extract_mask"));
-        // Bag — single layer until bag_base/bag_mask textures are ready
+
+        // Bag — 4-layer model; layers 1 and 2 are tinted by strain colors via bagItemColor
         getBuilder("bag")
                 .parent(getExistingFile(mcLoc("item/generated")))
-                .texture("layer0", modLoc("item/empty_bag"));
+                .texture("layer0", modLoc("item/generic_bag_bg"))
+                .texture("layer1", modLoc("item/generic_bag_weed"))
+                .texture("layer2", modLoc("item/generic_bag_weed_mask"))
+                .texture("layer3", modLoc("item/generic_bag_top_overlay"));
+
+        // Gummy — 3-layer model: bg (leafColor), mask1 (colorArgb), mask2 (lighter strain tone)
+        getBuilder("gummy")
+                .parent(getExistingFile(mcLoc("item/generated")))
+                .texture("layer0", modLoc("item/generic_gummy_bg"))
+                .texture("layer1", modLoc("item/generic_gummy_mask1"))
+                .texture("layer2", modLoc("item/generic_gummy_mask2"));
+
+        // Gummy Worm — same 3-layer scheme as the gummy bear
+        getBuilder("gummy_worm")
+                .parent(getExistingFile(mcLoc("item/generated")))
+                .texture("layer0", modLoc("item/generic_gummy_worm_bg"))
+                .texture("layer1", modLoc("item/generic_gummy_worm_mask1"))
+                .texture("layer2", modLoc("item/generic_gummy_worm_mask2"));
+
+        basicItem(ModItems.GUMMY_WORM_MOLD.get());
+
+        // Pipes / Pipe Wrench — flat 2D item icons; the in-world block form uses the custom
+        // PipeGeometryLoader dynamic model instead (see assets/.../models/block/pipe.json).
+        basicItem(ModItems.ITEM_PIPE.get());
+        basicItem(ModItems.FLUID_PIPE.get());
+        basicItem(ModItems.ENERGY_PIPE.get());
+        basicItem(ModItems.PIPE_WRENCH.get());
+
         // Unidentified items share the generic textures (STRAIN_DATA tinting applies the same way)
         getBuilder("unidentified_bud")
                 .parent(getExistingFile(mcLoc("item/generated")))
@@ -158,76 +173,52 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.WHITE_WIDOW_BAG.get());
         basicItem(ModItems.WHITE_WIDOW_GUMMY.get());
         // Bubble Kush
-        basicItem(ModItems.BUBBLE_KUSH_BAG.get());
         basicItem(ModItems.BUBBLE_KUSH_GUMMY.get());
         // Lemon Haze
-        basicItem(ModItems.LEMON_HAZE_BAG.get());
         basicItem(ModItems.LEMON_HAZE_GUMMY.get());
         // Sour Diesel
-        basicItem(ModItems.SOUR_DIESEL_BAG.get());
         basicItem(ModItems.SOUR_DIESEL_GUMMY.get());
         // Blue Ice
-        basicItem(ModItems.BLUE_ICE_BAG.get());
         basicItem(ModItems.BLUE_ICE_GUMMY.get());
         // Bubblegum
-        basicItem(ModItems.BUBBLEGUM_BAG.get());
         basicItem(ModItems.BUBBLEGUM_GUMMY.get());
         // Purple Haze
-        basicItem(ModItems.PURPLE_HAZE_BAG.get());
         basicItem(ModItems.PURPLE_HAZE_GUMMY.get());
         // OG Kush
-        basicItem(ModItems.OG_KUSH_BAG.get());
         basicItem(ModItems.OG_KUSH_GUMMY.get());
         // Jack Herer
-        basicItem(ModItems.JACK_HERER_BAG.get());
         basicItem(ModItems.JACK_HERER_GUMMY.get());
         // Gary Payton
-        basicItem(ModItems.GARY_PEYTON_BAG.get());
         basicItem(ModItems.GARY_PEYTON_GUMMY.get());
         // Amnesia Haze
-        basicItem(ModItems.AMNESIA_HAZE_BAG.get());
         basicItem(ModItems.AMNESIA_HAZE_GUMMY.get());
         // AK47
-        basicItem(ModItems.AK47_BAG.get());
         basicItem(ModItems.AK47_GUMMY.get());
         // Ghost Train
-        basicItem(ModItems.GHOST_TRAIN_BAG.get());
         basicItem(ModItems.GHOST_TRAIN_GUMMY.get());
         // Grape Ape
-        basicItem(ModItems.GRAPE_APE_BAG.get());
         basicItem(ModItems.GRAPE_APE_GUMMY.get());
         // Cotton Candy
-        basicItem(ModItems.COTTON_CANDY_BAG.get());
         basicItem(ModItems.COTTON_CANDY_GUMMY.get());
         // Banana Kush
-        basicItem(ModItems.BANANA_KUSH_BAG.get());
         basicItem(ModItems.BANANA_KUSH_GUMMY.get());
         // Carbon Fiber
-        basicItem(ModItems.CARBON_FIBER_BAG.get());
         basicItem(ModItems.CARBON_FIBER_GUMMY.get());
         // Birthday Cake
-        basicItem(ModItems.BIRTHDAY_CAKE_BAG.get());
         basicItem(ModItems.BIRTHDAY_CAKE_GUMMY.get());
         // Blue Cookies
-        basicItem(ModItems.BLUE_COOKIES_BAG.get());
         basicItem(ModItems.BLUE_COOKIES_GUMMY.get());
         // Afghani
-        basicItem(ModItems.AFGHANI_BAG.get());
         basicItem(ModItems.AFGHANI_GUMMY.get());
         // Moonbow
-        basicItem(ModItems.MOONBOW_BAG.get());
         basicItem(ModItems.MOONBOW_GUMMY.get());
         // Lava Cake
-        basicItem(ModItems.LAVA_CAKE_BAG.get());
         basicItem(ModItems.LAVA_CAKE_GUMMY.get());
         // Jelly Rancher
-        basicItem(ModItems.JELLY_RANCHER_BAG.get());
         basicItem(ModItems.JELLY_RANCHER_GUMMY.get());
         // Strawberry Shortcake
-        basicItem(ModItems.STRAWBERRY_SHORTCAKE_BAG.get());
         basicItem(ModItems.STRAWBERRY_SHORTCAKE_GUMMY.get());
         // Pink Kush
-        basicItem(ModItems.PINK_KUSH_BAG.get());
         basicItem(ModItems.PINK_KUSH_GUMMY.get());
 
 

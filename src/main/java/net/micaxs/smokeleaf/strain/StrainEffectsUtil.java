@@ -16,12 +16,14 @@ import java.util.Random;
  * Global utility for building MobEffectInstance lists from StrainData.
  *
  * Rules:
- * - CBD linearly scales duration: 10 s (cbd=0) → 60 s (cbd=100).
- * - THC controls extra effect count (on top of the base effect):
- *     0-20%  → 0 extras
- *    21-40%  → 1 extra
- *    41-70%  → 2 extras
- *    71%+    → 3 extras (capped by pool size)
+ * - CBD linearly scales duration: 10 s (cbd=0) → 60 s (cbd=100) — in practice CBD tops out at 30
+ *   (the Strain Identifier's cap), so the real-world ceiling is 25 s.
+ * - THC controls extra effect count (on top of the base effect), scaled to the real 0-35 THC range
+ *   (the Strain Identifier's cap — see {@code StrainModifierBlockEntity}):
+ *     0-10%  → 0 extras
+ *    10-15%  → 1 extra
+ *    15-25%  → 2 extras
+ *    25-35%  → 3 extras (capped by pool size)
  * - Extra effects are chosen deterministically from the pool so the same
  *   strain always gets the same extras regardless of when it is consumed.
  *
@@ -49,11 +51,11 @@ public final class StrainEffectsUtil {
     // Extra effects
     // -----------------------------------------------------------------------
 
-    /** Number of extra (side) effects derived from THC. */
+    /** Number of extra (side) effects derived from THC, on the real 0-35 THC scale. */
     public static int computeExtraEffectCount(int thc) {
-        if (thc > 70) return 3;
-        if (thc > 40) return 2;
-        if (thc > 20) return 1;
+        if (thc > 25) return 3;
+        if (thc > 15) return 2;
+        if (thc > 10) return 1;
         return 0;
     }
 

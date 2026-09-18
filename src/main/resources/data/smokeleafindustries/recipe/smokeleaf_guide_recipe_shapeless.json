@@ -9,10 +9,7 @@
     }
   ],
   "result": {
-    "components": {
-      "patchouli:book": "smokeleafindustries:smokeleaf_guide"
-    },
     "count": 1,
-    "id": "patchouli:guide_book"
+    "id": "smokeleafindustries:smokeleaf_guide"
   }
 }

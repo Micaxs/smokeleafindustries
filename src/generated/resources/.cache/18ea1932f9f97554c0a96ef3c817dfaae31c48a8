@@ -1,4 +1,4 @@
-// 1.21.1	2026-01-31T10:57:02.62803896	Tags for minecraft:block mod id smokeleafindustries
+// 1.21.1	2026-09-18T06:29:43.601869954	Tags for minecraft:block mod id smokeleafindustries
 a38d3ddb53011ee9e6f7ef99717ef7ab8813b69f data/minecraft/tags/block/fence_gates.json
 a1d054ab50bb017243456318c6c78733fe18b005 data/minecraft/tags/block/fences.json
 2f2f03d40b0cf631bb6294fc7419af13132073ed data/minecraft/tags/block/mineable/pickaxe.json
@@ -7,4 +7,6 @@ c1e3c167b4d4b9f67f09c76b1ede3c6d8d9d63c2 data/minecraft/tags/block/needs_iron_to
 88a1f4d3b03651030f0f9daab06ebf5de94150ca data/minecraft/tags/block/planks.json
 3563a31dedaad13f8718bad557457939cb41bc52 data/minecraft/tags/block/walls.json
 a1d054ab50bb017243456318c6c78733fe18b005 data/minecraft/tags/block/wooden_fences.json
+695b5f95ba773ef1320aef93764fdb44b57d1935 data/minecraft/tags/block/wool.json
+695b5f95ba773ef1320aef93764fdb44b57d1935 data/smokeleafindustries/tags/block/hemp_wool.json
 135dd63d17a19e160a2049b172476c37ca8d9485 data/smokeleafindustries/tags/block/pot_soils.json

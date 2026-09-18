@@ -17,6 +17,8 @@ public class ModEffects {
 
     public static final Holder<MobEffect> STONED = MOB_EFFECTS.register("stoned",
             () -> new StonedEffect(MobEffectCategory.NEUTRAL, 31458724));
+    public static final Holder<MobEffect> SCRAMBLED_MOUTH = MOB_EFFECTS.register("scrambled_mouth",
+            () -> new ScrambledMouthEffect(MobEffectCategory.HARMFUL, 0x9EDB4C));
 
 
     public static final Holder<MobEffect> SLEEPY = MOB_EFFECTS.register("sleepy",

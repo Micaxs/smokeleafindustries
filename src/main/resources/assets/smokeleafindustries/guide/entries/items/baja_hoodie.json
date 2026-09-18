@@ -1,0 +1,11 @@
+{
+  "icon": "smokeleafindustries:baja_hoodie_chestplate",
+  "category": "smokeleafindustries:items",
+  "sortnum": 6,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:baja_hoodie_chestplate" },
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:reinforced_baja_hoodie_chestplate" }
+  ]
+}

@@ -10,9 +10,12 @@ import net.micaxs.smokeleaf.strain.StrainRegistry;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +43,31 @@ public final class JeiStrainHelper {
                 .collect(Collectors.toList());
     }
 
+    /** A single strain-tinted FluidStack of {@code baseFluid} (Hash Oil or Unidentified Mixture) carrying that strain's StrainData/STRAIN_ID, the same way {@link #coloredStacks(Item)} tints items — both fluid types read this component dynamically for their tint color and display name. */
+    public static FluidStack coloredFluidStack(Fluid baseFluid, String strainId, int amount) {
+        FluidStack stack = new FluidStack(baseFluid, amount);
+        StrainRegistry.get(strainId).ifPresent(data -> {
+            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+            stack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+        });
+        return stack;
+    }
+
+    /** One strain-tinted FluidStack of {@code baseFluid} per preset strain, {@code amount} each. */
+    public static List<FluidStack> coloredFluidStacks(Fluid baseFluid, int amount) {
+        return StrainRegistry.ids().stream()
+                .sorted()
+                .map(id -> coloredFluidStack(baseFluid, id, amount))
+                .collect(Collectors.toList());
+    }
+
+    /** Like {@link #coloredFluidStacks(Fluid, int)} but filtered/paired to the focused strain when relevant (e.g. so a recipe's oil-input slot matches whichever strain its seed-output slot is showing). */
+    public static List<FluidStack> coloredFluidStacks(Fluid baseFluid, int amount, IFocusGroup focuses) {
+        String id = focusedStrainId(focuses);
+        if (id == null) return coloredFluidStacks(baseFluid, amount);
+        return List.of(coloredFluidStack(baseFluid, id, amount));
+    }
+
     /**
      * Same as {@link #coloredStacks} but also sets the {@code DRY} component to {@code true}.
      * Used for dried-bud output slots in the dryer/drying-rack JEI display.
@@ -60,7 +88,9 @@ public final class JeiStrainHelper {
                 || item == ModItems.GENERIC_WEED.get()
                 || item == ModItems.GENERIC_EXTRACT.get()
                 || item == ModItems.GENERIC_SEEDS.get()
-                || item == ModItems.GENERIC_BAG.get();
+                || item == ModItems.GENERIC_BAG.get()
+                || item == ModItems.GENERIC_GUMMY.get()
+                || item == ModItems.GENERIC_GUMMY_WORM.get();
     }
 
     /** Checks if an ingredient matches any generic strain item. */
@@ -82,6 +112,28 @@ public final class JeiStrainHelper {
         return List.of();
     }
 
+    /**
+     * Builds one output stack per preset strain for a recipe (Joint, Blunt) whose result blends
+     * several weed inputs together via a {@code storeWeeds(ItemStack, List<ItemStack>)}-shaped
+     * setter — using the same colored weed for every slot so each cycled output is a clean single-
+     * strain example rather than a random cross-strain blend. Without this, JEI's output slot shows
+     * a bare {@code new ItemStack(resultItem)} with no stored weeds, which renders exactly as grey
+     * as the unidentified input items this whole helper exists to avoid.
+     */
+    public static List<ItemStack> coloredBlendOutputs(Item resultItem, int weedSlots,
+                                                        BiConsumer<ItemStack, List<ItemStack>> storeWeeds,
+                                                        IFocusGroup focuses) {
+        List<ItemStack> outputs = new ArrayList<>();
+        for (ItemStack weed : coloredStacks(ModItems.GENERIC_WEED.get(), focuses)) {
+            ItemStack out = new ItemStack(resultItem);
+            List<ItemStack> blend = new ArrayList<>();
+            for (int i = 0; i < weedSlots; i++) blend.add(weed);
+            storeWeeds.accept(out, blend);
+            outputs.add(out);
+        }
+        return outputs;
+    }
+
     /** Returns colored stacks for every generic strain item type (25 strains x 5 items). */
     public static List<ItemStack> allColoredStacks() {
         List<ItemStack> all = new ArrayList<>();
@@ -94,7 +146,10 @@ public final class JeiStrainHelper {
         return all;
     }
 
-    /** Returns the un-strained generic item stacks (for hiding from JEI ingredient list). */
+    /** Flagship preset used to color the single default JEI ingredient-list entry for each generic strain item. */
+    public static final String DEFAULT_STRAIN = "og_kush";
+
+    /** Returns the bare, un-strained generic item stacks JEI shows by default (grey, since their ItemColor handlers have nothing to tint). */
     public static List<ItemStack> unstrainedStacks() {
         return List.of(
                 new ItemStack(ModItems.GENERIC_SEEDS.get()),
@@ -102,8 +157,24 @@ public final class JeiStrainHelper {
                 new ItemStack(ModItems.GENERIC_WEED.get()),
                 new ItemStack(ModItems.GENERIC_EXTRACT.get()),
                 new ItemStack(ModItems.GENERIC_BAG.get()),
+                new ItemStack(ModItems.GENERIC_GUMMY.get()),
+                new ItemStack(ModItems.GENERIC_GUMMY_WORM.get()),
                 new ItemStack(ModFluids.UNIDENTIFIED_MIXTURE_BUCKET.get())
         );
+    }
+
+    /** {@link #unstrainedStacks()}, each tinted with {@link #DEFAULT_STRAIN} — meant to replace the bare stacks in JEI's ingredient list at runtime so the single representative entry per generic item reads as one clean color instead of flat grey. */
+    public static List<ItemStack> defaultColoredStacks() {
+        return unstrainedStacks().stream()
+                .map(s -> {
+                    ItemStack colored = s.copy();
+                    StrainRegistry.get(DEFAULT_STRAIN).ifPresent(data -> {
+                        colored.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+                        colored.set(ModDataComponentTypes.STRAIN_ID.get(), DEFAULT_STRAIN);
+                    });
+                    return colored;
+                })
+                .collect(Collectors.toList());
     }
 
     // ── Focus helpers ────────────────────────────────────────────────────

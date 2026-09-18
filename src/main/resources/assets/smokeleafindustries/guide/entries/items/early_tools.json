@@ -1,0 +1,11 @@
+{
+  "icon": "smokeleafindustries:hemp_hammer",
+  "category": "smokeleafindustries:items",
+  "sortnum": 4,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:hemp_hammer" },
+    { "type": "spotlight", "item": "smokeleafindustries:manual_grinder" },
+    { "type": "spotlight", "item": "smokeleafindustries:plant_analyzer" }
+  ]
+}

@@ -1,11 +1,24 @@
+Additional Feature Idea's:
 
+# Edible Factory Block
+A machine that has an oil input tank, a cast item input, a additional item input and an output.
+This machine is used to make edibles such as gummies, and future weed infused edibles. (The cast will identify what type of edible is being made - Gummy Cast = Gummies).
 
-- unidentified mixture bucket has THC/CDB values, this should be the same Levels: tooltip similarly to wehat is shows on weed items.
-- the sequencer machine does not have any recipes (to make dna strands) to actually make the 25 strains, I want to make fileld dna strands to further process these in the sequencer to make a specific extract.
-- putting an extract in the liquifier should give 250mb of oil.
-- the cake and the brownie should also have the strain data (from the weed it is crafted with) when crafted and apply the effects when eaten.
-- the input items in JEI recipe screens shows a grayscale item (seed, weed, bud, item) instead of the colored variants. it should not show the unidentified versions which are gray scale only show the colored one's with strain data.
-- this also applies to crafting table recipes, joint and blunt recipes, the input weed items are all grayscaled and called unidentified weed, this should be the 25 strains and correctly colored.
-- the liquifier jei screen should show each of the 25 strains (colored correctly) and their correct output oil (also colored correctly offcourse).
-- the JEI tags, only show the unidentified weed/bud/etc. it should show the default 25 strains and correctly colored. It shouldn't show the unidentified versions at all.
+# Curing Jars
+A block/sealed jar where dried buds can be palced in to increase their THC potency and side effects changes/increases (CuredData component).
+
+# Infused Drinks
+Craftable Drinks (Iced Tea, soda) with straindata that gives the effects.
+
+# Strain book
+A book / catalog item that tracks discovered strains, and how to re-make the strain if you have discovered the strain before.
+
+# Cross Breeding plants
+Another way to make new strains by crossbreeding two plants A X B, where A and B are 2 plants, and X is where the new plant 25% chance its a new strain (same as mixer) otherwise its either a copy of Plant A or Plant B.
+
+# Hemp Oil Lamp
+A lamp that uses an oil to light up an area.
+
+# Vape + Cartridges
+An item that needs to be crafted alongside a filled cartridge (with a specific strain) to be used. When used, it gives the effects of the strain in the cartridge.
 

@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:led_light",
+  "category": "smokeleafindustries:growing_plants",
+  "sortnum": 4,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:led_light" }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "icon": "smokeleafindustries:weed_cookie",
+  "category": "smokeleafindustries:edibles_and_consumables",
+  "sortnum": 1,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:weed_cookie" },
+    { "type": "spotlight", "item": "smokeleafindustries:hash_brownie" },
+    { "type": "spotlight", "item": "smokeleafindustries:herb_cake" }
+  ]
+}

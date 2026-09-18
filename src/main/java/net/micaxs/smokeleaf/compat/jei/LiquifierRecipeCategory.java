@@ -110,24 +110,40 @@ public class LiquifierRecipeCategory implements IRecipeCategory<LiquifierRecipeC
      */
     public static List<Display> buildStrainDisplays(LiquifierRecipe recipe) {
         List<Display> displays = new ArrayList<>();
-        for (String strainId : StrainRegistry.ids()) {
-            StrainRegistry.get(strainId).ifPresent(strainData -> {
-                // Colored input extract
-                ItemStack inputStack = new ItemStack(ModItems.GENERIC_EXTRACT.get());
-                inputStack.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
-                inputStack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
 
-                // Output fluid
-                FluidStack fluidOut = recipe.outputCopy();
+        // If the recipe's ingredient matches one of the generic strain items,
+        // produce per‑strain displays. Otherwise, return a single display.
+        for (ItemStack candidate : recipe.ingredient().getItems()) {
+            if (JeiStrainHelper.isStrainItem(candidate.getItem())) {
+                // Generate one display per preset strain
+                for (String strainId : StrainRegistry.ids()) {
+                    StrainRegistry.get(strainId).ifPresent(strainData -> {
+                        ItemStack inputStack = new ItemStack(candidate.getItem());
+                        inputStack.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+                        inputStack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
 
-                // Colored output bucket
-                ItemStack bucketStack = new ItemStack(ModFluids.UNIDENTIFIED_MIXTURE_BUCKET.get());
-                bucketStack.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
-                bucketStack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+                        // The liquifier only ever actually produces two real fluids — Hash Oil
+                        // (weed) and Unidentified Mixture Fluid (extract) — both tinted per-strain
+                        // via their own STRAIN_DATA component, exactly like generic items. This
+                        // used to look up a "<strain>_extract_fluid" fluid that only existed under
+                        // the old per-strain-item architecture and was never actually produced by
+                        // anything, so JEI's output tank showed nothing for the extract recipe.
+                        int amount = recipe.outputCopy().getAmount();
+                        FluidStack fluidOut = JeiStrainHelper.coloredFluidStack(recipe.outputCopy().getFluid(), strainId, amount);
+                        ItemStack bucketStack = candidate.getItem() == ModItems.GENERIC_WEED.get()
+                                ? new ItemStack(ModFluids.HASH_OIL_BUCKET.get())
+                                : ItemStack.EMPTY;
 
-                displays.add(new Display(inputStack, fluidOut, bucketStack));
-            });
+                        displays.add(new Display(inputStack, fluidOut, bucketStack));
+                    });
+                }
+                return displays;
+            }
         }
+
+        // Not a strain ingredient — single display as defined by the recipe.
+        ItemStack input = recipe.ingredient().getItems().length > 0 ? recipe.ingredient().getItems()[0] : ItemStack.EMPTY;
+        displays.add(new Display(input, recipe.outputCopy(), ItemStack.EMPTY));
         return displays;
     }
 

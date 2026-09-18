@@ -35,12 +35,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
+import net.micaxs.smokeleaf.strain.StrainTankHolder;
+import net.micaxs.smokeleaf.strain.StrainTankTracker;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
+public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, StrainTankHolder {
 
     private static final int INPUT_SLOT = 0;
 
@@ -76,7 +80,9 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public IItemHandler getItemHandler(@Nullable Direction direction) {
-        return this.itemHandler;
+        // The Liquifier's only item slot is its raw-material input — it's consumed into the fluid
+        // tank and never turns into an item output, so nothing should ever be pulled from it.
+        return new ExtractRestrictedItemHandler(this.itemHandler, slot -> false);
     }
 
     private final ModEnergyStorage ENERGY_STORAGE = new ModEnergyStorage(64000, 320) {
@@ -157,16 +163,31 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
                 .map(RecipeHolder::value);
     }
 
+    /**
+     * Whether crafting {@code recipe} right now would actually be accepted by the tank. Simulates
+     * the real fill (including the strain-tagged output this recipe would produce) rather than
+     * just comparing base fluid types — two different strains both liquify to the same underlying
+     * {@code unidentified_mixture_fluid} type, differing only by their STRAIN_DATA component, so a
+     * type-only check would let a mismatched strain "process" the input for no output (see
+     * {@link net.neoforged.neoforge.fluids.capability.templates.FluidTank#fill}, which rejects a
+     * fill whose components don't match the tank's current content).
+     */
     private boolean hasSpaceFor(LiquifierRecipe recipe) {
-        FluidStack out = recipe.output();
-        if (out.isEmpty()) return false;
-        if (FLUID_TANK.isEmpty()) return out.getAmount() <= FLUID_TANK.getCapacity();
-        if (!FLUID_TANK.getFluid().is(out.getFluid())) return false;
-        return FLUID_TANK.getFluidAmount() + out.getAmount() <= FLUID_TANK.getCapacity();
+        ItemStack in = itemHandler.getStackInSlot(INPUT_SLOT);
+        if (in.isEmpty()) return false;
+        FluidStack candidate = buildOutputFluid(in, recipe);
+        if (candidate.isEmpty()) return false;
+        return FLUID_TANK.fill(candidate, IFluidHandler.FluidAction.SIMULATE) >= candidate.getAmount();
     }
 
     private void craftFluid(LiquifierRecipe recipe) {
         ItemStack in = itemHandler.extractItem(INPUT_SLOT, 1, false);
+        FluidStack out = buildOutputFluid(in, recipe);
+        FLUID_TANK.fill(out, IFluidHandler.FluidAction.EXECUTE);
+    }
+
+    /** Builds the exact FluidStack (including inherited effects / STRAIN_DATA) that liquifying {@code in} via {@code recipe} would produce. */
+    private FluidStack buildOutputFluid(ItemStack in, LiquifierRecipe recipe) {
         FluidStack out = recipe.outputCopy();
 
         if (recipe.shouldInheritInputEffects() && !in.isEmpty() && in.getItem() instanceof BaseWeedItem weedItem) {
@@ -235,12 +256,18 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
             }
             if (strainId != null) out.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
 
+            // Propagate creator from extract item to fluid so "Discovered by" carries through to the bucket.
+            var strainCreator = in.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+            if (strainCreator != null && !strainCreator.isBlank()) {
+                out.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
+            }
+
             // Roll THC/CBD + N/P/K once, only if unset — deterministic when strain ID is known.
             base = StrainUtil.finalizeMixtureStats(base, level != null ? level.random : null, strainId);
             StrainUtil.setStrain(out, base);
         }
 
-        FLUID_TANK.fill(out, IFluidHandler.FluidAction.EXECUTE);
+        return out;
     }
 
     public void tick(Level level, BlockPos blockPos, BlockState blockState) {
@@ -333,5 +360,40 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
         super.onDataPacket(net, pkt, provider);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide()) StrainTankTracker.register(this);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        StrainTankTracker.unregister(this);
+    }
+
+    @Override
+    public void applyStrainRegistryUpdate(String strainId, StrainRegistrySavedData.StrainEntry entry) {
+        FluidStack fluid = FLUID_TANK.getFluid();
+        if (fluid.isEmpty()) return;
+        String fluidStrainId = fluid.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (!strainId.equals(fluidStrainId)) return;
+        StrainData current = StrainUtil.getStrain(fluid);
+        if (current == StrainData.EMPTY) return;
+
+        FluidStack updated = fluid.copy();
+        StrainUtil.setStrain(updated, StrainRegistrySavedData.withEntryApplied(current, entry));
+        if (!entry.creatorName().isBlank()) updated.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
+        FLUID_TANK.setFluid(updated);
+        // FluidTank#setFluid just overwrites the field directly (unlike fill()/drain(), it never
+        // calls onContentsChanged()), so without an explicit sync here the server-side data is
+        // correct but no update packet goes out, leaving an already-open GUI/tooltip stale until
+        // something else (relog, chunk reload) forces a fresh sync.
+        if (level != null && !level.isClientSide()) {
+            setChanged();
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
     }
 }

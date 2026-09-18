@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:phosphorus_feed",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 7,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:phosphorus_feed" } ]
+}

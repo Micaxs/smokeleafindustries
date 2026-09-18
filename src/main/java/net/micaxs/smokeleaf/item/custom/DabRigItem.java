@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.sound.ModSounds;
 import net.micaxs.smokeleaf.utils.ModTags;
@@ -119,10 +120,31 @@ public class DabRigItem extends Item {
             ItemStack offhandExtract = getOffhandExtract(player);
 
             if (!offhandExtract.isEmpty() && offhandExtract.getItem() instanceof BaseWeedItem weedItem) {
-                for (MobEffectInstance inst : weedItem.buildEffectInstances(offhandExtract)) {
+                List<MobEffectInstance> instances = weedItem.buildEffectInstances(offhandExtract);
+                for (MobEffectInstance inst : instances) {
                     if (inst != null && inst.getEffect() != null) {
                         entity.addEffect(inst);
                     }
+                }
+
+                // Grant STONED for the same duration as the longest extract effect. The trip
+                // shader tier is picked from the extract's THC; high CBD (27-30) shortens duration.
+                // The trip only actually shows once the same extract has been dabbed 3 times in a
+                // row (see TripStreakTracker) — it still grants STONED either way.
+                int maxDuration = instances.stream().mapToInt(MobEffectInstance::getDuration).max().orElse(0);
+                if (maxDuration > 0) {
+                    MobEffectInstance existing = entity.getEffect(ModEffects.STONED);
+                    net.micaxs.smokeleaf.strain.StrainData extractStrain = net.micaxs.smokeleaf.strain.StrainUtil.getStrain(offhandExtract);
+                    int tier = net.micaxs.smokeleaf.effect.TripTier.forThc(
+                            extractStrain != net.micaxs.smokeleaf.strain.StrainData.EMPTY ? extractStrain.thc() : 0).ordinal();
+                    float cbdMult = net.micaxs.smokeleaf.effect.TripTier.cbdDurationMultiplier(
+                            extractStrain != net.micaxs.smokeleaf.strain.StrainData.EMPTY ? extractStrain.cbd() : 0);
+                    int adjustedDuration = Math.max(1, Math.round(maxDuration * cbdMult));
+                    int stonedDuration = existing != null ? existing.getDuration() + adjustedDuration : adjustedDuration;
+                    String streakKey = net.micaxs.smokeleaf.effect.TripStreakTracker.keyFor(offhandExtract, extractStrain);
+                    boolean confirmed = net.micaxs.smokeleaf.effect.TripStreakTracker.registerUseAndGetStreak(player, streakKey)
+                            >= net.micaxs.smokeleaf.effect.TripStreakTracker.REQUIRED_STREAK;
+                    entity.addEffect(new MobEffectInstance(ModEffects.STONED, stonedDuration, tier, false, confirmed));
                 }
 
                 if (!player.getAbilities().instabuild) {

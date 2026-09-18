@@ -1,0 +1,8 @@
+{
+  "icon": "smokeleafindustries:extract",
+  "category": "smokeleafindustries:effects",
+  "sortnum": 6,
+  "pages": [
+    { "type": "text" }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:balanced_boost",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 1,
+  "pages": [
+    { "type": "text" },
+    { "type": "text" }
+  ]
+}

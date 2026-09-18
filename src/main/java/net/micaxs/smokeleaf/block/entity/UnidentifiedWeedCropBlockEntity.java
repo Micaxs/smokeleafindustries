@@ -27,6 +27,7 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
 
     private StrainData strain = StrainData.EMPTY;
     private String strainId = "";
+    private String strainCreator = "";
 
     public UnidentifiedWeedCropBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.UNIDENTIFIED_WEED_CROP_BE.get(), pos, state);
@@ -47,6 +48,15 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
 
     public void setStrainId(String id) {
         this.strainId = id != null ? id : "";
+        this.setChanged();
+    }
+
+    public String getStrainCreator() {
+        return strainCreator != null ? strainCreator : "";
+    }
+
+    public void setStrainCreator(String creator) {
+        this.strainCreator = creator != null ? creator : "";
         this.setChanged();
     }
 
@@ -126,6 +136,9 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
         if (strainId != null && !strainId.isBlank()) {
             tag.putString("strain_id", strainId);
         }
+        if (strainCreator != null && !strainCreator.isBlank()) {
+            tag.putString("strain_creator", strainCreator);
+        }
     }
 
     @Override
@@ -138,6 +151,7 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
                     .ifPresent(d -> strain = d);
         }
         strainId = tag.contains("strain_id") ? tag.getString("strain_id") : "";
+        strainCreator = tag.contains("strain_creator") ? tag.getString("strain_creator") : "";
     }
 
     @Override
@@ -159,6 +173,16 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
     public void sync() {
         if (this.level instanceof ServerLevel server) {
             this.setChanged();
+            BlockState state = getBlockState();
+            if (state.hasProperty(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.RENDER_SYNC)) {
+                // Flip a cosmetically-inert property to force a genuine BlockState value change.
+                // sendBlockUpdated alone is a no-op for the renderer when the state value doesn't
+                // change (Level.setBlock short-circuits before the client's chunk gets marked
+                // dirty), so without this the crop's BlockColor tint (which reads this BE's
+                // StrainData) would stay stuck at its old color until an unrelated real state
+                // change — like the next growth tick — happened to force a rebuild.
+                server.setBlock(this.worldPosition, state.cycle(net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock.RENDER_SYNC), 2);
+            }
             server.sendBlockUpdated(this.worldPosition, getBlockState(), getBlockState(), 3);
         }
     }

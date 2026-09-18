@@ -93,15 +93,27 @@ public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
 
         FluidStack fluid = recipe.getFluid();
         if (!fluid.isEmpty()) {
+            // The recipe's own declared fluid is always the bare, uncolored generic oil — but any
+            // strain's oil actually works in-game (the Mutator checks fluid validity itself, not
+            // recipe-declared identity; see MutatorRecipe#matches), and the output seed inherits
+            // whichever strain's oil was really used. Cycle strain-tinted oil here, paired with the
+            // identically-ordered output cycling below, instead of always showing "Unidentified".
             builder.addSlot(RecipeIngredientRole.INPUT, FLUID_X, FLUID_Y)
                     .setFluidRenderer(FLUID_CAPACITY, false, FLUID_W, FLUID_H)
-                    .addIngredient(NeoForgeTypes.FLUID_STACK, fluid.copy());
+                    .addIngredients(NeoForgeTypes.FLUID_STACK,
+                            JeiStrainHelper.coloredFluidStacks(fluid.getFluid(), fluid.getAmount(), focuses));
         }
 
         ItemStack out = recipe.output();
         if (!out.isEmpty()) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
-                    .addItemStack(out.copy());
+            if (JeiStrainHelper.isStrainItem(out.getItem())) {
+                builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
+                        .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(
+                                JeiStrainHelper.coloredStacks(out.getItem(), focuses).stream()));
+            } else {
+                builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
+                        .addItemStack(out.copy());
+            }
         }
     }
 

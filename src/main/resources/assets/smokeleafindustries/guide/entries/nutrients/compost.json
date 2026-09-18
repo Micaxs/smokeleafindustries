@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:compost",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 3,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:compost" } ]
+}

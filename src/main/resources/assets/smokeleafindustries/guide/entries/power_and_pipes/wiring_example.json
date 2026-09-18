@@ -1,0 +1,8 @@
+{
+  "icon": "smokeleafindustries:item_pipe",
+  "category": "smokeleafindustries:power_and_pipes",
+  "sortnum": 4,
+  "pages": [
+    { "type": "text" }
+  ]
+}

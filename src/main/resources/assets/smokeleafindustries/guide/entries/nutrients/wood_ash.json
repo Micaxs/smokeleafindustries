@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:wood_ash",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 10,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:wood_ash" } ]
+}

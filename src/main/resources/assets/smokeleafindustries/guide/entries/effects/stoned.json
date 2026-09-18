@@ -1,0 +1,10 @@
+{
+  "icon": "smokeleafindustries:bong",
+  "category": "smokeleafindustries:effects",
+  "sortnum": 1,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:bong" },
+    { "type": "spotlight", "item": "smokeleafindustries:dab_rig" }
+  ]
+}

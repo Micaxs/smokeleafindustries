@@ -4,6 +4,7 @@ import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.custom.*;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -13,6 +14,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class ModBlocks {
@@ -134,11 +137,37 @@ public class ModBlocks {
     public static final DeferredBlock<Block> SEQUENCER = registerBlock("sequencer", () -> new SequencerBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
     public static final DeferredBlock<Block> DRYER = registerBlock("dryer", () -> new DryerBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
     public static final DeferredBlock<Block> MIXER = registerBlock("mixer", () -> new MixerBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
+    public static final DeferredBlock<Block> STRAIN_MODIFIER = registerBlock("strain_modifier", () -> new StrainModifierBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
+    public static final DeferredBlock<Block> GUMMY_MACHINE = registerBlock("gummy_machine", () -> new GummyMachineBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
+
+    // Pipe — registered directly (not via registerBlock helper) since it has no default BlockItem;
+    // the 3 pipe types are separate PipeItems (see ModItems.java) that merge into this same block.
+    public static final DeferredBlock<Block> PIPE = BLOCKS.register("pipe",
+            () -> new LogisticsPipeBlock(BlockBehaviour.Properties.of().strength(1f).noOcclusion().requiresCorrectToolForDrops()));
 
 
     // Utility Blocks
     public static final DeferredBlock<Block> DRYING_RACK = registerBlock("drying_rack", () -> new DryingRackBlock(BlockBehaviour.Properties.of().strength(1f).noOcclusion().requiresCorrectToolForDrops()));
 
+
+    // Hemp Wool — one block per DyeColor, dyed the same way as vanilla wool. WHITE is the
+    // plain "hemp_wool" produced by the base recipe; every other color is named
+    // "<color>_hemp_wool" to match vanilla's own wool naming.
+    public static final Map<DyeColor, DeferredBlock<Block>> HEMP_WOOL = registerHempWool();
+
+    public static String hempWoolName(DyeColor color) {
+        return color == DyeColor.WHITE ? "hemp_wool" : color.getSerializedName() + "_hemp_wool";
+    }
+
+    private static Map<DyeColor, DeferredBlock<Block>> registerHempWool() {
+        Map<DyeColor, DeferredBlock<Block>> map = new EnumMap<>(DyeColor.class);
+        for (DyeColor color : DyeColor.values()) {
+            map.put(color, registerBlock(hempWoolName(color),
+                    () -> new Block(BlockBehaviour.Properties.of()
+                            .strength(0.8f).sound(SoundType.WOOL).ignitedByLava())));
+        }
+        return map;
+    }
 
 
     // Helper Functions

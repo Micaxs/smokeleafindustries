@@ -46,6 +46,11 @@ public record ManualGrinderRecipe(Ingredient ingredient, ItemStack result, int g
                 if (thc != null) out.set(ModDataComponentTypes.THC.get(), thc);
                 if (cbd != null) out.set(ModDataComponentTypes.CBD.get(), cbd);
             }
+            // Propagate strain lineage components
+            String strainId = in.get(ModDataComponentTypes.STRAIN_ID.get());
+            if (strainId != null) out.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+            String strainCreator = in.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+            if (strainCreator != null) out.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
         }
 
         return out;

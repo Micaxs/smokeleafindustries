@@ -1,0 +1,8 @@
+{
+  "icon": "smokeleafindustries:bud",
+  "category": "smokeleafindustries:effects",
+  "sortnum": 2,
+  "pages": [
+    { "type": "text" }
+  ]
+}

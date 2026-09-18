@@ -1,0 +1,10 @@
+{
+  "icon": "smokeleafindustries:joint",
+  "category": "smokeleafindustries:edibles_and_consumables",
+  "sortnum": 3,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:blunt" },
+    { "type": "spotlight", "item": "smokeleafindustries:dab_rig" }
+  ]
+}

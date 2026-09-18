@@ -8,6 +8,8 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
+import net.micaxs.smokeleaf.strain.StrainTankHolder;
+import net.micaxs.smokeleaf.strain.StrainTankTracker;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.nbt.NbtOps;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -16,6 +18,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.minecraft.core.BlockPos;
@@ -47,7 +50,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
+public class MutatorBlockEntity extends BlockEntity implements MenuProvider, StrainTankHolder {
 
     private static final int ENERGY_CONSTANT = 40;
     private static final int BUCKET_SLOT = 0;
@@ -81,7 +84,7 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             return switch(slot) {
-                case 0 -> stack.is(ModFluids.HASH_OIL_BUCKET) || stack.is(ModFluids.HEMP_OIL_BUCKET) || stack.is(ModFluids.UNIDENTIFIED_MIXTURE_BUCKET);
+                case 0 -> stack.is(ModFluids.HASH_OIL_BUCKET) || stack.is(ModFluids.UNIDENTIFIED_MIXTURE_BUCKET);
                 case 1, 2 -> {
                     if (stack.isEmpty() || level == null) yield false;
                     yield level.getRecipeManager()
@@ -95,7 +98,10 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         }
     };
     public IItemHandler getItemHandler(@Nullable Direction direction) {
-        return this.itemHandler;
+        // BUCKET_SLOT stays extractable too — it's a container-exchange slot (a filled bucket goes
+        // in, gets auto-drained into the tank, and the empty bucket left behind needs to come back
+        // out), not a raw-material input in the same sense as the seed/extract slots.
+        return new ExtractRestrictedItemHandler(this.itemHandler, slot -> slot == OUTPUT_SLOT || slot == BUCKET_SLOT);
     }
 
 
@@ -302,8 +308,21 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                 output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);
 
                 // Use the stable mixture strain ID so all seeds from this batch share lineage.
+                // Prefer the fluid's own STRAIN_ID/MIX_KEY (the exact key the Mixer tagged its
+                // output oil with) over a freshly content-derived hash — reusing the real mix key
+                // is what lets a later identification (StrainRegistrySavedData#propagateUpdate ->
+                // StrainTankTracker) find and patch any oil still sitting in the Mixer's own tank,
+                // instead of silently mismatching against a differently-computed id and leaving
+                // that leftover oil stuck showing "Unidentified" forever. Content hash stays as a
+                // fallback for fluid that genuinely carries neither (legacy/edge cases).
                 if (this.mixtureStrainId == null) {
-                    this.mixtureStrainId = java.util.UUID.randomUUID().toString();
+                    String fromFluid = mix.get(ModDataComponentTypes.STRAIN_ID.get());
+                    if (fromFluid == null || fromFluid.isBlank()) {
+                        fromFluid = mix.get(ModDataComponentTypes.MIX_KEY.get());
+                    }
+                    this.mixtureStrainId = (fromFluid != null && !fromFluid.isBlank())
+                            ? fromFluid
+                            : StrainUtil.strainContentId(base);
                 }
                 String strainId = this.mixtureStrainId;
                 output.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
@@ -313,7 +332,9 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                     // Keep any name already registered; only register fresh if unknown.
                     if (existingName == null || existingName.isBlank()) {
                         String displayName = base.identified() && !base.displayName().isBlank() ? base.displayName() : "";
-                        registry.register(strainId, displayName, "");
+                        registry.register(strainId, displayName, "", base.colorArgb(), base.leafColor(), base.thc(), base.cbd(),
+                                base.nitrogen(), base.phosphorus(), base.potassium(),
+                                base.baseStrain1(), base.baseStrain2());
                     } else if (!existingName.equals(base.displayName())) {
                         // Sync the name from the registry onto the output so it matches what was named earlier.
                     base = new StrainData(base.colorArgb(), base.leafColor(), base.thc(), base.cbd(),
@@ -322,6 +343,11 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
                             true, existingName, base.typeColors(),
                             base.baseStrain1(), base.baseStrain2());
                     output.set(ModDataComponentTypes.STRAIN_DATA.get(), base);
+                    }
+                    // Set STRAIN_CREATOR from the registry so "Discovered by" tooltip shows on the seed.
+                    StrainRegistrySavedData.StrainEntry entry = registry.lookup(strainId);
+                    if (entry != null && !entry.creatorName().isBlank()) {
+                        output.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
                     }
                 }
             }
@@ -343,12 +369,33 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
         int newCount = existing.getCount() + output.getCount();
         ItemStack newStack = new ItemStack(output.getItem(), newCount);
-        if (output.has(ModDataComponentTypes.STRAIN_DATA.get())) {
-            newStack.set(ModDataComponentTypes.STRAIN_DATA.get(), output.get(ModDataComponentTypes.STRAIN_DATA.get()));
+
+        // Prefer to preserve the existing strain payload when merging, otherwise use the new output's payload.
+        if (existing.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+            StrainData e = existing.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (e != null) newStack.set(ModDataComponentTypes.STRAIN_DATA.get(), e);
+        } else if (output.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+            StrainData o = output.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (o != null) newStack.set(ModDataComponentTypes.STRAIN_DATA.get(), o);
         }
-        if (output.has(ModDataComponentTypes.STRAIN_ID.get())) {
-            newStack.set(ModDataComponentTypes.STRAIN_ID.get(), output.get(ModDataComponentTypes.STRAIN_ID.get()));
+
+        String existingId = existing.get(ModDataComponentTypes.STRAIN_ID.get());
+        String outputId = output.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (existingId != null && !existingId.isBlank()) {
+            newStack.set(ModDataComponentTypes.STRAIN_ID.get(), existingId);
+        } else if (outputId != null && !outputId.isBlank()) {
+            newStack.set(ModDataComponentTypes.STRAIN_ID.get(), outputId);
         }
+
+        // Carry STRAIN_CREATOR (prefer existing slot's value, then new output's)
+        String existingCreator = existing.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        String outputCreator = output.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        if (existingCreator != null && !existingCreator.isBlank()) {
+            newStack.set(ModDataComponentTypes.STRAIN_CREATOR.get(), existingCreator);
+        } else if (outputCreator != null && !outputCreator.isBlank()) {
+            newStack.set(ModDataComponentTypes.STRAIN_CREATOR.get(), outputCreator);
+        }
+
         itemHandler.setStackInSlot(OUTPUT_SLOT, newStack);
     }
 
@@ -369,7 +416,19 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
         if (opt.isEmpty()) return false;
 
         MutatorRecipe rec = opt.get().value();
-        ItemStack output = rec.output();
+
+        // Pre-apply the current mixture strain so the output slot compatibility check is accurate.
+        // rec.output() is the bare recipe template (no STRAIN_DATA) but the machine will stamp strain
+        // onto it during craftItem(). Without this, after the first seed is produced the output slot
+        // has STRAIN_DATA and canInsertItemIntoOutputSlot would wrongly block further crafts.
+        ItemStack output = rec.output().copy();
+        if (output.is(ModItems.GENERIC_SEEDS.get()) && this.mixtureStrain != StrainData.EMPTY) {
+            output.set(ModDataComponentTypes.STRAIN_DATA.get(), this.mixtureStrain);
+            if (this.mixtureStrainId != null && !this.mixtureStrainId.isBlank()) {
+                output.set(ModDataComponentTypes.STRAIN_ID.get(), this.mixtureStrainId);
+            }
+        }
+
         if (!canInsertAmountIntoOutputSlot(output.getCount()) || !canInsertItemIntoOutputSlot(output)) return false;
 
         FluidStack tank = FLUID_TANK.getFluid();
@@ -411,8 +470,37 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private boolean canInsertItemIntoOutputSlot(ItemStack output) {
-        return itemHandler.getStackInSlot(OUTPUT_SLOT).isEmpty() ||
-                itemHandler.getStackInSlot(OUTPUT_SLOT).getItem() == output.getItem();
+        ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
+        if (existing.isEmpty()) return true;
+        if (existing.getItem() != output.getItem()) return false;
+
+        boolean existingHas = existing.has(ModDataComponentTypes.STRAIN_DATA.get());
+        boolean outputHas = output.has(ModDataComponentTypes.STRAIN_DATA.get());
+
+        // Neither has strain data → compatible plain items
+        if (!existingHas && !outputHas) return true;
+
+        // One has strain and the other doesn't → the output is the bare recipe template;
+        // allow the insertion since craftItem() will stamp the same strain on it.
+        if (existingHas && !outputHas) return true;
+        if (!existingHas && outputHas) return true;
+
+        // Both have strain data → compare by STRAIN_ID first (fastest), then by record equality,
+        // then by deterministic content ID (handles cases where STRAIN_ID is absent).
+        StrainData e = existing.get(ModDataComponentTypes.STRAIN_DATA.get());
+        StrainData o = output.get(ModDataComponentTypes.STRAIN_DATA.get());
+        if (e == null) e = StrainData.EMPTY;
+        if (o == null) o = StrainData.EMPTY;
+
+        String eid = existing.get(ModDataComponentTypes.STRAIN_ID.get());
+        String oid = output.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (eid == null) eid = "";
+        if (oid == null) oid = "";
+
+        if (!eid.isBlank() && !oid.isBlank()) return eid.equals(oid);
+        if (e.equals(o)) return true;
+
+        return StrainUtil.strainContentId(e).equals(StrainUtil.strainContentId(o));
     }
 
     private boolean canInsertAmountIntoOutputSlot(int count) {
@@ -610,5 +698,54 @@ public class MutatorBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
         super.onDataPacket(net, pkt, lookupProvider);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide()) StrainTankTracker.register(this);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        StrainTankTracker.unregister(this);
+    }
+
+    @Override
+    public void applyStrainRegistryUpdate(String strainId, StrainRegistrySavedData.StrainEntry entry) {
+        if (strainId.equals(this.mixtureStrainId) && this.mixtureStrain != StrainData.EMPTY) {
+            this.mixtureStrain = StrainRegistrySavedData.withEntryApplied(this.mixtureStrain, entry);
+            setChanged();
+        }
+
+        // Patch any seed already sitting in this machine's own slots (most commonly the output
+        // slot) that shares this strainId — otherwise a batch-crafted seed left uncollected here
+        // never picks up a rename made afterward via the Strain Identifier, since renames are only
+        // ever pushed to items already in an online player's inventory.
+        for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
+            StrainRegistrySavedData.applyUpdate(itemHandler.getStackInSlot(slot), strainId, entry);
+        }
+        setChanged();
+
+        FluidStack fluid = FLUID_TANK.getFluid();
+        if (fluid.isEmpty()) return;
+        String fluidStrainId = fluid.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (!strainId.equals(fluidStrainId)) return;
+        StrainData current = StrainUtil.getStrain(fluid);
+        if (current == StrainData.EMPTY) return;
+
+        FluidStack updated = fluid.copy();
+        StrainUtil.setStrain(updated, StrainRegistrySavedData.withEntryApplied(current, entry));
+        if (!entry.creatorName().isBlank()) updated.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
+        FLUID_TANK.setFluid(updated);
+        // FluidTank#setFluid just overwrites the field directly (unlike fill()/drain(), it never
+        // calls onContentsChanged()), so without an explicit sync here the server-side data is
+        // correct but no update packet goes out, leaving an already-open GUI/tooltip stale until
+        // something else (relog, chunk reload) forces a fresh sync.
+        if (level != null && !level.isClientSide()) {
+            setChanged();
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
     }
 }

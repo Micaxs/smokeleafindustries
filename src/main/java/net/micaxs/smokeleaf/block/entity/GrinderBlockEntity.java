@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +62,7 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
     };
 
     public IItemHandler getItemHandler(@Nullable Direction direction) {
-        return this.itemHandler;
+        return ExtractRestrictedItemHandler.outputOnly(this.itemHandler, OUTPUT_SLOT);
     }
 
     private static final int ENERGY_CONSTANT = 40;
@@ -191,6 +192,8 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
         if (strainData != null) assembled.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
         var strainId = input.get(ModDataComponentTypes.STRAIN_ID.get());
         if (strainId != null) assembled.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+        var strainCreator = input.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        if (strainCreator != null) assembled.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
 
         int bonus = 0;
         if (input.getItem() instanceof BaseBudItem) {
@@ -236,6 +239,8 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
         if (strainData != null) result.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
         var strainId = inputStack.get(ModDataComponentTypes.STRAIN_ID.get());
         if (strainId != null) result.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+        var strainCreator = inputStack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        if (strainCreator != null) result.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
 
         // Apply bonus amount (+1 if bud is dry)
         int bonus = 0;
