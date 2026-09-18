@@ -48,6 +48,14 @@ public class ApplyUnidentifiedStrain extends LootItemConditionalFunction {
             if (d != null && d != StrainData.EMPTY) {
                 stack.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
             }
+            String sid = crop.getStrainId();
+            if (sid != null && !sid.isBlank()) {
+                stack.set(ModDataComponentTypes.STRAIN_ID.get(), sid);
+            }
+            String creator = crop.getStrainCreator();
+            if (creator != null && !creator.isBlank()) {
+                stack.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+            }
 
             // If this is the weed drop, make yield follow bud count rules.
             // (Seeds stay at 1, leaf stays at 1.)

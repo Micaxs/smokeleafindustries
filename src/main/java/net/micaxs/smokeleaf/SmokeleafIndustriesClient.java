@@ -6,6 +6,8 @@ import net.micaxs.smokeleaf.block.entity.UnidentifiedWeedCropBlockEntity;
 import net.micaxs.smokeleaf.block.entity.client.DryingRackRenderer;
 import net.micaxs.smokeleaf.block.entity.render.GrowPotRenderer;
 import net.micaxs.smokeleaf.client.brainmelt.BrainMeltInputHandler;
+import net.micaxs.smokeleaf.client.guide.GuideDataLoader;
+import net.micaxs.smokeleaf.client.model.PipeGeometryLoader;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.fluid.BaseFluidType;
@@ -96,62 +98,10 @@ public class SmokeleafIndustriesClient {
             ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_HASH_OIL_FLUID.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_HASH_OIL_FLUID.get(), RenderType.translucent());
 
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_HEMP_OIL_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_HEMP_OIL_FLUID.get(), RenderType.translucent());
 
             ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_HASH_OIL_SLUDGE_FLUID.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_HASH_OIL_SLUDGE_FLUID.get(), RenderType.translucent());
 
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_WHITE_WIDOW_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_WHITE_WIDOW_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_BUBBLE_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_BUBBLE_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_LEMON_HAZE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_LEMON_HAZE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_SOUR_DIESEL_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_SOUR_DIESEL_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_BLUE_ICE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_BLUE_ICE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_BUBBLEGUM_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_BUBBLEGUM_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_PURPLE_HAZE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_PURPLE_HAZE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_OG_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_OG_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_JACK_HERER_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_JACK_HERER_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_GARY_PEYTON_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_GARY_PEYTON_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_AMNESIA_HAZE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_AMNESIA_HAZE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_AK47_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_AK47_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_GHOST_TRAIN_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_GHOST_TRAIN_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_GRAPE_APE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_GRAPE_APE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_COTTON_CANDY_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_COTTON_CANDY_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_BANANA_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_BANANA_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_CARBON_FIBER_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_CARBON_FIBER_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_BIRTHDAY_CAKE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_BIRTHDAY_CAKE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_BLUE_COOKIES_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_BLUE_COOKIES_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_AFGHANI_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_AFGHANI_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_MOONBOW_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_MOONBOW_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_LAVA_CAKE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_LAVA_CAKE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_JELLY_RANCHER_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_JELLY_RANCHER_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_STRAWBERRY_SHORTCAKE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_STRAWBERRY_SHORTCAKE_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_PINK_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_PINK_KUSH_EXTRACT_FLUID.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(ModFluids.FLOWING_UNIDENTIFIED_MIXTURE_FLUID.get(), RenderType.translucent());
 
@@ -173,37 +123,30 @@ public class SmokeleafIndustriesClient {
     }
 
     @SubscribeEvent
+    public static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
+        event.register(ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "pipe"), PipeGeometryLoader.INSTANCE);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(new GuideDataLoader());
+    }
+
+    @SubscribeEvent
+    public static void onAddLayers(EntityRenderersEvent.AddLayers event) {
+        for (var skin : event.getSkins()) {
+            if (event.getSkin(skin) instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer renderer) {
+                renderer.addLayer(new net.micaxs.smokeleaf.client.render.RedEyesLayer(renderer));
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void onClientExtensions(RegisterClientExtensionsEvent event) {
-        event.registerFluidType(((BaseFluidType) ModFluidTypes.HEMP_OIL_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.HEMP_OIL_FLUID_TYPE.get());
         event.registerFluidType(((BaseFluidType) ModFluidTypes.HASH_OIL_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.HASH_OIL_FLUID_TYPE.get());
         event.registerFluidType(((BaseFluidType) ModFluidTypes.HASH_OIL_SLUDGE_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.HASH_OIL_SLUDGE_FLUID_TYPE.get());
 
-        event.registerFluidType((ModFluidTypes.WHITE_WIDOW_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.WHITE_WIDOW_EXTRACT_FLUID_TYPE.get());
 
-        event.registerFluidType((ModFluidTypes.BUBBLE_KUSH_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.BUBBLE_KUSH_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.LEMON_HAZE_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.LEMON_HAZE_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.SOUR_DIESEL_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.SOUR_DIESEL_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.BLUE_ICE_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.BLUE_ICE_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.BUBBLEGUM_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.BUBBLEGUM_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.PURPLE_HAZE_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.PURPLE_HAZE_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.OG_KUSH_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.OG_KUSH_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.JACK_HERER_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.JACK_HERER_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.GARY_PEYTON_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.GARY_PEYTON_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.AMNESIA_HAZE_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.AMNESIA_HAZE_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.AK47_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.AK47_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.GHOST_TRAIN_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.GHOST_TRAIN_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.GRAPE_APE_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.GRAPE_APE_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.COTTON_CANDY_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.COTTON_CANDY_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.BANANA_KUSH_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.BANANA_KUSH_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.CARBON_FIBER_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.CARBON_FIBER_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.BIRTHDAY_CAKE_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.BIRTHDAY_CAKE_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.BLUE_COOKIES_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.BLUE_COOKIES_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.AFGHANI_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.AFGHANI_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.MOONBOW_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.MOONBOW_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.LAVA_CAKE_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.LAVA_CAKE_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.JELLY_RANCHER_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.JELLY_RANCHER_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.STRAWBERRY_SHORTCAKE_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.STRAWBERRY_SHORTCAKE_EXTRACT_FLUID_TYPE.get());
-        event.registerFluidType((ModFluidTypes.PINK_KUSH_EXTRACT_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.PINK_KUSH_EXTRACT_FLUID_TYPE.get());
         event.registerFluidType((ModFluidTypes.UNIDENTIFIED_MIXTURE_FLUID_TYPE.get()).getClientFluidTypeExtensions(), ModFluidTypes.UNIDENTIFIED_MIXTURE_FLUID_TYPE.get());
 
 
@@ -220,6 +163,8 @@ public class SmokeleafIndustriesClient {
         event.register(ModMenuTypes.SEQUENCER_MENU.get(), SequencerScreen::new);
         event.register(ModMenuTypes.DRYER_MENU.get(), DryerScreen::new);
         event.register(ModMenuTypes.MIXER_MENU.get(), MixerScreen::new);
+        event.register(ModMenuTypes.STRAIN_MODIFIER_MENU.get(), StrainModifierScreen::new);
+        event.register(ModMenuTypes.GUMMY_MACHINE_MENU.get(), GummyMachineScreen::new);
     }
 
     @SubscribeEvent
@@ -296,6 +241,34 @@ public class SmokeleafIndustriesClient {
             double modified = event.getFOV() * (1.0 + boost);
             event.setFOV(Math.min(170.0, modified));
         }
+
+        // Stoned: very slow, deep FOV pulse — like a long relaxed inhale (~4.8s cycle).
+        // Gated the same way the trip shader is: only once the streak requirement is met.
+        MobEffectInstance stoned = player.getEffect(ModEffects.STONED);
+        if (stoned != null && stoned.isVisible()) {
+            float time = (float)(player.tickCount + p);
+            int amp = stoned.getAmplifier();
+            float amplitude = 0.009f + amp * 0.004f;
+            float wave = (float)Math.sin(time * 0.065f) * amplitude;
+            event.setFOV(event.getFOV() * (1.0 + wave));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onCameraAngles(ViewportEvent.ComputeCameraAngles event) {
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        if (player == null) return;
+
+        MobEffectInstance stoned = player.getEffect(ModEffects.STONED);
+        if (stoned != null && stoned.isVisible()) {
+            int amp = stoned.getAmplifier();
+            float time = (float)(player.tickCount + event.getPartialTick());
+            // Two slow sines with different periods — feels organic, not mechanical
+            float sway = (float)Math.sin(time * 0.020f) * (0.40f + amp * 0.15f);
+            float drift = (float)Math.sin(time * 0.013f + 1.8f) * (0.20f + amp * 0.08f);
+            event.setRoll(event.getRoll() + sway + drift);
+        }
     }
 
     @SubscribeEvent
@@ -343,18 +316,27 @@ public class SmokeleafIndustriesClient {
         event.register(blockColor, ModBlocks.UNIDENTIFIED_WEED_CROP.get());
     }
 
+    /** Scales an ARGB color's RGB channels by {@code factor} (alpha untouched) — used to darken/mute dried bud colors. */
+    private static int darkenColor(int argb, float factor) {
+        int a = (argb >> 24) & 0xFF;
+        int r = Math.round(((argb >> 16) & 0xFF) * factor);
+        int g = Math.round(((argb >> 8) & 0xFF) * factor);
+        int b = Math.round((argb & 0xFF) * factor);
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
     @SubscribeEvent
     public static void onItemColor(RegisterColorHandlersEvent.Item event) {
-        // Bud item color: uses leafColor (layer0) and colorArgb (layer1)
+        // Bud item color: uses leafColor (layer0) and colorArgb (layer1). Dried buds keep the
+        // strain's own hue — just a bit darker/muted — instead of a hardcoded flat grey that
+        // erased strain identity entirely.
         ItemColor budItemColor = (stack, tintIndex) -> {
             StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
             if (d != null) {
-                if (tintIndex == 0) return d.leafColor();
-                if (tintIndex == 1) {
-                    Boolean isDry = stack.get(ModDataComponentTypes.DRY);
-                    if (Boolean.TRUE.equals(isDry)) return 0xFFD6CEC3;
-                    return d.colorArgb();
-                }
+                Boolean isDry = stack.get(ModDataComponentTypes.DRY);
+                boolean dry = Boolean.TRUE.equals(isDry);
+                if (tintIndex == 0) return dry ? darkenColor(d.leafColor(), 0.88f) : d.leafColor();
+                if (tintIndex == 1) return dry ? darkenColor(d.colorArgb(), 0.8f) : d.colorArgb();
             }
             return 0xFFFFFFFF;
         };
@@ -408,8 +390,52 @@ public class SmokeleafIndustriesClient {
         // Extract items
         event.register(extractItemColor, ModItems.GENERIC_EXTRACT.get());
 
-        // Bag uses bud colors
-        event.register(budItemColor, ModItems.GENERIC_BAG.get());
+        // Bag uses 4 layers: bg (no tint), weed (leafColor), weed_mask (colorArgb), top_overlay (no tint)
+        ItemColor bagItemColor = (stack, tintIndex) -> {
+            if (tintIndex == 0 || tintIndex == 3) return 0xFFFFFFFF;
+            StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (d != null) {
+                if (tintIndex == 1) return d.leafColor();
+                if (tintIndex == 2) return d.colorArgb();
+            }
+            return 0xFFFFFFFF;
+        };
+        event.register(bagItemColor, ModItems.GENERIC_BAG.get());
+
+        // Gummy Bear: 3 layers — bg (leafColor), mask1 (colorArgb), mask2 (lighter tone of colorArgb)
+        ItemColor gummyItemColor = (stack, tintIndex) -> {
+            StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (d != null) {
+                if (tintIndex == 0) return d.leafColor();
+                if (tintIndex == 1) return d.colorArgb();
+                if (tintIndex == 2) return lightenColor(d.colorArgb());
+            }
+            return 0xFFFFFFFF;
+        };
+        event.register(gummyItemColor, ModItems.GENERIC_GUMMY.get());
+
+        // Gummy Worm: bg stays untinted, mask1 is the bud/strain color, mask2 is the plant/leaf color.
+        ItemColor gummyWormItemColor = (stack, tintIndex) -> {
+            StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (d != null) {
+                if (tintIndex == 1) return d.colorArgb();
+                if (tintIndex == 2) return d.leafColor();
+            }
+            return 0xFFFFFFFF;
+        };
+        event.register(gummyWormItemColor, ModItems.GENERIC_GUMMY_WORM.get());
+    }
+
+    /** Blends each RGB channel 50% toward white, keeping original alpha. */
+    private static int lightenColor(int argb) {
+        int a = (argb >> 24) & 0xFF;
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+        r = r + (255 - r) / 2;
+        g = g + (255 - g) / 2;
+        b = b + (255 - b) / 2;
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
 }

@@ -13,14 +13,6 @@ public class StonedEffect extends MobEffect {
 
     @Override
     public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
-        if (!livingEntity.level().isClientSide()) {
-            MobEffectInstance self = livingEntity.getEffect(ModEffects.STONED);
-            if (self != null) {
-                int duration = self.getDuration();
-                livingEntity.addEffect(new MobEffectInstance(MobEffects.CONFUSION, duration, amplifier, true, true, false));
-                livingEntity.addEffect(new MobEffectInstance(MobEffects.HUNGER, duration, amplifier, true, true, false));
-            }
-        }
         return super.applyEffectTick(livingEntity, amplifier);
     }
 

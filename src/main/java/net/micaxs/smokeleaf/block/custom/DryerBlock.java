@@ -112,6 +112,6 @@ public class DryerBlock extends BaseEntityBlock {
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(FACING, context.getHorizontalDirection());
+        return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 }

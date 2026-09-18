@@ -141,8 +141,11 @@ public class ManualGrinderItem extends Item {
             tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.usage_empty")
                     .withStyle(ChatFormatting.DARK_GRAY));
         } else {
+            Component contentsLabel = stored.getCount() > 1
+                    ? Component.literal(stored.getCount() + "x ").append(stored.getHoverName())
+                    : stored.getHoverName();
             tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.contains",
-                    stored.getHoverName()).withStyle(ChatFormatting.GREEN));
+                    contentsLabel).withStyle(ChatFormatting.GREEN));
             boolean valid = context.level() != null && isValidIngredient(context.level(), stored);
             if (!valid) {
                 tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.invalid")

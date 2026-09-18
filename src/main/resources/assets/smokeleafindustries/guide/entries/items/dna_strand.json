@@ -1,0 +1,19 @@
+{
+  "icon": "smokeleafindustries:dna_strand",
+  "category": "smokeleafindustries:items",
+  "sortnum": 0,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:dna_strand" },
+    {
+      "type": "combine",
+      "inputs": [
+        "smokeleafindustries:dna_strand",
+        "minecraft:cobweb",
+        "minecraft:snowball",
+        "minecraft:white_dye"
+      ],
+      "output": "smokeleafindustries:dna_strand"
+    }
+  ]
+}

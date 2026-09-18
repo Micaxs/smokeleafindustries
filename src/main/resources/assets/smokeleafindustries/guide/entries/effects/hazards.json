@@ -1,0 +1,8 @@
+{
+  "icon": "smokeleafindustries:blunt",
+  "category": "smokeleafindustries:effects",
+  "sortnum": 5,
+  "pages": [
+    { "type": "text" }
+  ]
+}

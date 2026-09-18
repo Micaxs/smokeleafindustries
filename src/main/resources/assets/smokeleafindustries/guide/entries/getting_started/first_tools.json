@@ -1,0 +1,10 @@
+{
+  "icon": "smokeleafindustries:hemp_hammer",
+  "category": "smokeleafindustries:getting_started",
+  "sortnum": 5,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:manual_grinder" },
+    { "type": "crafting", "recipe": "smokeleafindustries:hemp_hammer" }
+  ]
+}

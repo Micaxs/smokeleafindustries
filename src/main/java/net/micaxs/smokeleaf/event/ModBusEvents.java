@@ -3,6 +3,7 @@ package net.micaxs.smokeleaf.event;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.entity.*;
 import net.micaxs.smokeleaf.fluid.ModFluids;
+import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -47,10 +48,31 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.DRYER_BE.get(), DryerBlockEntity::getEnergyStorage);
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.DRYER_BE.get(), DryerBlockEntity::getItemHandler);
 
+        // Drying Rack is deliberately NOT given an ItemHandler capability — it's the free, manual,
+        // unpowered counterpart to the Dryer, meant to be loaded/unloaded by hand, not automated.
+        // Registered explicitly as a no-op provider (rather than just omitting it) so that stays
+        // true even if a future refactor makes it implement Container or some other interface a
+        // capability might otherwise auto-attach to.
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.DRYING_RACK_BE.get(), (be, dir) -> null);
+
         // Mixer BlockEntity Capabilities
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.MIXER_BE.get(), MixerBlockEntity::getEnergyStorage);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MIXER_BE.get(), MixerBlockEntity::getFluidHandler);
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MIXER_BE.get(), MixerBlockEntity::getItemHandler);
+
+        // Strain Modifier (Strain Identifier) BlockEntity Capabilities
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.STRAIN_MODIFIER_BE.get(), StrainModifierBlockEntity::getEnergyStorage);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.STRAIN_MODIFIER_BE.get(), StrainModifierBlockEntity::getItemHandler);
+
+        // Gummy Machine (Confectioner) BlockEntity Capabilities
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.GUMMY_MACHINE_BE.get(), GummyMachineBlockEntity::getEnergyStorage);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.GUMMY_MACHINE_BE.get(), GummyMachineBlockEntity::getTank);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.GUMMY_MACHINE_BE.get(), GummyMachineBlockEntity::getItemHandler);
+
+        // Pipe BlockEntity Capabilities — only exposed on faces wrenched to IMPORT/EXPORT (see PipeBlockEntity getters)
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.PIPE_BE.get(), PipeBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.PIPE_BE.get(), PipeBlockEntity::getFluidHandler);
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModBlockEntities.PIPE_BE.get(), PipeBlockEntity::getEnergyStorage);
 
         // Item fluid handler capability for custom oil bucket (needed for FluidUtil compatibility)
         event.registerItem(Capabilities.FluidHandler.ITEM,

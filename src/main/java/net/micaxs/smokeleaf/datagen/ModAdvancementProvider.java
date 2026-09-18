@@ -6,6 +6,7 @@ import net.micaxs.smokeleaf.item.ModItems;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.RecipeCraftedTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
@@ -111,6 +112,29 @@ public class ModAdvancementProvider extends AdvancementProvider {
                     .rewards(AdvancementRewards.Builder.experience(5))
                     .save(consumer,
                             ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "joint"),
+                            existingFileHelper);
+
+
+            Advancement.Builder.advancement()
+                    .parent(root)
+                    .display(
+                            ModItems.HEMP_PLASTIC.get(),
+                            Component.translatable("advancement.smokeleafindustries.hemp_plastic.title"),
+                            Component.translatable("advancement.smokeleafindustries.hemp_plastic.desc"),
+                            null,
+                            AdvancementType.TASK,
+                            true,
+                            true,
+                            false
+                    )
+                    // Unlocks when Hemp Plastic is smelted in a furnace (bio composite -> hemp plastic)
+                    .addCriterion("smelted_hemp_plastic",
+                            RecipeCraftedTrigger.TriggerInstance.craftedItem(
+                                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID,
+                                            "hemp_plastic_from_bio_composite")))
+                    .rewards(AdvancementRewards.Builder.experience(10))
+                    .save(consumer,
+                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_plastic"),
                             existingFileHelper);
 
         }

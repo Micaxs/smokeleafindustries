@@ -7,6 +7,8 @@ import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
 import net.micaxs.smokeleaf.strain.MixedStrainSavedData;
 import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
 import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainTankHolder;
+import net.micaxs.smokeleaf.strain.StrainTankTracker;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.screen.custom.MixerMenu;
 import net.minecraft.core.BlockPos;
@@ -44,7 +46,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MixerBlockEntity extends BlockEntity implements MenuProvider {
+public class MixerBlockEntity extends BlockEntity implements MenuProvider, StrainTankHolder {
 
     private static final int ENERGY_TRANSFER_AMOUNT = 320;
     private final ModEnergyStorage ENERGY_STORAGE = new ModEnergyStorage(64000, ENERGY_TRANSFER_AMOUNT) {
@@ -92,9 +94,7 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
 
             @Override
             public boolean isFluidValid(FluidStack stack) {
-                return !stack.isEmpty()
-                        && (ModFluids.isExtractFluid(stack.getFluid())
-                            || stack.getFluid() == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get());
+                return !stack.isEmpty() && ModFluids.isExtractFluid(stack.getFluid());
             }
         };
     }
@@ -338,9 +338,9 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
-    /** Returns true for any fluid that is valid as a mixer input: named extract fluids and the generic mixture fluid. */
+    /** Returns true for any fluid that is valid as a mixer input (Hash Oil, or the generic mixture fluid). */
     private static boolean isOilFluid(net.minecraft.world.level.material.Fluid fluid) {
-        return ModFluids.isExtractFluid(fluid) || fluid == ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get();
+        return ModFluids.isExtractFluid(fluid);
     }
 
     private boolean canMix() {
@@ -354,20 +354,29 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         int drainEach = 250;
         if (a.getAmount() < drainEach || b.getAmount() < drainEach) return false;
 
-        // Block mix if the combined effect count would exceed the per-strain maximum.
-        int aTint = IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
-        int bTint = IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
-        StrainData preview = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
-        // mixFromExtracts already caps at MAX_EFFECTS; but if input oils each have MAX_EFFECTS and
-        // they are different, the total union would exceed the cap before truncation. We enforce it here.
-        var combinedEffects = new java.util.LinkedHashSet<net.minecraft.resources.ResourceLocation>();
-        net.micaxs.smokeleaf.fluid.WeedFluidData wa = WeedFluidStackUtil.getWeedData(a);
-        net.micaxs.smokeleaf.fluid.WeedFluidData wb = WeedFluidStackUtil.getWeedData(b);
-        if (wa != null) combinedEffects.addAll(wa.effects());
-        if (wb != null) combinedEffects.addAll(wb.effects());
-        if (StrainUtil.hasStrain(a)) combinedEffects.addAll(StrainUtil.getStrain(a).effects());
-        if (StrainUtil.hasStrain(b)) combinedEffects.addAll(StrainUtil.getStrain(b).effects());
-        if (combinedEffects.size() > StrainUtil.MAX_EFFECTS) return false;
+        StrainData preview;
+        if (isSameStrain(a, b)) {
+            // Pouring one strain into both tanks isn't a blend — there's nothing to mix, so the
+            // "output" is just that same strain, unchanged. Skip the effect-count-cap check below
+            // too: it exists to stop a blend's *union* of two different effect pools from exceeding
+            // the per-strain max, which is meaningless when both inputs already are one strain.
+            preview = StrainUtil.getStrain(a) != StrainData.EMPTY ? StrainUtil.getStrain(a) : StrainUtil.getStrain(b);
+        } else {
+            // Block mix if the combined effect count would exceed the per-strain maximum.
+            int aTint = IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
+            int bTint = IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
+            preview = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
+            // mixFromExtracts already caps at MAX_EFFECTS; but if input oils each have MAX_EFFECTS and
+            // they are different, the total union would exceed the cap before truncation. We enforce it here.
+            var combinedEffects = new java.util.LinkedHashSet<net.minecraft.resources.ResourceLocation>();
+            net.micaxs.smokeleaf.fluid.WeedFluidData wa = WeedFluidStackUtil.getWeedData(a);
+            net.micaxs.smokeleaf.fluid.WeedFluidData wb = WeedFluidStackUtil.getWeedData(b);
+            if (wa != null) combinedEffects.addAll(wa.effects());
+            if (wb != null) combinedEffects.addAll(wb.effects());
+            if (StrainUtil.hasStrain(a)) combinedEffects.addAll(StrainUtil.getStrain(a).effects());
+            if (StrainUtil.hasStrain(b)) combinedEffects.addAll(StrainUtil.getStrain(b).effects());
+            if (combinedEffects.size() > StrainUtil.MAX_EFFECTS) return false;
+        }
 
         // Output space
         FluidStack out = TANK_OUT.getFluid();
@@ -385,6 +394,13 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         return TANK_OUT.getFluidAmount() + 500 <= TANK_OUT.getCapacity();
     }
 
+    /** True when both fluids carry the same non-blank STRAIN_ID — pouring a strain's oil into both tanks isn't a real blend. */
+    private static boolean isSameStrain(FluidStack a, FluidStack b) {
+        String idA = a.get(ModDataComponentTypes.STRAIN_ID.get());
+        String idB = b.get(ModDataComponentTypes.STRAIN_ID.get());
+        return idA != null && !idA.isBlank() && idA.equals(idB);
+    }
+
     private void doMix() {
         int drainEach = 250;
 
@@ -392,41 +408,68 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         FluidStack b = TANK_B.drain(drainEach, IFluidHandler.FluidAction.EXECUTE);
         if (a.isEmpty() || b.isEmpty()) return;
 
-        int aTint = IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
-        int bTint = IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
+        if (isSameStrain(a, b)) {
+            // Same strain in both tanks — pass it straight through as-is (still identified, still
+            // that exact strain) instead of generating a brand-new "unidentified" hybrid that would
+            // need re-identifying from scratch for no reason.
+            String strainId = a.get(ModDataComponentTypes.STRAIN_ID.get());
+            StrainData same = StrainUtil.getStrain(a) != StrainData.EMPTY ? StrainUtil.getStrain(a) : StrainUtil.getStrain(b);
+            FluidStack passthrough = new FluidStack(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), 500);
+            StrainUtil.setStrain(passthrough, same);
+            passthrough.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+            String creator = a.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+            if (creator == null || creator.isBlank()) creator = b.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+            if (creator != null && !creator.isBlank()) passthrough.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+            if (!same.effects().isEmpty()) {
+                WeedFluidStackUtil.withWeedData(passthrough, same.effects(), same.amplifier(), same.durationTicks());
+            }
+            TANK_OUT.fill(passthrough, IFluidHandler.FluidAction.EXECUTE);
+            return;
+        }
+
+        int aTint = net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
+        int bTint = net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
 
         StrainData mixed = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
 
         // Compute canonical mix key.
-        // Prefer display names when available; fall back to STRAIN_ID so unnamed strains
-        // still get a stable, unique key that can be looked up in the registry.
+        // Priority: display name > STRAIN_ID > fluid registry ID (stable, unique fallback for
+        // old-style extract fluids that carry no STRAIN_DATA or STRAIN_ID).
         String nameA = StrainUtil.hasStrain(a) ? StrainUtil.getStrain(a).displayName() : "";
         String nameB = StrainUtil.hasStrain(b) ? StrainUtil.getStrain(b).displayName() : "";
+        if (nameA == null) nameA = "";
+        if (nameB == null) nameB = "";
         String strainIdA = a.get(ModDataComponentTypes.STRAIN_ID.get());
         String strainIdB = b.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (strainIdA == null) strainIdA = "";
+        if (strainIdB == null) strainIdB = "";
 
         // If display names are empty, attempt registry lookup by STRAIN_ID to get the name
         if (level instanceof ServerLevel sl) {
-            if ((nameA == null || nameA.isBlank()) && strainIdA != null && !strainIdA.isBlank()) {
+            if (nameA.isBlank() && !strainIdA.isBlank()) {
                 String looked = StrainRegistrySavedData.get(sl.getServer()).lookupName(strainIdA);
                 if (looked != null && !looked.isBlank()) nameA = looked;
             }
-            if ((nameB == null || nameB.isBlank()) && strainIdB != null && !strainIdB.isBlank()) {
+            if (nameB.isBlank() && !strainIdB.isBlank()) {
                 String looked = StrainRegistrySavedData.get(sl.getServer()).lookupName(strainIdB);
                 if (looked != null && !looked.isBlank()) nameB = looked;
             }
         }
 
-        // Use STRAIN_IDs as key components when names are still empty
-        String keyA = (nameA != null && !nameA.isBlank()) ? nameA : (strainIdA != null ? strainIdA : "");
-        String keyB = (nameB != null && !nameB.isBlank()) ? nameB : (strainIdB != null ? strainIdB : "");
+        // Fall back to the fluid's Minecraft registry ID — every registered fluid type is unique,
+        // so this produces a stable, unique key even for old-style extract fluids without STRAIN_DATA.
+        String fluidKeyA = net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(a.getFluid()).toString();
+        String fluidKeyB = net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(b.getFluid()).toString();
+        String keyA = !nameA.isBlank() ? nameA : (!strainIdA.isBlank() ? strainIdA : fluidKeyA);
+        String keyB = !nameB.isBlank() ? nameB : (!strainIdB.isBlank() ? strainIdB : fluidKeyB);
         String mixKey = MixedStrainSavedData.canonicalKey(keyA, keyB);
 
         // Look up existing name for this combination (server-wide persistent registry)
+        String resolvedCreator = "";
         if (level instanceof ServerLevel sl) {
             // Check MixedStrainSavedData first (mixer-blend specific registry)
             String registeredName = MixedStrainSavedData.get(sl.getServer()).lookup(mixKey);
-            // Also check StrainRegistrySavedData by mixKey (covers renamed buckets)
+            // Also check StrainRegistrySavedData by mixKey (covers renamed seeds/buckets)
             if (registeredName == null || registeredName.isBlank()) {
                 registeredName = StrainRegistrySavedData.get(sl.getServer()).lookupName(mixKey);
             }
@@ -438,6 +481,12 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
                         true, registeredName, mixed.typeColors(),
                         mixed.baseStrain1(), mixed.baseStrain2()
                 );
+                // Carry the discoverer name so the bucket item can show "Discovered by"
+                net.micaxs.smokeleaf.strain.StrainRegistrySavedData.StrainEntry entry =
+                        StrainRegistrySavedData.get(sl.getServer()).lookup(mixKey);
+                if (entry != null && !entry.creatorName().isBlank()) {
+                    resolvedCreator = entry.creatorName();
+                }
             }
         }
 
@@ -445,6 +494,9 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
         StrainUtil.setStrain(out, mixed);
         out.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
         out.set(ModDataComponentTypes.STRAIN_ID.get(), mixKey);
+        if (!resolvedCreator.isBlank()) {
+            out.set(ModDataComponentTypes.STRAIN_CREATOR.get(), resolvedCreator);
+        }
 
         // Also carry effect payload for consumption.
         if (!mixed.effects().isEmpty()) {
@@ -509,6 +561,48 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
         super.onDataPacket(net, pkt, lookupProvider);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide()) StrainTankTracker.register(this);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        StrainTankTracker.unregister(this);
+    }
+
+    @Override
+    public void applyStrainRegistryUpdate(String strainId, StrainRegistrySavedData.StrainEntry entry) {
+        boolean changed = patchTank(TANK_A, strainId, entry);
+        changed |= patchTank(TANK_B, strainId, entry);
+        changed |= patchTank(TANK_OUT, strainId, entry);
+        // FluidTank#setFluid (used by patchTank below) just overwrites the field directly — unlike
+        // fill()/drain(), it never calls onContentsChanged(), so without this the server-side data
+        // is correct (which is why a relog picks it up) but no update packet ever goes out, leaving
+        // the client's already-open GUI/tooltip showing the stale pre-identification fluid.
+        if (changed && level != null && !level.isClientSide()) {
+            setChanged();
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private boolean patchTank(FluidTank tank, String strainId, StrainRegistrySavedData.StrainEntry entry) {
+        FluidStack fluid = tank.getFluid();
+        if (fluid.isEmpty()) return false;
+        String fluidStrainId = fluid.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (!strainId.equals(fluidStrainId)) return false;
+        StrainData current = StrainUtil.getStrain(fluid);
+        if (current == StrainData.EMPTY) return false;
+
+        FluidStack updated = fluid.copy();
+        StrainUtil.setStrain(updated, StrainRegistrySavedData.withEntryApplied(current, entry));
+        if (!entry.creatorName().isBlank()) updated.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
+        tank.setFluid(updated);
+        return true;
     }
 }
 

@@ -53,6 +53,16 @@ public class StrainCopyShapelessRecipe implements CraftingRecipe {
             StrainData sd = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
             if (sd != null) {
                 crafted.set(ModDataComponentTypes.STRAIN_DATA.get(), sd);
+                // Also carry the strain ID so bag↔weed conversions preserve full lineage.
+                String strainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+                if (strainId != null && !strainId.isBlank()) {
+                    crafted.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+                }
+                // Carry the discoverer name for "Discovered by" tooltip.
+                String creator = stack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+                if (creator != null && !creator.isBlank()) {
+                    crafted.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+                }
                 break;
             }
         }

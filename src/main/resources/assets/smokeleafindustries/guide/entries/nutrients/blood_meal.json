@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:blood_meal",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 6,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:blood_meal" } ]
+}

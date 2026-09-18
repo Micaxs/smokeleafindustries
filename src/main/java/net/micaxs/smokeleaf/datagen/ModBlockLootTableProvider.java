@@ -73,6 +73,11 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         // Grow Pot
         dropSelf(ModBlocks.GROW_POT.get());
 
+        // Hemp Wool
+        for (var entry : ModBlocks.HEMP_WOOL.entrySet()) {
+            dropSelf(entry.getValue().get());
+        }
+
         // Weed Crops
         addHempCropLoot(ModBlocks.HEMP_CROP, ModItems.HEMP_FIBERS, ModItems.HEMP_SEEDS, ModItems.HEMP_LEAF);
 
@@ -92,10 +97,16 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.SEQUENCER.get());
         dropSelf(ModBlocks.DRYER.get());
         dropSelf(ModBlocks.MIXER.get());
+        dropSelf(ModBlocks.STRAIN_MODIFIER.get());
+        dropSelf(ModBlocks.GUMMY_MACHINE.get());
 
         dropSelf(ModBlocks.DRYING_RACK.get());
 
-
+        // Pipe: drops are handled manually (one item per present type) in
+        // LogisticsPipeBlock#onRemove / PipeWrenchEvents, since a position can hold up to 3
+        // independent pipe items at once — the vanilla loot table must stay empty to avoid
+        // double-dropping.
+        this.add(ModBlocks.PIPE.get(), noDrop());
 
     }
 

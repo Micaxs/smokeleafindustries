@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:bloom_booster",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 11,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:bloom_booster" } ]
+}

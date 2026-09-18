@@ -80,6 +80,8 @@ public class GrowPotBlockEntity extends BlockEntity {
     private StrainData customStrain;
     @Nullable
     private String customStrainId;
+    @Nullable
+    private String customStrainCreator;
 
     public GrowPotBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GROW_POT.get(), pos, state);
@@ -245,6 +247,9 @@ public class GrowPotBlockEntity extends BlockEntity {
             if (customStrainId != null) {
                 bud.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
             }
+            if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+                bud.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
+            }
             int budFactor = getBudCount();
             if (budFactor > 1) bud.setCount(bud.getCount() * budFactor);
             return List.of(bud);
@@ -401,6 +406,9 @@ public class GrowPotBlockEntity extends BlockEntity {
             if (customStrainId != null) {
                 bud.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
             }
+            if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+                bud.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
+            }
             int budFactor = getBudCount();
             if (budFactor > 1) bud.setCount(bud.getCount() * budFactor);
             Block.popResource(serverLevel, worldPosition, bud);
@@ -468,6 +476,9 @@ public class GrowPotBlockEntity extends BlockEntity {
             StrainData d = customStrain;
             if (d != null) seed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
             if (customStrainId != null) seed.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+            if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+                seed.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
+            }
             if (!player.addItem(seed)) {
                 Block.popResource(level, worldPosition, seed);
             }
@@ -590,11 +601,13 @@ public class GrowPotBlockEntity extends BlockEntity {
         if (seedStack == null || seedStack.isEmpty()) {
             this.customStrain = null;
             this.customStrainId = null;
+            this.customStrainCreator = null;
             return;
         }
         StrainData d = seedStack.get(ModDataComponentTypes.STRAIN_DATA.get());
         this.customStrain = (d != null && d != StrainData.EMPTY) ? d : null;
         this.customStrainId = seedStack.get(ModDataComponentTypes.STRAIN_ID.get());
+        this.customStrainCreator = seedStack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
 
         // Copy only the genetic traits (thc/cbd) from the strain — the strain's NPK values
         // are the OPTIMAL TARGET the player must reach via fertilizers, not starting values.
@@ -620,6 +633,7 @@ public class GrowPotBlockEntity extends BlockEntity {
     public void clearCustomStrain() {
         this.customStrain = null;
         this.customStrainId = null;
+        this.customStrainCreator = null;
     }
 
     @Override
@@ -644,6 +658,9 @@ public class GrowPotBlockEntity extends BlockEntity {
         if (customStrainId != null) {
             tag.putString("custom_strain_id", customStrainId);
         }
+        if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+            tag.putString("custom_strain_creator", customStrainCreator);
+        }
     }
 
     @Override
@@ -657,6 +674,7 @@ public class GrowPotBlockEntity extends BlockEntity {
         this.autoExportCooldown = 0;
         this.customStrain = null;
         this.customStrainId = null;
+        this.customStrainCreator = null;
 
         if (tag.contains("Pot")) {
             PotData.CODEC.parse(NbtOps.INSTANCE, tag.get("Pot"))
@@ -688,6 +706,9 @@ public class GrowPotBlockEntity extends BlockEntity {
         if (tag.contains("custom_strain_id")) {
             this.customStrainId = tag.getString("custom_strain_id");
         }
+        if (tag.contains("custom_strain_creator")) {
+            this.customStrainCreator = tag.getString("custom_strain_creator");
+        }
     }
 
     public void drops() {
@@ -705,6 +726,9 @@ public class GrowPotBlockEntity extends BlockEntity {
                 }
                 if (customStrainId != null) {
                     seedStack.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+                }
+                if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+                    seedStack.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
                 }
             } else {
                 seedStack = new ItemStack(cropBlock.getBaseSeedId().asItem());

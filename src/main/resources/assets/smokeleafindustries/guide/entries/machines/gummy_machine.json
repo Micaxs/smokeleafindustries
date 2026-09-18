@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:gummy_machine",
+  "category": "smokeleafindustries:machines",
+  "sortnum": 13,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:gummy_machine" }
+  ]
+}

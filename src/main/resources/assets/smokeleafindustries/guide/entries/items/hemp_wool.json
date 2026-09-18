@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:hemp_wool",
+  "category": "smokeleafindustries:items",
+  "sortnum": 5,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:hemp_wool" }
+  ]
+}

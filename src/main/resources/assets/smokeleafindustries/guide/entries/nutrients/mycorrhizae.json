@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:mycorrhizae",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 4,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:mycorrhizae" } ]
+}

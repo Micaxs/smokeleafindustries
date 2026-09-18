@@ -1,0 +1,11 @@
+{
+  "icon": "smokeleafindustries:hemp_core",
+  "category": "smokeleafindustries:getting_started",
+  "sortnum": 6,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:hemp_plastic_from_hammering" },
+    { "type": "smelting", "recipe": "smokeleafindustries:smelting/hemp_plastic_from_bio_composite" },
+    { "type": "crafting", "recipe": "smokeleafindustries:hemp_core" }
+  ]
+}

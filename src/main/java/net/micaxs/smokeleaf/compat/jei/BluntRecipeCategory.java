@@ -11,6 +11,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.item.ModItems;
+import net.micaxs.smokeleaf.item.custom.BluntItem;
 import net.micaxs.smokeleaf.recipe.BluntRecipe;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -79,6 +80,8 @@ public class BluntRecipeCategory implements IRecipeCategory<BluntRecipe> {
         builder.addSlot(RecipeIngredientRole.INPUT, 37, 37).addItemStack(new ItemStack(Items.PAPER));
 
         // Output
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19).addItemStack(recipe.getResultItem(null));
+        List<ItemStack> outputs = JeiStrainHelper.coloredBlendOutputs(
+                recipe.getResultItem(null).getItem(), 3, BluntItem::storeWeeds, focuses);
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19).addIngredients(Ingredient.of(outputs.stream()));
     }
 }

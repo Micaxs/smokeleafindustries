@@ -1,0 +1,25 @@
+{
+  "icon": "smokeleafindustries:bud",
+  "category": "smokeleafindustries:strains",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "text"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:bud",
+      "strain": "blue_ice"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:weed",
+      "strain": "blue_ice"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:seeds",
+      "strain": "blue_ice"
+    }
+  ]
+}

@@ -91,6 +91,7 @@ public class ModRecipes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ManualGrinderRecipe>> MANUAL_GRINDER_SERIALIZER = SERIALIZERS.register("manual_grinder", ManualGrinderRecipe.Serializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StrainCopyShapelessRecipe>> STRAIN_COPY_SHAPELESS_SERIALIZER = SERIALIZERS.register("strain_copy_shapeless", StrainCopyShapelessRecipe.Serializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StrainCopyShapedRecipe>> STRAIN_COPY_SHAPED_SERIALIZER = SERIALIZERS.register("strain_copy_shaped", StrainCopyShapedRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ArmorUpgradeShapelessRecipe>> ARMOR_UPGRADE_SHAPELESS_SERIALIZER = SERIALIZERS.register("armor_upgrade_shapeless", ArmorUpgradeShapelessRecipe.Serializer::new);
     public static final DeferredHolder<RecipeType<?>, RecipeType<ManualGrinderRecipe>> MANUAL_GRINDER_TYPE = TYPES.register("manual_grinder", () -> new RecipeType<ManualGrinderRecipe>() {
         @Override
         public String toString() {
@@ -110,6 +111,15 @@ public class ModRecipes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<BluntRecipe>> BLUNT_TYPE = TYPES.register("blunt", () -> new RecipeType<BluntRecipe>() {
         @Override public String toString() {
             return "blunt";
+        }
+    });
+
+    // Gummy Machine (Mold + Oil -> Gummy)
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<GummyRecipe>> GUMMY_SERIALIZER = SERIALIZERS.register("gummy_machine", GummyRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<GummyRecipe>> GUMMY_TYPE = TYPES.register("gummy_machine", () -> new RecipeType<GummyRecipe>() {
+        @Override
+        public String toString() {
+            return "gummy_machine";
         }
     });
 

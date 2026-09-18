@@ -1,6 +1,9 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "smokeleafindustries:item/empty_bag"
+    "layer0": "smokeleafindustries:item/generic_bag_bg",
+    "layer1": "smokeleafindustries:item/generic_bag_weed",
+    "layer2": "smokeleafindustries:item/generic_bag_weed_mask",
+    "layer3": "smokeleafindustries:item/generic_bag_top_overlay"
   }
 }

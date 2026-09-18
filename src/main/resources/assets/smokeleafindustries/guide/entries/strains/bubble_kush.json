@@ -1,0 +1,25 @@
+{
+  "icon": "smokeleafindustries:bud",
+  "category": "smokeleafindustries:strains",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "text"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:bud",
+      "strain": "bubble_kush"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:weed",
+      "strain": "bubble_kush"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:seeds",
+      "strain": "bubble_kush"
+    }
+  ]
+}

@@ -20,11 +20,18 @@ public class ModPayloads {
                 ParanoiaHallucinationClientHandler::handle
         );
 
-        // Strain Book data -> client
+        // Strain Data Pad data -> client
         registrar.playToClient(
-                StrainBookDataPayload.TYPE,
-                StrainBookDataPayload.STREAM_CODEC,
-                StrainBookClientHandler::handle
+                StrainDataPadPayload.TYPE,
+                StrainDataPadPayload.STREAM_CODEC,
+                StrainDataPadClientHandler::handle
+        );
+
+        // Strain Modifier slider update -> server
+        registrar.playToServer(
+                StrainModifierUpdatePayload.TYPE,
+                StrainModifierUpdatePayload.STREAM_CODEC,
+                StrainModifierUpdateHandler::handle
         );
     }
 }

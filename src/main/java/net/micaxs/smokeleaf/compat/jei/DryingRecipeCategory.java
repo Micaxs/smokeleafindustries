@@ -72,8 +72,14 @@ public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
 
         ItemStack result = recipe.result();
         if (!result.isEmpty()) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
-                    .addItemStack(result.copy());
+            if (JeiStrainHelper.isStrainItem(result.getItem())) {
+                builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
+                        .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(
+                                JeiStrainHelper.coloredStacks(result.getItem(), focuses).stream()));
+            } else {
+                builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
+                        .addItemStack(result.copy());
+            }
             return;
         }
 

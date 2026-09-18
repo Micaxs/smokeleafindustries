@@ -2,9 +2,12 @@ package net.micaxs.smokeleaf.strain;
 
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -17,6 +20,29 @@ public final class StrainUtil {
     private StrainUtil() {}
 
     public static final int DEFAULT_UNIDENTIFIED_COLOR = 0xFFAAAAAA;
+
+    /** Flagship preset used to tint the bare {@code Item#getDefaultInstance()} of a generic strain item. */
+    public static final String DEFAULT_DISPLAY_STRAIN = "og_kush";
+
+    /**
+     * A stack of {@code item} carrying {@link #DEFAULT_DISPLAY_STRAIN}'s data — meant for
+     * {@code Item#getDefaultInstance()} overrides on generic bud/weed/seeds/extract/bag/gummy items.
+     * Every one of those items renders through an {@code ItemColor} handler that falls back to flat
+     * grey when no {@code StrainData} component is present (see
+     * {@code SmokeleafIndustriesClient#onItemColor}); a plain {@code new ItemStack(item)} — which is
+     * exactly what {@code Item#getDefaultInstance()} returns unless overridden — is what several
+     * external views fall back to (JEI's tag-membership lookup in particular resolves tag contents
+     * to each item's default instance directly, bypassing JEI's own ingredient list entirely, so
+     * recoloring the JEI ingredient list alone doesn't reach it).
+     */
+    public static ItemStack defaultTintedInstance(Item item) {
+        ItemStack stack = new ItemStack(item);
+        StrainRegistry.get(DEFAULT_DISPLAY_STRAIN).ifPresent(data -> {
+            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+            stack.set(ModDataComponentTypes.STRAIN_ID.get(), DEFAULT_DISPLAY_STRAIN);
+        });
+        return stack;
+    }
 
     public static final int MAX_EFFECTS = 4;
 
@@ -95,9 +121,8 @@ public final class StrainUtil {
         List<ResourceLocation> effList = effects.stream().limit(MAX_EFFECTS).collect(java.util.stream.Collectors.toList());
 
         int amp = 0;
-        int dur = 0;
-        if (wa != null) { amp = Math.max(amp, wa.amplifier()); dur = Math.max(dur, wa.durationTicks()); }
-        if (wb != null) { amp = Math.max(amp, wb.amplifier()); dur = Math.max(dur, wb.durationTicks()); }
+        if (wa != null) amp = Math.max(amp, wa.amplifier());
+        if (wb != null) amp = Math.max(amp, wb.amplifier());
 
         // N/P/K (and THC/CBD) derived from input extract stats.
         // Prefer STRAIN_DATA on the fluid stack (set by the liquifier for generic extracts).
@@ -125,6 +150,17 @@ public final class StrainUtil {
 
         String parent1 = hasStrain(a) ? getStrain(a).displayName() : "";
         String parent2 = hasStrain(b) ? getStrain(b).displayName() : "";
+
+        // durationTicks is derived purely from the mix's own final CBD (the same formula used
+        // everywhere effect duration is actually computed at consumption time — see
+        // StrainEffectsUtil#computeDurationTicks) rather than inherited from each input's own
+        // leftover WeedFluidData. That legacy field only ever got set incidentally depending on
+        // exactly how/where a fluid was created, so two batches of "the same" strain could end up
+        // with different stored durationTicks despite being otherwise byte-identical — which is
+        // exactly the one field ItemStack/FluidStack component equality needs to match for two
+        // stacks to be allowed to merge, so that alone was silently blocking seeds/oils of the same
+        // strain from ever stacking together.
+        int dur = StrainEffectsUtil.computeDurationTicks(cbd, 1.0f);
 
         return new StrainData(
                 mixedColor,
@@ -220,4 +256,16 @@ public final class StrainUtil {
     public static int getR(int argb) { return (argb >>> 16) & 0xFF; }
     public static int getG(int argb) { return (argb >>> 8) & 0xFF; }
     public static int getB(int argb) { return argb & 0xFF; }
+
+    /**
+     * Appends a "Discovered by: {player}" tooltip line if the item stack carries a
+     * {@code STRAIN_CREATOR} component. Preset/builtin strains never have this set.
+     */
+    public static void appendCreatorTooltip(ItemStack stack, List<Component> tooltip) {
+        String creator = stack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        if (creator != null && !creator.isBlank()) {
+            tooltip.add(Component.literal("Discovered by: " + creator)
+                    .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+        }
+    }
 }

@@ -36,6 +36,7 @@ public final class StrainItemFactory {
     public static ItemStack applyPreset(ItemStack stack, String strainId) {
         StrainData data = StrainRegistry.getRequired(strainId);
         StrainUtil.setStrain(stack, data);
+        stack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
         stack.set(ModDataComponentTypes.THC.get(), data.thc());
         stack.set(ModDataComponentTypes.CBD.get(), data.cbd());
         stack.set(ModDataComponentTypes.NITROGEN.get(), data.nitrogen());

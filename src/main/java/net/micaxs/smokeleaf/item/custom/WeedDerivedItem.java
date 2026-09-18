@@ -31,6 +31,7 @@ public class WeedDerivedItem extends Item {
     private final float stonedChance;
     private final UseAnim useAnimation;
     private final int useDuration;
+    private final int requiredStreak;
     private static final List<ResourceLocation> ADDITIONAL_EFFECT_POOL = Collections.emptyList();
 
     public WeedDerivedItem(Properties pProperties, float effectDurationMultiplier, float stonedChance, UseAnim useAnimation) {
@@ -38,11 +39,17 @@ public class WeedDerivedItem extends Item {
     }
 
     public WeedDerivedItem(Properties pProperties, float effectDurationMultiplier, float stonedChance, UseAnim useAnimation, int useDuration) {
+        this(pProperties, effectDurationMultiplier, stonedChance, useAnimation, useDuration,
+                net.micaxs.smokeleaf.effect.TripStreakTracker.REQUIRED_STREAK);
+    }
+
+    public WeedDerivedItem(Properties pProperties, float effectDurationMultiplier, float stonedChance, UseAnim useAnimation, int useDuration, int requiredStreak) {
         super(pProperties);
         this.effectDurationMultiplier = effectDurationMultiplier;
         this.stonedChance = stonedChance;
         this.useAnimation = useAnimation;
         this.useDuration = useDuration;
+        this.requiredStreak = requiredStreak;
     }
 
     @Override
@@ -92,7 +99,21 @@ public class WeedDerivedItem extends Item {
                 if (livingEntity.hasEffect(stonedHolder)) {
                     previousStonedDuration = livingEntity.getEffect(stonedHolder).getDuration();
                 }
-                livingEntity.addEffect(new MobEffectInstance(stonedHolder, previousStonedDuration + 200, 1));
+                // Trip shader tier picked from THC; high CBD (27-30) shortens the duration. The
+                // trip only actually shows once the same item has been eaten 3 times in a row
+                // (see TripStreakTracker) — it still grants STONED either way.
+                int tier = net.micaxs.smokeleaf.effect.TripTier.forThc(
+                        strain != StrainData.EMPTY ? strain.thc() : 0).ordinal();
+                float cbdMult = net.micaxs.smokeleaf.effect.TripTier.cbdDurationMultiplier(
+                        strain != StrainData.EMPTY ? strain.cbd() : 0);
+                int addedDuration = Math.max(1, Math.round(200 * cbdMult));
+                boolean confirmed = true;
+                if (livingEntity instanceof net.minecraft.world.entity.player.Player p) {
+                    String streakKey = net.micaxs.smokeleaf.effect.TripStreakTracker.keyFor(stack, strain);
+                    confirmed = net.micaxs.smokeleaf.effect.TripStreakTracker.registerUseAndGetStreak(p, streakKey)
+                            >= this.requiredStreak;
+                }
+                livingEntity.addEffect(new MobEffectInstance(stonedHolder, previousStonedDuration + addedDuration, tier, false, confirmed));
             }
         }
 

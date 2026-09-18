@@ -1,0 +1,11 @@
+{
+  "icon": "smokeleafindustries:reflector",
+  "category": "smokeleafindustries:growing_plants",
+  "sortnum": 3,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:reflector" },
+    { "type": "spotlight", "item": "smokeleafindustries:hps_lamp" },
+    { "type": "spotlight", "item": "smokeleafindustries:dual_arc_lamp" }
+  ]
+}

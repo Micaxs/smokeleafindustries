@@ -1,0 +1,25 @@
+{
+  "icon": "smokeleafindustries:bud",
+  "category": "smokeleafindustries:strains",
+  "sortnum": 16,
+  "pages": [
+    {
+      "type": "text"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:bud",
+      "strain": "jelly_rancher"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:weed",
+      "strain": "jelly_rancher"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:seeds",
+      "strain": "jelly_rancher"
+    }
+  ]
+}

@@ -15,11 +15,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -264,16 +262,9 @@ public class MixerMenu extends AbstractContainerMenu {
     }
 
     private static ItemStack filledBucketForFluid(FluidStack drained) {
-        Fluid fluid = drained.getFluid();
-        Item bucketItem = fluid.getBucket();
-        ItemStack stack = new ItemStack(bucketItem);
-
-        StrainData strain = StrainUtil.getStrain(drained);
-        if (strain != StrainData.EMPTY) {
-            StrainUtil.setStrain(stack, strain);
-        }
-
-        return stack;
+        // Use FluidUtil.getFilledBucket so FluidType.getBucket(FluidStack) is called,
+        // which copies STRAIN_DATA / MIX_KEY / STRAIN_ID / STRAIN_CREATOR onto the bucket item.
+        return FluidUtil.getFilledBucket(drained);
     }
 
     private void addPlayerInventory(Inventory playerInventory) {

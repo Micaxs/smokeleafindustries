@@ -94,11 +94,17 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
                         .addItemStack(display.slotStacks.get(i));
             }
         }
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19)
-                .addItemStack(display.output);
+        List<ItemStack> outputs = display.outputs();
+        if (outputs.size() == 1) {
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19)
+                    .addItemStack(outputs.get(0));
+        } else if (outputs.size() > 1) {
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19)
+                    .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(outputs.stream()));
+        }
     }
 
-    public record Display(ItemStack output,
+    public record Display(List<ItemStack> outputs,
                           List<Integer> slotX, List<Integer> slotY,
                           List<ItemStack> slotStacks,
                           List<Item> strainItems) {
@@ -116,15 +122,13 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
     public static List<Display> buildDisplays() {
         List<Display> displays = new ArrayList<>();
 
-        var weedVariants = JeiStrainHelper.coloredStacks(ModItems.GENERIC_WEED.get());
-
         // Infused butter: butter + weed -> infused butter
         displays.add(buildShapelessDisplay(
                 List.of(
                         new SlotEntry(new ItemStack(ModItems.BUTTER.get()), null),
                         new SlotEntry(ItemStack.EMPTY, ModItems.GENERIC_WEED.get())
                 ),
-                new ItemStack(ModItems.INFUSED_BUTTER.get())
+                List.of(new ItemStack(ModItems.INFUSED_BUTTER.get()))
         ));
 
         // Hash brownie: 3x3
@@ -141,7 +145,7 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
                 new SlotEntry(ItemStack.EMPTY, ModItems.GENERIC_WEED.get()),
                 new SlotEntry(new ItemStack(ModItems.INFUSED_BUTTER.get()), null),
                 new SlotEntry(ItemStack.EMPTY, ModItems.GENERIC_WEED.get())
-        ), new ItemStack(ModItems.HASH_BROWNIE.get())));
+        ), List.of(new ItemStack(ModItems.HASH_BROWNIE.get()))));
 
         // Herb cake: 3x3
         // B S B
@@ -157,7 +161,7 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
                 new SlotEntry(new ItemStack(Items.MILK_BUCKET), null),
                 new SlotEntry(new ItemStack(Items.MILK_BUCKET), null),
                 new SlotEntry(new ItemStack(Items.MILK_BUCKET), null)
-        ), new ItemStack(ModItems.HERB_CAKE.get())));
+        ), List.of(new ItemStack(ModItems.HERB_CAKE.get()))));
 
         // Weed cookie: cookie + infused butter -> weed cookie
         displays.add(buildShapelessDisplay(
@@ -165,16 +169,20 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
                         new SlotEntry(new ItemStack(Items.COOKIE), null),
                         new SlotEntry(new ItemStack(ModItems.INFUSED_BUTTER.get()), null)
                 ),
-                new ItemStack(ModItems.WEED_COOKIE.get())
+                List.of(new ItemStack(ModItems.WEED_COOKIE.get()))
         ));
 
-        // Strain copy: bag -> 8x weed
+        // Strain copy: bag -> 8x weed (cycles through all strain colors)
+        List<ItemStack> weedOutputs = JeiStrainHelper.coloredStacks(ModItems.GENERIC_WEED.get())
+                .stream().map(s -> { ItemStack c = s.copy(); c.setCount(8); return c; })
+                .collect(java.util.stream.Collectors.toList());
         displays.add(buildShapelessDisplay(
                 List.of(new SlotEntry(ItemStack.EMPTY, ModItems.GENERIC_BAG.get())),
-                new ItemStack(ModItems.GENERIC_WEED.get(), 8)
+                weedOutputs
         ));
 
-        // Strain copy: empty bag + 8x weed -> bag
+        // Strain copy: empty bag + 8x weed -> bag (cycles through all strain colors)
+        List<ItemStack> bagOutputs = JeiStrainHelper.coloredStacks(ModItems.GENERIC_BAG.get());
         displays.add(buildShapelessDisplay(
                 List.of(
                         new SlotEntry(new ItemStack(ModItems.EMPTY_BAG.get()), null),
@@ -187,7 +195,7 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
                         new SlotEntry(ItemStack.EMPTY, ModItems.GENERIC_WEED.get()),
                         new SlotEntry(ItemStack.EMPTY, ModItems.GENERIC_WEED.get())
                 ),
-                new ItemStack(ModItems.GENERIC_BAG.get())
+                bagOutputs
         ));
 
         return displays;
@@ -195,7 +203,7 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
 
     private record SlotEntry(ItemStack stack, Item strainItem) {}
 
-    private static Display buildShapelessDisplay(List<SlotEntry> slots, ItemStack output) {
+    private static Display buildShapelessDisplay(List<SlotEntry> slots, List<ItemStack> outputs) {
         int n = Math.min(slots.size(), 9);
         List<Integer> xs = new ArrayList<>();
         List<Integer> ys = new ArrayList<>();
@@ -209,10 +217,10 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
             stacks.add(entry.stack);
             strainItems.add(entry.strainItem);
         }
-        return new Display(output, xs, ys, stacks, strainItems);
+        return new Display(outputs, xs, ys, stacks, strainItems);
     }
 
-    private static Display buildShaped3x3Display(List<SlotEntry> grid9, ItemStack output) {
+    private static Display buildShaped3x3Display(List<SlotEntry> grid9, List<ItemStack> outputs) {
         if (grid9.size() != 9) {
             throw new IllegalArgumentException("Shaped 3x3 display needs exactly 9 slots");
         }
@@ -229,6 +237,6 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
                 strainItems.add(entry.strainItem);
             }
         }
-        return new Display(output, xs, ys, stacks, strainItems);
+        return new Display(outputs, xs, ys, stacks, strainItems);
     }
 }

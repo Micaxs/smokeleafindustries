@@ -47,5 +47,6 @@ public class UnidentifiedMixtureBucketItem extends BucketItem {
         if (!d.effects().isEmpty()) {
             tooltip.add(Component.literal("Effects: " + d.effects().size()).withStyle(ChatFormatting.GRAY));
         }
+        StrainUtil.appendCreatorTooltip(stack, tooltip);
     }
 }

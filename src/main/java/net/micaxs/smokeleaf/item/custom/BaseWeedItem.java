@@ -13,6 +13,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -102,6 +103,11 @@ public class BaseWeedItem extends Item {
     }
 
     @Override
+    public ItemStack getDefaultInstance() {
+        return StrainUtil.defaultTintedInstance(this);
+    }
+
+    @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 
@@ -138,6 +144,8 @@ public class BaseWeedItem extends Item {
                             .withStyle(ChatFormatting.GRAY)
             );
         }
+        // "Discovered by" is intentionally not shown on weed/extract — data is preserved on the
+        // item for lineage tracking but only displayed on seeds, buds, and oil buckets.
     }
 
     private Component getLevelsText(ItemStack stack) {
@@ -203,15 +211,25 @@ public class BaseWeedItem extends Item {
 
     public List<MobEffectInstance> buildEffectInstances(ItemStack stack) {
         StrainData d = StrainUtil.getStrain(stack);
+        List<MobEffectInstance> effects;
         // If the strain data has explicit effects (from mixing), use them directly.
         // This ensures all effects in d.effects() are applied, not just the THC-pool-selected ones.
         if (d != StrainData.EMPTY && !d.effects().isEmpty()) {
-            return StrainEffectsUtil.buildEffectInstancesFromList(
+            effects = StrainEffectsUtil.buildEffectInstancesFromList(
                     getCBD(stack), this.effectAmplifier, d.effects(), this.durationMultiplier);
+        } else {
+            effects = StrainEffectsUtil.buildEffectInstances(
+                    getTHC(stack), getCBD(stack), this.effectAmplifier,
+                    getEffect(stack), this.durationMultiplier, ADDITIONAL_EFFECT_POOL);
         }
-        return StrainEffectsUtil.buildEffectInstances(
-                getTHC(stack), getCBD(stack), this.effectAmplifier,
-                getEffect(stack), this.durationMultiplier, ADDITIONAL_EFFECT_POOL);
+
+        List<MobEffectInstance> filtered = new ArrayList<>();
+        for (MobEffectInstance inst : effects) {
+            if (inst == null || inst.getEffect() == null) continue;
+            if (inst.getEffect().value() == MobEffects.CONFUSION) continue;
+            filtered.add(inst);
+        }
+        return filtered;
     }
 
     // Apply effects on consume/use

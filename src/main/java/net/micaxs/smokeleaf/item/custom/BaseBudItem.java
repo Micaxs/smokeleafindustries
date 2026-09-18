@@ -50,6 +50,11 @@ public class BaseBudItem extends Item {
     }
 
     @Override
+    public ItemStack getDefaultInstance() {
+        return StrainUtil.defaultTintedInstance(this);
+    }
+
+    @Override
     public Component getName(ItemStack stack) {
         StrainData d = StrainUtil.getStrain(stack);
         Component baseName;
@@ -98,6 +103,7 @@ public class BaseBudItem extends Item {
                 }
             }
         }
+        StrainUtil.appendCreatorTooltip(stack, tooltip);
     }
 
     private Component getLevelsText(StrainData d) {

@@ -68,6 +68,14 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<MixerBlockEntity>> MIXER_BE = BLOCK_ENTITIES.register("mixer_be",
             () -> BlockEntityType.Builder.of(MixerBlockEntity::new, ModBlocks.MIXER.get()).build(null));
 
+    public static final Supplier<BlockEntityType<StrainModifierBlockEntity>> STRAIN_MODIFIER_BE = BLOCK_ENTITIES.register("strain_modifier_be",
+            () -> BlockEntityType.Builder.of(StrainModifierBlockEntity::new, ModBlocks.STRAIN_MODIFIER.get()).build(null));
+
+    public static final Supplier<BlockEntityType<GummyMachineBlockEntity>> GUMMY_MACHINE_BE = BLOCK_ENTITIES.register("gummy_machine_be",
+            () -> BlockEntityType.Builder.of(GummyMachineBlockEntity::new, ModBlocks.GUMMY_MACHINE.get()).build(null));
+
+    public static final Supplier<BlockEntityType<PipeBlockEntity>> PIPE_BE = BLOCK_ENTITIES.register("pipe_be",
+            () -> BlockEntityType.Builder.of(PipeBlockEntity::new, ModBlocks.PIPE.get()).build(null));
 
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);

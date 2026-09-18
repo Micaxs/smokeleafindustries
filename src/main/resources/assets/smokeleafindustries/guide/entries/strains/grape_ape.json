@@ -1,0 +1,25 @@
+{
+  "icon": "smokeleafindustries:bud",
+  "category": "smokeleafindustries:strains",
+  "sortnum": 14,
+  "pages": [
+    {
+      "type": "text"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:bud",
+      "strain": "grape_ape"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:weed",
+      "strain": "grape_ape"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:seeds",
+      "strain": "grape_ape"
+    }
+  ]
+}
