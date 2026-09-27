@@ -2,11 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "II ",
-    " II"
+    "IP ",
+    " PI"
   ],
   "key": {
-    "I": { "item": "minecraft:iron_ingot" }
+    "I": { "item": "minecraft:iron_ingot" },
+    "P": { "item": "smokeleafindustries:hemp_plastic" }
   },
   "result": {
     "count": 1,

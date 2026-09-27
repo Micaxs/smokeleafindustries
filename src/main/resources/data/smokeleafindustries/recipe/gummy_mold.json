@@ -3,10 +3,11 @@
   "category": "misc",
   "pattern": [
     "I I",
-    "III"
+    "IPI"
   ],
   "key": {
-    "I": { "item": "minecraft:iron_ingot" }
+    "I": { "item": "minecraft:iron_ingot" },
+    "P": { "item": "smokeleafindustries:hemp_plastic" }
   },
   "result": {
     "count": 1,
