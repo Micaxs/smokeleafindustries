@@ -6,7 +6,7 @@ import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.neoforge.NeoForgeTypes;
+import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
@@ -22,8 +22,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -31,9 +31,9 @@ import java.util.List;
 
 public class LiquifierRecipeCategory implements IRecipeCategory<LiquifierRecipeCategory.Display> {
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "liquifier");
+            new ResourceLocation(SmokeleafIndustries.MODID, "liquifier");
     private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/liquifier/liquifier_gui.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/liquifier/liquifier_gui.png");
     public static final RecipeType<Display> LIQUIFIER_RECIPE_TYPE =
             new RecipeType<>(UID, Display.class);
 
@@ -77,7 +77,7 @@ public class LiquifierRecipeCategory implements IRecipeCategory<LiquifierRecipeC
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, TANK_X, TANK_Y)
                 .setFluidRenderer(TANK_CAPACITY, false, TANK_WIDTH, TANK_HEIGHT)
-                .addIngredient(NeoForgeTypes.FLUID_STACK, display.outputFluid());
+                .addIngredient(ForgeTypes.FLUID_STACK, display.outputFluid());
 
         ItemStack filledBucket = display.outputBucket();
         if (!filledBucket.isEmpty()) {
@@ -119,8 +119,8 @@ public class LiquifierRecipeCategory implements IRecipeCategory<LiquifierRecipeC
                 for (String strainId : StrainRegistry.ids()) {
                     StrainRegistry.get(strainId).ifPresent(strainData -> {
                         ItemStack inputStack = new ItemStack(candidate.getItem());
-                        inputStack.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
-                        inputStack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+                        ModDataComponentTypes.STRAIN_DATA.set(inputStack, strainData);
+                        ModDataComponentTypes.STRAIN_ID.set(inputStack, strainId);
 
                         // The liquifier only ever actually produces two real fluids — Hash Oil
                         // (weed) and Unidentified Mixture Fluid (extract) — both tinted per-strain

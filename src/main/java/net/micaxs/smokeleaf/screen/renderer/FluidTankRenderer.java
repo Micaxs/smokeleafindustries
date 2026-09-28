@@ -16,9 +16,9 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import org.joml.Matrix4f;
 
 import java.text.NumberFormat;
@@ -157,12 +157,13 @@ public class FluidTankRenderer {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
 
         Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix, xCoord, yCoord + 16, zLevel).setUv(uMin, vMax);
-        bufferBuilder.addVertex(matrix, xCoord + 16 - maskRight, yCoord + 16, zLevel).setUv(uMax, vMax);
-        bufferBuilder.addVertex(matrix, xCoord + 16 - maskRight, yCoord + maskTop, zLevel).setUv(uMax, vMin);
-        bufferBuilder.addVertex(matrix, xCoord, yCoord + maskTop, zLevel).setUv(uMin, vMin);
-        BufferUploader.drawWithShader(bufferBuilder.build());
+        BufferBuilder bufferBuilder = tessellator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.vertex(matrix, xCoord, yCoord + 16, zLevel).uv(uMin, vMax).endVertex();
+        bufferBuilder.vertex(matrix, xCoord + 16 - maskRight, yCoord + 16, zLevel).uv(uMax, vMax).endVertex();
+        bufferBuilder.vertex(matrix, xCoord + 16 - maskRight, yCoord + maskTop, zLevel).uv(uMax, vMin).endVertex();
+        bufferBuilder.vertex(matrix, xCoord, yCoord + maskTop, zLevel).uv(uMin, vMin).endVertex();
+        BufferUploader.drawWithShader(bufferBuilder.end());
     }
 
     public List<Component> getTooltip(FluidStack fluidStack, TooltipFlag tooltipFlag) {
@@ -176,7 +177,7 @@ public class FluidTankRenderer {
                 return tooltip;
             }
 
-            Component displayName = fluidStack.getHoverName();
+            Component displayName = fluidStack.getDisplayName();
             tooltip.add(displayName);
 
             long amount = fluidStack.getAmount();

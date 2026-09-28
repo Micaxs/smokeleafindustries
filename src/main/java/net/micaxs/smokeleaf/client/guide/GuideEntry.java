@@ -27,8 +27,8 @@ public record GuideEntry(ResourceLocation id, ResourceLocation icon, ResourceLoc
     }
 
     public static GuideEntry parse(ResourceLocation id, JsonObject json) {
-        ResourceLocation icon = ResourceLocation.parse(GsonHelper.getAsString(json, "icon"));
-        ResourceLocation category = ResourceLocation.parse(GsonHelper.getAsString(json, "category"));
+        ResourceLocation icon = new ResourceLocation(GsonHelper.getAsString(json, "icon"));
+        ResourceLocation category = new ResourceLocation(GsonHelper.getAsString(json, "category"));
         int sortnum = GsonHelper.getAsInt(json, "sortnum", 0);
 
         String keyBase = "guide." + id.getNamespace() + "." + id.getPath().replace('/', '.');

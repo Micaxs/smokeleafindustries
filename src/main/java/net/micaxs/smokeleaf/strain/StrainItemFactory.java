@@ -36,15 +36,15 @@ public final class StrainItemFactory {
     public static ItemStack applyPreset(ItemStack stack, String strainId) {
         StrainData data = StrainRegistry.getRequired(strainId);
         StrainUtil.setStrain(stack, data);
-        stack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
-        stack.set(ModDataComponentTypes.THC.get(), data.thc());
-        stack.set(ModDataComponentTypes.CBD.get(), data.cbd());
-        stack.set(ModDataComponentTypes.NITROGEN.get(), data.nitrogen());
-        stack.set(ModDataComponentTypes.PHOSPHORUS.get(), data.phosphorus());
-        stack.set(ModDataComponentTypes.POTASSIUM.get(), data.potassium());
-        stack.set(ModDataComponentTypes.EFFECT_DURATION.get(), data.durationTicks());
+        ModDataComponentTypes.STRAIN_ID.set(stack, strainId);
+        ModDataComponentTypes.THC.set(stack, data.thc());
+        ModDataComponentTypes.CBD.set(stack, data.cbd());
+        ModDataComponentTypes.NITROGEN.set(stack, data.nitrogen());
+        ModDataComponentTypes.PHOSPHORUS.set(stack, data.phosphorus());
+        ModDataComponentTypes.POTASSIUM.set(stack, data.potassium());
+        ModDataComponentTypes.EFFECT_DURATION.set(stack, data.durationTicks());
         if (!data.effects().isEmpty()) {
-            stack.set(ModDataComponentTypes.ACTIVE_INGREDIENT.get(), data.effects().get(0).toString());
+            ModDataComponentTypes.ACTIVE_INGREDIENT.set(stack, data.effects().get(0).toString());
         }
         return stack;
     }

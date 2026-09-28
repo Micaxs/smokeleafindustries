@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
@@ -7,11 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.component.DNAContents;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.custom.DNAStrandItem;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -24,11 +24,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public record SequencerRecipe(Ingredient dnaIngredient,
+public record SequencerRecipe(ResourceLocation id, Ingredient dnaIngredient,
                               Ingredient baseExtractIngredient,
                               Ingredient[] requiredReagents,
                               ItemStack result,
                               Optional<String> strainId) implements Recipe<SequencerRecipeInput> {
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    // Machine recipe: keep it out of the vanilla recipe book (avoids "Unknown recipe category" spam).
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
 
     public static final int REAGENT_SLOTS = 3;
 
@@ -45,11 +57,11 @@ public record SequencerRecipe(Ingredient dnaIngredient,
         }
 
         if (!level.isClientSide()) {
-            boolean hasComp = input.dna().has(ModDataComponentTypes.DNA_CONTENTS.get());
+            boolean hasComp = ModDataComponentTypes.DNA_CONTENTS.has(input.dna());
         }
 
         if (!level.isClientSide()) {
-            boolean hasComp = input.dna().has(ModDataComponentTypes.DNA_CONTENTS.get());
+            boolean hasComp = ModDataComponentTypes.DNA_CONTENTS.has(input.dna());
             DNAContents raw = DNAStrandItem.getContents(input.dna());
             for (int i = 0; i < REAGENT_SLOTS; i++) {
                 ItemStack s = raw.get(i);
@@ -87,12 +99,12 @@ public record SequencerRecipe(Ingredient dnaIngredient,
     }
 
     @Override
-    public ItemStack assemble(SequencerRecipeInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(SequencerRecipeInput input, RegistryAccess provider) {
         ItemStack out = result.copy();
         strainId.ifPresent(id -> {
             net.micaxs.smokeleaf.strain.StrainRegistry.get(id).ifPresent(strainData -> {
-                out.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
-                out.set(ModDataComponentTypes.STRAIN_ID.get(), id);
+                ModDataComponentTypes.STRAIN_DATA.set(out, strainData);
+                ModDataComponentTypes.STRAIN_ID.set(out, id);
             });
         });
         return out;
@@ -104,12 +116,12 @@ public record SequencerRecipe(Ingredient dnaIngredient,
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess provider) {
         ItemStack out = result.copy();
         strainId.ifPresent(id -> {
             net.micaxs.smokeleaf.strain.StrainRegistry.get(id).ifPresent(strainData -> {
-                out.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
-                out.set(ModDataComponentTypes.STRAIN_ID.get(), id);
+                ModDataComponentTypes.STRAIN_DATA.set(out, strainData);
+                ModDataComponentTypes.STRAIN_ID.set(out, id);
             });
         });
         return out;
@@ -134,68 +146,52 @@ public record SequencerRecipe(Ingredient dnaIngredient,
         return list;
     }
 
-    public static class Serializer implements RecipeSerializer<SequencerRecipe> {
-
-        private static final Codec<ItemStack> RESULT_STACK_CODEC =
-                RecordCodecBuilder.create(inst -> inst.group(
-                        BuiltInRegistries.ITEM.byNameCodec().fieldOf("id").forGetter(s -> s.getItemHolder().value()),
-                        Codec.INT.optionalFieldOf("count", 1).forGetter(ItemStack::getCount)
-                ).apply(inst, (item, count) -> new ItemStack(item, count)));
-
-        private static final MapCodec<SequencerRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
-                instance.group(
-                        Ingredient.CODEC_NONEMPTY.fieldOf("dna").forGetter(SequencerRecipe::dnaIngredient),
-                        Ingredient.CODEC_NONEMPTY.fieldOf("base_extract").forGetter(SequencerRecipe::baseExtractIngredient),
-                        Ingredient.CODEC.listOf().fieldOf("required_reagents")
-                                .flatXmap(list -> list.size() == REAGENT_SLOTS
-                                                ? DataResult.success(list)
-                                                : DataResult.error(() -> "required_reagents must have exactly " + REAGENT_SLOTS),
-                                        DataResult::success)
-                                .forGetter(r -> java.util.List.of(r.requiredReagents)),
-                        RESULT_STACK_CODEC.fieldOf("result").forGetter(SequencerRecipe::result),
-                        Codec.STRING.optionalFieldOf("strain_id").forGetter(SequencerRecipe::strainId)
-                ).apply(instance, (dna, base, reagentsList, result, strainId) ->
-                        new SequencerRecipe(dna, base, reagentsList.toArray(Ingredient[]::new), result, strainId))
-        );
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, SequencerRecipe> STREAM_CODEC =
-                new StreamCodec<>() {
-                    @Override
-                    public SequencerRecipe decode(RegistryFriendlyByteBuf buf) {
-                        Ingredient dna = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
-                        Ingredient base = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
-                        Ingredient[] req = new Ingredient[REAGENT_SLOTS];
-                        for (int i = 0; i < REAGENT_SLOTS; i++) {
-                            req[i] = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
-                        }
-                        ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-                        boolean hasStrainId = buf.readBoolean();
-                        Optional<String> strainId = hasStrainId ? Optional.of(buf.readUtf()) : Optional.empty();
-                        return new SequencerRecipe(dna, base, req, result, strainId);
-                    }
-
-                    @Override
-                    public void encode(RegistryFriendlyByteBuf buf, SequencerRecipe value) {
-                        Ingredient.CONTENTS_STREAM_CODEC.encode(buf, value.dnaIngredient);
-                        Ingredient.CONTENTS_STREAM_CODEC.encode(buf, value.baseExtractIngredient);
-                        for (Ingredient ing : value.requiredReagents) {
-                            Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ing);
-                        }
-                        ItemStack.STREAM_CODEC.encode(buf, value.result);
-                        boolean hasId = value.strainId.isPresent();
-                        buf.writeBoolean(hasId);
-                        if (hasId) buf.writeUtf(value.strainId.get());
-                    }
-                };
+    public static class Serializer implements CodecRecipeSerializer<SequencerRecipe> {
 
         @Override
-        public MapCodec<SequencerRecipe> codec() {
-            return CODEC;
+        public MapCodec<SequencerRecipe> codec(ResourceLocation id) {
+            return RecordCodecBuilder.mapCodec(instance ->
+                    instance.group(
+                            CodecCompat.INGREDIENT.fieldOf("dna").forGetter(SequencerRecipe::dnaIngredient),
+                            CodecCompat.INGREDIENT.fieldOf("base_extract").forGetter(SequencerRecipe::baseExtractIngredient),
+                            CodecCompat.INGREDIENT_ALLOW_EMPTY.listOf().fieldOf("required_reagents")
+                                    .flatXmap(list -> list.size() == REAGENT_SLOTS
+                                                    ? DataResult.success(list)
+                                                    : DataResult.<List<Ingredient>>error(() -> "required_reagents must have exactly " + REAGENT_SLOTS),
+                                            DataResult::success)
+                                    .forGetter(r -> java.util.List.of(r.requiredReagents)),
+                            CodecCompat.ITEM_STACK.fieldOf("result").forGetter(SequencerRecipe::result),
+                            Codec.STRING.optionalFieldOf("strain_id").forGetter(SequencerRecipe::strainId)
+                    ).apply(instance, (dna, base, reagentsList, result, strainId) ->
+                            new SequencerRecipe(id, dna, base, reagentsList.toArray(Ingredient[]::new), result, strainId))
+            );
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, SequencerRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public SequencerRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            Ingredient dna = Ingredient.fromNetwork(buf);
+            Ingredient base = Ingredient.fromNetwork(buf);
+            Ingredient[] req = new Ingredient[REAGENT_SLOTS];
+            for (int i = 0; i < REAGENT_SLOTS; i++) {
+                req[i] = Ingredient.fromNetwork(buf);
+            }
+            ItemStack result = buf.readItem();
+            boolean hasStrainId = buf.readBoolean();
+            Optional<String> strainId = hasStrainId ? Optional.of(buf.readUtf()) : Optional.empty();
+            return new SequencerRecipe(id, dna, base, req, result, strainId);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buf, SequencerRecipe value) {
+            value.dnaIngredient.toNetwork(buf);
+            value.baseExtractIngredient.toNetwork(buf);
+            for (Ingredient ing : value.requiredReagents) {
+                ing.toNetwork(buf);
+            }
+            buf.writeItem(value.result);
+            boolean hasId = value.strainId.isPresent();
+            buf.writeBoolean(hasId);
+            if (hasId) buf.writeUtf(value.strainId.get());
         }
     }
 }

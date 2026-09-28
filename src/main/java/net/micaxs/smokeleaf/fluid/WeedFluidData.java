@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Per-FluidStack payload for weed extract fluids.
  *
- * Stored as a Data Component on {@link net.neoforged.neoforge.fluids.FluidStack}.
+ * Stored as a Data Component on {@link net.minecraftforge.fluids.FluidStack}.
  */
 public record WeedFluidData(List<ResourceLocation> effects, int amplifier, int durationTicks) {
 

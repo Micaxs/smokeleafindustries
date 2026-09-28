@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.Level;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemNameBlockItem;
@@ -17,7 +19,7 @@ public class BaseSeedItem extends ItemNameBlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltipComponents, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltipComponents, flag);
         tooltipComponents.add(Component.translatable(this.tooltipKey).withStyle(ChatFormatting.GRAY));
     }

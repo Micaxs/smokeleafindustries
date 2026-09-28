@@ -1,7 +1,7 @@
 package net.micaxs.smokeleaf.loot;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
 import net.micaxs.smokeleaf.block.entity.UnidentifiedWeedCropBlockEntity;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
@@ -23,11 +23,8 @@ import java.util.List;
  */
 public class ApplyUnidentifiedStrain extends LootItemConditionalFunction {
 
-    public static final MapCodec<ApplyUnidentifiedStrain> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            LootItemConditionalFunction.commonFields(instance).apply(instance, ApplyUnidentifiedStrain::new)
-    );
 
-    protected ApplyUnidentifiedStrain(List<LootItemCondition> conditions) {
+    protected ApplyUnidentifiedStrain(LootItemCondition[] conditions) {
         super(conditions);
     }
 
@@ -36,7 +33,7 @@ public class ApplyUnidentifiedStrain extends LootItemConditionalFunction {
     }
 
     @Override
-    public LootItemFunctionType<ApplyUnidentifiedStrain> getType() {
+    public LootItemFunctionType getType() {
         return ModLootItemFunctions.APPLY_UNIDENTIFIED_STRAIN.get();
     }
 
@@ -46,15 +43,15 @@ public class ApplyUnidentifiedStrain extends LootItemConditionalFunction {
         if (be instanceof UnidentifiedWeedCropBlockEntity crop) {
             StrainData d = crop.getStrain();
             if (d != null && d != StrainData.EMPTY) {
-                stack.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+                ModDataComponentTypes.STRAIN_DATA.set(stack, d);
             }
             String sid = crop.getStrainId();
             if (sid != null && !sid.isBlank()) {
-                stack.set(ModDataComponentTypes.STRAIN_ID.get(), sid);
+                ModDataComponentTypes.STRAIN_ID.set(stack, sid);
             }
             String creator = crop.getStrainCreator();
             if (creator != null && !creator.isBlank()) {
-                stack.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+                ModDataComponentTypes.STRAIN_CREATOR.set(stack, creator);
             }
 
             // If this is the weed drop, make yield follow bud count rules.
@@ -66,5 +63,12 @@ public class ApplyUnidentifiedStrain extends LootItemConditionalFunction {
             }
         }
         return stack;
+    }
+
+    public static class Serializer extends LootItemConditionalFunction.Serializer<ApplyUnidentifiedStrain> {
+        @Override
+        public ApplyUnidentifiedStrain deserialize(JsonObject json, JsonDeserializationContext context, LootItemCondition[] conditions) {
+            return new ApplyUnidentifiedStrain(conditions);
+        }
     }
 }

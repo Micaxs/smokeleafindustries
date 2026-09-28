@@ -17,12 +17,13 @@ public class RelaxedEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
-        return super.applyEffectTick(livingEntity, amplifier);
+    public void applyEffectTick(LivingEntity livingEntity, int amplifier) {
+        super.applyEffectTick(livingEntity, amplifier);
+        return;
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 }

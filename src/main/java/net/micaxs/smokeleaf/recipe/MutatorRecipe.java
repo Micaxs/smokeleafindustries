@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
@@ -7,11 +9,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -20,12 +19,23 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.fluids.FluidStack;
-
+import net.minecraftforge.fluids.FluidStack;
 import java.util.stream.Stream;
 
-public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidStack fluid, ItemStack output)
+public record MutatorRecipe(ResourceLocation id, NonNullList<IngredientWithCount> inputItems, FluidStack fluid, ItemStack output)
         implements Recipe<MutatorRecipeInput> {
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    // Machine recipe: keep it out of the vanilla recipe book (avoids "Unknown recipe category" spam).
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
 
     public FluidStack getFluid() {
         return fluid;
@@ -60,7 +70,7 @@ public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidSt
     }
 
     @Override
-    public ItemStack assemble(MutatorRecipeInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(MutatorRecipeInput input, RegistryAccess provider) {
         return output.copy();
     }
 
@@ -70,7 +80,7 @@ public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidSt
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess provider) {
         return output.copy();
     }
 
@@ -152,50 +162,40 @@ public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidSt
         }
     };
 
-    public static class Serializer implements RecipeSerializer<MutatorRecipe> {
-        public static final MapCodec<MutatorRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                IngredientWithCount.CODEC.listOf().fieldOf("ingredients").forGetter(r -> r.inputItems),
-                FLUID_STACK_JSON.fieldOf("fluid").forGetter(r -> r.fluid),
-                OUTPUT_STACK_JSON.fieldOf("output").forGetter(r -> r.output)
-        ).apply(instance, (ingredients, fluid, output) -> {
-            NonNullList<IngredientWithCount> list = NonNullList.create();
-            list.addAll(ingredients);
-            return new MutatorRecipe(list, fluid, output);
-        }));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, MutatorRecipe> STREAM_CODEC =
-                new StreamCodec<>() {
-                    @Override
-                    public MutatorRecipe decode(RegistryFriendlyByteBuf buf) {
-                        int size = buf.readVarInt();
-                        NonNullList<IngredientWithCount> ings = NonNullList.create();
-                        for (int i = 0; i < size; i++) {
-                            ings.add(IngredientWithCount.STREAM_CODEC.decode(buf));
-                        }
-                        FluidStack fluid = FluidStack.STREAM_CODEC.decode(buf);
-                        ItemStack out = ItemStack.STREAM_CODEC.decode(buf);
-                        return new MutatorRecipe(ings, fluid, out);
-                    }
-
-                    @Override
-                    public void encode(RegistryFriendlyByteBuf buf, MutatorRecipe value) {
-                        buf.writeVarInt(value.inputItems.size());
-                        for (IngredientWithCount iwc : value.inputItems) {
-                            IngredientWithCount.STREAM_CODEC.encode(buf, iwc);
-                        }
-                        FluidStack.STREAM_CODEC.encode(buf, value.fluid);
-                        ItemStack.STREAM_CODEC.encode(buf, value.output);
-                    }
-                };
-
+    public static class Serializer implements CodecRecipeSerializer<MutatorRecipe> {
         @Override
-        public MapCodec<MutatorRecipe> codec() {
-            return CODEC;
+        public MapCodec<MutatorRecipe> codec(ResourceLocation id) {
+            return RecordCodecBuilder.mapCodec(instance -> instance.group(
+                    IngredientWithCount.CODEC.listOf().fieldOf("ingredients").forGetter(r -> r.inputItems),
+                    FLUID_STACK_JSON.fieldOf("fluid").forGetter(r -> r.fluid),
+                    OUTPUT_STACK_JSON.fieldOf("output").forGetter(r -> r.output)
+            ).apply(instance, (ingredients, fluid, output) -> {
+                NonNullList<IngredientWithCount> list = NonNullList.create();
+                list.addAll(ingredients);
+                return new MutatorRecipe(id, list, fluid, output);
+            }));
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MutatorRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public MutatorRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            int size = buf.readVarInt();
+            NonNullList<IngredientWithCount> ings = NonNullList.create();
+            for (int i = 0; i < size; i++) {
+                ings.add(IngredientWithCount.fromNetwork(buf));
+            }
+            FluidStack fluid = FluidStack.readFromPacket(buf);
+            ItemStack out = buf.readItem();
+            return new MutatorRecipe(id, ings, fluid, out);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buf, MutatorRecipe value) {
+            buf.writeVarInt(value.inputItems.size());
+            for (IngredientWithCount iwc : value.inputItems) {
+                iwc.toNetwork(buf);
+            }
+            value.fluid.writeToPacket(buf);
+            buf.writeItem(value.output);
         }
     }
 }

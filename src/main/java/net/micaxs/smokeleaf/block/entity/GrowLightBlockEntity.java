@@ -3,7 +3,6 @@ package net.micaxs.smokeleaf.block.entity;
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.block.custom.GrowLightBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
@@ -116,14 +115,14 @@ public class GrowLightBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("TickCounter", tickCounter);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         tickCounter = tag.getInt("TickCounter");
     }
 
@@ -134,12 +133,12 @@ public class GrowLightBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
     }
 }

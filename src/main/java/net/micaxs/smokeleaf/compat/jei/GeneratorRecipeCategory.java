@@ -21,10 +21,10 @@ import org.jetbrains.annotations.Nullable;
 public class GeneratorRecipeCategory implements IRecipeCategory<GeneratorRecipe> {
 
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "generator");
+            new ResourceLocation(SmokeleafIndustries.MODID, "generator");
     // Adjust texture path / size to an existing texture or create one
     public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
 
     public static final RecipeType<GeneratorRecipe> GENERATOR_RECIPE_TYPE =
             new RecipeType<>(UID, GeneratorRecipe.class);
@@ -66,7 +66,7 @@ public class GeneratorRecipeCategory implements IRecipeCategory<GeneratorRecipe>
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, GeneratorRecipe recipe, IFocusGroup focuses) {
-        var inputIngredient = recipe.getIngredients().getFirst();
+        var inputIngredient = recipe.getIngredients().get(0);
         if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
             builder.addSlot(RecipeIngredientRole.INPUT, 14, 14)
                     .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));

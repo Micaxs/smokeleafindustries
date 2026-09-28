@@ -20,11 +20,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.util.TriState;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 /**
  * Drives all Pipe Wrench interaction. Ported from Modern Industrialization's wrench UX (MIT
  * licensed — {@code pipes/impl/PipeBlock#useWrench}, dispatched via a global
@@ -40,12 +39,12 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
  *   (removing the block entirely if it was the last type present).</li>
  * </ul>
  */
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID)
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID)
 public class PipeWrenchEvents {
 
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getUseBlock() == TriState.FALSE) return;
+        if (event.getUseBlock() == net.minecraftforge.eventbus.api.Event.Result.DENY) return;
 
         Player player = event.getEntity();
         InteractionHand hand = event.getHand();
@@ -95,7 +94,7 @@ public class PipeWrenchEvents {
     }
 
     private static void damageWrench(ItemStack wrench, Player player, InteractionHand hand) {
-        wrench.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+        wrench.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(hand));
     }
 
     private static boolean growConnection(PipeBlockEntity pipe, ServerLevel level, BlockPos pos, PipeType type, Direction dir) {

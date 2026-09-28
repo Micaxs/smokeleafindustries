@@ -35,7 +35,7 @@ public class DabRigItem extends Item {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    public int getUseDuration(ItemStack stack) {
         return 24;
     }
 
@@ -45,7 +45,7 @@ public class DabRigItem extends Item {
             return effects;
         }
 
-        Holder<MobEffect> effectHolder = toHolder(weedItem.getEffect(), livingEntity);
+        MobEffect effectHolder = toHolder(weedItem.getEffect(), livingEntity);
 
         int baseDuration = weedItem.getDuration();
         int amplifier = weedItem.getEffectAmplifier();
@@ -62,14 +62,8 @@ public class DabRigItem extends Item {
         return effects;
     }
 
-    private Holder<MobEffect> toHolder(MobEffect effect, LivingEntity entity) {
-        return BuiltInRegistries.MOB_EFFECT
-                .getResourceKey(effect)
-                .flatMap(key -> entity.level()
-                        .registryAccess()
-                        .registryOrThrow(Registries.MOB_EFFECT)
-                        .getHolder(key))
-                .orElseThrow(() -> new IllegalStateException("Unregistered MobEffect: " + effect));
+    private MobEffect toHolder(MobEffect effect, LivingEntity entity) {
+        return effect;
     }
 
     @Override
@@ -133,7 +127,7 @@ public class DabRigItem extends Item {
                 // row (see TripStreakTracker) — it still grants STONED either way.
                 int maxDuration = instances.stream().mapToInt(MobEffectInstance::getDuration).max().orElse(0);
                 if (maxDuration > 0) {
-                    MobEffectInstance existing = entity.getEffect(ModEffects.STONED);
+                    MobEffectInstance existing = entity.getEffect(ModEffects.STONED.get());
                     net.micaxs.smokeleaf.strain.StrainData extractStrain = net.micaxs.smokeleaf.strain.StrainUtil.getStrain(offhandExtract);
                     int tier = net.micaxs.smokeleaf.effect.TripTier.forThc(
                             extractStrain != net.micaxs.smokeleaf.strain.StrainData.EMPTY ? extractStrain.thc() : 0).ordinal();
@@ -144,7 +138,7 @@ public class DabRigItem extends Item {
                     String streakKey = net.micaxs.smokeleaf.effect.TripStreakTracker.keyFor(offhandExtract, extractStrain);
                     boolean confirmed = net.micaxs.smokeleaf.effect.TripStreakTracker.registerUseAndGetStreak(player, streakKey)
                             >= net.micaxs.smokeleaf.effect.TripStreakTracker.REQUIRED_STREAK;
-                    entity.addEffect(new MobEffectInstance(ModEffects.STONED, stonedDuration, tier, false, confirmed));
+                    entity.addEffect(new MobEffectInstance(ModEffects.STONED.get(), stonedDuration, tier, false, confirmed));
                 }
 
                 if (!player.getAbilities().instabuild) {

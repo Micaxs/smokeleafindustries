@@ -10,9 +10,8 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
-import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
-
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
+import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 import java.util.function.Function;
 
 /**
@@ -31,13 +30,13 @@ public class PipeUnbakedGeometry implements IUnbakedGeometry<PipeUnbakedGeometry
     private PipeUnbakedGeometry() {}
 
     private static Material blockMaterial(String path) {
-        return new Material(TextureAtlas.LOCATION_BLOCKS, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, path));
+        return new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(SmokeleafIndustries.MODID, path));
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
         TextureAtlasSprite particleIcon = spriteGetter.apply(ITEM_MATERIAL);
-        return new PipeBakedModel(spriteGetter, modelState, overrides, particleIcon);
+        return new PipeBakedModel(spriteGetter, modelState, overrides, particleIcon, modelLocation);
     }
 
     @Override

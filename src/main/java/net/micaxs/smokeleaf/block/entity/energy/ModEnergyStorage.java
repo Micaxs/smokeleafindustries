@@ -1,7 +1,6 @@
 package net.micaxs.smokeleaf.block.entity.energy;
 
-import net.neoforged.neoforge.energy.EnergyStorage;
-
+import net.minecraftforge.energy.EnergyStorage;
 public abstract class ModEnergyStorage extends EnergyStorage {
     public ModEnergyStorage(int capacity, int maxTrensfer) {
         super(capacity, maxTrensfer);

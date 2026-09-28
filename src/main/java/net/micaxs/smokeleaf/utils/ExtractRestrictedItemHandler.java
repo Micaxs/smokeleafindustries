@@ -1,8 +1,7 @@
 package net.micaxs.smokeleaf.utils;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-
+import net.minecraftforge.items.IItemHandler;
 import java.util.function.IntPredicate;
 
 /**

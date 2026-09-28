@@ -32,7 +32,7 @@ public final class StrainRegistry {
                 0xFFD9E9BF, 0xFFFFF0CC,
                 15, 10,
                 9, 6, 11,
-                List.of(rl("minecraft", "wind_charged")),
+                List.of(rl("minecraft", "jump_boost")),
                 1, 200,
                 "White Widow"
         ));
@@ -219,7 +219,7 @@ public final class StrainRegistry {
                 0xFFD7EBBC, 0xFFFFF0CB,
                 23, 2,
                 11, 13, 16,
-                List.of(rl("minecraft", "oozing")),
+                List.of(rl("minecraft", "poison")),
                 1, 170,
                 "Birthday Cake"
         ));
@@ -371,6 +371,6 @@ public final class StrainRegistry {
     }
 
     private static ResourceLocation rl(String namespace, String path) {
-        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+        return new ResourceLocation(namespace, path);
     }
 }

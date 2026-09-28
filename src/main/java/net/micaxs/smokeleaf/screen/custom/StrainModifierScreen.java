@@ -13,12 +13,12 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.micaxs.smokeleaf.network.ModNetwork;
 import org.lwjgl.glfw.GLFW;
 
 public class StrainModifierScreen extends AbstractContainerScreen<StrainModifierMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/strain_modifier/strain_modifier_gui.png");
+    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/strain_modifier/strain_modifier_gui.png");
 
     // ── Naming Input Box
     private static final int NAME_BOX_X = 31, NAME_BOX_Y = 9, NAME_BOX_W = 117, NAME_BOX_H = 9;
@@ -99,6 +99,7 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         renderTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -287,8 +288,8 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
         int cost      = calculatePreviewCost();
         boolean canAfford = cost <= leafMeter;
 
-        int fill     = Math.clamp(((long) leafMeter * METER_H) / StrainModifierBlockEntity.MAX_LEAF_CAPACITY, 0, METER_H);
-        int costFill = Math.clamp(((long) cost * METER_H) / StrainModifierBlockEntity.MAX_LEAF_CAPACITY, 0, METER_H);
+        int fill     = net.minecraft.util.Mth.clamp((int) (((long) leafMeter * METER_H) / StrainModifierBlockEntity.MAX_LEAF_CAPACITY), 0, METER_H);
+        int costFill = net.minecraft.util.Mth.clamp((int) (((long) cost * METER_H) / StrainModifierBlockEntity.MAX_LEAF_CAPACITY), 0, METER_H);
 
         int mx = x + METER_X, my = y + METER_Y;
 
@@ -408,7 +409,7 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
 
     private void sendSliderUpdate() {
         String inputName = this.nameInput != null ? this.nameInput.getValue() : "";
-        PacketDistributor.sendToServer(new StrainModifierUpdatePayload(
+        ModNetwork.sendToServer(new StrainModifierUpdatePayload(
                 sliderThc, sliderCbd,
                 sliderLeafR, sliderLeafG, sliderLeafB,
                 sliderStrainR, sliderStrainG, sliderStrainB,

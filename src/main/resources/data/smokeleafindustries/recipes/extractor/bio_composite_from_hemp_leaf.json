@@ -1,0 +1,10 @@
+{
+  "type": "smokeleafindustries:extractor",
+  "ingredient": {
+    "item": "smokeleafindustries:hemp_leaf"
+  },
+  "result": {
+    "count": 1,
+    "item": "smokeleafindustries:bio_composite"
+  }
+}

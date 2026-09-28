@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.BlockPos;
@@ -15,7 +16,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.CommonHooks;
+import net.minecraftforge.common.ForgeHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -62,20 +63,20 @@ public class HempHammer extends Item {
     }
 
     @Override
-    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
-        return enchantment.is(Enchantments.UNBREAKING) || enchantment.value().isSupportedItem(stack);
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        return enchantment == Enchantments.UNBREAKING || super.canApplyAtEnchantingTable(stack, enchantment);
     }
 
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miningEntity) {
         if (!level.isClientSide && state.getDestroySpeed(level, pos) > 0) {
-            stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
+            stack.hurtAndBreak(1, miningEntity, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
         }
         return true;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context,
+    public void appendHoverText(ItemStack stack, @Nullable Level context,
                                 List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         int unbreakingLevel = getUnbreakingLevel(stack);
         int useMultiplier = unbreakingLevel + 1;
@@ -113,7 +114,6 @@ public class HempHammer extends Item {
     }
 
     private static int getUnbreakingLevel(ItemStack stack) {
-        Holder<Enchantment> unbreaking = CommonHooks.resolveLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.UNBREAKING);
-        return stack.getEnchantmentLevel(unbreaking);
+        return stack.getEnchantmentLevel(Enchantments.UNBREAKING);
     }
 }

@@ -1,12 +1,12 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -45,7 +45,7 @@ public class BluntItem extends Item {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    public int getUseDuration(ItemStack stack) {
         return BASE_USE_TICKS;
     }
 
@@ -91,25 +91,21 @@ public class BluntItem extends Item {
     }
 
     private void applyStoredEffects(ItemStack stack, Player player) {
-        JsonArray arr = stack.get(ModDataComponentTypes.ACTIVE_INGREDIENTS.get());
+        JsonArray arr = ModDataComponentTypes.ACTIVE_INGREDIENTS.get(stack);
         if (arr == null) return;
-
-        HolderLookup.RegistryLookup<MobEffect> effectLookup =
-                player.level().registryAccess().lookupOrThrow(Registries.MOB_EFFECT);
 
         int maxDuration = 0;
         for (int i = 0; i < arr.size(); i++) {
             JsonObject obj = arr.get(i).getAsJsonObject();
             ResourceLocation rl = ResourceLocation.tryParse(obj.get("id").getAsString());
             if (rl == null) continue;
-            if (rl.equals(BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.CONFUSION.value()))) continue;
+            if (rl.equals(BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.CONFUSION))) continue;
 
             int addDuration = obj.get("duration").getAsInt();
             int addAmplifier = obj.get("amp").getAsInt();
             maxDuration = Math.max(maxDuration, addDuration);
 
-            ResourceKey<MobEffect> key = ResourceKey.create(Registries.MOB_EFFECT, rl);
-            effectLookup.get(key).ifPresent(effectHolder -> {
+            java.util.Optional.ofNullable(BuiltInRegistries.MOB_EFFECT.get(rl)).ifPresent(effectHolder -> {
                 MobEffectInstance existing = player.getEffect(effectHolder);
 
                 if (existing != null) {
@@ -130,9 +126,9 @@ public class BluntItem extends Item {
         // duration further. The trip only actually shows once the same blunt profile has been
         // smoked 3 times in a row (see TripStreakTracker) — it still grants STONED either way.
         if (maxDuration > 0) {
-            MobEffectInstance existing = player.getEffect(ModEffects.STONED);
-            Integer tripThc = stack.get(ModDataComponentTypes.TRIP_THC.get());
-            Integer tripCbd = stack.get(ModDataComponentTypes.TRIP_CBD.get());
+            MobEffectInstance existing = player.getEffect(ModEffects.STONED.get());
+            Integer tripThc = ModDataComponentTypes.TRIP_THC.get(stack);
+            Integer tripCbd = ModDataComponentTypes.TRIP_CBD.get(stack);
             int thcVal = tripThc != null ? tripThc : 0;
             int cbdVal = tripCbd != null ? tripCbd : 0;
             int tier = net.micaxs.smokeleaf.effect.TripTier.forThc(thcVal).ordinal();
@@ -142,7 +138,7 @@ public class BluntItem extends Item {
             String streakKey = net.micaxs.smokeleaf.effect.TripStreakTracker.keyForTripStats(thcVal, cbdVal);
             boolean confirmed = net.micaxs.smokeleaf.effect.TripStreakTracker.registerUseAndGetStreak(player, streakKey)
                     >= net.micaxs.smokeleaf.effect.TripStreakTracker.REQUIRED_STREAK;
-            player.addEffect(new MobEffectInstance(ModEffects.STONED, stonedDuration, tier, false, confirmed));
+            player.addEffect(new MobEffectInstance(ModEffects.STONED.get(), stonedDuration, tier, false, confirmed));
         }
     }
 
@@ -165,7 +161,7 @@ public class BluntItem extends Item {
             // previously caused a genuinely single-strain craft to be misnamed "Mixed".
             {
                 net.micaxs.smokeleaf.strain.StrainData sd = net.micaxs.smokeleaf.strain.StrainUtil.getStrain(w);
-                String sid = w.get(ModDataComponentTypes.STRAIN_ID.get());
+                String sid = ModDataComponentTypes.STRAIN_ID.get(w);
                 Object key = (sid != null && !sid.isBlank()) ? sid
                         : (sd != net.micaxs.smokeleaf.strain.StrainData.EMPTY ? sd : w.getItem());
                 strainKeys.add(key);
@@ -189,7 +185,7 @@ public class BluntItem extends Item {
             if (!effectIds.isEmpty()) {
                 for (net.minecraft.resources.ResourceLocation rl : effectIds) {
                     if (rl == null) continue;
-                    if (rl.equals(BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.CONFUSION.value()))) continue;
+                    if (rl.equals(BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.CONFUSION))) continue;
                     String id = rl.toString();
                     if (merged.containsKey(id)) {
                         JsonObject existing = merged.get(id);
@@ -220,14 +216,14 @@ public class BluntItem extends Item {
         }
 
         merged.values().forEach(effectArray::add);
-        joint.set(ModDataComponentTypes.ACTIVE_INGREDIENTS.get(), effectArray);
-        joint.set(ModDataComponentTypes.TRIP_THC.get(), maxThc);
-        joint.set(ModDataComponentTypes.TRIP_CBD.get(), maxCbd);
+        ModDataComponentTypes.ACTIVE_INGREDIENTS.set(joint, effectArray);
+        ModDataComponentTypes.TRIP_THC.set(joint, maxThc);
+        ModDataComponentTypes.TRIP_CBD.set(joint, maxCbd);
 
         if (merged.isEmpty()) {
-            joint.remove(DataComponents.CUSTOM_NAME);
+            joint.resetHoverName();
         } else if (strainKeys.size() > 1) {
-            joint.set(DataComponents.CUSTOM_NAME,
+            joint.setHoverName(
                     Component.translatable("item.smokeleafindustries.blunt.mixed"));
         } else if (firstWeed != null) {
             net.micaxs.smokeleaf.strain.StrainData firstStrain = net.micaxs.smokeleaf.strain.StrainUtil.getStrain(firstWeed);
@@ -235,15 +231,15 @@ public class BluntItem extends Item {
                     && firstStrain.displayName() != null && !firstStrain.displayName().isBlank())
                     ? Component.literal(firstStrain.displayName())
                     : firstWeed.getHoverName();
-            joint.set(DataComponents.CUSTOM_NAME,
+            joint.setHoverName(
                     Component.translatable("item.smokeleafindustries.blunt.format", weedName));
         }
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context,
+    public void appendHoverText(ItemStack stack, @Nullable Level context,
                                 List<Component> tooltip, TooltipFlag flag) {
-        JsonArray arr = stack.get(ModDataComponentTypes.ACTIVE_INGREDIENTS.get());
+        JsonArray arr = ModDataComponentTypes.ACTIVE_INGREDIENTS.get(stack);
         if (arr == null || arr.isEmpty()) {
             tooltip.add(Component.translatable("tooltip.smokeleafindustries.blunt.empty")
                     .withStyle(ChatFormatting.GRAY));

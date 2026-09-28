@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 public class SynthesizerRecipeCategory implements IRecipeCategory<SynthesizerRecipeCategory.Display> {
 
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "synthesizer");
+            new ResourceLocation(SmokeleafIndustries.MODID, "synthesizer");
     public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/synthesizer/synthesizer_gui.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/synthesizer/synthesizer_gui.png");
     public static final RecipeType<Display> SYNTHESIZER_RECIPE_TYPE =
             new RecipeType<>(UID, Display.class);
 
@@ -106,7 +106,7 @@ public class SynthesizerRecipeCategory implements IRecipeCategory<SynthesizerRec
                     if (!seenKeys.add(key)) return null;
 
                     ItemStack output = new ItemStack(ModItems.DNA_STRAND.get());
-                    output.set(ModDataComponentTypes.DNA_CONTENTS.get(),
+                    ModDataComponentTypes.DNA_CONTENTS.set(output,
                             new DNAContents(a.copyWithCount(1), b.copyWithCount(1), c.copyWithCount(1)));
 
                     return new Display(base, emptyDNA.copy(), a.copy(), b.copy(), c.copy(), output);

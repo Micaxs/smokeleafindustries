@@ -2,8 +2,7 @@ package net.micaxs.smokeleaf.screen.renderer;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-
+import net.minecraftforge.energy.IEnergyStorage;
 import java.util.List;
 
 public class EnergyDisplayTooltipArea {

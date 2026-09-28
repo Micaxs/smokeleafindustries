@@ -7,11 +7,10 @@ import net.micaxs.smokeleaf.item.ModItems;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.registries.DeferredBlock;
-
+import net.minecraftforge.client.model.generators.ItemModelProvider;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.RegistryObject;
 public class ModItemModelProvider extends ItemModelProvider {
     public ModItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
         super(output, SmokeleafIndustries.MODID, existingFileHelper);
@@ -129,7 +128,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         buttonItem(ModBlocks.HEMP_STONE_BUTTON, ModBlocks.HEMP_STONE);
         buttonItem(ModBlocks.HEMP_PLANK_BUTTON, ModBlocks.HEMP_PLANKS);
-        basicItem(ModBlocks.HEMP_PLANK_DOOR.asItem());
+        basicItem(ModBlocks.HEMP_PLANK_DOOR.get().asItem());
 
         fenceItem(ModBlocks.HEMP_PLANK_FENCE, ModBlocks.HEMP_PLANKS);
         wallItem(ModBlocks.HEMP_STONE_WALL, ModBlocks.HEMP_STONE);
@@ -238,27 +237,27 @@ public class ModItemModelProvider extends ItemModelProvider {
                 .parent(getExistingFile(mcLoc("item/generated")))
                 .texture("layer0", modLoc("item/dna_strand"))
                 .override()
-                .predicate(ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "full"), 1.0F)
+                .predicate(new ResourceLocation(SmokeleafIndustries.MODID, "full"), 1.0F)
                 .model(fullModel)
                 .end();
     }
 
 
-    public void buttonItem(DeferredBlock<Block> block, DeferredBlock<Block> baseBlock) {
+    public void buttonItem(RegistryObject<Block> block, RegistryObject<Block> baseBlock) {
         this.withExistingParent(block.getId().getPath(), mcLoc("block/button_inventory"))
-                .texture("texture", ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID,
+                .texture("texture", new ResourceLocation(SmokeleafIndustries.MODID,
                         "block/" + baseBlock.getId().getPath()));
     }
 
-    public void fenceItem(DeferredBlock<Block> block, DeferredBlock<Block> baseBlock) {
+    public void fenceItem(RegistryObject<Block> block, RegistryObject<Block> baseBlock) {
         this.withExistingParent(block.getId().getPath(), mcLoc("block/fence_inventory"))
-                .texture("texture", ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID,
+                .texture("texture", new ResourceLocation(SmokeleafIndustries.MODID,
                         "block/" + baseBlock.getId().getPath()));
     }
 
-    public void wallItem(DeferredBlock<Block> block, DeferredBlock<Block> baseBlock) {
+    public void wallItem(RegistryObject<Block> block, RegistryObject<Block> baseBlock) {
         this.withExistingParent(block.getId().getPath(), mcLoc("block/wall_inventory"))
-                .texture("wall", ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID,
+                .texture("wall", new ResourceLocation(SmokeleafIndustries.MODID,
                         "block/" + baseBlock.getId().getPath()));
     }
 

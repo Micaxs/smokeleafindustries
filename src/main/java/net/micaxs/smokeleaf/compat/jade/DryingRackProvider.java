@@ -28,7 +28,7 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
     INSTANCE;
 
     private static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "drying_rack");
+            new ResourceLocation(SmokeleafIndustries.MODID, "drying_rack");
 
     @Override
     public ResourceLocation getUid() {
@@ -39,7 +39,6 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
         if (!(accessor.getBlockEntity() instanceof DryingRackBlockEntity rack)) return;
 
-        net.minecraft.core.HolderLookup.Provider registries = accessor.getLevel().registryAccess();
 
         for (int i = 0; i < DryingRackBlockEntity.SLOT_COUNT; i++) {
             ItemStack stack = rack.getItem(i);
@@ -48,7 +47,7 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
             boolean isBud = stack.getItem() instanceof BaseBudItem;
             boolean isDryBud = false;
             if (isBud) {
-                Boolean dry = stack.get(ModDataComponentTypes.DRY);
+                Boolean dry = ModDataComponentTypes.DRY.get(stack);
                 isDryBud = dry != null && dry;
             }
 
@@ -69,7 +68,7 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
             // Keep payload small (Jade has size limits) — send only what's needed for icon tint + label.
             CompoundTag slot = new CompoundTag();
             slot.putString("id", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
-            slot.putString("displayName", Component.Serializer.toJson(stack.getHoverName(), registries));
+            slot.putString("displayName", Component.Serializer.toJson(stack.getHoverName()));
 
             // Tint colors for the icon — just two ints instead of a full ItemStack serialization.
             StrainData sd = StrainUtil.getStrain(stack);
@@ -93,7 +92,6 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         IElementHelper elements = IElementHelper.get();
-        net.minecraft.core.HolderLookup.Provider registries = accessor.getLevel().registryAccess();
 
         LinkedHashMap<String, GroupEntry> groups = new LinkedHashMap<>();
 
@@ -112,7 +110,7 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
                 int colorArgb = s.getInt("colorArgb");
                 int leafColor = s.contains("leafColor") ? s.getInt("leafColor") : 0xFF4A7A2E;
                 // Build a minimal StrainData carrying only the tint colors for the icon renderer.
-                iconStack.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                ModDataComponentTypes.STRAIN_DATA.set(iconStack, new StrainData(
                         colorArgb, leafColor,
                         0, 0, 0, 0, 0,
                         java.util.List.of(), 0, 0,
@@ -120,7 +118,7 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
                         StrainData.TypeColors.NONE, "", ""));
             }
             if (s.getBoolean("dry")) {
-                iconStack.set(ModDataComponentTypes.DRY, true);
+                ModDataComponentTypes.DRY.set(iconStack, true);
             }
 
             boolean isBud = s.getBoolean("bud");
@@ -131,7 +129,7 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
             String displayNameJson = s.getString("displayName");
             Component name;
             if (!displayNameJson.isBlank()) {
-                Component parsed = Component.Serializer.fromJson(displayNameJson, registries);
+                Component parsed = Component.Serializer.fromJson(displayNameJson);
                 name = (parsed != null ? parsed : iconStack.getHoverName()).copy().withStyle(ChatFormatting.WHITE);
             } else {
                 name = iconStack.getHoverName().copy().withStyle(ChatFormatting.WHITE);

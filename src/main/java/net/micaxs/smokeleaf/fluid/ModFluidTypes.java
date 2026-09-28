@@ -3,23 +3,23 @@ package net.micaxs.smokeleaf.fluid;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.SoundAction;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.common.SoundAction;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 public class ModFluidTypes {
-    public static final ResourceLocation WATER_STILL_RL = ResourceLocation.parse("block/water_still");
-    public static final ResourceLocation WATER_FLOWING_RL = ResourceLocation.parse("block/water_flow");
-    public static final ResourceLocation WATER_OVERLAY_RL = ResourceLocation.parse("block/water_overlay");
+    public static final ResourceLocation WATER_STILL_RL = new ResourceLocation("block/water_still");
+    public static final ResourceLocation WATER_FLOWING_RL = new ResourceLocation("block/water_flow");
+    public static final ResourceLocation WATER_OVERLAY_RL = new ResourceLocation("block/water_overlay");
 
     public static final DeferredRegister<FluidType> FLUID_TYPES =
-            DeferredRegister.create(NeoForgeRegistries.Keys.FLUID_TYPES, SmokeleafIndustries.MODID);
+            DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, SmokeleafIndustries.MODID);
 
 
     public static final Supplier<FluidType> HASH_OIL_FLUID_TYPE = registerFluidType("hash_oil_fluid", new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL,

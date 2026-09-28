@@ -1,7 +1,8 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.Level;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -16,12 +17,12 @@ import java.util.List;
  * anything this class does).
  */
 public class BajaHoodieArmorItem extends ArmorItem {
-    public BajaHoodieArmorItem(Holder<ArmorMaterial> material, Type type, Properties properties) {
+    public BajaHoodieArmorItem(ArmorMaterial material, Type type, Properties properties) {
         super(material, type, properties);
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.smokeleafindustries.baja_hoodie.set_bonus").withStyle(ChatFormatting.DARK_GREEN));
     }
 }

@@ -1,18 +1,19 @@
 package net.micaxs.smokeleaf.sound;
 
+import net.minecraft.core.registries.Registries;
+
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 
 public class ModSounds {
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
-            DeferredRegister.create(BuiltInRegistries.SOUND_EVENT, SmokeleafIndustries.MODID);
+            DeferredRegister.create(Registries.SOUND_EVENT, SmokeleafIndustries.MODID);
 
 
     public static final Supplier<SoundEvent> BONG_HIT = registerSoundEvents("bonghit");
@@ -22,7 +23,7 @@ public class ModSounds {
 
 
     private static Supplier<SoundEvent> registerSoundEvents(String name) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, name);
+        ResourceLocation id = new ResourceLocation(SmokeleafIndustries.MODID, name);
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(id));
     }
 

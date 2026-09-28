@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
@@ -14,7 +17,6 @@ import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
 import net.micaxs.smokeleaf.utils.StrainModifierCostUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -33,9 +35,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -284,16 +286,16 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
         );
 
         // Ensure a stable lineage id so the update below can find every related item/fluid.
-        String strainId = seed.get(ModDataComponentTypes.STRAIN_ID.get());
+        String strainId = ModDataComponentTypes.STRAIN_ID.get(seed);
         if (strainId == null || strainId.isBlank()) {
             strainId = StrainUtil.strainContentId(original);
         }
 
         ItemStack output = seed.copy();
         StrainUtil.setStrain(output, updated);
-        output.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+        ModDataComponentTypes.STRAIN_ID.set(output, strainId);
         if (!creatorName.isBlank()) {
-            output.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creatorName);
+            ModDataComponentTypes.STRAIN_CREATOR.set(output, creatorName);
         }
 
         itemHandler.setStackInSlot(SLOT_SEED, ItemStack.EMPTY);
@@ -351,7 +353,7 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
         addLeafInputToMeter();
 
         ItemStack seed = itemHandler.getStackInSlot(SLOT_SEED);
-        if (!ItemStack.isSameItemSameComponents(seed, lastSeedStack)) {
+        if (!ItemStack.isSameItemSameTags(seed, lastSeedStack)) {
             recalcPreview();
             lastSeedStack = seed.copy();
         }
@@ -401,7 +403,7 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
             return d != StrainData.EMPTY && !d.identified();
         }
         StrainData d = StrainUtil.getStrain(stack);
-        return d != StrainData.EMPTY && !d.identified() && stack.has(ModDataComponentTypes.STRAIN_DATA.get());
+        return d != StrainData.EMPTY && !d.identified() && ModDataComponentTypes.STRAIN_DATA.has(stack);
     }
 
     @Override public Component getDisplayName() { return Component.translatable("block.smokeleafindustries.strain_modifier"); }
@@ -417,8 +419,8 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
 
     // NBT Data
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("strain_modifier.inventory", itemHandler.serializeNBT(registries));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("strain_modifier.inventory", itemHandler.serializeNBT());
         tag.putInt("strain_modifier.leafMeter", leafMeter);
         tag.putInt("strain_modifier.energy", energyStorage.getEnergyStored());
 
@@ -439,13 +441,13 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
         tag.putString("strain_modifier.strainName", strainName);
         tag.putString("strain_modifier.previewName", previewName);
 
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("strain_modifier.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("strain_modifier.inventory"));
         energyStorage.setEnergy(tag.getInt("strain_modifier.energy"));
         leafMeter   = tag.getInt("strain_modifier.leafMeter");
 
@@ -474,12 +476,18 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, null, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

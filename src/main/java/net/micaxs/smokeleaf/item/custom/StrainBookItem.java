@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import net.micaxs.smokeleaf.network.ModNetwork;
 import net.micaxs.smokeleaf.network.StrainDataPadPayload;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainRegistry;
@@ -79,7 +80,7 @@ public class StrainBookItem extends Item {
         }
         serverStrains.sort(Comparator.comparing(e -> e.data().displayName(), String.CASE_INSENSITIVE_ORDER));
 
-        sp.connection.send(new StrainDataPadPayload(personal, serverStrains));
+        ModNetwork.sendToPlayer(sp, new StrainDataPadPayload(personal, serverStrains));
         return InteractionResultHolder.success(stack);
     }
 
@@ -130,7 +131,7 @@ public class StrainBookItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         tooltipComponents.add(Component.translatable("tooltip.smokeleafindustries.strain_book").withStyle(ChatFormatting.GRAY));
     }
 }

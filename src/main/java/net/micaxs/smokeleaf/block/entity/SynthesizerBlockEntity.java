@@ -1,5 +1,9 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraft.core.Direction;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.DNAStrandItem;
@@ -8,7 +12,6 @@ import net.micaxs.smokeleaf.recipe.SynthesizerRecipe;
 import net.micaxs.smokeleaf.recipe.SynthesizerRecipeInput;
 import net.micaxs.smokeleaf.screen.custom.SynthesizerMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -25,15 +28,14 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,8 +67,8 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             return switch (slot) {
-                case DNA_SLOT -> stack.is(ModItems.DNA_STRAND);
-                case REAGENT_SLOT_1, REAGENT_SLOT_2, REAGENT_SLOT_3 -> !stack.is(ModItems.DNA_STRAND);
+                case DNA_SLOT -> stack.is(ModItems.DNA_STRAND.get());
+                case REAGENT_SLOT_1, REAGENT_SLOT_2, REAGENT_SLOT_3 -> !stack.is(ModItems.DNA_STRAND.get());
                 case OUTPUT_SLOT -> false;
                 default -> false;
             };
@@ -149,7 +151,7 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    private Optional<RecipeHolder<SynthesizerRecipe>> getCurrentRecipe() {
+    private Optional<SynthesizerRecipe> getCurrentRecipe() {
         SynthesizerRecipeInput input = new SynthesizerRecipeInput(
                 itemHandler.getStackInSlot(DNA_SLOT),
                 itemHandler.getStackInSlot(REAGENT_SLOT_1),
@@ -171,7 +173,7 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
         if (itemHandler.getStackInSlot(REAGENT_SLOT_2).isEmpty()) return false;
         if (itemHandler.getStackInSlot(REAGENT_SLOT_3).isEmpty()) return false;
 
-        ItemStack simulated = opt.get().value().assemble(new SynthesizerRecipeInput(
+        ItemStack simulated = opt.get().assemble(new SynthesizerRecipeInput(
                 dna,
                 itemHandler.getStackInSlot(REAGENT_SLOT_1),
                 itemHandler.getStackInSlot(REAGENT_SLOT_2),
@@ -186,7 +188,7 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
         var opt = getCurrentRecipe();
         if (opt.isEmpty()) return;
 
-        SynthesizerRecipe recipe = opt.get().value();
+        SynthesizerRecipe recipe = opt.get();
         SynthesizerRecipeInput input = new SynthesizerRecipeInput(
                 itemHandler.getStackInSlot(DNA_SLOT),
                 itemHandler.getStackInSlot(REAGENT_SLOT_1),
@@ -207,14 +209,14 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
         ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
         if (existing.isEmpty()) {
             itemHandler.setStackInSlot(OUTPUT_SLOT, output);
-        } else if (ItemStack.isSameItemSameComponents(existing, output)) {
+        } else if (ItemStack.isSameItemSameTags(existing, output)) {
             existing.grow(output.getCount());
         }
     }
 
     private boolean canInsertItemIntoOutputSlot(ItemStack stack) {
         ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
-        return existing.isEmpty() || ItemStack.isSameItemSameComponents(existing, stack);
+        return existing.isEmpty() || ItemStack.isSameItemSameTags(existing, stack);
     }
 
     private boolean canInsertAmountIntoOutputSlot(int count) {
@@ -232,26 +234,26 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("synthesizer.inventory", itemHandler.serializeNBT(registries));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("synthesizer.inventory", itemHandler.serializeNBT());
         tag.putInt("synthesizer.progress", progress);
         tag.putInt("synthesizer.maxProgress", maxProgress);
         tag.putInt("synthesizer.energy", ENERGY_STORAGE.getEnergyStored());
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("synthesizer.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("synthesizer.inventory"));
         ENERGY_STORAGE.setEnergy(tag.getInt("synthesizer.energy"));
         progress = tag.getInt("synthesizer.progress");
         maxProgress = tag.getInt("synthesizer.maxProgress");
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
@@ -260,7 +262,13 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookup) {
-        super.onDataPacket(net, pkt, lookup);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, null, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

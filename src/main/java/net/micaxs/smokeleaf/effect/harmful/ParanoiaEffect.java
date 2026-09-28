@@ -11,9 +11,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
-
-
+import net.micaxs.smokeleaf.network.ModNetwork;
 import java.util.List;
 
 public class ParanoiaEffect extends MobEffect {
@@ -23,13 +21,13 @@ public class ParanoiaEffect extends MobEffect {
             EntityType.SKELETON, EntityType.SPIDER, EntityType.ENDERMAN
     );
     private static final List<ResourceLocation> SOUNDS = List.of(
-            ResourceLocation.withDefaultNamespace("entity.creeper.primed"),
-            ResourceLocation.withDefaultNamespace("entity.phantom.ambient"),
-            ResourceLocation.withDefaultNamespace("entity.spider.ambient"),
-            ResourceLocation.withDefaultNamespace("entity.enderman.stare"),
-            ResourceLocation.withDefaultNamespace("entity.cat.ambient"),
-            ResourceLocation.withDefaultNamespace("entity.blaze.ambient"),
-            ResourceLocation.withDefaultNamespace("entity.cow.ambient")
+            new ResourceLocation("entity.creeper.primed"),
+            new ResourceLocation("entity.phantom.ambient"),
+            new ResourceLocation("entity.spider.ambient"),
+            new ResourceLocation("entity.enderman.stare"),
+            new ResourceLocation("entity.cat.ambient"),
+            new ResourceLocation("entity.blaze.ambient"),
+            new ResourceLocation("entity.cow.ambient")
     );
 
     public ParanoiaEffect(MobEffectCategory category, int color) {
@@ -37,7 +35,7 @@ public class ParanoiaEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity living, int amplifier) {
+    public void applyEffectTick(LivingEntity living, int amplifier) {
         if (!living.level().isClientSide() && living instanceof ServerPlayer sp) {
             // Try roughly every 3s reduced by amplifier, with variability
             int base = Math.max(40, 100 - amplifier * 20); // ticks between tries
@@ -65,14 +63,15 @@ public class ParanoiaEffect extends MobEffect {
                         life,
                         sound
                 );
-                PacketDistributor.sendToPlayer(sp, payload);
+                ModNetwork.sendToPlayer(sp, payload);
             }
         }
-        return super.applyEffectTick(living, amplifier);
+        super.applyEffectTick(living, amplifier);
+        return;
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 }

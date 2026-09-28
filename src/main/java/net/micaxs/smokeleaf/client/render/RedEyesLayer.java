@@ -20,7 +20,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
     private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/entity/red_eyes.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/entity/red_eyes.png");
 
     public RedEyesLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> parent) {
         super(parent);
@@ -30,7 +30,7 @@ public class RedEyesLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AbstractClientPlayer player,
                         float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks,
                         float netHeadYaw, float headPitch) {
-        if (player.isInvisible() || !player.hasEffect(ModEffects.STONED)) return;
+        if (player.isInvisible() || !player.hasEffect(ModEffects.STONED.get())) return;
 
         var vertexConsumer = buffer.getBuffer(RenderType.entityTranslucent(TEXTURE));
         int overlay = LivingEntityRenderer.getOverlayCoords(player, 0.0f);

@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
 import net.micaxs.smokeleaf.component.ManualGrinderContents;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.recipe.ManualGrinderInput;
@@ -34,7 +35,7 @@ public class ManualGrinderItem extends Item {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    public int getUseDuration(ItemStack stack) {
         return 72000;
     }
 
@@ -64,7 +65,7 @@ public class ManualGrinderItem extends Item {
             return;
         }
 
-        int used = getUseDuration(stack, entity) - remainingUseTicks;
+        int used = getUseDuration(stack) - remainingUseTicks;
         int needed = match.get().grindTime();
 
         if (used % 10 == 0 && level.isClientSide) {
@@ -83,19 +84,19 @@ public class ManualGrinderItem extends Item {
                 );
 
                 // Propagate strain lineage from bud to weed
-                var strainData = stored.get(ModDataComponentTypes.STRAIN_DATA.get());
-                if (strainData != null) result.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
-                var strainId = stored.get(ModDataComponentTypes.STRAIN_ID.get());
-                if (strainId != null) result.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+                var strainData = ModDataComponentTypes.STRAIN_DATA.get(stored);
+                if (strainData != null) ModDataComponentTypes.STRAIN_DATA.set(result, strainData);
+                var strainId = ModDataComponentTypes.STRAIN_ID.get(stored);
+                if (strainId != null) ModDataComponentTypes.STRAIN_ID.set(result, strainId);
 
                 boolean bonus = isDriedBud(stored);
 
                 // Consume one input and persist the remainder
                 stored.shrink(1);
                 if (stored.isEmpty()) {
-                    stack.remove(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get());
+                    ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.remove(stack);
                 } else {
-                    stack.set(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get(),
+                    ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.set(stack,
                             ManualGrinderContents.fromStack(stored));
                 }
 
@@ -112,7 +113,7 @@ public class ManualGrinderItem extends Item {
 
     private boolean isDriedBud(ItemStack stack) {
         if (!(stack.getItem() instanceof BaseBudItem)) return false;
-        Boolean dry = stack.get(ModDataComponentTypes.DRY);
+        Boolean dry = ModDataComponentTypes.DRY.get(stack);
         return Boolean.TRUE.equals(dry);
     }
 
@@ -120,8 +121,7 @@ public class ManualGrinderItem extends Item {
         if (level == null || ingredient.isEmpty()) return Optional.empty();
         ManualGrinderInput input = new ManualGrinderInput(ingredient.copyWithCount(1));
         return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.MANUAL_GRINDER_TYPE.get(), input, level)
-                .map(holder -> holder.value());
+                .getRecipeFor(ModRecipes.MANUAL_GRINDER_TYPE.get(), input, level);
     }
 
     private boolean isValidIngredient(Level level, ItemStack ingredient) {
@@ -129,12 +129,12 @@ public class ManualGrinderItem extends Item {
     }
 
     private ItemStack getStored(ItemStack grinder) {
-        ManualGrinderContents data = grinder.get(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get());
+        ManualGrinderContents data = ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get(grinder);
         return data == null ? ItemStack.EMPTY : data.toStack();
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltip, TooltipFlag flag) {
         ItemStack stored = getStored(stack);
         if (stored.isEmpty()) {
             tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.empty").withStyle(ChatFormatting.GRAY));
@@ -146,7 +146,7 @@ public class ManualGrinderItem extends Item {
                     : stored.getHoverName();
             tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.contains",
                     contentsLabel).withStyle(ChatFormatting.GREEN));
-            boolean valid = context.level() != null && isValidIngredient(context.level(), stored);
+            boolean valid = context != null && isValidIngredient(context, stored);
             if (!valid) {
                 tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.invalid")
                         .withStyle(ChatFormatting.RED));

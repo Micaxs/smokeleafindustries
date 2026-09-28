@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
@@ -11,7 +14,6 @@ import net.micaxs.smokeleaf.recipe.ModRecipes;
 import net.micaxs.smokeleaf.screen.custom.ExtractorMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -27,15 +29,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -149,46 +150,46 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     private ItemStack buildOutputWithWeedData(ItemStack input, ItemStack recipeOutput) {
         ItemStack result = new ItemStack(recipeOutput.getItem(), recipeOutput.getCount());
 
-        var strainData = input.get(ModDataComponentTypes.STRAIN_DATA.get());
+        var strainData = ModDataComponentTypes.STRAIN_DATA.get(input);
         if (strainData != null) {
-            result.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+            ModDataComponentTypes.STRAIN_DATA.set(result, strainData);
             // Propagate strain ID for lineage tracking
-            var strainId = input.get(ModDataComponentTypes.STRAIN_ID.get());
-            if (strainId != null) result.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
-            var strainCreator = input.get(ModDataComponentTypes.STRAIN_CREATOR.get());
-            if (strainCreator != null) result.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
+            var strainId = ModDataComponentTypes.STRAIN_ID.get(input);
+            if (strainId != null) ModDataComponentTypes.STRAIN_ID.set(result, strainId);
+            var strainCreator = ModDataComponentTypes.STRAIN_CREATOR.get(input);
+            if (strainCreator != null) ModDataComponentTypes.STRAIN_CREATOR.set(result, strainCreator);
             return result;
         }
 
-        Integer thc = input.get(ModDataComponentTypes.THC.get());
-        if (thc != null) result.set(ModDataComponentTypes.THC.get(), thc);
+        Integer thc = ModDataComponentTypes.THC.get(input);
+        if (thc != null) ModDataComponentTypes.THC.set(result, thc);
 
-        Integer cbd = input.get(ModDataComponentTypes.CBD.get());
-        if (cbd != null) result.set(ModDataComponentTypes.CBD.get(), cbd);
+        Integer cbd = ModDataComponentTypes.CBD.get(input);
+        if (cbd != null) ModDataComponentTypes.CBD.set(result, cbd);
 
         // Preserve the base/active effect from the input item
-        String eff = input.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get());
-        if (eff != null) result.set(ModDataComponentTypes.ACTIVE_INGREDIENT.get(), eff);
+        String eff = ModDataComponentTypes.ACTIVE_INGREDIENT.get(input);
+        if (eff != null) ModDataComponentTypes.ACTIVE_INGREDIENT.set(result, eff);
 
         return result;
     }
 
     private boolean areWeedDataEqual(ItemStack a, ItemStack b) {
-        var aStrain = a.get(ModDataComponentTypes.STRAIN_DATA.get());
-        var bStrain = b.get(ModDataComponentTypes.STRAIN_DATA.get());
+        var aStrain = ModDataComponentTypes.STRAIN_DATA.get(a);
+        var bStrain = ModDataComponentTypes.STRAIN_DATA.get(b);
         if (!Objects.equals(aStrain, bStrain)) return false;
 
-        Integer aTHC = a.get(ModDataComponentTypes.THC.get());
-        Integer bTHC = b.get(ModDataComponentTypes.THC.get());
+        Integer aTHC = ModDataComponentTypes.THC.get(a);
+        Integer bTHC = ModDataComponentTypes.THC.get(b);
         if (!Objects.equals(aTHC, bTHC)) return false;
 
-        Integer aCBD = a.get(ModDataComponentTypes.CBD.get());
-        Integer bCBD = b.get(ModDataComponentTypes.CBD.get());
+        Integer aCBD = ModDataComponentTypes.CBD.get(a);
+        Integer bCBD = ModDataComponentTypes.CBD.get(b);
         if (!Objects.equals(aCBD, bCBD)) return false;
 
         // Ensure stacks only merge when the active effect matches
-        String aEff = a.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get());
-        String bEff = b.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get());
+        String aEff = ModDataComponentTypes.ACTIVE_INGREDIENT.get(a);
+        String bEff = ModDataComponentTypes.ACTIVE_INGREDIENT.get(b);
         return Objects.equals(aEff, bEff);
     }
 
@@ -239,10 +240,10 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
         if (input.isEmpty() || level == null) return false;
 
-        Optional<RecipeHolder<ExtractorRecipe>> recipe = getCurrentRecipe();
+        Optional<ExtractorRecipe> recipe = getCurrentRecipe();
         if (recipe.isEmpty()) return false;
 
-        ItemStack recipeOut = recipe.get().value().output();
+        ItemStack recipeOut = recipe.get().output();
         ItemStack candidate = buildOutputWithWeedData(input, recipeOut);
 
         return canInsertAmountIntoOutputSlot(candidate.getCount())
@@ -264,18 +265,18 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
         return maxCount >= currentCount + count;
     }
 
-    private Optional<RecipeHolder<ExtractorRecipe>> getCurrentRecipe() {
+    private Optional<ExtractorRecipe> getCurrentRecipe() {
         return this.level.getRecipeManager().getRecipeFor(ModRecipes.EXTRACTOR_TYPE.get(), new ExtractorRecipeInput(itemHandler.getStackInSlot(INPUT_SLOT)), level);
     }
 
     private void craftItem() {
-        Optional<RecipeHolder<ExtractorRecipe>> recipe = getCurrentRecipe();
+        Optional<ExtractorRecipe> recipe = getCurrentRecipe();
         if (recipe.isEmpty()) return;
 
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
         if (input.isEmpty() || level == null) return;
 
-        ItemStack recipeOut = recipe.get().value().output();
+        ItemStack recipeOut = recipe.get().output();
         ItemStack candidate = buildOutputWithWeedData(input, recipeOut);
 
         // Consume input
@@ -309,19 +310,19 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
 
     // NBT Data
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("extractor.inventory", itemHandler.serializeNBT(registries));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("extractor.inventory", itemHandler.serializeNBT());
         tag.putInt("extractor.progress", progress);
         tag.putInt("extractor.maxProgress", maxProgress);
         tag.putInt("extractor.energy", ENERGY_STORAGE.getEnergyStored());
 
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("extractor.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("extractor.inventory"));
         ENERGY_STORAGE.setEnergy(tag.getInt("extractor.energy"));
         progress = tag.getInt("extractor.progress");
         maxProgress = tag.getInt("extractor.maxProgress");
@@ -335,12 +336,18 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, null, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

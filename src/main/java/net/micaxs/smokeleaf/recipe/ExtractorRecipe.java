@@ -1,13 +1,13 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -15,7 +15,19 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public record ExtractorRecipe(Ingredient inputItem, ItemStack output) implements Recipe<ExtractorRecipeInput> {
+public record ExtractorRecipe(ResourceLocation id, Ingredient inputItem, ItemStack output) implements Recipe<ExtractorRecipeInput> {
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    // Machine recipe: keep it out of the vanilla recipe book (avoids "Unknown recipe category" spam).
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
 
     @Override
     public NonNullList<Ingredient> getIngredients() {
@@ -30,18 +42,18 @@ public record ExtractorRecipe(Ingredient inputItem, ItemStack output) implements
     }
 
     @Override
-    public ItemStack assemble(ExtractorRecipeInput extractorRecipeInput, HolderLookup.Provider provider) {
+    public ItemStack assemble(ExtractorRecipeInput extractorRecipeInput, RegistryAccess provider) {
         ItemStack out = output.copy();
         ItemStack in = extractorRecipeInput.getItem(0);
         if (!in.isEmpty()) {
-            StrainData sd = in.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData sd = ModDataComponentTypes.STRAIN_DATA.get(in);
             if (sd != null) {
-                out.set(ModDataComponentTypes.STRAIN_DATA.get(), sd);
+                ModDataComponentTypes.STRAIN_DATA.set(out, sd);
             } else {
-                Integer thc = in.get(ModDataComponentTypes.THC.get());
-                Integer cbd = in.get(ModDataComponentTypes.CBD.get());
-                if (thc != null) out.set(ModDataComponentTypes.THC.get(), thc);
-                if (cbd != null) out.set(ModDataComponentTypes.CBD.get(), cbd);
+                Integer thc = ModDataComponentTypes.THC.get(in);
+                Integer cbd = ModDataComponentTypes.CBD.get(in);
+                if (thc != null) ModDataComponentTypes.THC.set(out, thc);
+                if (cbd != null) ModDataComponentTypes.CBD.set(out, cbd);
             }
         }
         return out;
@@ -53,7 +65,7 @@ public record ExtractorRecipe(Ingredient inputItem, ItemStack output) implements
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess provider) {
         return output;
     }
 
@@ -68,29 +80,24 @@ public record ExtractorRecipe(Ingredient inputItem, ItemStack output) implements
     }
 
 
-    public static class Serializer implements RecipeSerializer<ExtractorRecipe> {
-        // Codec
-        public static final MapCodec<ExtractorRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(ExtractorRecipe::inputItem),
-                ItemStack.CODEC.fieldOf("result").forGetter(ExtractorRecipe::output)
-        ).apply(inst, ExtractorRecipe::new));
-
-        // StreamCodec
-        public static final StreamCodec<RegistryFriendlyByteBuf, ExtractorRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        Ingredient.CONTENTS_STREAM_CODEC, ExtractorRecipe::inputItem,
-                        ItemStack.STREAM_CODEC, ExtractorRecipe::output,
-                        ExtractorRecipe::new);
-
-
+    public static class Serializer implements CodecRecipeSerializer<ExtractorRecipe> {
         @Override
-        public MapCodec<ExtractorRecipe> codec() {
-            return CODEC;
+        public MapCodec<ExtractorRecipe> codec(ResourceLocation id) {
+            return RecordCodecBuilder.mapCodec(inst -> inst.group(
+                    CodecCompat.INGREDIENT.fieldOf("ingredient").forGetter(ExtractorRecipe::inputItem),
+                    CodecCompat.ITEM_STACK.fieldOf("result").forGetter(ExtractorRecipe::output)
+            ).apply(inst, (ing, out) -> new ExtractorRecipe(id, ing, out)));
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, ExtractorRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public ExtractorRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            return new ExtractorRecipe(id, Ingredient.fromNetwork(buf), buf.readItem());
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buf, ExtractorRecipe recipe) {
+            recipe.inputItem().toNetwork(buf);
+            buf.writeItem(recipe.output());
         }
     }
 }

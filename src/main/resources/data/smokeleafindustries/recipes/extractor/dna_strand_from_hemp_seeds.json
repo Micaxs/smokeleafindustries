@@ -1,0 +1,10 @@
+{
+  "type": "smokeleafindustries:extractor",
+  "ingredient": {
+    "item": "smokeleafindustries:hemp_seeds"
+  },
+  "result": {
+    "count": 1,
+    "item": "smokeleafindustries:dna_strand"
+  }
+}

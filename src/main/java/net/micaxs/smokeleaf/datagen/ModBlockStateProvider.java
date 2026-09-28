@@ -16,12 +16,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.registries.DeferredBlock;
-
+import net.minecraftforge.client.model.generators.BlockStateProvider;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.RegistryObject;
 import java.util.function.Function;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -116,7 +115,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
     }
 
 
-    private void blockWithItem(DeferredBlock<?> deferredBlock) {
+    private void blockWithItem(RegistryObject<? extends Block> deferredBlock) {
         simpleBlockWithItem(deferredBlock.get(), cubeAll(deferredBlock.get()));
     }
 
@@ -168,7 +167,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                     textureFile = textureName + "6_full";
                 }
             }
-            ResourceLocation tex = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "block/" + textureFile);
+            ResourceLocation tex = new ResourceLocation(SmokeleafIndustries.MODID, "block/" + textureFile);
             ConfiguredModel cm = new ConfiguredModel(models().cross(modelFile, tex).renderType("cutout"));
             return new ConfiguredModel[]{cm};
         };
@@ -220,7 +219,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         ConfiguredModel[] models = new ConfiguredModel[1];
         models[0] = new ConfiguredModel(models().cross(
                 modelName + blockState.getValue(cropBlock.getAgeProperty()),
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "block/" + textureName + blockState.getValue(cropBlock.getAgeProperty()))
+                new ResourceLocation(SmokeleafIndustries.MODID, "block/" + textureName + blockState.getValue(cropBlock.getAgeProperty()))
         ).renderType("cutout"));
         return models;
     }
@@ -241,7 +240,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         ConfiguredModel[] models = new ConfiguredModel[1];
         models[0] = new ConfiguredModel(models().cross(
                 model,
-                ResourceLocation.fromNamespaceAndPath(
+                new ResourceLocation(
                         SmokeleafIndustries.MODID,
                         "block/" + textureName + ((age == 9 || age == 10) && !isTop ? "6_full" : age)
                 )
@@ -271,11 +270,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockItem(block, models().getExistingFile(modLoc("block/" + baseName + itemSuffix)));
     }
 
-    private void blockItem(DeferredBlock<Block> deferredBlock) {
+    private void blockItem(RegistryObject<Block> deferredBlock) {
             simpleBlockItem(deferredBlock.get(), new ModelFile.UncheckedModelFile("smokeleafindustries:block/" + deferredBlock.getId().getPath()));
     }
 
-    private void blockItem(DeferredBlock<Block> deferredBlock, String appendix) {
+    private void blockItem(RegistryObject<Block> deferredBlock, String appendix) {
             simpleBlockItem(deferredBlock.get(), new ModelFile.UncheckedModelFile("smokeleafindustries:block/" + deferredBlock.getId().getPath() + appendix));
     }
 

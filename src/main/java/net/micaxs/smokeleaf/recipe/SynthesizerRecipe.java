@@ -1,12 +1,12 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.item.custom.DNAStrandItem;
 import net.micaxs.smokeleaf.component.DNAContents;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -15,8 +15,20 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public record SynthesizerRecipe(Ingredient dnaIngredient,
+public record SynthesizerRecipe(ResourceLocation id, Ingredient dnaIngredient,
                                 ItemStack result) implements Recipe<SynthesizerRecipeInput> {
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    // Machine recipe: keep it out of the vanilla recipe book (avoids "Unknown recipe category" spam).
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
 
     @Override
     public boolean matches(SynthesizerRecipeInput input, Level level) {
@@ -29,7 +41,7 @@ public record SynthesizerRecipe(Ingredient dnaIngredient,
     }
 
     @Override
-    public ItemStack assemble(SynthesizerRecipeInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(SynthesizerRecipeInput input, RegistryAccess provider) {
         ItemStack dna = input.dna();
         if (!(dna.getItem() instanceof DNAStrandItem)) {
             return result.copy();
@@ -53,7 +65,7 @@ public record SynthesizerRecipe(Ingredient dnaIngredient,
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess provider) {
         return result.copy();
     }
 
@@ -74,39 +86,29 @@ public record SynthesizerRecipe(Ingredient dnaIngredient,
         return list;
     }
 
-    public static class Serializer implements RecipeSerializer<SynthesizerRecipe> {
-
-        private static final MapCodec<SynthesizerRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
-                instance.group(
-                        Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(SynthesizerRecipe::dnaIngredient),
-                        ItemStack.CODEC.fieldOf("result").forGetter(SynthesizerRecipe::result)
-                ).apply(instance, SynthesizerRecipe::new)
-        );
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, SynthesizerRecipe> STREAM_CODEC =
-                new StreamCodec<>() {
-                    @Override
-                    public SynthesizerRecipe decode(RegistryFriendlyByteBuf buf) {
-                        Ingredient dna = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
-                        ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-                        return new SynthesizerRecipe(dna, result);
-                    }
-
-                    @Override
-                    public void encode(RegistryFriendlyByteBuf buf, SynthesizerRecipe value) {
-                        Ingredient.CONTENTS_STREAM_CODEC.encode(buf, value.dnaIngredient);
-                        ItemStack.STREAM_CODEC.encode(buf, value.result);
-                    }
-                };
+    public static class Serializer implements CodecRecipeSerializer<SynthesizerRecipe> {
 
         @Override
-        public MapCodec<SynthesizerRecipe> codec() {
-            return CODEC;
+        public MapCodec<SynthesizerRecipe> codec(ResourceLocation id) {
+            return RecordCodecBuilder.mapCodec(instance ->
+                    instance.group(
+                            CodecCompat.INGREDIENT.fieldOf("ingredient").forGetter(SynthesizerRecipe::dnaIngredient),
+                            CodecCompat.ITEM_STACK.fieldOf("result").forGetter(SynthesizerRecipe::result)
+                    ).apply(instance, (dna, result) -> new SynthesizerRecipe(id, dna, result))
+            );
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, SynthesizerRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public SynthesizerRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            Ingredient dna = Ingredient.fromNetwork(buf);
+            ItemStack result = buf.readItem();
+            return new SynthesizerRecipe(id, dna, result);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buf, SynthesizerRecipe value) {
+            value.dnaIngredient.toNetwork(buf);
+            buf.writeItem(value.result);
         }
     }
 }

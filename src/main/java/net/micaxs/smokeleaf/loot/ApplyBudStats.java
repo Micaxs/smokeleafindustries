@@ -1,7 +1,7 @@
 package net.micaxs.smokeleaf.loot;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
 import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
@@ -18,11 +18,8 @@ import java.util.List;
 
 public class ApplyBudStats extends LootItemConditionalFunction {
 
-    public static final MapCodec<ApplyBudStats> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            LootItemConditionalFunction.commonFields(instance).apply(instance, ApplyBudStats::new)
-    );
 
-    protected ApplyBudStats(List<LootItemCondition> conditions) {
+    protected ApplyBudStats(LootItemCondition[] conditions) {
         super(conditions);
     }
 
@@ -31,7 +28,7 @@ public class ApplyBudStats extends LootItemConditionalFunction {
     }
 
     @Override
-    public LootItemFunctionType<ApplyBudStats> getType() {
+    public LootItemFunctionType getType() {
         return ModLootItemFunctions.APPLY_BUD_STATS.get();
     }
 
@@ -41,10 +38,10 @@ public class ApplyBudStats extends LootItemConditionalFunction {
         if (be instanceof BaseWeedCropBlockEntity crop) {
             int buds = Mth.clamp(crop.getBudCount(), 1, 3);
             stack.setCount(buds);
-            StrainData existing = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData existing = ModDataComponentTypes.STRAIN_DATA.get(stack);
             if (existing != null) {
                 // Patch actual grown THC/CBD into STRAIN_DATA, preserving all other fields
-                stack.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                ModDataComponentTypes.STRAIN_DATA.set(stack, new StrainData(
                         existing.colorArgb(), existing.leafColor(), crop.getThc(), crop.getCbd(),
                         existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                         existing.effects(), existing.amplifier(), existing.durationTicks(),
@@ -53,10 +50,17 @@ public class ApplyBudStats extends LootItemConditionalFunction {
                     "", ""
             ));
             } else {
-                stack.set(ModDataComponentTypes.THC.get(), crop.getThc());
-                stack.set(ModDataComponentTypes.CBD.get(), crop.getCbd());
+                ModDataComponentTypes.THC.set(stack, crop.getThc());
+                ModDataComponentTypes.CBD.set(stack, crop.getCbd());
             }
         }
         return stack;
+    }
+
+    public static class Serializer extends LootItemConditionalFunction.Serializer<ApplyBudStats> {
+        @Override
+        public ApplyBudStats deserialize(JsonObject json, JsonDeserializationContext context, LootItemCondition[] conditions) {
+            return new ApplyBudStats(conditions);
+        }
     }
 }

@@ -1,12 +1,11 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -14,7 +13,19 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public record GeneratorRecipe(Ingredient ingredient, int totalEnergy) implements Recipe<GeneratorRecipeInput> {
+public record GeneratorRecipe(ResourceLocation id, Ingredient ingredient, int totalEnergy) implements Recipe<GeneratorRecipeInput> {
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    // Machine recipe: keep it out of the vanilla recipe book (avoids "Unknown recipe category" spam).
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
 
     public static final int ENERGY_PER_TICK = 40;
 
@@ -29,7 +40,7 @@ public record GeneratorRecipe(Ingredient ingredient, int totalEnergy) implements
     }
 
     @Override
-    public ItemStack assemble(GeneratorRecipeInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(GeneratorRecipeInput input, RegistryAccess provider) {
         return ItemStack.EMPTY;
     }
 
@@ -39,7 +50,7 @@ public record GeneratorRecipe(Ingredient ingredient, int totalEnergy) implements
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess provider) {
         return ItemStack.EMPTY;
     }
 
@@ -60,27 +71,24 @@ public record GeneratorRecipe(Ingredient ingredient, int totalEnergy) implements
         return ModRecipes.GENERATOR_TYPE.get();
     }
 
-    public static class Serializer implements RecipeSerializer<GeneratorRecipe> {
-        public static final MapCodec<GeneratorRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(GeneratorRecipe::ingredient),
-                com.mojang.serialization.Codec.INT.fieldOf("total_energy").forGetter(GeneratorRecipe::totalEnergy)
-        ).apply(inst, GeneratorRecipe::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, GeneratorRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        Ingredient.CONTENTS_STREAM_CODEC, GeneratorRecipe::ingredient,
-                        ByteBufCodecs.VAR_INT, GeneratorRecipe::totalEnergy,
-                        GeneratorRecipe::new
-                );
-
+    public static class Serializer implements CodecRecipeSerializer<GeneratorRecipe> {
         @Override
-        public MapCodec<GeneratorRecipe> codec() {
-            return CODEC;
+        public MapCodec<GeneratorRecipe> codec(ResourceLocation id) {
+            return RecordCodecBuilder.mapCodec(inst -> inst.group(
+                    CodecCompat.INGREDIENT.fieldOf("ingredient").forGetter(GeneratorRecipe::ingredient),
+                    com.mojang.serialization.Codec.INT.fieldOf("total_energy").forGetter(GeneratorRecipe::totalEnergy)
+            ).apply(inst, (ing, energy) -> new GeneratorRecipe(id, ing, energy)));
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, GeneratorRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public GeneratorRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            return new GeneratorRecipe(id, Ingredient.fromNetwork(buf), buf.readVarInt());
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buf, GeneratorRecipe recipe) {
+            recipe.ingredient().toNetwork(buf);
+            buf.writeVarInt(recipe.totalEnergy());
         }
     }
 }

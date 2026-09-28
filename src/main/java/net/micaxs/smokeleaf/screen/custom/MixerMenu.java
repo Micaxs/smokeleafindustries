@@ -18,11 +18,10 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.fluids.FluidActionResult;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.FluidStack;
-
+import net.minecraftforge.fluids.FluidActionResult;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.FluidStack;
 public class MixerMenu extends AbstractContainerMenu {
 
     public static final int BUTTON_FILL_INPUT_A_FROM_BUCKET = 0; // Left click input A
@@ -183,7 +182,7 @@ public class MixerMenu extends AbstractContainerMenu {
 
     /**
      * Drains a {@link UnidentifiedMixtureBucketItem} into the given tank, preserving {@code STRAIN_DATA}
-     * (which {@link net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper} would strip).
+     * (which {@link net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper} would strip).
      */
     private boolean emptyCustomOilBucket(ItemStack bucket, IFluidHandler tank) {
         FluidStack fluid = new FluidStack(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), 1000);
@@ -191,9 +190,9 @@ public class MixerMenu extends AbstractContainerMenu {
         if (strain != StrainData.EMPTY) {
             StrainUtil.setStrain(fluid, strain);
         }
-        String mixKey = bucket.get(ModDataComponentTypes.MIX_KEY.get());
+        String mixKey = ModDataComponentTypes.MIX_KEY.get(bucket);
         if (mixKey != null) {
-            fluid.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
+            ModDataComponentTypes.MIX_KEY.set(fluid, mixKey);
         }
         int filled = tank.fill(fluid, IFluidHandler.FluidAction.SIMULATE);
         if (filled == 1000) {

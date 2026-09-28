@@ -7,7 +7,7 @@
   "p": 13,
   "k": 16,
   "effects": [
-    "minecraft:oozing"
+    "minecraft:poison"
   ],
   "amp": 1,
   "dur": 170,

@@ -1,20 +1,19 @@
 // file: 'src/main/java/net/micaxs/smokeleaf/recipe/BluntRecipe.java'
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.world.inventory.CraftingContainer;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.item.custom.BluntItem;
 import net.micaxs.smokeleaf.utils.ModTags;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
@@ -25,18 +24,18 @@ import java.util.List;
 public class BluntRecipe extends CustomRecipe {
     private final Item bluntResult;
 
-    public BluntRecipe(CraftingBookCategory category, Item bluntResult) {
-        super(category);
+    public BluntRecipe(ResourceLocation id, CraftingBookCategory category, Item bluntResult) {
+        super(id, category);
         this.bluntResult = bluntResult;
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingContainer input, Level level) {
         return hasPattern(input);
     }
 
-    private boolean hasPattern(CraftingInput input) {
-        if (input.width() < 3 || input.height() < 3) return false;
+    private boolean hasPattern(CraftingContainer input) {
+        if (input.getWidth() < 3 || input.getHeight() < 3) return false;
 
         // Indices:
         // 0 1 2
@@ -68,14 +67,14 @@ public class BluntRecipe extends CustomRecipe {
 
         // Ensure no extras outside the 3x3 we care about (for larger grids)
         int nonEmpty = 0;
-        for (int i = 0; i < input.size(); i++) {
+        for (int i = 0; i < input.getContainerSize(); i++) {
             if (!input.getItem(i).isEmpty()) nonEmpty++;
         }
         return nonEmpty == 9;
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(CraftingContainer input, RegistryAccess provider) {
         if (!hasPattern(input)) return ItemStack.EMPTY;
 
         ItemStack w3 = input.getItem(3);
@@ -98,7 +97,7 @@ public class BluntRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess provider) {
         return new ItemStack(bluntResult);
     }
 
@@ -107,42 +106,37 @@ public class BluntRecipe extends CustomRecipe {
         return ModRecipes.BLUNT_SERIALIZER.get();
     }
 
-    public static class Serializer implements RecipeSerializer<BluntRecipe> {
+    public static class Serializer implements CodecRecipeSerializer<BluntRecipe> {
         public static final Serializer INSTANCE = new Serializer();
 
-        private static final MapCodec<BluntRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
-                instance.group(
-                        ResourceLocation.CODEC.fieldOf("result")
-                                .forGetter(r -> BuiltInRegistries.ITEM.getKey(r.bluntResult)),
-                        CraftingBookCategory.CODEC.optionalFieldOf("category", CraftingBookCategory.MISC)
-                                .forGetter(BluntRecipe::category)
-                ).apply(instance, (resultRL, cat) ->
-                        new BluntRecipe(
-                                cat,
-                                BuiltInRegistries.ITEM.get(resultRL)
-                        ))
-        );
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, BluntRecipe> STREAM_CODEC =
-                StreamCodec.of(
-                        (buf, recipe) -> {
-                            buf.writeResourceLocation(BuiltInRegistries.ITEM.getKey(recipe.bluntResult));
-                            buf.writeEnum(recipe.category());
-                        },
-                        buf -> {
-                            ResourceLocation res = buf.readResourceLocation();
-                            CraftingBookCategory cat = buf.readEnum(CraftingBookCategory.class);
-                            return new BluntRecipe(
+        @Override
+        public MapCodec<BluntRecipe> codec(ResourceLocation id) {
+            return RecordCodecBuilder.mapCodec(instance ->
+                    instance.group(
+                            ResourceLocation.CODEC.fieldOf("result")
+                                    .forGetter(r -> BuiltInRegistries.ITEM.getKey(r.bluntResult)),
+                            CraftingBookCategory.CODEC.optionalFieldOf("category", CraftingBookCategory.MISC)
+                                    .forGetter(BluntRecipe::category)
+                    ).apply(instance, (resultRL, cat) ->
+                            new BluntRecipe(
+                                    id,
                                     cat,
-                                    BuiltInRegistries.ITEM.get(res)
-                            );
-                        }
-                );
+                                    BuiltInRegistries.ITEM.get(resultRL)
+                            ))
+            );
+        }
 
         @Override
-        public MapCodec<BluntRecipe> codec() { return CODEC; }
+        public BluntRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            ResourceLocation res = buf.readResourceLocation();
+            CraftingBookCategory cat = buf.readEnum(CraftingBookCategory.class);
+            return new BluntRecipe(id, cat, BuiltInRegistries.ITEM.get(res));
+        }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, BluntRecipe> streamCodec() { return STREAM_CODEC; }
+        public void toNetwork(FriendlyByteBuf buf, BluntRecipe recipe) {
+            buf.writeResourceLocation(BuiltInRegistries.ITEM.getKey(recipe.bluntResult));
+            buf.writeEnum(recipe.category());
+        }
     }
 }

@@ -44,8 +44,8 @@ public enum TripTier {
         this.id = id;
         this.displayName = displayName;
         this.unplayable = unplayable;
-        this.shaderChain = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "shaders/post/" + id + ".json");
-        this.icon = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/trip/" + id + ".png");
+        this.shaderChain = new ResourceLocation(SmokeleafIndustries.MODID, "shaders/post/" + id + ".json");
+        this.icon = new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/trip/" + id + ".png");
     }
 
     public static TripTier byAmplifier(int amplifier) {

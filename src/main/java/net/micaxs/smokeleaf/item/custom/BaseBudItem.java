@@ -1,11 +1,14 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.Level;
+import net.micaxs.smokeleaf.component.DataKey;
+import net.micaxs.smokeleaf.component.DefaultDataProvider;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainEffectsUtil;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -16,15 +19,16 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 
 import java.util.List;
 
-public class BaseBudItem extends Item {
+public class BaseBudItem extends Item implements DefaultDataProvider {
 
     public int dry;
     public int dryingTime;
+    private Integer defaultThc;
+    private Integer defaultCbd;
 
     public BaseBudItem(Properties properties, int iDry, int iDryingTime) {
         super(properties);
@@ -34,15 +38,18 @@ public class BaseBudItem extends Item {
 
     // Optional: constructor with default THC/CBD for new stacks
     public BaseBudItem(Properties properties, int iDry, int iDryingTime, int defaultThc, int defaultCbd) {
-        super(withDefaults(properties, defaultThc, defaultCbd));
+        super(properties);
         this.dry = iDry;
         this.dryingTime = iDryingTime;
+        this.defaultThc = defaultThc;
+        this.defaultCbd = defaultCbd;
     }
 
-    private static Properties withDefaults(Properties properties, int defaultThc, int defaultCbd) {
-        return properties
-                .component(ModDataComponentTypes.THC.get(), defaultThc)
-                .component(ModDataComponentTypes.CBD.get(), defaultCbd);
+    @Override
+    public Object getDefaultData(DataKey<?> key) {
+        if (key == ModDataComponentTypes.THC) return defaultThc;
+        if (key == ModDataComponentTypes.CBD) return defaultCbd;
+        return null;
     }
 
     public boolean isDry() {
@@ -63,7 +70,7 @@ public class BaseBudItem extends Item {
         } else {
             baseName = Component.translatable(stack.getDescriptionId());
         }
-        boolean dried = Boolean.TRUE.equals(stack.get(ModDataComponentTypes.DRY));
+        boolean dried = Boolean.TRUE.equals(ModDataComponentTypes.DRY.get(stack));
         if (dried) {
             return Component.translatable("tooltip.smokeleafindustries.dried").append(" ").append(baseName);
         } else {
@@ -72,9 +79,9 @@ public class BaseBudItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+        StrainData d = ModDataComponentTypes.STRAIN_DATA.get(stack);
         if (d == null) return;
         tooltip.add(getLevelsText(d));
         if (!d.effects().isEmpty()) {
@@ -83,7 +90,7 @@ public class BaseBudItem extends Item {
                     d.cbd(), 0, d.effects(), 1.0f);
             if (!previews.isEmpty()) {
                 MobEffectInstance first = previews.get(0);
-                MobEffect baseEff = first.getEffect().value();
+                MobEffect baseEff = first.getEffect();
                 int seconds = first.getDuration() / 20;
                 tooltip.add(
                         Component.literal("Effect: ").withStyle(ChatFormatting.GRAY)
@@ -92,7 +99,7 @@ public class BaseBudItem extends Item {
                                         .withStyle(ChatFormatting.GREEN))
                 );
                 for (int i = 1; i < previews.size(); i++) {
-                    MobEffect extra = previews.get(i).getEffect().value();
+                    MobEffect extra = previews.get(i).getEffect();
                     int secs = previews.get(i).getDuration() / 20;
                     tooltip.add(
                             Component.literal("       ").withStyle(ChatFormatting.GRAY)
@@ -118,25 +125,25 @@ public class BaseBudItem extends Item {
 
     // Helpers
     public static void changeDryStatus(ItemStack stack, boolean value) {
-        stack.set(ModDataComponentTypes.DRY, value);
+        ModDataComponentTypes.DRY.set(stack, value);
     }
 
     public static int getThc(ItemStack stack) {
-        Integer v = stack.get(ModDataComponentTypes.THC);
+        Integer v = ModDataComponentTypes.THC.get(stack);
         return v != null ? v : 0;
     }
 
     public static int getCbd(ItemStack stack) {
-        Integer v = stack.get(ModDataComponentTypes.CBD);
+        Integer v = ModDataComponentTypes.CBD.get(stack);
         return v != null ? v : 0;
     }
 
     public static void setThc(ItemStack stack, int value) {
-        stack.set(ModDataComponentTypes.THC, value);
+        ModDataComponentTypes.THC.set(stack, value);
     }
 
     public static void setCbd(ItemStack stack, int value) {
-        stack.set(ModDataComponentTypes.CBD, value);
+        ModDataComponentTypes.CBD.set(stack, value);
     }
 
     public static void addThc(ItemStack stack, int delta) {

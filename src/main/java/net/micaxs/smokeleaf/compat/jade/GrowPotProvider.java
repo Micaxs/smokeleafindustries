@@ -19,7 +19,7 @@ import snownee.jade.api.config.IPluginConfig;
 public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "grow_pot_jade");
+    private static final ResourceLocation UID = new ResourceLocation(SmokeleafIndustries.MODID, "grow_pot_jade");
 
     @Override
     public ResourceLocation getUid() {

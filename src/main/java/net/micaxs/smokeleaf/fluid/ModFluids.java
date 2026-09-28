@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.fluid;
 
+import net.minecraft.core.registries.Registries;
+
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.item.ModItems;
@@ -13,43 +15,41 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.fluids.BaseFlowingFluid;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fluids.ForgeFlowingFluid;
+import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 
 public class ModFluids {
     public static final DeferredRegister<Fluid> FLUIDS =
-            DeferredRegister.create(BuiltInRegistries.FLUID, SmokeleafIndustries.MODID);
+            DeferredRegister.create(Registries.FLUID, SmokeleafIndustries.MODID);
 
     // Hemp oil removed: no longer registered (obsolete).
     // Hash Oil Fluid
-    public static final Supplier<FlowingFluid> SOURCE_HASH_OIL_FLUID = FLUIDS.register("hash_oil_fluid",
-            () -> new BaseFlowingFluid.Source(ModFluids.HASH_OIL_FLUID_PROPERTIES));
-    public static final Supplier<FlowingFluid> FLOWING_HASH_OIL_FLUID = FLUIDS.register("flowing_hash_oil",
-            () -> new BaseFlowingFluid.Flowing(ModFluids.HASH_OIL_FLUID_PROPERTIES));
-    public static final DeferredBlock<LiquidBlock> HASH_OIL_FLUID_BLOCK = ModBlocks.BLOCKS.register("hash_oil_fluid_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_HASH_OIL_FLUID.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
-    public static final DeferredItem<Item> HASH_OIL_BUCKET = ModItems.ITEMS.registerItem("hash_oil_bucket",
-            properties -> new BucketItem(ModFluids.SOURCE_HASH_OIL_FLUID.get(), properties.craftRemainder(Items.BUCKET).stacksTo(1)));
-    public static final BaseFlowingFluid.Properties HASH_OIL_FLUID_PROPERTIES = new BaseFlowingFluid.Properties(
+    public static final RegistryObject<FlowingFluid> SOURCE_HASH_OIL_FLUID = FLUIDS.register("hash_oil_fluid",
+            () -> new ForgeFlowingFluid.Source(ModFluids.HASH_OIL_FLUID_PROPERTIES));
+    public static final RegistryObject<FlowingFluid> FLOWING_HASH_OIL_FLUID = FLUIDS.register("flowing_hash_oil",
+            () -> new ForgeFlowingFluid.Flowing(ModFluids.HASH_OIL_FLUID_PROPERTIES));
+    public static final RegistryObject<LiquidBlock> HASH_OIL_FLUID_BLOCK = ModBlocks.BLOCKS.register("hash_oil_fluid_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_HASH_OIL_FLUID, BlockBehaviour.Properties.copy(Blocks.WATER).noLootTable()));
+    public static final RegistryObject<Item> HASH_OIL_BUCKET = ModItems.ITEMS.register("hash_oil_bucket",
+            () -> new BucketItem(ModFluids.SOURCE_HASH_OIL_FLUID, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
+    public static final ForgeFlowingFluid.Properties HASH_OIL_FLUID_PROPERTIES = new ForgeFlowingFluid.Properties(
             ModFluidTypes.HASH_OIL_FLUID_TYPE, SOURCE_HASH_OIL_FLUID, FLOWING_HASH_OIL_FLUID)
             .slopeFindDistance(2)
             .levelDecreasePerBlock(2);
 
     // Hash Oil Sludge Fluid
-    public static final Supplier<FlowingFluid> SOURCE_HASH_OIL_SLUDGE_FLUID = FLUIDS.register("hash_oil_sludge_fluid",
-            () -> new BaseFlowingFluid.Source(ModFluids.HASH_OIL_SLUDGE_FLUID_PROPERTIES));
-    public static final Supplier<FlowingFluid> FLOWING_HASH_OIL_SLUDGE_FLUID = FLUIDS.register("flowing_hash_oil_sludge",
-            () -> new BaseFlowingFluid.Flowing(ModFluids.HASH_OIL_SLUDGE_FLUID_PROPERTIES));
-    public static final DeferredBlock<LiquidBlock> HASH_OIL_SLUDGE_FLUID_BLOCK = ModBlocks.BLOCKS.register("hash_oil_sludge_fluid_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_HASH_OIL_SLUDGE_FLUID.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
-    public static final DeferredItem<Item> HASH_OIL_SLUDGE_BUCKET = ModItems.ITEMS.registerItem("hash_oil_sludge_bucket",
-            properties -> new BucketItem(ModFluids.SOURCE_HASH_OIL_SLUDGE_FLUID.get(), properties.craftRemainder(Items.BUCKET).stacksTo(1)));
-    public static final BaseFlowingFluid.Properties HASH_OIL_SLUDGE_FLUID_PROPERTIES = new BaseFlowingFluid.Properties(
+    public static final RegistryObject<FlowingFluid> SOURCE_HASH_OIL_SLUDGE_FLUID = FLUIDS.register("hash_oil_sludge_fluid",
+            () -> new ForgeFlowingFluid.Source(ModFluids.HASH_OIL_SLUDGE_FLUID_PROPERTIES));
+    public static final RegistryObject<FlowingFluid> FLOWING_HASH_OIL_SLUDGE_FLUID = FLUIDS.register("flowing_hash_oil_sludge",
+            () -> new ForgeFlowingFluid.Flowing(ModFluids.HASH_OIL_SLUDGE_FLUID_PROPERTIES));
+    public static final RegistryObject<LiquidBlock> HASH_OIL_SLUDGE_FLUID_BLOCK = ModBlocks.BLOCKS.register("hash_oil_sludge_fluid_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_HASH_OIL_SLUDGE_FLUID, BlockBehaviour.Properties.copy(Blocks.WATER).noLootTable()));
+    public static final RegistryObject<Item> HASH_OIL_SLUDGE_BUCKET = ModItems.ITEMS.register("hash_oil_sludge_bucket",
+            () -> new BucketItem(ModFluids.SOURCE_HASH_OIL_SLUDGE_FLUID, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
+    public static final ForgeFlowingFluid.Properties HASH_OIL_SLUDGE_FLUID_PROPERTIES = new ForgeFlowingFluid.Properties(
             ModFluidTypes.HASH_OIL_SLUDGE_FLUID_TYPE, SOURCE_HASH_OIL_SLUDGE_FLUID, FLOWING_HASH_OIL_SLUDGE_FLUID)
             .slopeFindDistance(2)
             .levelDecreasePerBlock(2);
@@ -57,15 +57,15 @@ public class ModFluids {
 
     // ---- Player-made mixture fluid ----
 
-    public static final Supplier<FlowingFluid> SOURCE_UNIDENTIFIED_MIXTURE_FLUID = FLUIDS.register("unidentified_mixture_fluid",
-            () -> new BaseFlowingFluid.Source(ModFluids.UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES));
-    public static final Supplier<FlowingFluid> FLOWING_UNIDENTIFIED_MIXTURE_FLUID = FLUIDS.register("flowing_unidentified_mixture",
-            () -> new BaseFlowingFluid.Flowing(ModFluids.UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES));
-    public static final DeferredBlock<LiquidBlock> UNIDENTIFIED_MIXTURE_FLUID_BLOCK = ModBlocks.BLOCKS.register("unidentified_mixture_fluid_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
-    public static final DeferredItem<Item> UNIDENTIFIED_MIXTURE_BUCKET = ModItems.ITEMS.registerItem("unidentified_mixture_bucket",
-            properties -> new UnidentifiedMixtureBucketItem(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), properties.craftRemainder(Items.BUCKET).stacksTo(1)));
-    public static final BaseFlowingFluid.Properties UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES = new BaseFlowingFluid.Properties(
+    public static final RegistryObject<FlowingFluid> SOURCE_UNIDENTIFIED_MIXTURE_FLUID = FLUIDS.register("unidentified_mixture_fluid",
+            () -> new ForgeFlowingFluid.Source(ModFluids.UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES));
+    public static final RegistryObject<FlowingFluid> FLOWING_UNIDENTIFIED_MIXTURE_FLUID = FLUIDS.register("flowing_unidentified_mixture",
+            () -> new ForgeFlowingFluid.Flowing(ModFluids.UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES));
+    public static final RegistryObject<LiquidBlock> UNIDENTIFIED_MIXTURE_FLUID_BLOCK = ModBlocks.BLOCKS.register("unidentified_mixture_fluid_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID, BlockBehaviour.Properties.copy(Blocks.WATER).noLootTable()));
+    public static final RegistryObject<Item> UNIDENTIFIED_MIXTURE_BUCKET = ModItems.ITEMS.register("unidentified_mixture_bucket",
+            () -> new UnidentifiedMixtureBucketItem(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
+    public static final ForgeFlowingFluid.Properties UNIDENTIFIED_MIXTURE_FLUID_PROPERTIES = new ForgeFlowingFluid.Properties(
             ModFluidTypes.UNIDENTIFIED_MIXTURE_FLUID_TYPE, SOURCE_UNIDENTIFIED_MIXTURE_FLUID, FLOWING_UNIDENTIFIED_MIXTURE_FLUID)
             .slopeFindDistance(2)
             .levelDecreasePerBlock(2);

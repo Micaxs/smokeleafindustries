@@ -1,0 +1,25 @@
+{
+  "type": "smokeleafindustries:sequencer",
+  "dna": {
+    "item": "smokeleafindustries:dna_strand"
+  },
+  "base_extract": {
+    "item": "smokeleafindustries:base_extract"
+  },
+  "required_reagents": [
+    {
+      "item": "minecraft:purple_dye"
+    },
+    {
+      "item": "minecraft:red_dye"
+    },
+    {
+      "item": "minecraft:sugar"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "smokeleafindustries:extract"
+  },
+  "strain_id": "grape_ape"
+}

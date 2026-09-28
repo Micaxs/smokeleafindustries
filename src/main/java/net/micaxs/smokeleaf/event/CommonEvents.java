@@ -22,7 +22,6 @@ import net.micaxs.smokeleaf.villager.ModVillagers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -33,7 +32,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
@@ -45,27 +43,24 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.NeoForgeMod;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.event.AnvilUpdateEvent;
-import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
-import net.neoforged.neoforge.event.entity.player.AnvilRepairEvent;
-import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.event.entity.player.AnvilRepairEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.TickEvent;
 import java.util.*;
 
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID)
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID)
 public class CommonEvents {
 
 
@@ -124,7 +119,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onHighFlyerAdded(MobEffectEvent.Added event) {
         MobEffectInstance inst = event.getEffectInstance();
-        if (inst == null || inst.getEffect() != ModEffects.HIGH_FLYER) return;
+        if (inst == null || inst.getEffect() != ModEffects.HIGH_FLYER.get()) return;
 
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer sp) {
             sp.getAbilities().mayfly = true;
@@ -143,13 +138,10 @@ public class CommonEvents {
     }
 
     private static void handleHighFlyerEnd(LivingEntity entity, MobEffectInstance inst) {
-        if (inst == null || inst.getEffect() != ModEffects.HIGH_FLYER) return;
+        if (inst == null || inst.getEffect() != ModEffects.HIGH_FLYER.get()) return;
         if (!(entity instanceof net.minecraft.server.level.ServerPlayer sp)) return;
 
-        AttributeInstance flightAttr = sp.getAttribute(NeoForgeMod.CREATIVE_FLIGHT);
-        double value = flightAttr != null ? flightAttr.getValue() : 0.0D;
-
-        if (value <= 0.0D && !sp.getAbilities().instabuild) {
+        if (!sp.isCreative() && !sp.isSpectator()) {
             sp.getAbilities().mayfly = false;
             sp.getAbilities().flying = false;
             sp.onUpdateAbilities();
@@ -174,7 +166,7 @@ public class CommonEvents {
             return;
         }
 
-        ManualGrinderContents contents = result.get(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get());
+        ManualGrinderContents contents = ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get(result);
         if (contents == null) return;
 
         ItemStack stored = contents.stack();
@@ -185,7 +177,7 @@ public class CommonEvents {
         for (int i = 0; i < matrix.getContainerSize(); i++) {
             ItemStack slotStack = matrix.getItem(i);
             if (!slotStack.isEmpty() && !(slotStack.getItem() instanceof ManualGrinderItem)
-                    && ItemStack.isSameItemSameComponents(slotStack, stored)) {
+                    && ItemStack.isSameItemSameTags(slotStack, stored)) {
                 ingredientSlots.add(i);
             }
         }
@@ -222,10 +214,10 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onStonedApplicable(MobEffectEvent.Applicable event) {
-        if (event.getEffectInstance() == null || event.getEffectInstance().getEffect() != ModEffects.STONED) return;
+        if (event.getEffectInstance() == null || event.getEffectInstance().getEffect() != ModEffects.STONED.get()) return;
         if (!(event.getEntity() instanceof Player player)) return;
         if (wearsFullBajaSet(player)) {
-            event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+            event.setResult(net.minecraftforge.eventbus.api.Event.Result.DENY);
         }
     }
 
@@ -240,20 +232,21 @@ public class CommonEvents {
     private static final double SELF_DROP_NEAR_SQR = 9.0D;
 
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Post event) {
-        Player player = event.getEntity();
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
         Level lvl = player.level();
         if (lvl.isClientSide) return;
         ServerLevel level = (ServerLevel) lvl;
 
         // Baja Hoodie: cure Stoned immediately if the full set gets equipped while already high,
         // rather than just blocking future re-applications.
-        if (player.hasEffect(ModEffects.STONED) && wearsFullBajaSet(player)) {
-            player.removeEffect(ModEffects.STONED);
+        if (player.hasEffect(ModEffects.STONED.get()) && wearsFullBajaSet(player)) {
+            player.removeEffect(ModEffects.STONED.get());
         }
 
         // Chillout: pacify nearby zombies + particles
-        if (player.hasEffect(ModEffects.CHILLOUT)) {
+        if (player.hasEffect(ModEffects.CHILLOUT.get())) {
             AABB box = player.getBoundingBox().inflate(CHILL_RADIUS);
             for (LivingEntity le : level.getEntitiesOfClass(LivingEntity.class, box)) {
                 if (le instanceof Zombie zombie) {
@@ -265,7 +258,7 @@ public class CommonEvents {
         }
 
         // Zombified: nearby hostiles ignore you + Burn in sunlight.
-        if (player.hasEffect(ModEffects.ZOMBIFIED)) {
+        if (player.hasEffect(ModEffects.ZOMBIFIED.get())) {
             AABB box = player.getBoundingBox().inflate(24);
             for (Monster mob : level.getEntitiesOfClass(Monster.class, box)) {
                 if (mob.getTarget() instanceof Player) {
@@ -276,7 +269,7 @@ public class CommonEvents {
         }
 
         // Sticky Icky: vacuum items/xp (Magnet Like)
-        if (player.hasEffect(ModEffects.STICKY_ICKY)) {
+        if (player.hasEffect(ModEffects.STICKY_ICKY.get())) {
             AABB box = player.getBoundingBox().inflate(VACUUM_RADIUS);
 
             for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, box)) {
@@ -322,10 +315,10 @@ public class CommonEvents {
         if (player.level().isClientSide) return;
 
         if (event.getTarget() instanceof Villager villager) {
-            if (player.hasEffect(ModEffects.CHILLOUT)) {
+            if (player.hasEffect(ModEffects.CHILLOUT.get())) {
                 villager.playSound(SoundEvents.VILLAGER_NO, 1.0f, 1.0f);
             }
-            if (player.hasEffect(ModEffects.LINGUISTS_HIGH)) {
+            if (player.hasEffect(ModEffects.LINGUISTS_HIGH.get())) {
                 villager.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.HERO_OF_THE_VILLAGE, 200, 0, false, false));
             }
         }
@@ -344,11 +337,11 @@ public class CommonEvents {
         BlockPos pos = event.getPos();
         BlockState state = level.getBlockState(pos);
 
-        if (player.hasEffect(ModEffects.R_TREES) && state.is(BlockTags.LOGS)) {
+        if (player.hasEffect(ModEffects.R_TREES.get()) && state.is(BlockTags.LOGS)) {
             breakConnectedLogs(level, pos, player);
         }
 
-        if (player.hasEffect(ModEffects.VEIN_HIGH) && state.is(Tags.Blocks.ORES)) {
+        if (player.hasEffect(ModEffects.VEIN_HIGH.get()) && state.is(Tags.Blocks.ORES)) {
             veinMine(level, pos, state, player);
         }
     }
@@ -422,10 +415,10 @@ public class CommonEvents {
             if (src.isEmpty()) continue;
 
             boolean hasWeedData =
-                    src.has(ModDataComponentTypes.ACTIVE_INGREDIENT.get()) ||
-                            src.has(ModDataComponentTypes.THC.get()) ||
-                            src.has(ModDataComponentTypes.CBD.get()) ||
-                            src.has(ModDataComponentTypes.STRAIN_DATA.get());
+                    ModDataComponentTypes.ACTIVE_INGREDIENT.has(src) ||
+                            ModDataComponentTypes.THC.has(src) ||
+                            ModDataComponentTypes.CBD.has(src) ||
+                            ModDataComponentTypes.STRAIN_DATA.has(src);
 
             if (hasWeedData) {
                 WeedDataUtil.copyWeedComponents(src, result);
@@ -440,10 +433,10 @@ public class CommonEvents {
             if (s.isEmpty()) continue;
 
             boolean hasAny =
-                    s.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get()) != null ||
-                            s.get(ModDataComponentTypes.EFFECT_DURATION.get()) != null ||
-                            s.get(ModDataComponentTypes.THC.get()) != null ||
-                            s.get(ModDataComponentTypes.CBD.get()) != null;
+                    ModDataComponentTypes.ACTIVE_INGREDIENT.get(s) != null ||
+                            ModDataComponentTypes.EFFECT_DURATION.get(s) != null ||
+                            ModDataComponentTypes.THC.get(s) != null ||
+                            ModDataComponentTypes.CBD.get(s) != null;
 
             if (hasAny) return s;
         }
@@ -453,7 +446,7 @@ public class CommonEvents {
     private static boolean contains(CraftingContainer grid, ItemStack needle) {
         for (int i = 0; i < grid.getContainerSize(); i++) {
             ItemStack s = grid.getItem(i);
-            if (!s.isEmpty() && ItemStack.isSameItemSameComponents(s, needle)) return true;
+            if (!s.isEmpty() && ItemStack.isSameItemSameTags(s, needle)) return true;
         }
         return false;
     }
@@ -492,15 +485,15 @@ public class CommonEvents {
 
     // -------- Villager Trades --------
     @SubscribeEvent
-    public static void addCustomTrades(net.neoforged.neoforge.event.village.VillagerTradesEvent event) {
-        if (event.getType() == ModVillagers.STONER.value()) {
+    public static void addCustomTrades(net.minecraftforge.event.village.VillagerTradesEvent event) {
+        if (event.getType() == ModVillagers.STONER.get()) {
             Int2ObjectMap<List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing>> trades = event.getTrades();
 
             addRandomTrades(trades, 1, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HEMP_FIBERS, 18), new ItemStack(Items.EMERALD, 1), 16, 2, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HEMP_COAL, 5), new ItemStack(Items.EMERALD, 1), 16, 2, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.DRIED_TOBACCO_LEAF, 8), new ItemStack(Items.EMERALD, 1), 12, 2, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HEMP_LEAF, 5), new ItemStack(Items.EMERALD, 1), 10, 2, 0.01f)
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.HEMP_FIBERS.get(), 18), new ItemStack(Items.EMERALD, 1), 16, 2, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.HEMP_COAL.get(), 5), new ItemStack(Items.EMERALD, 1), 16, 2, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.DRIED_TOBACCO_LEAF.get(), 8), new ItemStack(Items.EMERALD, 1), 12, 2, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.HEMP_LEAF.get(), 5), new ItemStack(Items.EMERALD, 1), 10, 2, 0.01f)
             );
 
             addRandomTrades(trades, 2, 1,
@@ -531,41 +524,41 @@ public class CommonEvents {
                     (pTrader, pRandom) -> weedOffer(5, "pink_kush")
             );
             addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.TOBACCO, 10), new ItemStack(Items.EMERALD, 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BIO_COMPOSITE, 1), new ItemStack(Items.EMERALD, 3), 8, 5, 0.01f)
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.TOBACCO.get(), 10), new ItemStack(Items.EMERALD, 1), 6, 5, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.BIO_COMPOSITE.get(), 1), new ItemStack(Items.EMERALD, 3), 8, 5, 0.01f)
             );
 
             addRandomTrades(trades, 3, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.EMPTY_TINCTURE, 4), new ItemStack(Items.EMERALD, 1), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.INFUSED_BUTTER, 3), new ItemStack(Items.EMERALD, 1), 7, 10, 0.01f)
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.EMPTY_TINCTURE.get(), 4), new ItemStack(Items.EMERALD, 1), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.INFUSED_BUTTER.get(), 3), new ItemStack(Items.EMERALD, 1), 7, 10, 0.01f)
             );
 
             addRandomTrades(trades, 4, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.WEED_COOKIE, 1), new ItemStack(Items.EMERALD, 2), 8, 15, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HASH_BROWNIE, 1), new ItemStack(Items.EMERALD, 3), 6, 15, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.DAB_RIG, 1), new ItemStack(Items.EMERALD, 3), 1, 15, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BONG, 1), new ItemStack(Items.EMERALD, 4), 1, 15, 0.01f)
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.WEED_COOKIE.get(), 1), new ItemStack(Items.EMERALD, 2), 8, 15, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.HASH_BROWNIE.get(), 1), new ItemStack(Items.EMERALD, 3), 6, 15, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.DAB_RIG.get(), 1), new ItemStack(Items.EMERALD, 3), 1, 15, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.BONG.get(), 1), new ItemStack(Items.EMERALD, 4), 1, 15, 0.01f)
             );
 
             addRandomTrades(trades, 5, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HERB_CAKE, 1), new ItemStack(Items.EMERALD, 6), 4, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HASH_OIL_TINCTURE, 1), new ItemStack(Items.EMERALD, 5), 4, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BLUNT, 2), new ItemStack(Items.EMERALD, 3), 6, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.JOINT, 3), new ItemStack(Items.EMERALD, 2), 8, 20, 0.01f)
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.HERB_CAKE.get(), 1), new ItemStack(Items.EMERALD, 6), 4, 20, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.HASH_OIL_TINCTURE.get(), 1), new ItemStack(Items.EMERALD, 5), 4, 20, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.BLUNT.get(), 2), new ItemStack(Items.EMERALD, 3), 6, 20, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(ModItems.JOINT.get(), 3), new ItemStack(Items.EMERALD, 2), 8, 20, 0.01f)
             );
         }
 
-        if (event.getType() == ModVillagers.DEALER.value()) {
+        if (event.getType() == ModVillagers.DEALER.get()) {
             Int2ObjectMap<List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing>> trades = event.getTrades();
 
             trades.get(1).add((pTrader, pRandom) -> new MerchantOffer(
-                    new ItemCost(Items.EMERALD, 1),
+                    new ItemStack(Items.EMERALD, 1),
                     new ItemStack(ModItems.HEMP_SEEDS.get(), 1), 16, 2, 0.01f)
             );
             trades.get(1).add((pTrader, pRandom) -> new MerchantOffer(
-                    new ItemCost(Items.EMERALD, 1),
+                    new ItemStack(Items.EMERALD, 1),
                     new ItemStack(ModItems.TOBACCO_SEEDS.get(), 1), 16, 2, 0.01f)
             );
 
@@ -625,28 +618,28 @@ public class CommonEvents {
             );
 
             addRandomTrades(trades, 3, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BASE_EXTRACT.get(), 1), 8, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 8), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 7), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BUTTER.get(), 1), 6, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 14), new ItemStack(ModItems.DNA_STRAND.get(), 1), 6, 10, 0.01f)
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 5), new ItemStack(ModItems.BASE_EXTRACT.get(), 1), 8, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 8), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 7), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 4), new ItemStack(ModItems.BUTTER.get(), 1), 6, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 14), new ItemStack(ModItems.DNA_STRAND.get(), 1), 6, 10, 0.01f)
             );
 
             addRandomTrades(trades, 4, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BIO_COMPOSITE.get(), 1), 10, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 10), new ItemStack(ModItems.DUAL_ARC_LAMP.get(), 1), 2, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 8), new ItemStack(ModItems.HEMP_PLASTIC.get(), 1), 6, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 7), new ItemStack(ModItems.UNFINISHED_HEMP_CORE.get(), 1), 2, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.INFUSED_BUTTER.get(), 1), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 14), new ItemStack(ModItems.CAT_URINE_BOTTLE.get(), 1), 2, 10, 0.01f)
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 5), new ItemStack(ModItems.BIO_COMPOSITE.get(), 1), 10, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 10), new ItemStack(ModItems.DUAL_ARC_LAMP.get(), 1), 2, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 8), new ItemStack(ModItems.HEMP_PLASTIC.get(), 1), 6, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 7), new ItemStack(ModItems.UNFINISHED_HEMP_CORE.get(), 1), 2, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 4), new ItemStack(ModItems.INFUSED_BUTTER.get(), 1), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 14), new ItemStack(ModItems.CAT_URINE_BOTTLE.get(), 1), 2, 10, 0.01f)
             );
 
             addRandomTrades(trades, 5, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 10), new ItemStack(ModItems.DNA_STRAND.get(), 1), 4, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 14), new ItemStack(ModItems.HEMP_CORE.get(), 1), 2, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 8), new ItemStack(ModItems.HASH_OIL_TINCTURE.get(), 1), 2, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 13), new ItemStack(ModItems.MANUAL_GRINDER.get(), 1), 1, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 16), new ItemStack(ModItems.HEMP_HAMMER.get(), 1), 1, 20, 0.01f)
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 10), new ItemStack(ModItems.DNA_STRAND.get(), 1), 4, 20, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 14), new ItemStack(ModItems.HEMP_CORE.get(), 1), 2, 20, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 8), new ItemStack(ModItems.HASH_OIL_TINCTURE.get(), 1), 2, 20, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 13), new ItemStack(ModItems.MANUAL_GRINDER.get(), 1), 1, 20, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemStack(Items.EMERALD, 16), new ItemStack(ModItems.HEMP_HAMMER.get(), 1), 1, 20, 0.01f)
             );
         }
     }
@@ -654,18 +647,18 @@ public class CommonEvents {
     private static ItemStack strainedStack(Item item, String strainId) {
         ItemStack stack = new ItemStack(item);
         StrainRegistry.get(strainId).ifPresent(data -> {
-            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
-            stack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+            ModDataComponentTypes.STRAIN_DATA.set(stack, data);
+            ModDataComponentTypes.STRAIN_ID.set(stack, strainId);
         });
         return stack;
     }
 
     private static MerchantOffer weedOffer(int emeraldCost, String strainId) {
-        return new MerchantOffer(new ItemCost(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_WEED.get(), strainId), 6, 5, 0.01f);
+        return new MerchantOffer(new ItemStack(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_WEED.get(), strainId), 6, 5, 0.01f);
     }
 
     private static MerchantOffer gummyOffer(int emeraldCost, String strainId) {
-        return new MerchantOffer(new ItemCost(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_GUMMY.get(), strainId), 4, 5, 0.01f);
+        return new MerchantOffer(new ItemStack(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_GUMMY.get(), strainId), 4, 5, 0.01f);
     }
 
     private static void addRandomTrades(Int2ObjectMap<List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing>> trades, int level, int pick, net.minecraft.world.entity.npc.VillagerTrades.ItemListing... candidates) {
@@ -700,15 +693,15 @@ public class CommonEvents {
     // -------- Strain Discovery Tracking --------
 
     @SubscribeEvent
-    public static void onItemPickup(ItemEntityPickupEvent.Post event) {
-        Player player = event.getPlayer();
+    public static void onItemPickup(PlayerEvent.ItemPickupEvent event) {
+        Player player = event.getEntity();
         if (player.level().isClientSide) return;
-        recordStrainDiscovery(player, event.getOriginalStack());
+        recordStrainDiscovery(player, event.getStack());
     }
 
     private static void recordStrainDiscovery(Player player, ItemStack stack) {
         if (stack == null || stack.isEmpty()) return;
-        String strainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+        String strainId = ModDataComponentTypes.STRAIN_ID.get(stack);
         if (strainId == null) {
             StrainData sd = StrainUtil.getStrain(stack);
             if (sd != StrainData.EMPTY) {

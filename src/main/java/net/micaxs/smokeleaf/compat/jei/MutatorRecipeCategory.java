@@ -5,7 +5,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.neoforge.NeoForgeTypes;
+import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
@@ -17,14 +17,14 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "mutator");
+            new ResourceLocation(SmokeleafIndustries.MODID, "mutator");
     private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/mutator/mutator_gui.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/mutator/mutator_gui.png");
     public static final RecipeType<MutatorRecipe> MUTATOR_RECIPE_TYPE =
             new RecipeType<>(UID, MutatorRecipe.class);
 
@@ -100,7 +100,7 @@ public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
             // identically-ordered output cycling below, instead of always showing "Unidentified".
             builder.addSlot(RecipeIngredientRole.INPUT, FLUID_X, FLUID_Y)
                     .setFluidRenderer(FLUID_CAPACITY, false, FLUID_W, FLUID_H)
-                    .addIngredients(NeoForgeTypes.FLUID_STACK,
+                    .addIngredients(ForgeTypes.FLUID_STACK,
                             JeiStrainHelper.coloredFluidStacks(fluid.getFluid(), fluid.getAmount(), focuses));
         }
 

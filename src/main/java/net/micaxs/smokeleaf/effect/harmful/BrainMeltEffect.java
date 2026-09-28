@@ -11,12 +11,13 @@ public class BrainMeltEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity living, int amplifier) {
-        return super.applyEffectTick(living, amplifier);
+    public void applyEffectTick(LivingEntity living, int amplifier) {
+        super.applyEffectTick(living, amplifier);
+        return;
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 }

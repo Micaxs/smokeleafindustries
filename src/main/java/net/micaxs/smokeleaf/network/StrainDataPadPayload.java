@@ -1,13 +1,7 @@
 package net.micaxs.smokeleaf.network;
 
-import io.netty.buffer.ByteBuf;
-import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +14,7 @@ import java.util.List;
 public record StrainDataPadPayload(
         List<Entry> personal,
         List<Entry> server
-) implements CustomPacketPayload {
+) {
 
     /**
      * @param strainId    the registry key
@@ -29,51 +23,36 @@ public record StrainDataPadPayload(
      */
     public record Entry(String strainId, StrainData data, String creatorName) {}
 
-    public static final Type<StrainDataPadPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "strain_data_pad"));
-
-    private static final StreamCodec<ByteBuf, StrainData> STRAIN_DATA_STREAM_CODEC =
-            ByteBufCodecs.fromCodec(StrainData.CODEC);
-
     private static void encodeEntry(FriendlyByteBuf buf, Entry entry) {
         buf.writeUtf(entry.strainId());
-        STRAIN_DATA_STREAM_CODEC.encode(buf, entry.data());
+        buf.writeJsonWithCodec(StrainData.CODEC, entry.data());
         buf.writeUtf(entry.creatorName());
     }
 
     private static Entry decodeEntry(FriendlyByteBuf buf) {
         String strainId = buf.readUtf();
-        StrainData data = STRAIN_DATA_STREAM_CODEC.decode(buf);
+        StrainData data = buf.readJsonWithCodec(StrainData.CODEC);
         String creatorName = buf.readUtf();
         return new Entry(strainId, data, creatorName);
     }
 
-    public static final StreamCodec<FriendlyByteBuf, StrainDataPadPayload> STREAM_CODEC = new StreamCodec<>() {
-        @Override
-        public StrainDataPadPayload decode(FriendlyByteBuf buf) {
-            int personalSize = buf.readVarInt();
-            List<Entry> personal = new ArrayList<>(personalSize);
-            for (int i = 0; i < personalSize; i++) personal.add(decodeEntry(buf));
+    public static StrainDataPadPayload decode(FriendlyByteBuf buf) {
+        int personalSize = buf.readVarInt();
+        List<Entry> personal = new ArrayList<>(personalSize);
+        for (int i = 0; i < personalSize; i++) personal.add(decodeEntry(buf));
 
-            int serverSize = buf.readVarInt();
-            List<Entry> server = new ArrayList<>(serverSize);
-            for (int i = 0; i < serverSize; i++) server.add(decodeEntry(buf));
+        int serverSize = buf.readVarInt();
+        List<Entry> server = new ArrayList<>(serverSize);
+        for (int i = 0; i < serverSize; i++) server.add(decodeEntry(buf));
 
-            return new StrainDataPadPayload(personal, server);
-        }
+        return new StrainDataPadPayload(personal, server);
+    }
 
-        @Override
-        public void encode(FriendlyByteBuf buf, StrainDataPadPayload payload) {
-            buf.writeVarInt(payload.personal.size());
-            for (Entry e : payload.personal) encodeEntry(buf, e);
+    public static void encode(StrainDataPadPayload payload, FriendlyByteBuf buf) {
+        buf.writeVarInt(payload.personal.size());
+        for (Entry e : payload.personal) encodeEntry(buf, e);
 
-            buf.writeVarInt(payload.server.size());
-            for (Entry e : payload.server) encodeEntry(buf, e);
-        }
-    };
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        buf.writeVarInt(payload.server.size());
+        for (Entry e : payload.server) encodeEntry(buf, e);
     }
 }

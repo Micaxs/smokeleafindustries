@@ -6,8 +6,8 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -28,6 +28,11 @@ public class BaseFluidType extends FluidType {
         this.overlayTexture = overlayTexture;
         this.tintColor = tintColor;
         this.fogColor = fogColor;
+    }
+
+    @Override
+    public void initializeClient(java.util.function.Consumer<IClientFluidTypeExtensions> consumer) {
+        consumer.accept(getClientFluidTypeExtensions());
     }
 
     public IClientFluidTypeExtensions getClientFluidTypeExtensions() {

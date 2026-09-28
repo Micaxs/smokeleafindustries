@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.Level;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
@@ -33,10 +35,10 @@ public class UnidentifiedStrainItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
 
-        StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+        StrainData d = ModDataComponentTypes.STRAIN_DATA.get(stack);
         if (d == null) return;
 
         MutableComponent stats = Component.literal("THC: " + d.thc() + "%  CBD: " + d.cbd() + "%");

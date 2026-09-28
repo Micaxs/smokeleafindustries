@@ -1,6 +1,7 @@
 // src/main/java/net/micaxs/smokeleaf/item/custom/FertilizerItem.java
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock;
 import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
@@ -96,7 +97,7 @@ public class FertilizerItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltip, TooltipFlag flag) {
         addStat(tooltip, "Nitrogen (N): ", getN(), ChatFormatting.DARK_GREEN);
         addStat(tooltip, "Phosphorus (P): ", getP(), ChatFormatting.DARK_AQUA);
         addStat(tooltip, "Potassium (K): ", getK(), ChatFormatting.GOLD);

@@ -3,21 +3,13 @@ package net.micaxs.smokeleaf.component;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
-import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.fluid.WeedFluidData;
 import net.micaxs.smokeleaf.strain.StrainData;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.Registries;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.function.UnaryOperator;
-
+/**
+ * NBT-backed stand-ins for the 1.21 data components (see {@link DataKey}).
+ */
 public class ModDataComponentTypes {
-
-    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPES =
-            DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, SmokeleafIndustries.MODID);
 
     private static final Codec<JsonArray> JSON_ARRAY_CODEC = Codec.STRING.xmap(
             s -> {
@@ -32,65 +24,50 @@ public class ModDataComponentTypes {
 
 
     // Weed Ingredients (Effects)
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> ACTIVE_INGREDIENT = register("active_ingredient", builder -> builder.persistent(Codec.STRING));
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<JsonArray>> ACTIVE_INGREDIENTS = register("active_ingredients", builder -> builder.persistent(JSON_ARRAY_CODEC));
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> EFFECT_DURATION = register("effect_duration", builder -> builder.persistent(Codec.INT));
+    public static final DataKey<String> ACTIVE_INGREDIENT = new DataKey<>("active_ingredient", Codec.STRING);
+    public static final DataKey<JsonArray> ACTIVE_INGREDIENTS = new DataKey<>("active_ingredients", JSON_ARRAY_CODEC);
+    public static final DataKey<Integer> EFFECT_DURATION = new DataKey<>("effect_duration", Codec.INT);
 
     // Weed Drying Time
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> DRY = register("dry", builder -> builder.persistent(Codec.BOOL));
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> DRYING_TIME = register("drying_time", builder -> builder.persistent(Codec.INT));
+    public static final DataKey<Boolean> DRY = new DataKey<>("dry", Codec.BOOL);
+    public static final DataKey<Integer> DRYING_TIME = new DataKey<>("drying_time", Codec.INT);
 
     // Weed THC/CBD Content
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> THC = register("thc", builder -> builder.persistent(Codec.INT));
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> CBD = register("cbd", builder -> builder.persistent(Codec.INT));
+    public static final DataKey<Integer> THC = new DataKey<>("thc", Codec.INT);
+    public static final DataKey<Integer> CBD = new DataKey<>("cbd", Codec.INT);
 
     // Highest THC/CBD among the weeds rolled into a Blunt/Joint — used to pick the STONED trip
     // shader tier and CBD duration discount at consumption time. Kept separate from THC/CBD above
     // since those get silently overwritten by the generic crafting-preview strain copy hook.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRIP_THC = register("trip_thc", builder -> builder.persistent(Codec.INT));
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRIP_CBD = register("trip_cbd", builder -> builder.persistent(Codec.INT));
+    public static final DataKey<Integer> TRIP_THC = new DataKey<>("trip_thc", Codec.INT);
+    public static final DataKey<Integer> TRIP_CBD = new DataKey<>("trip_cbd", Codec.INT);
 
     // Weed Extract Fluid payload (effects attached at machine-time to FluidStacks)
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<WeedFluidData>> WEED_FLUID_DATA =
-            register("weed_fluid_data", b -> b.persistent(WeedFluidData.CODEC));
+    public static final DataKey<WeedFluidData> WEED_FLUID_DATA = new DataKey<>("weed_fluid_data", WeedFluidData.CODEC);
 
     // Plant Nutrients (Increase THC with: 5N 10P 14K) (Increase CBD with: 8N 4P 13K) (Optimal pH: 6.0 - 7.0)
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> PH = register("ph", builder -> builder.persistent(Codec.INT));
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> NITROGEN = register("nitrogen", builder -> builder.persistent(Codec.INT));
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> PHOSPHORUS = register("phosphorus", builder -> builder.persistent(Codec.INT));
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> POTASSIUM = register("potassium", builder -> builder.persistent(Codec.INT));
+    public static final DataKey<Integer> PH = new DataKey<>("ph", Codec.INT);
+    public static final DataKey<Integer> NITROGEN = new DataKey<>("nitrogen", Codec.INT);
+    public static final DataKey<Integer> PHOSPHORUS = new DataKey<>("phosphorus", Codec.INT);
+    public static final DataKey<Integer> POTASSIUM = new DataKey<>("potassium", Codec.INT);
 
     // DNA Contents
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<DNAContents>> DNA_CONTENTS =
-            register("dna_contents", b -> b.persistent(DNAContents.CODEC));
+    public static final DataKey<DNAContents> DNA_CONTENTS = new DataKey<>("dna_contents", DNAContents.CODEC);
 
 
     // Manual Grinder stored contents (immutable)
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ManualGrinderContents>> MANUAL_GRINDER_CONTENTS =
-            register("manual_grinder_contents", b -> b.persistent(ManualGrinderContents.CODEC));
+    public static final DataKey<ManualGrinderContents> MANUAL_GRINDER_CONTENTS = new DataKey<>("manual_grinder_contents", ManualGrinderContents.CODEC);
 
     // Custom strain payload for player-created strains (items and mixture fluids)
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<StrainData>> STRAIN_DATA =
-            register("strain_data", b -> b.persistent(StrainData.CODEC));
+    public static final DataKey<StrainData> STRAIN_DATA = new DataKey<>("strain_data", StrainData.CODEC);
 
     // Canonical mix key for mixer-produced strains (sorted "strainA||strainB"), used for server-wide naming
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> MIX_KEY =
-            register("mix_key", builder -> builder.persistent(Codec.STRING));
+    public static final DataKey<String> MIX_KEY = new DataKey<>("mix_key", Codec.STRING);
 
     /** Universal strain lineage identifier (UUID string for mutator-created strains, MIX_KEY value for mixer-blended strains). */
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> STRAIN_ID =
-            register("strain_id", builder -> builder.persistent(Codec.STRING));
+    public static final DataKey<String> STRAIN_ID = new DataKey<>("strain_id", Codec.STRING);
 
     /** The player who first named / discovered this strain. Empty for preset/builtin strains. */
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> STRAIN_CREATOR =
-            register("strain_creator", builder -> builder.persistent(Codec.STRING));
-
-    private static <T>DeferredHolder<DataComponentType<?>, DataComponentType<T>> register(String name, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
-        return DATA_COMPONENT_TYPES.register(name, () -> builderOperator.apply(DataComponentType.builder()).build());
-    }
-
-    public static void register(IEventBus eventBus) {
-        DATA_COMPONENT_TYPES.register(eventBus);
-    }
+    public static final DataKey<String> STRAIN_CREATOR = new DataKey<>("strain_creator", Codec.STRING);
 
 }

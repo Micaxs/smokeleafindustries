@@ -1,0 +1,10 @@
+{
+  "type": "smokeleafindustries:synthesizer",
+  "ingredient": {
+    "item": "smokeleafindustries:dna_strand"
+  },
+  "result": {
+    "count": 1,
+    "item": "smokeleafindustries:dna_strand"
+  }
+}

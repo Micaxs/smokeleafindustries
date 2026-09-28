@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
@@ -9,7 +12,6 @@ import net.micaxs.smokeleaf.recipe.ModRecipes;
 import net.micaxs.smokeleaf.screen.custom.GrinderMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -25,15 +27,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -177,27 +178,27 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private boolean hasRecipe() {
-        Optional<RecipeHolder<GrinderRecipe>> recipe = getCurrentRecipe();
+        Optional<GrinderRecipe> recipe = getCurrentRecipe();
         if (recipe.isEmpty()) return false;
 
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
-        ItemStack assembled = recipe.get().value().assemble(
+        ItemStack assembled = recipe.get().assemble(
                 new GrinderRecipeInput(input.copyWithCount(1)),
                 level.registryAccess()
         );
 
         // Apply strain lineage so the component-equality check in canInsertItemIntoOutputSlot
         // matches items already in the output slot that were produced from the same strain.
-        var strainData = input.get(ModDataComponentTypes.STRAIN_DATA.get());
-        if (strainData != null) assembled.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
-        var strainId = input.get(ModDataComponentTypes.STRAIN_ID.get());
-        if (strainId != null) assembled.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
-        var strainCreator = input.get(ModDataComponentTypes.STRAIN_CREATOR.get());
-        if (strainCreator != null) assembled.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
+        var strainData = ModDataComponentTypes.STRAIN_DATA.get(input);
+        if (strainData != null) ModDataComponentTypes.STRAIN_DATA.set(assembled, strainData);
+        var strainId = ModDataComponentTypes.STRAIN_ID.get(input);
+        if (strainId != null) ModDataComponentTypes.STRAIN_ID.set(assembled, strainId);
+        var strainCreator = ModDataComponentTypes.STRAIN_CREATOR.get(input);
+        if (strainCreator != null) ModDataComponentTypes.STRAIN_CREATOR.set(assembled, strainCreator);
 
         int bonus = 0;
         if (input.getItem() instanceof BaseBudItem) {
-            if (Boolean.TRUE.equals(input.get(ModDataComponentTypes.DRY))) {
+            if (Boolean.TRUE.equals(ModDataComponentTypes.DRY.get(input))) {
                 bonus = 1;
             }
         }
@@ -208,7 +209,7 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
 
     private boolean canInsertItemIntoOutputSlot(ItemStack output) {
         ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
-        return existing.isEmpty() || ItemStack.isSameItemSameComponents(existing, output);
+        return existing.isEmpty() || ItemStack.isSameItemSameTags(existing, output);
     }
 
     private boolean canInsertAmountIntoOutputSlot(int count) {
@@ -219,33 +220,33 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
         return maxCount >= currentCount + count;
     }
 
-    private Optional<RecipeHolder<GrinderRecipe>> getCurrentRecipe() {
+    private Optional<GrinderRecipe> getCurrentRecipe() {
         return this.level.getRecipeManager()
                 .getRecipeFor(ModRecipes.GRINDER_TYPE.get(), new GrinderRecipeInput(itemHandler.getStackInSlot(INPUT_SLOT)), level);
     }
 
     private void craftItem() {
-        Optional<RecipeHolder<GrinderRecipe>> recipeOpt = getCurrentRecipe();
+        Optional<GrinderRecipe> recipeOpt = getCurrentRecipe();
         if (recipeOpt.isEmpty()) return;
 
         ItemStack inputStack = itemHandler.getStackInSlot(INPUT_SLOT);
-        ItemStack result = recipeOpt.get().value().assemble(
+        ItemStack result = recipeOpt.get().assemble(
                 new GrinderRecipeInput(inputStack.copyWithCount(1)),
                 level.registryAccess()
         );
 
         // Propagate strain lineage from bud to weed
-        var strainData = inputStack.get(ModDataComponentTypes.STRAIN_DATA.get());
-        if (strainData != null) result.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
-        var strainId = inputStack.get(ModDataComponentTypes.STRAIN_ID.get());
-        if (strainId != null) result.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
-        var strainCreator = inputStack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
-        if (strainCreator != null) result.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
+        var strainData = ModDataComponentTypes.STRAIN_DATA.get(inputStack);
+        if (strainData != null) ModDataComponentTypes.STRAIN_DATA.set(result, strainData);
+        var strainId = ModDataComponentTypes.STRAIN_ID.get(inputStack);
+        if (strainId != null) ModDataComponentTypes.STRAIN_ID.set(result, strainId);
+        var strainCreator = ModDataComponentTypes.STRAIN_CREATOR.get(inputStack);
+        if (strainCreator != null) ModDataComponentTypes.STRAIN_CREATOR.set(result, strainCreator);
 
         // Apply bonus amount (+1 if bud is dry)
         int bonus = 0;
         if (inputStack.getItem() instanceof BaseBudItem) {
-            if (Boolean.TRUE.equals(inputStack.get(ModDataComponentTypes.DRY))) {
+            if (Boolean.TRUE.equals(ModDataComponentTypes.DRY.get(inputStack))) {
                 bonus = 1;
             }
         }
@@ -259,7 +260,7 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
             result.setCount(Math.min(totalProduced, result.getMaxStackSize()));
             itemHandler.setStackInSlot(OUTPUT_SLOT, result);
             inserted = true;
-        } else if (ItemStack.isSameItemSameComponents(existing, result)) {
+        } else if (ItemStack.isSameItemSameTags(existing, result)) {
             int newCount = Math.min(existing.getCount() + totalProduced, existing.getMaxStackSize());
             existing.setCount(newCount);
             itemHandler.setStackInSlot(OUTPUT_SLOT, existing);
@@ -286,19 +287,19 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
 
     // NBT Data
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("grinder.inventory", itemHandler.serializeNBT(registries));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("grinder.inventory", itemHandler.serializeNBT());
         tag.putInt("grinder.progress", progress);
         tag.putInt("grinder.maxProgress", maxProgress);
         tag.putInt("grinder.energy", ENERGY_STORAGE.getEnergyStored());
 
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("grinder.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("grinder.inventory"));
         ENERGY_STORAGE.setEnergy(tag.getInt("grinder.energy"));
         progress = tag.getInt("grinder.progress");
         maxProgress = tag.getInt("grinder.maxProgress");
@@ -311,12 +312,18 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, null, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

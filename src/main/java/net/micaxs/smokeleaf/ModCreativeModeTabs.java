@@ -12,9 +12,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 
 public class ModCreativeModeTabs {
@@ -26,8 +25,8 @@ public class ModCreativeModeTabs {
         StrainData data = StrainRegistry.get(strainId).orElse(null);
         if (data == null) return new ItemStack(item);
         ItemStack stack = new ItemStack(item);
-        stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
-        stack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+        ModDataComponentTypes.STRAIN_DATA.set(stack, data);
+        ModDataComponentTypes.STRAIN_ID.set(stack, strainId);
         return stack;
     }
 
@@ -54,153 +53,153 @@ public class ModCreativeModeTabs {
                     .displayItems((itemDisplayParameters, output) -> {
                         // Hemp processing chain: raw material -> intermediates -> the Hemp Core
                         // hub item every machine needs.
-                        output.accept(ModItems.HEMP_LEAF);
-                        output.accept(ModItems.HEMP_FIBERS);
-                        output.accept(ModItems.HEMP_STICK);
-                        output.accept(ModItems.HEMP_FABRIC);
-                        output.accept(ModItems.BIO_COMPOSITE);
-                        output.accept(ModItems.HEMP_COAL);
-                        output.accept(ModItems.HEMP_PLASTIC);
-                        output.accept(ModItems.UNFINISHED_HEMP_CORE);
-                        output.accept(ModItems.HEMP_CORE);
+                        output.accept(ModItems.HEMP_LEAF.get());
+                        output.accept(ModItems.HEMP_FIBERS.get());
+                        output.accept(ModItems.HEMP_STICK.get());
+                        output.accept(ModItems.HEMP_FABRIC.get());
+                        output.accept(ModItems.BIO_COMPOSITE.get());
+                        output.accept(ModItems.HEMP_COAL.get());
+                        output.accept(ModItems.HEMP_PLASTIC.get());
+                        output.accept(ModItems.UNFINISHED_HEMP_CORE.get());
+                        output.accept(ModItems.HEMP_CORE.get());
 
                         // Baja Hoodie armor (woven from Hemp Fabric) and its netherite-tier upgrade.
-                        output.accept(ModItems.BAJA_HOODIE_HELMET);
-                        output.accept(ModItems.BAJA_HOODIE_CHESTPLATE);
-                        output.accept(ModItems.BAJA_HOODIE_LEGGINGS);
-                        output.accept(ModItems.BAJA_HOODIE_BOOTS);
-                        output.accept(ModItems.REINFORCED_BAJA_HOODIE_HELMET);
-                        output.accept(ModItems.REINFORCED_BAJA_HOODIE_CHESTPLATE);
-                        output.accept(ModItems.REINFORCED_BAJA_HOODIE_LEGGINGS);
-                        output.accept(ModItems.REINFORCED_BAJA_HOODIE_BOOTS);
+                        output.accept(ModItems.BAJA_HOODIE_HELMET.get());
+                        output.accept(ModItems.BAJA_HOODIE_CHESTPLATE.get());
+                        output.accept(ModItems.BAJA_HOODIE_LEGGINGS.get());
+                        output.accept(ModItems.BAJA_HOODIE_BOOTS.get());
+                        output.accept(ModItems.REINFORCED_BAJA_HOODIE_HELMET.get());
+                        output.accept(ModItems.REINFORCED_BAJA_HOODIE_CHESTPLATE.get());
+                        output.accept(ModItems.REINFORCED_BAJA_HOODIE_LEGGINGS.get());
+                        output.accept(ModItems.REINFORCED_BAJA_HOODIE_BOOTS.get());
 
                         // Building blocks, one family at a time (base block, then its variants).
-                        output.accept(ModBlocks.HEMP_STONE);
-                        output.accept(ModBlocks.HEMP_STONE_SLAB);
-                        output.accept(ModBlocks.HEMP_STONE_STAIRS);
-                        output.accept(ModBlocks.HEMP_STONE_PRESSURE_PLATE);
-                        output.accept(ModBlocks.HEMP_STONE_BUTTON);
-                        output.accept(ModBlocks.HEMP_STONE_WALL);
+                        output.accept(ModBlocks.HEMP_STONE.get());
+                        output.accept(ModBlocks.HEMP_STONE_SLAB.get());
+                        output.accept(ModBlocks.HEMP_STONE_STAIRS.get());
+                        output.accept(ModBlocks.HEMP_STONE_PRESSURE_PLATE.get());
+                        output.accept(ModBlocks.HEMP_STONE_BUTTON.get());
+                        output.accept(ModBlocks.HEMP_STONE_WALL.get());
 
-                        output.accept(ModBlocks.HEMP_PLANKS);
-                        output.accept(ModBlocks.HEMP_PLANK_SLAB);
-                        output.accept(ModBlocks.HEMP_PLANK_STAIRS);
-                        output.accept(ModBlocks.HEMP_PLANK_PRESSURE_PLATE);
-                        output.accept(ModBlocks.HEMP_PLANK_BUTTON);
-                        output.accept(ModBlocks.HEMP_PLANK_FENCE);
-                        output.accept(ModBlocks.HEMP_PLANK_FENCE_GATE);
-                        output.accept(ModBlocks.HEMP_PLANK_DOOR);
-                        output.accept(ModBlocks.HEMP_PLANK_TRAPDOOR);
+                        output.accept(ModBlocks.HEMP_PLANKS.get());
+                        output.accept(ModBlocks.HEMP_PLANK_SLAB.get());
+                        output.accept(ModBlocks.HEMP_PLANK_STAIRS.get());
+                        output.accept(ModBlocks.HEMP_PLANK_PRESSURE_PLATE.get());
+                        output.accept(ModBlocks.HEMP_PLANK_BUTTON.get());
+                        output.accept(ModBlocks.HEMP_PLANK_FENCE.get());
+                        output.accept(ModBlocks.HEMP_PLANK_FENCE_GATE.get());
+                        output.accept(ModBlocks.HEMP_PLANK_DOOR.get());
+                        output.accept(ModBlocks.HEMP_PLANK_TRAPDOOR.get());
 
-                        output.accept(ModBlocks.HEMP_BRICKS);
-                        output.accept(ModBlocks.HEMP_BRICK_SLAB);
-                        output.accept(ModBlocks.HEMP_BRICK_STAIRS);
-                        output.accept(ModBlocks.HEMP_BRICK_WALL);
+                        output.accept(ModBlocks.HEMP_BRICKS.get());
+                        output.accept(ModBlocks.HEMP_BRICK_SLAB.get());
+                        output.accept(ModBlocks.HEMP_BRICK_STAIRS.get());
+                        output.accept(ModBlocks.HEMP_BRICK_WALL.get());
 
-                        output.accept(ModBlocks.HEMP_CHISELED_STONE);
-                        output.accept(ModBlocks.HEMP_CHISELED_STONE_SLAB);
-                        output.accept(ModBlocks.HEMP_CHISELED_STONE_STAIRS);
-                        output.accept(ModBlocks.HEMP_CHISELED_STONE_WALL);
+                        output.accept(ModBlocks.HEMP_CHISELED_STONE.get());
+                        output.accept(ModBlocks.HEMP_CHISELED_STONE_SLAB.get());
+                        output.accept(ModBlocks.HEMP_CHISELED_STONE_STAIRS.get());
+                        output.accept(ModBlocks.HEMP_CHISELED_STONE_WALL.get());
 
                         for (DyeColor color : DyeColor.values()) {
-                            output.accept(ModBlocks.HEMP_WOOL.get(color));
+                            output.accept(ModBlocks.HEMP_WOOL.get(color).get());
                         }
 
                         // Tobacco.
-                        output.accept(ModItems.TOBACCO);
-                        output.accept(ModItems.TOBACCO_LEAF);
-                        output.accept(ModItems.DRIED_TOBACCO_LEAF);
+                        output.accept(ModItems.TOBACCO.get());
+                        output.accept(ModItems.TOBACCO_LEAF.get());
+                        output.accept(ModItems.DRIED_TOBACCO_LEAF.get());
 
                         // Lighting & grow equipment.
-                        output.accept(ModBlocks.REFLECTOR);
-                        output.accept(ModItems.HPS_LAMP);
-                        output.accept(ModItems.DUAL_ARC_LAMP);
-                        output.accept(ModBlocks.LED_LIGHT);
-                        output.accept(ModBlocks.GROW_POT);
+                        output.accept(ModBlocks.REFLECTOR.get());
+                        output.accept(ModItems.HPS_LAMP.get());
+                        output.accept(ModItems.DUAL_ARC_LAMP.get());
+                        output.accept(ModBlocks.LED_LIGHT.get());
+                        output.accept(ModBlocks.GROW_POT.get());
 
                         // Machines, in roughly the order they're used along the processing chain.
-                        output.accept(ModBlocks.GENERATOR);
-                        output.accept(ModBlocks.GRINDER);
-                        output.accept(ModBlocks.EXTRACTOR);
-                        output.accept(ModBlocks.LIQUIFIER);
-                        output.accept(ModBlocks.MIXER);
-                        output.accept(ModBlocks.MUTATOR);
-                        output.accept(ModBlocks.STRAIN_MODIFIER);
-                        output.accept(ModBlocks.SYNTHESIZER);
-                        output.accept(ModBlocks.SEQUENCER);
-                        output.accept(ModBlocks.DRYER);
-                        output.accept(ModBlocks.DRYING_RACK);
-                        output.accept(ModBlocks.GUMMY_MACHINE);
+                        output.accept(ModBlocks.GENERATOR.get());
+                        output.accept(ModBlocks.GRINDER.get());
+                        output.accept(ModBlocks.EXTRACTOR.get());
+                        output.accept(ModBlocks.LIQUIFIER.get());
+                        output.accept(ModBlocks.MIXER.get());
+                        output.accept(ModBlocks.MUTATOR.get());
+                        output.accept(ModBlocks.STRAIN_MODIFIER.get());
+                        output.accept(ModBlocks.SYNTHESIZER.get());
+                        output.accept(ModBlocks.SEQUENCER.get());
+                        output.accept(ModBlocks.DRYER.get());
+                        output.accept(ModBlocks.DRYING_RACK.get());
+                        output.accept(ModBlocks.GUMMY_MACHINE.get());
 
                         // Pipes & wiring tools.
-                        output.accept(ModItems.ITEM_PIPE);
-                        output.accept(ModItems.FLUID_PIPE);
-                        output.accept(ModItems.ENERGY_PIPE);
-                        output.accept(ModItems.PIPE_WRENCH);
+                        output.accept(ModItems.ITEM_PIPE.get());
+                        output.accept(ModItems.FLUID_PIPE.get());
+                        output.accept(ModItems.ENERGY_PIPE.get());
+                        output.accept(ModItems.PIPE_WRENCH.get());
 
                         // Hand tools & reference books.
-                        output.accept(ModItems.HEMP_HAMMER);
-                        output.accept(ModItems.MANUAL_GRINDER);
-                        output.accept(ModItems.PLANT_ANALYZER);
-                        output.accept(ModItems.STRAIN_BOOK);
-                        output.accept(ModItems.SMOKELEAF_GUIDE);
+                        output.accept(ModItems.HEMP_HAMMER.get());
+                        output.accept(ModItems.MANUAL_GRINDER.get());
+                        output.accept(ModItems.PLANT_ANALYZER.get());
+                        output.accept(ModItems.STRAIN_BOOK.get());
+                        output.accept(ModItems.SMOKELEAF_GUIDE.get());
 
                         // Crafting reagents.
-                        output.accept(ModItems.BASE_EXTRACT);
-                        output.accept(ModItems.DNA_STRAND);
-                        output.accept(ModItems.GUMMY_MOLD);
-                        output.accept(ModItems.GUMMY_WORM_MOLD);
-                        output.accept(ModItems.EMPTY_BAG);
-                        output.accept(ModItems.EMPTY_VIAL);
+                        output.accept(ModItems.BASE_EXTRACT.get());
+                        output.accept(ModItems.DNA_STRAND.get());
+                        output.accept(ModItems.GUMMY_MOLD.get());
+                        output.accept(ModItems.GUMMY_WORM_MOLD.get());
+                        output.accept(ModItems.EMPTY_BAG.get());
+                        output.accept(ModItems.EMPTY_VIAL.get());
 
                         // Smoking accessories.
-                        output.accept(ModItems.JOINT);
-                        output.accept(ModItems.BLUNT);
-                        output.accept(ModItems.BONG);
-                        output.accept(ModItems.DAB_RIG);
+                        output.accept(ModItems.JOINT.get());
+                        output.accept(ModItems.BLUNT.get());
+                        output.accept(ModItems.BONG.get());
+                        output.accept(ModItems.DAB_RIG.get());
 
                         // Food.
-                        output.accept(ModItems.BUTTER);
-                        output.accept(ModItems.INFUSED_BUTTER);
-                        output.accept(ModItems.HERB_CAKE);
-                        output.accept(ModItems.HASH_BROWNIE);
-                        output.accept(ModItems.WEED_COOKIE);
+                        output.accept(ModItems.BUTTER.get());
+                        output.accept(ModItems.INFUSED_BUTTER.get());
+                        output.accept(ModItems.HERB_CAKE.get());
+                        output.accept(ModItems.HASH_BROWNIE.get());
+                        output.accept(ModItems.WEED_COOKIE.get());
 
                         // Fluids.
-                        output.accept(ModFluids.HASH_OIL_BUCKET);
-                        output.accept(ModFluids.HASH_OIL_SLUDGE_BUCKET);
+                        output.accept(ModFluids.HASH_OIL_BUCKET.get());
+                        output.accept(ModFluids.HASH_OIL_SLUDGE_BUCKET.get());
 
                         // Nutrients & soil amendments.
-                        output.accept(ModItems.WORM_CASTINGS);
-                        output.accept(ModItems.COMPOST);
-                        output.accept(ModItems.MYCORRHIZAE);
-                        output.accept(ModItems.DOLOMITE_LIME);
-                        output.accept(ModItems.BLOOD_MEAL);
-                        output.accept(ModItems.PHOSPHORUS_POWDER);
-                        output.accept(ModItems.BAT_GUANO);
-                        output.accept(ModItems.KELP_MEAL);
-                        output.accept(ModItems.WOOD_ASH);
-                        output.accept(ModItems.FISH_EMULSION);
-                        output.accept(ModItems.BLOOM_BOOSTER);
-                        output.accept(ModItems.FRUIT_FINISHER);
-                        output.accept(ModItems.NITROGEN_BOOST);
-                        output.accept(ModItems.POTASH_BOOST);
-                        output.accept(ModItems.BALANCED_BOOST);
-                        output.accept(ModItems.PHOSPHORUS_REDUCER);
-                        output.accept(ModItems.POTASSIUM_REDUCER);
+                        output.accept(ModItems.WORM_CASTINGS.get());
+                        output.accept(ModItems.COMPOST.get());
+                        output.accept(ModItems.MYCORRHIZAE.get());
+                        output.accept(ModItems.DOLOMITE_LIME.get());
+                        output.accept(ModItems.BLOOD_MEAL.get());
+                        output.accept(ModItems.PHOSPHORUS_POWDER.get());
+                        output.accept(ModItems.BAT_GUANO.get());
+                        output.accept(ModItems.KELP_MEAL.get());
+                        output.accept(ModItems.WOOD_ASH.get());
+                        output.accept(ModItems.FISH_EMULSION.get());
+                        output.accept(ModItems.BLOOM_BOOSTER.get());
+                        output.accept(ModItems.FRUIT_FINISHER.get());
+                        output.accept(ModItems.NITROGEN_BOOST.get());
+                        output.accept(ModItems.POTASH_BOOST.get());
+                        output.accept(ModItems.BALANCED_BOOST.get());
+                        output.accept(ModItems.PHOSPHORUS_REDUCER.get());
+                        output.accept(ModItems.POTASSIUM_REDUCER.get());
                     }).build());
 
     public static final Supplier<CreativeModeTab> SMOKELEAF_HERB_TAB = CREATIVE_MODE_TAB.register("smokeleaf_herb_tab",
             () -> CreativeModeTab.builder().icon(() -> strainedStack(ModItems.GENERIC_BUD.get(), "amnesia_haze"))
                     .title(Component.translatable("creativetab.smokeleafindustries.smokeleaf_herb_tab"))
                     .displayItems((itemDisplayParameters, output) -> {
-                        output.accept(ModItems.TOBACCO_SEEDS);
-                        output.accept(ModItems.HEMP_SEEDS);
+                        output.accept(ModItems.TOBACCO_SEEDS.get());
+                        output.accept(ModItems.HEMP_SEEDS.get());
 
                         // Unidentified items
-//                        output.accept(ModItems.UNIDENTIFIED_SEEDS);
-//                        output.accept(ModItems.UNIDENTIFIED_BUD);
-//                        output.accept(ModItems.UNIDENTIFIED_WEED);
+//                        output.accept(ModItems.UNIDENTIFIED_SEEDS.get());
+//                        output.accept(ModItems.UNIDENTIFIED_BUD.get());
+//                        output.accept(ModItems.UNIDENTIFIED_WEED.get());
 
                         // All 25 named strains, grouped by item type rather than by strain:
                         // every seed, then every bud, then every weed, and so on.

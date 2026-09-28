@@ -20,7 +20,7 @@ public class StickyFingersEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (!entity.level().isClientSide() && (entity instanceof Player player)) {
 
             Level level = entity.level();
@@ -40,11 +40,11 @@ public class StickyFingersEffect extends MobEffect {
             }
         }
 
-        return true; // Tick logic executed
+        return; // Tick logic executed
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true; // Always tick while effect is active
     }
 }

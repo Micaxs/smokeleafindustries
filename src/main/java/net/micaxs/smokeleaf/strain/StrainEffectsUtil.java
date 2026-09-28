@@ -115,7 +115,7 @@ public final class StrainEffectsUtil {
         List<MobEffectInstance> out = new ArrayList<>();
 
         if (baseEffect != null) {
-            Holder<MobEffect> holder = toHolder(baseEffect);
+            MobEffect holder = toHolder(baseEffect);
             if (holder != null) {
                 out.add(new MobEffectInstance(holder, durationTicks, amplifier, false, true, true));
             }
@@ -123,7 +123,7 @@ public final class StrainEffectsUtil {
 
         int extraCount = computeExtraEffectCount(thc);
         for (MobEffect extra : getDeterministicExtras(baseEffect, thc, cbd, extraCount, additionalPool)) {
-            Holder<MobEffect> holder = toHolder(extra);
+            MobEffect holder = toHolder(extra);
             if (holder != null) {
                 out.add(new MobEffectInstance(holder, durationTicks, amplifier, false, true, true));
             }
@@ -148,7 +148,7 @@ public final class StrainEffectsUtil {
             if (rl == null) continue;
             MobEffect eff = BuiltInRegistries.MOB_EFFECT.get(rl);
             if (eff == null) continue;
-            Holder<MobEffect> holder = toHolder(eff);
+            MobEffect holder = toHolder(eff);
             if (holder != null) {
                 out.add(new MobEffectInstance(holder, durationTicks, amplifier, false, true, true));
             }
@@ -160,10 +160,7 @@ public final class StrainEffectsUtil {
     // Internal helpers
     // -----------------------------------------------------------------------
 
-    private static Holder<MobEffect> toHolder(MobEffect effect) {
-        if (effect == null) return null;
-        var keyOpt = BuiltInRegistries.MOB_EFFECT.getResourceKey(effect);
-        return keyOpt.map(k -> (Holder<MobEffect>) BuiltInRegistries.MOB_EFFECT.getHolderOrThrow(k))
-                     .orElseGet(() -> Holder.direct(effect));
+    private static MobEffect toHolder(MobEffect effect) {
+        return effect;
     }
 }

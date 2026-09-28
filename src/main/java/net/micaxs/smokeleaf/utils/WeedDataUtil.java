@@ -9,18 +9,18 @@ public final class WeedDataUtil {
     public static void copyWeedComponents(ItemStack from, ItemStack to) {
         if (from == null || to == null) return;
 
-        var active = from.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get());
-        var dur = from.get(ModDataComponentTypes.EFFECT_DURATION.get());
-        var thc = from.get(ModDataComponentTypes.THC.get());
-        var cbd = from.get(ModDataComponentTypes.CBD.get());
-        var strain = from.get(ModDataComponentTypes.STRAIN_DATA.get());
-        var strainId = from.get(ModDataComponentTypes.STRAIN_ID.get());
+        var active = ModDataComponentTypes.ACTIVE_INGREDIENT.get(from);
+        var dur = ModDataComponentTypes.EFFECT_DURATION.get(from);
+        var thc = ModDataComponentTypes.THC.get(from);
+        var cbd = ModDataComponentTypes.CBD.get(from);
+        var strain = ModDataComponentTypes.STRAIN_DATA.get(from);
+        var strainId = ModDataComponentTypes.STRAIN_ID.get(from);
 
-        if (active != null) to.set(ModDataComponentTypes.ACTIVE_INGREDIENT.get(), active);
-        if (dur != null) to.set(ModDataComponentTypes.EFFECT_DURATION.get(), dur);
-        if (thc != null) to.set(ModDataComponentTypes.THC.get(), thc);
-        if (cbd != null) to.set(ModDataComponentTypes.CBD.get(), cbd);
-        if (strain != null) to.set(ModDataComponentTypes.STRAIN_DATA.get(), strain);
-        if (strainId != null) to.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+        if (active != null) ModDataComponentTypes.ACTIVE_INGREDIENT.set(to, active);
+        if (dur != null) ModDataComponentTypes.EFFECT_DURATION.set(to, dur);
+        if (thc != null) ModDataComponentTypes.THC.set(to, thc);
+        if (cbd != null) ModDataComponentTypes.CBD.set(to, cbd);
+        if (strain != null) ModDataComponentTypes.STRAIN_DATA.set(to, strain);
+        if (strainId != null) ModDataComponentTypes.STRAIN_ID.set(to, strainId);
     }
 }

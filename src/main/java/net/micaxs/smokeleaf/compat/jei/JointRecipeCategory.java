@@ -27,7 +27,7 @@ public class JointRecipeCategory implements IRecipeCategory<JointRecipe> {
             RecipeType.create(SmokeleafIndustries.MODID, "joint", JointRecipe.class);
 
     private static final ResourceLocation VANILLA_BG =
-            ResourceLocation.withDefaultNamespace("textures/gui/container/crafting_table.png");
+            new ResourceLocation("textures/gui/container/crafting_table.png");
 
     private final IDrawableStatic background;
     private final IDrawable icon;

@@ -12,14 +12,13 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.common.data.AdvancementProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-
+import net.minecraftforge.common.data.ForgeAdvancementProvider;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class ModAdvancementProvider extends AdvancementProvider {
+public class ModAdvancementProvider extends ForgeAdvancementProvider {
 
     public ModAdvancementProvider(PackOutput output,
                                   CompletableFuture<HolderLookup.Provider> registries,
@@ -28,20 +27,20 @@ public class ModAdvancementProvider extends AdvancementProvider {
                 List.of(new SmokeleafIndustriesAdvancements()));
     }
 
-    public static class SmokeleafIndustriesAdvancements implements AdvancementGenerator {
+    public static class SmokeleafIndustriesAdvancements implements ForgeAdvancementProvider.AdvancementGenerator {
 
         @Override
         public void generate(HolderLookup.Provider provider,
-                             Consumer<AdvancementHolder> consumer,
+                             Consumer<Advancement> consumer,
                              ExistingFileHelper existingFileHelper) {
 
-            AdvancementHolder root = Advancement.Builder.advancement()
+            Advancement root = Advancement.Builder.advancement()
                     .display(
                             Items.BOOK,
                             Component.translatable("advancement.smokeleafindustries.root.title"),
                             Component.translatable("advancement.smokeleafindustries.root.desc"),
-                            ResourceLocation.parse("textures/gui/advancements/backgrounds/stone.png"),
-                            AdvancementType.TASK,
+                            new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
+                            FrameType.TASK,
                             false,
                             false,
                             false
@@ -49,7 +48,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                     .addCriterion("has_book",
                             InventoryChangeTrigger.TriggerInstance.hasItems(Items.BOOK))
                     .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "root"),
+                            new ResourceLocation(SmokeleafIndustries.MODID, "root"),
                             existingFileHelper);
 
             Advancement.Builder.advancement()
@@ -59,7 +58,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                             Component.translatable("advancement.smokeleafindustries.cat_urine.title"),
                             Component.translatable("advancement.smokeleafindustries.cat_urine.desc"),
                             null,
-                            AdvancementType.TASK,
+                            FrameType.TASK,
                             true,
                             true,
                             false
@@ -69,7 +68,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                             InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.CAT_URINE_BOTTLE.get()))
                     .rewards(AdvancementRewards.Builder.experience(25))
                     .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "cat_urine_bottle"),
+                            new ResourceLocation(SmokeleafIndustries.MODID, "cat_urine_bottle"),
                             existingFileHelper);
 
 
@@ -80,7 +79,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                             Component.translatable("advancement.smokeleafindustries.hemp_seeds.title"),
                             Component.translatable("advancement.smokeleafindustries.hemp_seeds.desc"),
                             null,
-                            AdvancementType.TASK,
+                            FrameType.TASK,
                             true,
                             true,
                             false
@@ -90,7 +89,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                             InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.HEMP_SEEDS.get()))
                     .rewards(AdvancementRewards.Builder.experience(5))
                     .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_seeds"),
+                            new ResourceLocation(SmokeleafIndustries.MODID, "hemp_seeds"),
                             existingFileHelper);
 
 
@@ -101,7 +100,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                             Component.translatable("advancement.smokeleafindustries.joint.title"),
                             Component.translatable("advancement.smokeleafindustries.joint.desc"),
                             null,
-                            AdvancementType.TASK,
+                            FrameType.TASK,
                             true,
                             true,
                             false
@@ -111,7 +110,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                             InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.JOINT.get()))
                     .rewards(AdvancementRewards.Builder.experience(5))
                     .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "joint"),
+                            new ResourceLocation(SmokeleafIndustries.MODID, "joint"),
                             existingFileHelper);
 
 
@@ -122,7 +121,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                             Component.translatable("advancement.smokeleafindustries.hemp_plastic.title"),
                             Component.translatable("advancement.smokeleafindustries.hemp_plastic.desc"),
                             null,
-                            AdvancementType.TASK,
+                            FrameType.TASK,
                             true,
                             true,
                             false
@@ -130,11 +129,11 @@ public class ModAdvancementProvider extends AdvancementProvider {
                     // Unlocks when Hemp Plastic is smelted in a furnace (bio composite -> hemp plastic)
                     .addCriterion("smelted_hemp_plastic",
                             RecipeCraftedTrigger.TriggerInstance.craftedItem(
-                                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID,
+                                    new ResourceLocation(SmokeleafIndustries.MODID,
                                             "hemp_plastic_from_bio_composite")))
                     .rewards(AdvancementRewards.Builder.experience(10))
                     .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_plastic"),
+                            new ResourceLocation(SmokeleafIndustries.MODID, "hemp_plastic"),
                             existingFileHelper);
 
         }

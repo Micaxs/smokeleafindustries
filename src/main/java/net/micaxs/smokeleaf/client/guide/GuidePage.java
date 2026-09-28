@@ -44,17 +44,17 @@ public sealed interface GuidePage {
         return switch (type) {
             case "text" -> new Text(titleKey, textKey);
             case "spotlight" -> new Spotlight(
-                    ResourceLocation.parse(GsonHelper.getAsString(json, "item")),
+                    new ResourceLocation(GsonHelper.getAsString(json, "item")),
                     GsonHelper.getAsString(json, "strain", ""),
                     textKey);
-            case "crafting" -> new Crafting(ResourceLocation.parse(GsonHelper.getAsString(json, "recipe")), textKey);
-            case "smelting" -> new Smelting(ResourceLocation.parse(GsonHelper.getAsString(json, "recipe")), textKey);
-            case "image" -> new Image(ResourceLocation.parse(GsonHelper.getAsString(json, "image")), textKey);
+            case "crafting" -> new Crafting(new ResourceLocation(GsonHelper.getAsString(json, "recipe")), textKey);
+            case "smelting" -> new Smelting(new ResourceLocation(GsonHelper.getAsString(json, "recipe")), textKey);
+            case "image" -> new Image(new ResourceLocation(GsonHelper.getAsString(json, "image")), textKey);
             case "combine" -> {
                 JsonArray arr = GsonHelper.getAsJsonArray(json, "inputs");
                 List<ResourceLocation> inputs = new ArrayList<>();
-                for (var element : arr) inputs.add(ResourceLocation.parse(element.getAsString()));
-                yield new Combine(inputs, ResourceLocation.parse(GsonHelper.getAsString(json, "output")), textKey);
+                for (var element : arr) inputs.add(new ResourceLocation(element.getAsString()));
+                yield new Combine(inputs, new ResourceLocation(GsonHelper.getAsString(json, "output")), textKey);
             }
             default -> throw new IllegalArgumentException("Unknown guide page type: " + type);
         };

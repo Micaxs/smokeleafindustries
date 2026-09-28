@@ -9,8 +9,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
-
+import net.minecraftforge.fluids.FluidStack;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,8 +37,8 @@ public final class StrainUtil {
     public static ItemStack defaultTintedInstance(Item item) {
         ItemStack stack = new ItemStack(item);
         StrainRegistry.get(DEFAULT_DISPLAY_STRAIN).ifPresent(data -> {
-            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
-            stack.set(ModDataComponentTypes.STRAIN_ID.get(), DEFAULT_DISPLAY_STRAIN);
+            ModDataComponentTypes.STRAIN_DATA.set(stack, data);
+            ModDataComponentTypes.STRAIN_ID.set(stack, DEFAULT_DISPLAY_STRAIN);
         });
         return stack;
     }
@@ -57,33 +56,33 @@ public final class StrainUtil {
     }
 
     public static boolean hasStrain(ItemStack stack) {
-        return stack != null && !stack.isEmpty() && stack.has(ModDataComponentTypes.STRAIN_DATA.get());
+        return stack != null && !stack.isEmpty() && ModDataComponentTypes.STRAIN_DATA.has(stack);
     }
 
     public static StrainData getStrain(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return StrainData.EMPTY;
-        StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+        StrainData d = ModDataComponentTypes.STRAIN_DATA.get(stack);
         return d != null ? d : StrainData.EMPTY;
     }
 
     public static void setStrain(ItemStack stack, StrainData data) {
         if (stack == null || stack.isEmpty()) return;
-        stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+        ModDataComponentTypes.STRAIN_DATA.set(stack, data);
     }
 
     public static boolean hasStrain(FluidStack stack) {
-        return stack != null && !stack.isEmpty() && stack.has(ModDataComponentTypes.STRAIN_DATA.get());
+        return stack != null && !stack.isEmpty() && ModDataComponentTypes.STRAIN_DATA.has(stack);
     }
 
     public static StrainData getStrain(FluidStack stack) {
         if (stack == null || stack.isEmpty()) return StrainData.EMPTY;
-        StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+        StrainData d = ModDataComponentTypes.STRAIN_DATA.get(stack);
         return d != null ? d : StrainData.EMPTY;
     }
 
     public static void setStrain(FluidStack stack, StrainData data) {
         if (stack == null || stack.isEmpty()) return;
-        stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+        ModDataComponentTypes.STRAIN_DATA.set(stack, data);
     }
 
     /**
@@ -262,7 +261,7 @@ public final class StrainUtil {
      * {@code STRAIN_CREATOR} component. Preset/builtin strains never have this set.
      */
     public static void appendCreatorTooltip(ItemStack stack, List<Component> tooltip) {
-        String creator = stack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        String creator = ModDataComponentTypes.STRAIN_CREATOR.get(stack);
         if (creator != null && !creator.isBlank()) {
             tooltip.add(Component.literal("Discovered by: " + creator)
                     .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));

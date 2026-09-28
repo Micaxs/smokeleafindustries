@@ -26,9 +26,9 @@ import java.util.List;
 public class GrinderRecipeCategory implements IRecipeCategory<GrinderRecipe> {
 
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "grinder");
+            new ResourceLocation(SmokeleafIndustries.MODID, "grinder");
     public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/grinder/grinder_gui.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/grinder/grinder_gui.png");
 
     public static final RecipeType<GrinderRecipe> GRINDER_RECIPE_TYPE =
             new RecipeType<>(UID, GrinderRecipe.class);

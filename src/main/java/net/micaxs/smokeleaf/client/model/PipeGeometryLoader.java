@@ -3,8 +3,7 @@ package net.micaxs.smokeleaf.client.model;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
-
+import net.minecraftforge.client.model.geometry.IGeometryLoader;
 /**
  * Reads the pipe block's custom-loader model. The model JSON carries no data of its own (the
  * loader is the only key it needs) — all real geometry comes from the {@code PipeBlockEntity}'s

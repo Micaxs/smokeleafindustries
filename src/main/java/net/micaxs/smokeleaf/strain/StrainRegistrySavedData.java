@@ -4,10 +4,8 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.core.HolderLookup;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -55,7 +53,7 @@ public class StrainRegistrySavedData extends SavedData {
 
     public static StrainRegistrySavedData get(MinecraftServer server) {
         return server.overworld().getDataStorage()
-                .computeIfAbsent(new Factory<>(StrainRegistrySavedData::new, StrainRegistrySavedData::load), SAVE_KEY);
+                .computeIfAbsent(StrainRegistrySavedData::load, StrainRegistrySavedData::new, SAVE_KEY);
     }
 
     // -----------------------------------------------------------------------
@@ -154,7 +152,7 @@ public class StrainRegistrySavedData extends SavedData {
             if (target.isEmpty() || target.getCount() >= target.getMaxStackSize()) continue;
             for (int j = i + 1; j < slots.size(); j++) {
                 ItemStack source = slots.get(j);
-                if (source.isEmpty() || !ItemStack.isSameItemSameComponents(target, source)) continue;
+                if (source.isEmpty() || !ItemStack.isSameItemSameTags(target, source)) continue;
                 int space = target.getMaxStackSize() - target.getCount();
                 if (space <= 0) break;
                 int moved = Math.min(space, source.getCount());
@@ -174,18 +172,18 @@ public class StrainRegistrySavedData extends SavedData {
      */
     public static void applyUpdate(ItemStack stack, String strainId, StrainEntry entry) {
         if (stack.isEmpty()) return;
-        String itemStrainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+        String itemStrainId = ModDataComponentTypes.STRAIN_ID.get(stack);
         if (!strainId.equals(itemStrainId)) return;
         StrainData d = StrainUtil.getStrain(stack);
         if (d == StrainData.EMPTY) return;
         StrainUtil.setStrain(stack, withEntryApplied(d, entry));
-        if (!entry.creatorName().isBlank()) stack.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
-        stack.remove(DataComponents.CUSTOM_NAME);
+        if (!entry.creatorName().isBlank()) ModDataComponentTypes.STRAIN_CREATOR.set(stack, entry.creatorName());
+        stack.resetHoverName();
     }
 
     private void syncItem(ItemStack stack) {
         if (stack.isEmpty()) return;
-        String strainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+        String strainId = ModDataComponentTypes.STRAIN_ID.get(stack);
         if (strainId == null) return;
         StrainEntry entry = lookup(strainId);
         if (entry == null || entry.displayName().isBlank()) return;
@@ -195,9 +193,9 @@ public class StrainRegistrySavedData extends SavedData {
             StrainUtil.setStrain(stack, withEntryApplied(d, entry));
         }
         if (!entry.creatorName().isBlank()) {
-            stack.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
+            ModDataComponentTypes.STRAIN_CREATOR.set(stack, entry.creatorName());
         }
-        stack.remove(DataComponents.CUSTOM_NAME);
+        stack.resetHoverName();
     }
 
     private static boolean entriesMatch(StrainData d, StrainEntry entry) {
@@ -250,7 +248,7 @@ public class StrainRegistrySavedData extends SavedData {
     // Serialization
     // -----------------------------------------------------------------------
 
-    public static StrainRegistrySavedData load(CompoundTag tag, HolderLookup.Provider registries) {
+    public static StrainRegistrySavedData load(CompoundTag tag) {
         StrainRegistrySavedData data = new StrainRegistrySavedData();
         if (tag.contains("entries")) {
             CompoundTag entriesTag = tag.getCompound("entries");
@@ -274,13 +272,8 @@ public class StrainRegistrySavedData extends SavedData {
         return data;
     }
 
-    // Overload without registries (called by Factory::new for a blank instance)
-    public static StrainRegistrySavedData load(CompoundTag tag) {
-        return load(tag, null);
-    }
-
     @Override
-    public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+    public CompoundTag save(CompoundTag tag) {
         CompoundTag entriesTag = new CompoundTag();
         for (Map.Entry<String, StrainEntry> e : entries.entrySet()) {
             CompoundTag entry = new CompoundTag();

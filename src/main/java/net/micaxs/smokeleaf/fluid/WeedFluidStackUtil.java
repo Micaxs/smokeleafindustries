@@ -7,8 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.fluids.FluidStack;
-
+import net.minecraftforge.fluids.FluidStack;
 import java.util.List;
 
 /**
@@ -19,13 +18,13 @@ public final class WeedFluidStackUtil {
 
     public static FluidStack withWeedData(FluidStack stack, List<ResourceLocation> effects, int amplifier, int durationTicks) {
         if (stack == null || stack.isEmpty()) return stack;
-        stack.set(ModDataComponentTypes.WEED_FLUID_DATA.get(), new WeedFluidData(List.copyOf(effects), amplifier, durationTicks));
+        ModDataComponentTypes.WEED_FLUID_DATA.set(stack, new WeedFluidData(List.copyOf(effects), amplifier, durationTicks));
         return stack;
     }
 
     public static WeedFluidData getWeedData(FluidStack stack) {
         if (stack == null || stack.isEmpty()) return WeedFluidData.EMPTY;
-        WeedFluidData data = stack.get(ModDataComponentTypes.WEED_FLUID_DATA.get());
+        WeedFluidData data = ModDataComponentTypes.WEED_FLUID_DATA.get(stack);
         return data != null ? data : WeedFluidData.EMPTY;
     }
 
@@ -37,7 +36,7 @@ public final class WeedFluidStackUtil {
             if (id == null) continue;
             MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(id);
             if (effect == null) continue;
-            Holder<MobEffect> holder = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
+            MobEffect holder = effect;
             entity.addEffect(new MobEffectInstance(holder, data.durationTicks(), data.amplifier()));
         }
     }

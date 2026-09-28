@@ -24,7 +24,7 @@ public final class TripStreakTracker {
 
     /** Stable identity key for "is this the same item as last time" — prefers STRAIN_ID, then THC/CBD, then item id. */
     public static String keyFor(ItemStack stack, StrainData strain) {
-        String sid = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+        String sid = ModDataComponentTypes.STRAIN_ID.get(stack);
         if (sid != null && !sid.isBlank()) return sid;
         if (strain != null && strain != StrainData.EMPTY) return strain.thc() + "_" + strain.cbd();
         return stack.getItem().toString();

@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
@@ -81,10 +82,10 @@ public class BaseWeedItem extends Item {
 
     // Call this when creating a new ItemStack to sync fields to data components
     public void initializeStack(ItemStack stack) {
-        stack.set(ModDataComponentTypes.ACTIVE_INGREDIENT.get(), BuiltInRegistries.MOB_EFFECT.getKey(this.effect).toString());
-        stack.set(ModDataComponentTypes.EFFECT_DURATION.get(), this.duration);
-        stack.set(ModDataComponentTypes.THC.get(), this.thcLevel);
-        stack.set(ModDataComponentTypes.CBD.get(), this.cbdLevel);
+        ModDataComponentTypes.ACTIVE_INGREDIENT.set(stack, BuiltInRegistries.MOB_EFFECT.getKey(this.effect).toString());
+        ModDataComponentTypes.EFFECT_DURATION.set(stack, this.duration);
+        ModDataComponentTypes.THC.set(stack, this.thcLevel);
+        ModDataComponentTypes.CBD.set(stack, this.cbdLevel);
     }
 
     /** Sets the name suffix appended after the strain name (e.g. " Weed", " Extract"). */
@@ -108,7 +109,7 @@ public class BaseWeedItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 
         StrainData d = StrainUtil.getStrain(stack);
@@ -119,7 +120,7 @@ public class BaseWeedItem extends Item {
         List<MobEffectInstance> previews = buildEffectInstances(stack);
         if (!previews.isEmpty()) {
             MobEffectInstance first = previews.get(0);
-            MobEffect baseEff = first.getEffect().value();
+            MobEffect baseEff = first.getEffect();
             int seconds = first.getDuration() / 20;
             tooltipComponents.add(
                     Component.literal("Effect: ").withStyle(ChatFormatting.GRAY)
@@ -132,7 +133,7 @@ public class BaseWeedItem extends Item {
         if (previews.size() > 1) {
             MutableComponent joined = Component.empty();
             for (int i = 1; i < previews.size(); i++) {
-                MobEffect extra = previews.get(i).getEffect().value();
+                MobEffect extra = previews.get(i).getEffect();
                 Component name = Component.translatable(extra.getDescriptionId()).withStyle(ChatFormatting.WHITE);
                 if (i > 1) {
                     joined = joined.append(Component.literal(", ").withStyle(ChatFormatting.GRAY));
@@ -174,7 +175,7 @@ public class BaseWeedItem extends Item {
             }
         }
 
-        String effectId = stack.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get());
+        String effectId = ModDataComponentTypes.ACTIVE_INGREDIENT.get(stack);
         if (effectId == null) {
             effectId = BuiltInRegistries.MOB_EFFECT.getKey(this.effect).toString();
         }
@@ -191,7 +192,7 @@ public class BaseWeedItem extends Item {
         if (d != StrainData.EMPTY) {
             return d.thc();
         }
-        Integer thc = stack.get(ModDataComponentTypes.THC.get());
+        Integer thc = ModDataComponentTypes.THC.get(stack);
         return thc != null ? thc : this.thcLevel;
     }
 
@@ -200,7 +201,7 @@ public class BaseWeedItem extends Item {
         if (d != StrainData.EMPTY) {
             return d.cbd();
         }
-        Integer cbd = stack.get(ModDataComponentTypes.CBD.get());
+        Integer cbd = ModDataComponentTypes.CBD.get(stack);
         return cbd != null ? cbd : this.cbdLevel;
     }
 
@@ -226,7 +227,7 @@ public class BaseWeedItem extends Item {
         List<MobEffectInstance> filtered = new ArrayList<>();
         for (MobEffectInstance inst : effects) {
             if (inst == null || inst.getEffect() == null) continue;
-            if (inst.getEffect().value() == MobEffects.CONFUSION) continue;
+            if (inst.getEffect() == MobEffects.CONFUSION) continue;
             filtered.add(inst);
         }
         return filtered;

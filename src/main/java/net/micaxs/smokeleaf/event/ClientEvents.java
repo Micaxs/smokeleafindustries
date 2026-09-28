@@ -18,22 +18,21 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientChatEvent;
-import net.neoforged.neoforge.client.event.RenderLivingEvent;
-import net.neoforged.neoforge.client.event.RenderNameTagEvent;
-import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.client.event.ClientChatEvent;
+import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.RenderNameTagEvent;
+import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.client.event.sound.PlaySoundEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
 
@@ -44,7 +43,7 @@ public class ClientEvents {
         ClientLevel level = mc.level;
         LocalPlayer player = mc.player;
         if (level == null || player == null) return;
-        if (!player.hasEffect(ModEffects.ECHO_LOCATION)) return;
+        if (!player.hasEffect(ModEffects.ECHO_LOCATION.get())) return;
 
         SoundInstance snd = event.getSound();
         if (snd == null) return;
@@ -80,7 +79,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onRenderName(RenderNameTagEvent event) {
         LocalPlayer viewer = Minecraft.getInstance().player;
-        if (viewer == null || !viewer.hasEffect(ModEffects.FRIEND_OR_FOE)) return;
+        if (viewer == null || !viewer.hasEffect(ModEffects.FRIEND_OR_FOE.get())) return;
 
         Entity e = event.getEntity();
         String[] pool = new String[]{"Zombie", "Villager", "Creeper", "Cow", "Sheep", "Enderman", "Pig", "Spider"};
@@ -98,14 +97,14 @@ public class ClientEvents {
     public static void onClientInteractEntity(PlayerInteractEvent.EntityInteract evt) {
         if (evt.getEntity().level().isClientSide
                 && evt.getTarget() instanceof Villager
-                && evt.getEntity().hasEffect(ModEffects.LINGUISTS_HIGH)) {
+                && evt.getEntity().hasEffect(ModEffects.LINGUISTS_HIGH.get())) {
             showLinguistSubtitle();
         }
     }
 
     private static void showLinguistSubtitle() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || !mc.player.hasEffect(ModEffects.LINGUISTS_HIGH)) return;
+        if (mc.player == null || !mc.player.hasEffect(ModEffects.LINGUISTS_HIGH.get())) return;
 
         int variant = 1 + RAND.nextInt(11);
         var text = net.minecraft.network.chat.Component.translatable("linguist.smokeleafindustries.villager_text." + variant);
@@ -119,7 +118,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onCameraSetup(ViewportEvent.ComputeCameraAngles event) {
         Player player = Minecraft.getInstance().player;
-        if (player != null && player.hasEffect(ModEffects.RELAXED)) {
+        if (player != null && player.hasEffect(ModEffects.RELAXED.get())) {
             float tick = (player.tickCount % 360);
             event.setYaw(event.getYaw() + (float) Math.sin(tick * 0.01) * 1.5F);
             event.setPitch(event.getPitch() + (float) Math.cos(tick * 0.01) * 1.5F);
@@ -130,7 +129,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onClientChat(ClientChatEvent event) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || !mc.player.hasEffect(ModEffects.SCRAMBLED_MOUTH)) return;
+        if (mc.player == null || !mc.player.hasEffect(ModEffects.SCRAMBLED_MOUTH.get())) return;
 
         String message = event.getMessage();
         if (message == null || message.isEmpty() || message.startsWith("/")) return;
@@ -214,7 +213,7 @@ public class ClientEvents {
     public static void onRenderLivingPre(RenderLivingEvent.Pre event) {
         LivingEntity le = event.getEntity();
         if (!(le instanceof Player player)) return;
-        if (!player.hasEffect(ModEffects.ZOMBIFIED)) return;
+        if (!player.hasEffect(ModEffects.ZOMBIFIED.get())) return;
 
         event.setCanceled(true);
 

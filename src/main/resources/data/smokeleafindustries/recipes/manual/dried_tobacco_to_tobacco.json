@@ -1,0 +1,11 @@
+{
+  "type": "smokeleafindustries:manual_grinder",
+  "ingredient": {
+    "item": "smokeleafindustries:dried_tobacco_leaves"
+  },
+  "result": {
+    "count": 1,
+    "item": "smokeleafindustries:tobacco"
+  },
+  "grind_time": 40
+}

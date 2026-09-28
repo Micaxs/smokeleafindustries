@@ -7,12 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderGuiEvent;
-
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.client.event.RenderGuiEvent;
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
 public final class RedEyesOverlay {
     private RedEyesOverlay() {}
 
@@ -21,7 +20,7 @@ public final class RedEyesOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        MobEffectInstance inst = mc.player.getEffect(ModEffects.DRY_EYES);
+        MobEffectInstance inst = mc.player.getEffect(ModEffects.DRY_EYES.get());
         if (inst == null) return;
 
         int w = mc.getWindow().getGuiScaledWidth();

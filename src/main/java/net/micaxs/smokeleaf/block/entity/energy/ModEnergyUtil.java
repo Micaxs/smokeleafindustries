@@ -1,16 +1,15 @@
 package net.micaxs.smokeleaf.block.entity.energy;
 
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-
-
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.energy.IEnergyStorage;
 public class ModEnergyUtil {
 
     public static boolean move(BlockPos from, BlockPos to, int amount, Level level) {
-        IEnergyStorage fromStorage = level.getCapability(Capabilities.EnergyStorage.BLOCK, from, null);
-        IEnergyStorage toStorage = level.getCapability(Capabilities.EnergyStorage.BLOCK, to, null);
+        IEnergyStorage fromStorage = CapHelper.get(level, from, null, ForgeCapabilities.ENERGY);
+        IEnergyStorage toStorage = CapHelper.get(level, to, null, ForgeCapabilities.ENERGY);
 
         if (canEnergyStorageExtractThisAmount(fromStorage, amount)) {
             return false;
@@ -38,7 +37,7 @@ public class ModEnergyUtil {
     }
 
     public static boolean doesBlockHaveEnergyStorage(BlockPos positionToCheck, Level level) {
-        return level.getBlockEntity(positionToCheck) != null && level.getCapability(Capabilities.EnergyStorage.BLOCK, positionToCheck, null) != null;
+        return level.getBlockEntity(positionToCheck) != null && CapHelper.get(level, positionToCheck, null, ForgeCapabilities.ENERGY) != null;
     }
 
 }

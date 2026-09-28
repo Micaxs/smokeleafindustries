@@ -12,7 +12,7 @@ public class UpliftedEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+    public void applyEffectTick(LivingEntity livingEntity, int amplifier) {
         if (!livingEntity.level().isClientSide()) {
             if (livingEntity instanceof Player player) {
                 Vec3 motion = player.getDeltaMovement();
@@ -20,11 +20,12 @@ public class UpliftedEffect extends MobEffect {
                 // JUMP Boost added in event
             }
         }
-        return super.applyEffectTick(livingEntity, amplifier);
+        super.applyEffectTick(livingEntity, amplifier);
+        return;
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 }

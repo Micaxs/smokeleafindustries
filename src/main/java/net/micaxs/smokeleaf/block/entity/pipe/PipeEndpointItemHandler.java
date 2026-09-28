@@ -4,8 +4,7 @@ import net.micaxs.smokeleaf.block.entity.PipeBlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-
+import net.minecraftforge.items.IItemHandler;
 /**
  * Exposed on a pipe's IMPORT/EXPORT item face so external (non-pipe) machines/mods can interact with
  * the whole network through this one face — a live view, never a buffer. On insert/extract it simply
@@ -40,7 +39,7 @@ public final class PipeEndpointItemHandler implements IItemHandler {
         for (PipeEndpoint endpoint : network.endpoints) {
             if (endpoint.pipePos.equals(pipe.getBlockPos()) && endpoint.direction == direction) continue;
             if (!(endpoint.cache.getCapability() instanceof IItemHandler handler)) continue;
-            remaining = net.neoforged.neoforge.items.ItemHandlerHelper.insertItemStacked(handler, remaining, simulate);
+            remaining = net.minecraftforge.items.ItemHandlerHelper.insertItemStacked(handler, remaining, simulate);
             if (remaining.isEmpty()) break;
         }
         return remaining;

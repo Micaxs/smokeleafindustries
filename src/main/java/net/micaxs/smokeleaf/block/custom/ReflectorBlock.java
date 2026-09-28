@@ -1,6 +1,5 @@
 package net.micaxs.smokeleaf.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
 import net.micaxs.smokeleaf.block.entity.ReflectorBlockEntity;
 import net.micaxs.smokeleaf.item.ModItems;
@@ -8,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -41,7 +39,7 @@ public class ReflectorBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -51,17 +49,12 @@ public class ReflectorBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return null;
-    }
-
-    @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Block.box(0.0D, 11.0D, 0.0D, 16.0D, 16.0D, 16.0D);
     }
 
     @Override
-    protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return !level.getBlockState(pos.above()).isAir();
     }
 
@@ -71,12 +64,12 @@ public class ReflectorBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected BlockState rotate(BlockState state, Rotation rotation) {
+    public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
+    public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
@@ -88,9 +81,9 @@ public class ReflectorBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                              Player player, InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (level.isClientSide) return InteractionResult.SUCCESS;
         if (!state.getValue(HAS_LAMP) && ( stack.is(ModItems.HPS_LAMP.get()) || stack.is(ModItems.DUAL_ARC_LAMP.get()))) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof ReflectorBlockEntity reflector) {
@@ -98,14 +91,13 @@ public class ReflectorBlock extends BaseEntityBlock {
                 level.setBlock(pos, state.setValue(HAS_LAMP, true), Block.UPDATE_ALL);
                 if (!player.isCreative()) stack.shrink(1);
                 reflector.setChanged();
-                return ItemInteractionResult.CONSUME;
+                return InteractionResult.CONSUME;
             }
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hit) : InteractionResult.PASS);
     }
 
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    private InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (level.isClientSide) {
             return state.getValue(HAS_LAMP) && player.getMainHandItem().isEmpty()
                     ? InteractionResult.SUCCESS

@@ -17,9 +17,9 @@ import java.util.Optional;
 
 public class SequencerScreen extends AbstractContainerScreen<SequencerMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/sequencer/sequencer_gui.png");
+    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/sequencer/sequencer_gui.png");
 
-    private static final ResourceLocation INFO_ICON = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/icons/info.png");
+    private static final ResourceLocation INFO_ICON = new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/icons/info.png");
     private static final int ICON_SIZE = 8;
     private static final float TOOLTIP_SCALE = 0.5f;
 
@@ -101,6 +101,7 @@ public class SequencerScreen extends AbstractContainerScreen<SequencerMenu> {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;

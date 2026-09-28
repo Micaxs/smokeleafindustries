@@ -3,8 +3,7 @@ package net.micaxs.smokeleaf.block.entity.pipe;
 import net.micaxs.smokeleaf.block.entity.PipeBlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-
+import net.minecraftforge.energy.IEnergyStorage;
 /** Energy analog of {@link PipeEndpointItemHandler} — see its javadoc. Pure forwarding, no buffer. */
 public final class PipeEndpointEnergyStorage implements IEnergyStorage {
     private final PipeBlockEntity pipe;

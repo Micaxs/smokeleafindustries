@@ -15,12 +15,12 @@ public class ZombifiedEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
         Level level = entity.level();
-        if (level.isClientSide) return false;
+        if (level.isClientSide) return;
 
         if (entity instanceof Player player) {
-            if (player.isCreative() || player.isSpectator()) return false;
+            if (player.isCreative() || player.isSpectator()) return;
 
             BlockPos pos = BlockPos.containing(player.getX(), player.getEyeY(), player.getZ());
             boolean inSunlight = level.isDay()
@@ -35,15 +35,15 @@ public class ZombifiedEffect extends MobEffect {
                         player.setRemainingFireTicks(fireTicks);
                     }
                 } else {
-                    helmet.hurtAndBreak(1, player, EquipmentSlot.HEAD);
+                    helmet.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(EquipmentSlot.HEAD));
                 }
             }
         }
-        return true;
+        return;
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 }

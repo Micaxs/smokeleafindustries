@@ -1,6 +1,5 @@
 package net.micaxs.smokeleaf.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import net.micaxs.smokeleaf.block.entity.DryingRackBlockEntity;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
@@ -11,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -32,17 +30,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class DryingRackBlock extends BaseEntityBlock {
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
-    public static final MapCodec<DryingRackBlock> CODEC = simpleCodec(DryingRackBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public DryingRackBlock(Properties props) {
         super(props);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
 
@@ -53,22 +45,22 @@ public class DryingRackBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected BlockState rotate(BlockState state, Rotation rotation) {
+    public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
+    public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -76,17 +68,17 @@ public class DryingRackBlock extends BaseEntityBlock {
 
     // Right click -> Insert Item
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
-                                              BlockPos pos, Player player, InteractionHand hand,
-                                              BlockHitResult hitResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+                                 BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(hand);
 
         if (stack.isEmpty()) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hitResult) : InteractionResult.PASS);
         }
 
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof DryingRackBlockEntity rack)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hitResult) : InteractionResult.PASS);
         }
 
         // Find a drying recipe for the held stack
@@ -95,22 +87,22 @@ public class DryingRackBlock extends BaseEntityBlock {
 
         if (recipeOpt.isEmpty()) {
             // No recipe -> not insertable
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hitResult) : InteractionResult.PASS);
         }
 
-        var recipe = recipeOpt.get().value();
+        var recipe = recipeOpt.get();
 
         // If recipe is a bud in-place drying recipe and bud already dry -> reject
         if (recipe.dryBud() && stack.getItem() instanceof BaseBudItem) {
-            Boolean dry = stack.get(ModDataComponentTypes.DRY);
+            Boolean dry = ModDataComponentTypes.DRY.get(stack);
             if (dry != null && dry) {
-                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+                return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hitResult) : InteractionResult.PASS);
             }
         }
 
         // Client side: just signal success for hand animation (do NOT modify inventory)
         if (level.isClientSide) {
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         // Server side insertion
@@ -118,15 +110,14 @@ public class DryingRackBlock extends BaseEntityBlock {
             if (!player.isCreative()) {
                 player.getInventory().setChanged();
             }
-            return ItemInteractionResult.CONSUME;
+            return InteractionResult.CONSUME;
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hitResult) : InteractionResult.PASS);
     }
 
     // Left click -> Extract Item
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    private InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof DryingRackBlockEntity rack)) return InteractionResult.PASS;
@@ -158,7 +149,7 @@ public class DryingRackBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof DryingRackBlockEntity rack) {

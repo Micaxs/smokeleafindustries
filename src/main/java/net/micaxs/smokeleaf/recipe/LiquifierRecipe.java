@@ -1,27 +1,38 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.core.HolderLookup;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraft.world.level.material.Fluid;
 
-public record LiquifierRecipe(Ingredient ingredient, FluidStack output, boolean inheritInputEffects) implements Recipe<LiquifierRecipeInput> {
+public record LiquifierRecipe(ResourceLocation id, Ingredient ingredient, FluidStack output, boolean inheritInputEffects) implements Recipe<LiquifierRecipeInput> {
 
-    public LiquifierRecipe(Ingredient ingredient, FluidStack output) {
-        this(ingredient, output, false);
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    // Machine recipe: keep it out of the vanilla recipe book (avoids "Unknown recipe category" spam).
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
+
+    public LiquifierRecipe(ResourceLocation id, Ingredient ingredient, FluidStack output) {
+        this(id, ingredient, output, false);
     }
 
     public FluidStack outputCopy() {
@@ -38,7 +49,7 @@ public record LiquifierRecipe(Ingredient ingredient, FluidStack output, boolean 
     }
 
     @Override
-    public ItemStack assemble(LiquifierRecipeInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(LiquifierRecipeInput input, RegistryAccess provider) {
         return ItemStack.EMPTY;
     }
 
@@ -48,7 +59,7 @@ public record LiquifierRecipe(Ingredient ingredient, FluidStack output, boolean 
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess provider) {
         return ItemStack.EMPTY;
     }
 
@@ -69,50 +80,30 @@ public record LiquifierRecipe(Ingredient ingredient, FluidStack output, boolean 
         return ModRecipes.LIQUIFIER_TYPE.get();
     }
 
-    public static class Serializer implements RecipeSerializer<LiquifierRecipe> {
-
-        // Nested codec for the "output" object
-        private static final MapCodec<FluidStack> FLUID_STACK_OBJECT = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(FluidStack::getFluid),
-                Codec.INT.fieldOf("amount").forGetter(FluidStack::getAmount)
-        ).apply(inst, (Fluid fluid, Integer amt) -> new FluidStack(fluid, amt)));
-
-        public static final MapCodec<LiquifierRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(LiquifierRecipe::ingredient),
-                FLUID_STACK_OBJECT.fieldOf("output").forGetter(LiquifierRecipe::output),
-                Codec.BOOL.optionalFieldOf("inherit_input_effects", false).forGetter(LiquifierRecipe::inheritInputEffects)
-        ).apply(inst, LiquifierRecipe::new));
-
-        // Stream codec for FluidStack (fluid id + varint amount)
-        private static final StreamCodec<RegistryFriendlyByteBuf, FluidStack> FLUID_STACK_STREAM_CODEC =
-                StreamCodec.of(
-                        (buf, stack) -> {
-                            ByteBufCodecs.idMapper(BuiltInRegistries.FLUID).encode(buf, stack.getFluid());
-                            buf.writeVarInt(stack.getAmount());
-                        },
-                        buf -> {
-                            Fluid f = ByteBufCodecs.idMapper(BuiltInRegistries.FLUID).decode(buf);
-                            int amt = buf.readVarInt();
-                            return new FluidStack(f, amt);
-                        }
-                );
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, LiquifierRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        Ingredient.CONTENTS_STREAM_CODEC, LiquifierRecipe::ingredient,
-                        FLUID_STACK_STREAM_CODEC, LiquifierRecipe::output,
-                        ByteBufCodecs.BOOL, LiquifierRecipe::inheritInputEffects,
-                        LiquifierRecipe::new
-                );
+    public static class Serializer implements CodecRecipeSerializer<LiquifierRecipe> {
 
         @Override
-        public MapCodec<LiquifierRecipe> codec() {
-            return CODEC;
+        public MapCodec<LiquifierRecipe> codec(ResourceLocation id) {
+            return RecordCodecBuilder.mapCodec(inst -> inst.group(
+                    CodecCompat.INGREDIENT.fieldOf("ingredient").forGetter(LiquifierRecipe::ingredient),
+                    CodecCompat.FLUID_STACK_MAP.fieldOf("output").forGetter(LiquifierRecipe::output),
+                    Codec.BOOL.optionalFieldOf("inherit_input_effects", false).forGetter(LiquifierRecipe::inheritInputEffects)
+            ).apply(inst, (ing, out, inherit) -> new LiquifierRecipe(id, ing, out, inherit)));
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, LiquifierRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public LiquifierRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            Ingredient ing = Ingredient.fromNetwork(buf);
+            FluidStack out = FluidStack.readFromPacket(buf);
+            boolean inherit = buf.readBoolean();
+            return new LiquifierRecipe(id, ing, out, inherit);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buf, LiquifierRecipe recipe) {
+            recipe.ingredient().toNetwork(buf);
+            recipe.output().writeToPacket(buf);
+            buf.writeBoolean(recipe.inheritInputEffects());
         }
     }
 }

@@ -1,7 +1,6 @@
 package net.micaxs.smokeleaf.recipe;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeInput;
 
 public class GummyRecipeInput implements RecipeInput {
     private final ItemStack mold;

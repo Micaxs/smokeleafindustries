@@ -12,7 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -114,7 +113,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     public int getBasePh()  { return this.basePh; }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (isTop(state)) {
             return SHAPE_BY_AGE[getAge(state)];
         }
@@ -122,7 +121,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     }
 
     @Override
-    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (!level.isAreaLoaded(pos, 1) || isTop(state) || level.getRawBrightness(pos, 0) < 11 || !canSurvive(state, level, pos)) {
             return;
         }
@@ -130,7 +129,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
         int age = this.getAge(state);
         if (age >= getMaxAge()) return;
 
-        float growthSpeed = getGrowthSpeed(this.defaultBlockState(), level, pos);
+        float growthSpeed = getGrowthSpeed(this, level, pos);
         if (state.is(ModBlocks.HEMP_CROP.get())) {
             growthSpeed *= HEMP_GROWTH_SPEED_MULTIPLIER;
         }
@@ -161,7 +160,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     }
 
     @Override
-    protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         if (isTop(state)) {
             BlockState below = level.getBlockState(pos.below());
             return below.getBlock() == this && below.getValue(AGE) >= getTallAge();
@@ -181,7 +180,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     }
 
     @Override
-    protected boolean isRandomlyTicking(BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return !state.getValue(TOP);
     }
 
@@ -191,7 +190,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, boolean isClient) {
         return !isMaxAge(state) && !state.getValue(TOP);
     }
 
@@ -223,7 +222,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     }
 
     public float getLocalGrowthSpeed(BlockGetter level, BlockPos pos) {
-        return getGrowthSpeed(this.defaultBlockState(), level, pos);
+        return getGrowthSpeed(this, level, pos);
     }
 
     public BaseWeedCropBlockEntity getBlockEntity() {
@@ -253,38 +252,37 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
         return be;
     }
 
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    private InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         // Allow other interactions to behave normally.
-        return super.useWithoutItem(state, level, pos, player, hitResult);
+        return InteractionResult.PASS;
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                          Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(hand);
         // Only run this behavior on the actual hemp crop.
         if (!state.is(ModBlocks.HEMP_CROP.get())) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+            return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hitResult) : InteractionResult.PASS);
         }
 
         // Only bottom part should handle interactions.
         if (isTop(state)) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+            return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hitResult) : InteractionResult.PASS);
         }
 
         // Must be fully-grown.
         if (getAge(state) != getMaxAge()) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+            return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hitResult) : InteractionResult.PASS);
         }
 
         // Only with shears.
         if (!stack.is(Items.SHEARS)) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+            return (hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hitResult) : InteractionResult.PASS);
         }
 
         if (level.isClientSide) {
             // Let client show hand swing; actual drops/state changes happen server-side.
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         HempShearStage stage = state.getValue(HEMP_SHEAR_STAGE);
@@ -297,8 +295,8 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
             level.gameEvent(player, GameEvent.SHEAR, pos);
 
             // Damage shears.
-            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-            return ItemInteractionResult.CONSUME;
+            stack.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(hand));
+            return InteractionResult.CONSUME;
         }
 
         // 4th time: break/harvest the crop normally (uses loot table, etc.)
@@ -310,8 +308,8 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
         level.destroyBlock(pos, true);
         level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
 
-        stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-        return ItemInteractionResult.CONSUME;
+        stack.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(hand));
+        return InteractionResult.CONSUME;
     }
 
     @Override
@@ -330,9 +328,9 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
             if (drop.getItem() instanceof BaseBudItem && budCount > 1) {
                 drop.setCount(drop.getCount() * budCount);
             }
-            StrainData d = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData d = ModDataComponentTypes.STRAIN_DATA.get(drop);
             if (d != null) {
-                drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                ModDataComponentTypes.STRAIN_DATA.set(drop, new StrainData(
                         d.colorArgb(), d.leafColor(), scaledThc, scaledCbd,
                         d.nitrogen(), d.phosphorus(), d.potassium(),
                         d.effects(), d.amplifier(), d.durationTicks(),

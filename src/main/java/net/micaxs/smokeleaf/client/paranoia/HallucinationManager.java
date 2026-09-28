@@ -3,11 +3,11 @@ package net.micaxs.smokeleaf.client.paranoia;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderLivingEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
 public final class HallucinationManager {
 
     // Track lifetimes per spawned entity on the client
@@ -63,7 +63,7 @@ public final class HallucinationManager {
         // Assign a client-only ID and add to the client world
         int id = NEXT_FAKE_ID.getAndDecrement();
         e.setId(id);
-        level.addEntity(e); // proper client-side registration
+        level.putNonPlayerEntity(id, e); // proper client-side registration
 
         // Track lifetime
         LIFETIMES.put(e, Math.max(1, lifeTicks));
@@ -100,7 +100,8 @@ public final class HallucinationManager {
     }
 
     @SubscribeEvent
-    public static void onClientTick(ClientTickEvent.Post evt) {
+    public static void onClientTick(TickEvent.ClientTickEvent evt) {
+        if (evt.phase != TickEvent.Phase.END) return;
         if (LIFETIMES.isEmpty()) return;
 
         Iterator<Map.Entry<Entity, Integer>> it = LIFETIMES.entrySet().iterator();
@@ -136,7 +137,7 @@ public final class HallucinationManager {
                 from, to,
                 ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.ANY,
-                CollisionContext.empty()
+                null
         ));
 
         if (hit.getType() != HitResult.Type.MISS) {

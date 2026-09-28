@@ -1,7 +1,6 @@
 package net.micaxs.smokeleaf.recipe;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeInput;
 
 public record MutatorRecipeInput(ItemStack seedInput, ItemStack extractInput) implements RecipeInput {
     @Override

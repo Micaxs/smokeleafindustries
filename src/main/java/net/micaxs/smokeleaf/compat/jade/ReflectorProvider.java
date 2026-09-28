@@ -21,7 +21,7 @@ public enum ReflectorProvider implements IBlockComponentProvider, IServerDataPro
     INSTANCE;
 
     private static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "reflector");
+            new ResourceLocation(SmokeleafIndustries.MODID, "reflector");
 
     @Override
     public ResourceLocation getUid() {

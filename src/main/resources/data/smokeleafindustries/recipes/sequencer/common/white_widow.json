@@ -1,0 +1,25 @@
+{
+  "type": "smokeleafindustries:sequencer",
+  "dna": {
+    "item": "smokeleafindustries:dna_strand"
+  },
+  "base_extract": {
+    "item": "smokeleafindustries:base_extract"
+  },
+  "required_reagents": [
+    {
+      "item": "minecraft:cobweb"
+    },
+    {
+      "item": "minecraft:snowball"
+    },
+    {
+      "item": "minecraft:white_dye"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "smokeleafindustries:extract"
+  },
+  "strain_id": "white_widow"
+}

@@ -9,9 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -97,6 +97,11 @@ public class WeedFluidType extends FluidType {
 
     public String[] getWeedNameParts() {
         return weedNameParts.clone();
+    }
+
+    @Override
+    public void initializeClient(java.util.function.Consumer<IClientFluidTypeExtensions> consumer) {
+        consumer.accept(getClientFluidTypeExtensions());
     }
 
     public IClientFluidTypeExtensions getClientFluidTypeExtensions() {

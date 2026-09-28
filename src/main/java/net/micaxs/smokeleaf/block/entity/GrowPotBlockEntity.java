@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.micaxs.smokeleaf.utils.CapHelper;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.Config;
@@ -14,7 +15,6 @@ import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -38,9 +38,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -225,7 +225,7 @@ public class GrowPotBlockEntity extends BlockEntity {
         BlockPos belowPos = worldPosition.below();
 
         // Try to find an item handler below, exposed on its UP face.
-        return level.getCapability(Capabilities.ItemHandler.BLOCK, belowPos, Direction.UP);
+        return CapHelper.get(level, belowPos, Direction.UP, ForgeCapabilities.ITEM_HANDLER);
     }
 
     private List<ItemStack> getHarvestDrops(ServerLevel serverLevel) {
@@ -242,13 +242,13 @@ public class GrowPotBlockEntity extends BlockEntity {
                         d.identified(), d.displayName(),
                         d.typeColors(),
                         "", "");
-                bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+                ModDataComponentTypes.STRAIN_DATA.set(bud, d);
             }
             if (customStrainId != null) {
-                bud.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+                ModDataComponentTypes.STRAIN_ID.set(bud, customStrainId);
             }
             if (customStrainCreator != null && !customStrainCreator.isBlank()) {
-                bud.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
+                ModDataComponentTypes.STRAIN_CREATOR.set(bud, customStrainCreator);
             }
             int budFactor = getBudCount();
             if (budFactor > 1) bud.setCount(bud.getCount() * budFactor);
@@ -278,9 +278,9 @@ public class GrowPotBlockEntity extends BlockEntity {
                 if (drop.getCount() > 0 && budFactor > 1) {
                     drop.setCount(drop.getCount() * budFactor);
                 }
-                StrainData existing = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
+                StrainData existing = ModDataComponentTypes.STRAIN_DATA.get(drop);
                 if (existing != null) {
-                    drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                    ModDataComponentTypes.STRAIN_DATA.set(drop, new StrainData(
                             existing.colorArgb(), existing.leafColor(), thcVal, cbdVal,
                             existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                             existing.effects(), existing.amplifier(), existing.durationTicks(),
@@ -401,13 +401,13 @@ public class GrowPotBlockEntity extends BlockEntity {
                         d.effects(), d.amplifier(), d.durationTicks(), d.identified(), d.displayName(),
                         d.typeColors(),
                         "", "");
-                bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+                ModDataComponentTypes.STRAIN_DATA.set(bud, d);
             }
             if (customStrainId != null) {
-                bud.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+                ModDataComponentTypes.STRAIN_ID.set(bud, customStrainId);
             }
             if (customStrainCreator != null && !customStrainCreator.isBlank()) {
-                bud.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
+                ModDataComponentTypes.STRAIN_CREATOR.set(bud, customStrainCreator);
             }
             int budFactor = getBudCount();
             if (budFactor > 1) bud.setCount(bud.getCount() * budFactor);
@@ -441,9 +441,9 @@ public class GrowPotBlockEntity extends BlockEntity {
                 if (drop.getCount() > 0 && budFactor > 1) {
                     drop.setCount(drop.getCount() * budFactor);
                 }
-                StrainData existing = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
+                StrainData existing = ModDataComponentTypes.STRAIN_DATA.get(drop);
                 if (existing != null) {
-                    drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                    ModDataComponentTypes.STRAIN_DATA.set(drop, new StrainData(
                             existing.colorArgb(), existing.leafColor(), thcVal, cbdVal,
                             existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                             existing.effects(), existing.amplifier(), existing.durationTicks(),
@@ -474,10 +474,10 @@ public class GrowPotBlockEntity extends BlockEntity {
         if (hasCustomStrain()) {
             ItemStack seed = new ItemStack(ModItems.GENERIC_SEEDS.get());
             StrainData d = customStrain;
-            if (d != null) seed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
-            if (customStrainId != null) seed.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+            if (d != null) ModDataComponentTypes.STRAIN_DATA.set(seed, d);
+            if (customStrainId != null) ModDataComponentTypes.STRAIN_ID.set(seed, customStrainId);
             if (customStrainCreator != null && !customStrainCreator.isBlank()) {
-                seed.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
+                ModDataComponentTypes.STRAIN_CREATOR.set(seed, customStrainCreator);
             }
             if (!player.addItem(seed)) {
                 Block.popResource(level, worldPosition, seed);
@@ -604,10 +604,10 @@ public class GrowPotBlockEntity extends BlockEntity {
             this.customStrainCreator = null;
             return;
         }
-        StrainData d = seedStack.get(ModDataComponentTypes.STRAIN_DATA.get());
+        StrainData d = ModDataComponentTypes.STRAIN_DATA.get(seedStack);
         this.customStrain = (d != null && d != StrainData.EMPTY) ? d : null;
-        this.customStrainId = seedStack.get(ModDataComponentTypes.STRAIN_ID.get());
-        this.customStrainCreator = seedStack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        this.customStrainId = ModDataComponentTypes.STRAIN_ID.get(seedStack);
+        this.customStrainCreator = ModDataComponentTypes.STRAIN_CREATOR.get(seedStack);
 
         // Copy only the genetic traits (thc/cbd) from the strain — the strain's NPK values
         // are the OPTIMAL TARGET the player must reach via fertilizers, not starting values.
@@ -637,8 +637,8 @@ public class GrowPotBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         Optional<ResourceLocation> soilId = soilState != null
                 ? Optional.ofNullable(BuiltInRegistries.BLOCK.getKey(soilState.getBlock()))
                 : Optional.empty();
@@ -664,8 +664,8 @@ public class GrowPotBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         this.soilState = null;
         this.cropBlock = null;
         this.cropAge = 0;
@@ -722,13 +722,13 @@ public class GrowPotBlockEntity extends BlockEntity {
             if (hasCustomStrain()) {
                 seedStack = new ItemStack(ModItems.GENERIC_SEEDS.get());
                 if (customStrain != null && customStrain != StrainData.EMPTY) {
-                    seedStack.set(ModDataComponentTypes.STRAIN_DATA.get(), customStrain);
+                    ModDataComponentTypes.STRAIN_DATA.set(seedStack, customStrain);
                 }
                 if (customStrainId != null) {
-                    seedStack.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+                    ModDataComponentTypes.STRAIN_ID.set(seedStack, customStrainId);
                 }
                 if (customStrainCreator != null && !customStrainCreator.isBlank()) {
-                    seedStack.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
+                    ModDataComponentTypes.STRAIN_CREATOR.set(seedStack, customStrainCreator);
                 }
             } else {
                 seedStack = new ItemStack(cropBlock.getBaseSeedId().asItem());
@@ -746,12 +746,12 @@ public class GrowPotBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
     }
 }

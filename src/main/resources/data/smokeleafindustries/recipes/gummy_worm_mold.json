@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IP ",
+    " PI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "smokeleafindustries:hemp_plastic"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "smokeleafindustries:gummy_worm_mold"
+  }
+}

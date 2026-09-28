@@ -11,8 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.fluids.FluidStack;
-
+import net.minecraftforge.fluids.FluidStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -34,8 +33,8 @@ public final class JeiStrainHelper {
                 .map(id -> StrainRegistry.get(id)
                         .map(data -> {
                             ItemStack stack = new ItemStack(item);
-                            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
-                            stack.set(ModDataComponentTypes.STRAIN_ID.get(), id);
+                            ModDataComponentTypes.STRAIN_DATA.set(stack, data);
+                            ModDataComponentTypes.STRAIN_ID.set(stack, id);
                             return stack;
                         })
                         .orElse(null))
@@ -47,8 +46,8 @@ public final class JeiStrainHelper {
     public static FluidStack coloredFluidStack(Fluid baseFluid, String strainId, int amount) {
         FluidStack stack = new FluidStack(baseFluid, amount);
         StrainRegistry.get(strainId).ifPresent(data -> {
-            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
-            stack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+            ModDataComponentTypes.STRAIN_DATA.set(stack, data);
+            ModDataComponentTypes.STRAIN_ID.set(stack, strainId);
         });
         return stack;
     }
@@ -76,7 +75,7 @@ public final class JeiStrainHelper {
         return coloredStacks(item).stream()
                 .map(s -> {
                     ItemStack dried = s.copy();
-                    dried.set(ModDataComponentTypes.DRY.get(), Boolean.TRUE);
+                    ModDataComponentTypes.DRY.set(dried, Boolean.TRUE);
                     return dried;
                 })
                 .collect(Collectors.toList());
@@ -169,8 +168,8 @@ public final class JeiStrainHelper {
                 .map(s -> {
                     ItemStack colored = s.copy();
                     StrainRegistry.get(DEFAULT_STRAIN).ifPresent(data -> {
-                        colored.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
-                        colored.set(ModDataComponentTypes.STRAIN_ID.get(), DEFAULT_STRAIN);
+                        ModDataComponentTypes.STRAIN_DATA.set(colored, data);
+                        ModDataComponentTypes.STRAIN_ID.set(colored, DEFAULT_STRAIN);
                     });
                     return colored;
                 })
@@ -204,11 +203,11 @@ public final class JeiStrainHelper {
         if (focus.isEmpty()) return null;
 
         // Primary path: direct STRAIN_ID component
-        String id = focus.get(ModDataComponentTypes.STRAIN_ID.get());
+        String id = ModDataComponentTypes.STRAIN_ID.get(focus);
         if (id != null) return id;
 
         // Fallback: try to find a preset whose StrainData matches
-        StrainData data = focus.get(ModDataComponentTypes.STRAIN_DATA.get());
+        StrainData data = ModDataComponentTypes.STRAIN_DATA.get(focus);
         if (data != null) {
             return StrainRegistry.ids().stream()
                     .filter(k -> StrainRegistry.get(k)
@@ -226,7 +225,7 @@ public final class JeiStrainHelper {
         if (id == null) return coloredStacks(item);
 
         List<ItemStack> filtered = coloredStacks(item).stream()
-                .filter(s -> id.equals(s.get(ModDataComponentTypes.STRAIN_ID.get())))
+                .filter(s -> id.equals(ModDataComponentTypes.STRAIN_ID.get(s)))
                 .collect(Collectors.toList());
 
         if (!filtered.isEmpty()) return filtered;
@@ -234,10 +233,10 @@ public final class JeiStrainHelper {
         // Focused strain is not a preset — try making a stack from the focus itself.
         ItemStack focus = focusedStack(focuses);
         if (!focus.isEmpty() && isStrainItem(focus.getItem())) {
-            StrainData data = focus.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData data = ModDataComponentTypes.STRAIN_DATA.get(focus);
             if (data != null) {
                 ItemStack custom = new ItemStack(item);
-                custom.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+                ModDataComponentTypes.STRAIN_DATA.set(custom, data);
                 return List.of(custom);
             }
         }
@@ -250,7 +249,7 @@ public final class JeiStrainHelper {
         if (id == null) return coloredStacksForIngredient(ingredient);
 
         List<ItemStack> filtered = coloredStacksForIngredient(ingredient).stream()
-                .filter(s -> id.equals(s.get(ModDataComponentTypes.STRAIN_ID.get())))
+                .filter(s -> id.equals(ModDataComponentTypes.STRAIN_ID.get(s)))
                 .collect(Collectors.toList());
 
         if (!filtered.isEmpty()) return filtered;
@@ -258,10 +257,10 @@ public final class JeiStrainHelper {
         // Fallback: build a single stack from the focus's own StrainData.
         ItemStack focus = focusedStack(focuses);
         if (!focus.isEmpty() && isStrainItem(focus.getItem())) {
-            StrainData data = focus.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData data = ModDataComponentTypes.STRAIN_DATA.get(focus);
             if (data != null) {
                 ItemStack custom = new ItemStack(focus.getItem());
-                custom.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+                ModDataComponentTypes.STRAIN_DATA.set(custom, data);
                 return List.of(custom);
             }
         }
@@ -274,17 +273,17 @@ public final class JeiStrainHelper {
         if (id == null) return coloredDriedBudStacks(item);
 
         List<ItemStack> filtered = coloredDriedBudStacks(item).stream()
-                .filter(s -> id.equals(s.get(ModDataComponentTypes.STRAIN_ID.get())))
+                .filter(s -> id.equals(ModDataComponentTypes.STRAIN_ID.get(s)))
                 .collect(Collectors.toList());
 
         if (!filtered.isEmpty()) return filtered;
 
         ItemStack focus = focusedStack(focuses);
         if (!focus.isEmpty() && isStrainItem(focus.getItem())) {
-            StrainData data = focus.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData data = ModDataComponentTypes.STRAIN_DATA.get(focus);
             if (data != null) {
                 ItemStack custom = new ItemStack(item);
-                custom.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+                ModDataComponentTypes.STRAIN_DATA.set(custom, data);
                 return List.of(custom);
             }
         }
@@ -310,10 +309,10 @@ public final class JeiStrainHelper {
         // or the focus carries StrainData without a matching STRAIN_ID.
         ItemStack focus = focusedStack(focuses);
         if (!focus.isEmpty() && isStrainItem(focus.getItem())) {
-            StrainData data = focus.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData data = ModDataComponentTypes.STRAIN_DATA.get(focus);
             if (data != null) {
                 ItemStack customStack = new ItemStack(focus.getItem());
-                customStack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+                ModDataComponentTypes.STRAIN_DATA.set(customStack, data);
                 return Ingredient.of(customStack);
             }
         }

@@ -39,7 +39,7 @@ public class TobaccoCropBlock extends CropBlock {
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         int age = state.getValue(AGE);
         return SHAPE_BY_AGE[Math.max(0, Math.min(MAX_AGE, age))];
     }

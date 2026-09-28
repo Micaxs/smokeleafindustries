@@ -1,0 +1,11 @@
+{
+  "type": "smokeleafindustries:drying",
+  "ingredient": {
+    "item": "smokeleafindustries:tobacco_leaves"
+  },
+  "result": {
+    "count": 1,
+    "item": "smokeleafindustries:dried_tobacco_leaves"
+  },
+  "time": 300
+}

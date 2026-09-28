@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainEffectsUtil;
@@ -58,7 +59,7 @@ public class WeedDerivedItem extends Item {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    public int getUseDuration(ItemStack stack) {
         return this.useDuration;
     }
 
@@ -94,7 +95,7 @@ public class WeedDerivedItem extends Item {
             }
 
             if (level.random.nextDouble() <= this.stonedChance) {
-                Holder<MobEffect> stonedHolder = resolveModEffectHolder(level);
+                MobEffect stonedHolder = resolveModEffectHolder(level);
                 int previousStonedDuration = 0;
                 if (livingEntity.hasEffect(stonedHolder)) {
                     previousStonedDuration = livingEntity.getEffect(stonedHolder).getDuration();
@@ -130,24 +131,8 @@ public class WeedDerivedItem extends Item {
         return null;
     }
 
-    private static Holder<MobEffect> resolveModEffectHolder(Level level) {
-        Holder<?> h = ModEffects.STONED;
-        if (h.value() instanceof MobEffect) {
-            @SuppressWarnings("unchecked")
-            Holder<MobEffect> cast = (Holder<MobEffect>) h;
-            return cast;
-        }
-        MobEffect effect = ModEffects.STONED.value();
-        return mobEffectToHolder(effect, level);
-    }
-
-    private static Holder<MobEffect> mobEffectToHolder(MobEffect effect, Level level) {
-        return BuiltInRegistries.MOB_EFFECT
-                .getResourceKey(effect)
-                .flatMap(key -> level.registryAccess()
-                        .registryOrThrow(Registries.MOB_EFFECT)
-                        .getHolder(key))
-                .orElseThrow(() -> new IllegalStateException("Unregistered MobEffect: " + effect));
+    private static MobEffect resolveModEffectHolder(Level level) {
+        return ModEffects.STONED.get();
     }
 
     private void spawnSmokeParticles(Level level, LivingEntity entity) {
@@ -164,7 +149,7 @@ public class WeedDerivedItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 
         StrainData strain = StrainUtil.getStrain(stack);

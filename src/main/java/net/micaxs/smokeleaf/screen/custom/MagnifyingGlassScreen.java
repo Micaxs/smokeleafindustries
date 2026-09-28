@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class MagnifyingGlassScreen extends Screen {
-    private static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/analyzer/analyzer_gui.png"); // 256x256
+    private static final ResourceLocation BG_TEXTURE = new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/analyzer/analyzer_gui.png"); // 256x256
     private static final int TEX_W = 256, TEX_H = 256;
     private static final int GUI_W = 176, GUI_H = 142;
 
@@ -65,7 +65,7 @@ public class MagnifyingGlassScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         // Centered GUI placement

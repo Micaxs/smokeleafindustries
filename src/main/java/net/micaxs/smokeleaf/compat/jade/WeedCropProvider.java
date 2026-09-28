@@ -24,7 +24,7 @@ import snownee.jade.api.theme.IThemeHelper;
 public enum WeedCropProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "weed_crop_jade");
+    private static final ResourceLocation UID = new ResourceLocation(SmokeleafIndustries.MODID, "weed_crop_jade");
 
     @Override
     public ResourceLocation getUid() {

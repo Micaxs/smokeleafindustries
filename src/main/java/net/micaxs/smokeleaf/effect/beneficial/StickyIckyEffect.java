@@ -23,16 +23,16 @@ public class StickyIckyEffect extends MobEffect {
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true; // tick every tick
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
-        if (!(entity instanceof Player player)) return true;
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
+        if (!(entity instanceof Player player)) return;
 
         Level level = player.level();
-        if (level.isClientSide) return true;
+        if (level.isClientSide) return;
 
         double radius = 4.0D + (amplifier + 1) * 1.5D;
         AABB range = player.getBoundingBox().inflate(radius);
@@ -69,6 +69,6 @@ public class StickyIckyEffect extends MobEffect {
             item.hasImpulse = true;
         }
 
-        return true;
+        return;
     }
 }

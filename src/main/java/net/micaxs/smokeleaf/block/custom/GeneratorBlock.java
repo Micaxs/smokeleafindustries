@@ -1,14 +1,15 @@
 package net.micaxs.smokeleaf.block.custom;
 
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.world.InteractionResult;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.MapCodec;
 import net.micaxs.smokeleaf.block.entity.GeneratorBlockEntity;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -26,7 +27,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -49,32 +50,27 @@ public class GeneratorBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected BlockState rotate(BlockState state, Rotation rotation) {
+    public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
+    public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
     @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return null;
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof GeneratorBlockEntity generatorBlock) {
@@ -86,17 +82,17 @@ public class GeneratorBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos,
-                                              Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
+    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
+        ItemStack pStack = pPlayer.getItemInHand(pHand);
         if (!pLevel.isClientSide()) {
             BlockEntity entity = pLevel.getBlockEntity(pPos);
             if(entity instanceof GeneratorBlockEntity generatorBlockEntity) {
-                pPlayer.openMenu(new SimpleMenuProvider(generatorBlockEntity, Component.literal("Coal Generator")), pPos);
+                NetworkHooks.openScreen((ServerPlayer) pPlayer, new SimpleMenuProvider(generatorBlockEntity, Component.literal("Coal Generator")), pPos);
             } else {
                 throw new IllegalStateException("Our Container provider is missing!");
             }
         }
-        return ItemInteractionResult.sidedSuccess(pLevel.isClientSide());
+        return InteractionResult.sidedSuccess(pLevel.isClientSide());
     }
 
     @Override

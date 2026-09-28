@@ -1,6 +1,5 @@
 package net.micaxs.smokeleaf.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
 import net.micaxs.smokeleaf.block.entity.PipeBlockEntity;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeHitPart;
@@ -46,17 +45,12 @@ public class LogisticsPipeBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return null;
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         // Used for player look-targeting (what a right-click actually hits) and the outline box —
         // deliberately padded a little past the real geometry so aiming at a thin 2px pipe isn't
         // unreasonably fiddly. Real physics collision below stays tight.
@@ -67,7 +61,7 @@ public class LogisticsPipeBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
             return pipe.getCachedShape();
         }
@@ -88,7 +82,7 @@ public class LogisticsPipeBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock() && level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
             for (PipeType type : PipeType.VALUES) {
                 if (pipe.hasType(type)) {

@@ -28,9 +28,9 @@ import java.util.List;
 public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
 
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "drying");
+            new ResourceLocation(SmokeleafIndustries.MODID, "drying");
     public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
 
     public static final RecipeType<DryingRecipe> DRYING_RECIPE_TYPE =
             new RecipeType<>(UID, DryingRecipe.class);
@@ -61,7 +61,7 @@ public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, DryingRecipe recipe, IFocusGroup focuses) {
-        var inputIngredient = recipe.getIngredients().getFirst();
+        var inputIngredient = recipe.getIngredients().get(0);
         if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
             builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
                     .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
@@ -107,7 +107,7 @@ public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
 
         if (!focusedInput.isEmpty() && focusedInput.getItem() instanceof BaseBudItem) {
             ItemStack dried = focusedInput.copy();
-            dried.set(ModDataComponentTypes.DRY.get(), Boolean.TRUE);
+            ModDataComponentTypes.DRY.set(dried, Boolean.TRUE);
             builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
                     .addItemStack(dried);
         } else {

@@ -17,17 +17,48 @@ import java.util.function.Consumer;
  * Clicking a row opens that entry.
  */
 public class GuideEntryList extends AbstractSelectionList<GuideEntryList.Row> {
+    private static final int SCROLLBAR_WIDTH = 6;
     private static final int ROW_HEIGHT = 20;
 
     private final int rowWidth;
 
     public GuideEntryList(Minecraft minecraft, int x, int y, int width, int height, List<GuideEntry> entries, Consumer<GuideEntry> onSelect) {
-        super(minecraft, width, height, y, ROW_HEIGHT);
-        this.setX(x);
+        super(minecraft, width, height, y, y + height, ROW_HEIGHT);
+        this.setLeftPos(x);
+        this.setRenderBackground(false);
+        this.setRenderTopAndBottom(false);
         this.rowWidth = width - (SCROLLBAR_WIDTH + 2) * 2;
         for (GuideEntry entry : entries) {
             addEntry(new Row(entry, onSelect));
         }
+    }
+
+    /** 1.20.1's AbstractSelectionList is not an AbstractWidget, so it has no visibility flag of its own. */
+    public boolean visible = true;
+
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (visible) super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        return visible && super.isMouseOver(mouseX, mouseY);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return visible && super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        return visible && super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        return visible && super.mouseScrolled(mouseX, mouseY, delta);
     }
 
     @Override
@@ -41,7 +72,7 @@ public class GuideEntryList extends AbstractSelectionList<GuideEntryList.Row> {
         // getEntryAtPosition() (used for hover hit-testing) does not, so the row we render
         // 2px right of where the mouse actually needs to be for `hovering` to be true. Drop
         // the pad so the drawn hover background lines up with the real hit box.
-        return this.getX() + this.width / 2 - this.getRowWidth() / 2;
+        return this.x0 + this.width / 2 - this.getRowWidth() / 2;
     }
 
     @Override
@@ -49,17 +80,10 @@ public class GuideEntryList extends AbstractSelectionList<GuideEntryList.Row> {
         return this.getRight() - SCROLLBAR_WIDTH;
     }
 
-    @Override
-    protected void renderListBackground(GuiGraphics guiGraphics) {
-        // The book page texture already provides the background; nothing extra to draw.
-    }
+
 
     @Override
-    protected void renderListSeparators(GuiGraphics guiGraphics) {
-    }
-
-    @Override
-    protected void updateWidgetNarration(NarrationElementOutput output) {
+    public void updateNarration(NarrationElementOutput output) {
     }
 
     public class Row extends AbstractSelectionList.Entry<Row> {

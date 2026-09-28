@@ -17,7 +17,7 @@ import java.util.List;
 public class StrainDataPadScreen extends Screen {
 
     private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/strain_data_pad/strain_data_pad_gui.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/strain_data_pad/strain_data_pad_gui.png");
 
     private static final int IMAGE_WIDTH = 240;
     private static final int IMAGE_HEIGHT = 222;
@@ -98,14 +98,11 @@ public class StrainDataPadScreen extends Screen {
      * {@code GameRenderer.processBlurEffect}) was still reached through that second, indirect
      * call. Overriding the method itself is the only way to guarantee the blur shader never runs.
      */
-    @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderTransparentBackground(guiGraphics);
-    }
+    // 1.20.1: Screen.render does not draw a background, so render() draws it once explicitly.
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderBackground(guiGraphics);
         guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT);
 
         // Active-tab highlight.

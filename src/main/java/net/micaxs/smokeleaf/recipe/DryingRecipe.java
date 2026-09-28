@@ -1,13 +1,12 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -24,8 +23,20 @@ import java.util.Optional;
  * - time: ticks needed (default 200)
  * - dryBud: if true, block entity will set bud dry flag instead of replacing stack
  */
-public record DryingRecipe(Ingredient ingredient, ItemStack result, int time, boolean dryBud)
+public record DryingRecipe(ResourceLocation id, Ingredient ingredient, ItemStack result, int time, boolean dryBud)
         implements Recipe<DryingRecipeInput> {
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    // Machine recipe: keep it out of the vanilla recipe book (avoids "Unknown recipe category" spam).
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
 
     @Override
     public boolean matches(DryingRecipeInput input, Level level) {
@@ -34,7 +45,7 @@ public record DryingRecipe(Ingredient ingredient, ItemStack result, int time, bo
     }
 
     @Override
-    public ItemStack assemble(DryingRecipeInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(DryingRecipeInput input, RegistryAccess provider) {
         return result.copy();
     }
 
@@ -44,7 +55,7 @@ public record DryingRecipe(Ingredient ingredient, ItemStack result, int time, bo
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess provider) {
         return result;
     }
 
@@ -65,37 +76,36 @@ public record DryingRecipe(Ingredient ingredient, ItemStack result, int time, bo
         return ModRecipes.DRYING_TYPE.get();
     }
 
-    public static class Serializer implements RecipeSerializer<DryingRecipe> {
+    public static class Serializer implements CodecRecipeSerializer<DryingRecipe> {
 
         // JSON codec (result optional)
-        public static final MapCodec<DryingRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(DryingRecipe::ingredient),
-                ItemStack.CODEC.optionalFieldOf("result", ItemStack.EMPTY)
-                        .forGetter(r -> r.result().isEmpty() ? ItemStack.EMPTY : r.result()),
-                Codec.INT.optionalFieldOf("time", 200).forGetter(DryingRecipe::time),
-                Codec.BOOL.optionalFieldOf("dry_bud", false).forGetter(DryingRecipe::dryBud)
-        ).apply(inst, (ing, stack, time, dryBud) -> new DryingRecipe(ing, stack, time, dryBud)));
-
-        // Network codec (result optional -> avoid encoding empty with non-empty codec)
-        public static final StreamCodec<RegistryFriendlyByteBuf, DryingRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        Ingredient.CONTENTS_STREAM_CODEC, DryingRecipe::ingredient,
-                        ByteBufCodecs.optional(ItemStack.STREAM_CODEC),
-                        r -> r.result().isEmpty() ? Optional.empty() : Optional.of(r.result()),
-                        ByteBufCodecs.VAR_INT, DryingRecipe::time,
-                        ByteBufCodecs.BOOL, DryingRecipe::dryBud,
-                        (ing, optResult, time, dryBud) ->
-                                new DryingRecipe(ing, optResult.orElse(ItemStack.EMPTY), time, dryBud)
-                );
-
         @Override
-        public MapCodec<DryingRecipe> codec() {
-            return CODEC;
+        public MapCodec<DryingRecipe> codec(ResourceLocation id) {
+            return RecordCodecBuilder.mapCodec(inst -> inst.group(
+                    CodecCompat.INGREDIENT.fieldOf("ingredient").forGetter(DryingRecipe::ingredient),
+                    CodecCompat.ITEM_STACK.optionalFieldOf("result")
+                            .forGetter(r -> r.result().isEmpty() ? Optional.empty() : Optional.of(r.result())),
+                    Codec.INT.optionalFieldOf("time", 200).forGetter(DryingRecipe::time),
+                    Codec.BOOL.optionalFieldOf("dry_bud", false).forGetter(DryingRecipe::dryBud)
+            ).apply(inst, (ing, stack, time, dryBud) -> new DryingRecipe(id, ing, stack.orElse(ItemStack.EMPTY), time, dryBud)));
+        }
+
+        // Network (result optional -> writeItem handles empty stacks)
+        @Override
+        public DryingRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            Ingredient ing = Ingredient.fromNetwork(buf);
+            ItemStack result = buf.readItem();
+            int time = buf.readVarInt();
+            boolean dryBud = buf.readBoolean();
+            return new DryingRecipe(id, ing, result, time, dryBud);
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, DryingRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public void toNetwork(FriendlyByteBuf buf, DryingRecipe recipe) {
+            recipe.ingredient().toNetwork(buf);
+            buf.writeItem(recipe.result());
+            buf.writeVarInt(recipe.time());
+            buf.writeBoolean(recipe.dryBud());
         }
     }
 }

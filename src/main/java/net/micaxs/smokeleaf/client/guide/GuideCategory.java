@@ -25,7 +25,7 @@ public record GuideCategory(ResourceLocation id, ResourceLocation icon, int sort
     }
 
     public static GuideCategory parse(ResourceLocation id, JsonObject json) {
-        ResourceLocation icon = ResourceLocation.parse(GsonHelper.getAsString(json, "icon"));
+        ResourceLocation icon = new ResourceLocation(GsonHelper.getAsString(json, "icon"));
         int sortnum = GsonHelper.getAsInt(json, "sortnum", 0);
         return new GuideCategory(id, icon, sortnum);
     }

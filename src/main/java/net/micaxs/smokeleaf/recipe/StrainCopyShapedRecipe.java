@@ -1,56 +1,70 @@
 package net.micaxs.smokeleaf.recipe;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapedRecipePattern;
-import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
-public class StrainCopyShapedRecipe implements CraftingRecipe {
+import java.util.List;
+import java.util.Map;
 
-    private final String group;
-    private final CraftingBookCategory category;
-    private final ShapedRecipePattern pattern;
-    private final ItemStack result;
-    private final boolean showNotification;
-    private final ShapedRecipe delegate;
+/**
+ * Vanilla shaped crafting that copies STRAIN_DATA from the first ingredient carrying it to the
+ * result. JSON is the vanilla shaped format with type {@code smokeleafindustries:strain_copy_shaped}.
+ */
+public class StrainCopyShapedRecipe extends ShapedRecipe {
 
-    public StrainCopyShapedRecipe(String group, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack result, boolean showNotification) {
-        this.group = group;
-        this.category = category;
+    // Only set for recipes built in datagen, so they can be written back out as JSON.
+    @Nullable private final Map<Character, Ingredient> key;
+    @Nullable private final List<String> pattern;
+
+    public StrainCopyShapedRecipe(ResourceLocation id, String group, CraftingBookCategory category, int width, int height,
+                                  NonNullList<Ingredient> ingredients, ItemStack result, boolean showNotification) {
+        super(id, group, category, width, height, ingredients, result, showNotification);
+        this.key = null;
+        this.pattern = null;
+    }
+
+    /** Datagen constructor: builds the ingredient grid from a key map + pattern rows. */
+    public StrainCopyShapedRecipe(ResourceLocation id, String group, CraftingBookCategory category,
+                                  Map<Character, Ingredient> key, List<String> pattern, ItemStack result, boolean showNotification) {
+        super(id, group, category, pattern.get(0).length(), pattern.size(), dissolve(key, pattern), result, showNotification);
+        this.key = key;
         this.pattern = pattern;
-        this.result = result;
-        this.showNotification = showNotification;
-        this.delegate = new ShapedRecipe(group, category, pattern, result, showNotification);
+    }
+
+    private static NonNullList<Ingredient> dissolve(Map<Character, Ingredient> key, List<String> pattern) {
+        int width = pattern.get(0).length();
+        NonNullList<Ingredient> list = NonNullList.withSize(width * pattern.size(), Ingredient.EMPTY);
+        for (int row = 0; row < pattern.size(); row++) {
+            String line = pattern.get(row);
+            for (int col = 0; col < line.length(); col++) {
+                char c = line.charAt(col);
+                list.set(col + width * row, c == ' ' ? Ingredient.EMPTY : key.get(c));
+            }
+        }
+        return list;
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
-        return delegate.matches(input, level);
-    }
-
-    @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
-        ItemStack crafted = result.copy();
-        for (int i = 0; i < input.size(); i++) {
+    public ItemStack assemble(CraftingContainer input, RegistryAccess registries) {
+        ItemStack crafted = getResultItem(registries).copy();
+        for (int i = 0; i < input.getContainerSize(); i++) {
             ItemStack stack = input.getItem(i);
-            StrainData sd = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData sd = ModDataComponentTypes.STRAIN_DATA.get(stack);
             if (sd != null) {
-                crafted.set(ModDataComponentTypes.STRAIN_DATA.get(), sd);
+                ModDataComponentTypes.STRAIN_DATA.set(crafted, sd);
                 break;
             }
         }
@@ -58,87 +72,52 @@ public class StrainCopyShapedRecipe implements CraftingRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return delegate.canCraftInDimensions(w, h);
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return result.copy();
-    }
-
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return delegate.getIngredients();
-    }
-
-    @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRecipes.STRAIN_COPY_SHAPED_SERIALIZER.get();
     }
 
-    @Override
-    public RecipeType<?> getType() {
-        return RecipeType.CRAFTING;
-    }
-
-    @Override
-    public boolean showNotification() {
-        return showNotification;
-    }
-
-    public String group() {
-        return group;
-    }
-
-    public CraftingBookCategory category() {
-        return category;
-    }
-
-    public ShapedRecipePattern pattern() {
-        return pattern;
-    }
-
-    public ItemStack result() {
-        return result;
-    }
-
     public static class Serializer implements RecipeSerializer<StrainCopyShapedRecipe> {
 
-        public static final MapCodec<StrainCopyShapedRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Codec.STRING.optionalFieldOf("group", "").forGetter(StrainCopyShapedRecipe::group),
-                CraftingBookCategory.CODEC.optionalFieldOf("category", CraftingBookCategory.MISC).forGetter(StrainCopyShapedRecipe::category),
-                ShapedRecipePattern.MAP_CODEC.forGetter(StrainCopyShapedRecipe::pattern),
-                ItemStack.STRICT_CODEC.fieldOf("result").forGetter(StrainCopyShapedRecipe::result),
-                Codec.BOOL.optionalFieldOf("show_notification", true).forGetter(StrainCopyShapedRecipe::showNotification)
-        ).apply(instance, StrainCopyShapedRecipe::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, StrainCopyShapedRecipe> STREAM_CODEC = StreamCodec.of(
-                (buf, recipe) -> {
-                    buf.writeUtf(recipe.group);
-                    buf.writeEnum(recipe.category);
-                    ShapedRecipePattern.STREAM_CODEC.encode(buf, recipe.pattern);
-                    ItemStack.STREAM_CODEC.encode(buf, recipe.result);
-                    buf.writeBoolean(recipe.showNotification);
-                },
-                buf -> {
-                    String group = buf.readUtf();
-                    CraftingBookCategory category = buf.readEnum(CraftingBookCategory.class);
-                    ShapedRecipePattern pattern = ShapedRecipePattern.STREAM_CODEC.decode(buf);
-                    ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-                    boolean showNotification = buf.readBoolean();
-                    return new StrainCopyShapedRecipe(group, category, pattern, result, showNotification);
-                }
-        );
-
-        @Override
-        public MapCodec<StrainCopyShapedRecipe> codec() {
-            return CODEC;
+        private static StrainCopyShapedRecipe wrap(ShapedRecipe base) {
+            return new StrainCopyShapedRecipe(base.getId(), base.getGroup(), base.category(),
+                    base.getWidth(), base.getHeight(), base.getIngredients(), base.getResultItem(null),
+                    base.showNotification());
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, StrainCopyShapedRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public StrainCopyShapedRecipe fromJson(ResourceLocation id, JsonObject json) {
+            return wrap(RecipeSerializer.SHAPED_RECIPE.fromJson(id, json));
+        }
+
+        @Override
+        public @Nullable StrainCopyShapedRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            ShapedRecipe base = RecipeSerializer.SHAPED_RECIPE.fromNetwork(id, buf);
+            return base == null ? null : wrap(base);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buf, StrainCopyShapedRecipe recipe) {
+            RecipeSerializer.SHAPED_RECIPE.toNetwork(buf, recipe);
+        }
+
+        /** JSON body for datagen (without the {@code type} key). */
+        public JsonObject toJson(StrainCopyShapedRecipe recipe) {
+            if (recipe.key == null || recipe.pattern == null) {
+                throw new IllegalStateException("Recipe " + recipe.getId() + " was not built for datagen");
+            }
+            JsonObject json = new JsonObject();
+            if (!recipe.getGroup().isEmpty()) json.addProperty("group", recipe.getGroup());
+            json.addProperty("category", recipe.category().getSerializedName());
+            JsonObject keyJson = new JsonObject();
+            recipe.key.forEach((c, ing) -> keyJson.add(String.valueOf(c), ing.toJson()));
+            json.add("key", keyJson);
+            JsonArray patternJson = new JsonArray();
+            recipe.pattern.forEach(patternJson::add);
+            json.add("pattern", patternJson);
+            json.add("result", CodecCompat.ITEM_STACK.encodeStart(com.mojang.serialization.JsonOps.INSTANCE,
+                    recipe.getResultItem(null)).getOrThrow(false, s -> {}));
+            json.addProperty("show_notification", recipe.showNotification());
+            return json;
         }
     }
 }

@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
 import net.micaxs.smokeleaf.component.DNAContents;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.recipe.ModRecipes;
@@ -10,7 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -25,11 +25,11 @@ public class DNAStrandItem extends Item {
     }
 
     public static DNAContents getContents(ItemStack dnaStrand) {
-        return dnaStrand.getOrDefault(ModDataComponentTypes.DNA_CONTENTS.get(), DNAContents.EMPTY);
+        return ModDataComponentTypes.DNA_CONTENTS.getOrDefault(dnaStrand, DNAContents.EMPTY);
     }
 
     public static void setContents(ItemStack dnaStrand, DNAContents contents) {
-        dnaStrand.set(ModDataComponentTypes.DNA_CONTENTS.get(), contents);
+        ModDataComponentTypes.DNA_CONTENTS.set(dnaStrand, contents);
     }
 
     public static boolean isFull(ItemStack dnaStrand) {
@@ -51,7 +51,7 @@ public class DNAStrandItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         DNAContents contents = getContents(stack);
         int shown = 0;
         for (int i = 0; i < 3; i++) {
@@ -68,7 +68,7 @@ public class DNAStrandItem extends Item {
             tooltipComponents.add(Component.literal("Empty").withStyle(ChatFormatting.DARK_GRAY));
         }
 
-        Level level = context.level();
+        Level level = context;
         if (level != null && contents.isFull()) {
             if (isValidCombination(level, contents)) {
                 tooltipComponents.add(Component.literal("Valid Strain").withStyle(ChatFormatting.GREEN));
@@ -89,12 +89,12 @@ public class DNAStrandItem extends Item {
         }
 
         // Iterate all Sequencer recipes; we only compare against their requiredReagents[]
-        List<RecipeHolder<SequencerRecipe>> recipes =
+        List<SequencerRecipe> recipes =
                 level.getRecipeManager().getAllRecipesFor(ModRecipes.SEQUENCER_TYPE.get());
 
         recipeLoop:
-        for (RecipeHolder<SequencerRecipe> holder : recipes) {
-            SequencerRecipe recipe = holder.value();
+        for (SequencerRecipe holder : recipes) {
+            SequencerRecipe recipe = holder;
             var required = recipe.requiredReagents(); // length == 3 enforced by serializer
             if (required.length != inside.size()) continue;
 

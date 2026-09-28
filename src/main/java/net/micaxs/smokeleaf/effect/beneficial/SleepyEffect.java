@@ -37,14 +37,14 @@ public class SleepyEffect extends MobEffect {
         super(category, color);
         this.addAttributeModifier(
                 Attributes.MOVEMENT_SPEED,
-                ResourceLocation.parse(UUID.randomUUID().toString()),
+                "6a1f5c3e-2b7d-4e9a-9c41-5d8f0e3b7a21",
                 -0.1D,
-                AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+                AttributeModifier.Operation.MULTIPLY_TOTAL
         );
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (entity instanceof Player player) {
             CompoundTag tag = player.getPersistentData();
 
@@ -111,7 +111,7 @@ public class SleepyEffect extends MobEffect {
                 tag.putInt(KEY_LS, 0);
             }
         }
-        return true;
+        return;
     }
 
     private static double pickAmplitude(Player p, boolean rightSide, double scale) {
@@ -126,7 +126,7 @@ public class SleepyEffect extends MobEffect {
     }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 }

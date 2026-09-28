@@ -6,62 +6,47 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
-import net.minecraft.world.level.Level;
 
 /**
  * Like vanilla shapeless crafting but copies STRAIN_DATA from the first
  * ingredient that carries it to the result. Used for bag ↔ weed recipes.
  */
-public class StrainCopyShapelessRecipe implements CraftingRecipe {
+public class StrainCopyShapelessRecipe extends ShapelessRecipe {
 
-    private final String group;
-    private final CraftingBookCategory category;
     private final ItemStack result;
-    private final NonNullList<Ingredient> ingredients;
-    private final ShapelessRecipe delegate;
 
-    public StrainCopyShapelessRecipe(String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients) {
-        this.group = group;
-        this.category = category;
+    public StrainCopyShapelessRecipe(ResourceLocation id, String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients) {
+        super(id, group, category, result, ingredients);
         this.result = result;
-        this.ingredients = ingredients;
-        this.delegate = new ShapelessRecipe(group, category, result, ingredients);
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
-        return delegate.matches(input, level);
-    }
-
-    @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingContainer input, RegistryAccess registries) {
         ItemStack crafted = result.copy();
-        for (int i = 0; i < input.size(); i++) {
+        for (int i = 0; i < input.getContainerSize(); i++) {
             ItemStack stack = input.getItem(i);
-            StrainData sd = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData sd = ModDataComponentTypes.STRAIN_DATA.get(stack);
             if (sd != null) {
-                crafted.set(ModDataComponentTypes.STRAIN_DATA.get(), sd);
+                ModDataComponentTypes.STRAIN_DATA.set(crafted, sd);
                 // Also carry the strain ID so bag↔weed conversions preserve full lineage.
-                String strainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+                String strainId = ModDataComponentTypes.STRAIN_ID.get(stack);
                 if (strainId != null && !strainId.isBlank()) {
-                    crafted.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+                    ModDataComponentTypes.STRAIN_ID.set(crafted, strainId);
                 }
                 // Carry the discoverer name for "Discovered by" tooltip.
-                String creator = stack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+                String creator = ModDataComponentTypes.STRAIN_CREATOR.get(stack);
                 if (creator != null && !creator.isBlank()) {
-                    crafted.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+                    ModDataComponentTypes.STRAIN_CREATOR.set(crafted, creator);
                 }
                 break;
             }
@@ -70,92 +55,63 @@ public class StrainCopyShapelessRecipe implements CraftingRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return delegate.canCraftInDimensions(w, h);
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return result.copy();
-    }
-
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return ingredients;
-    }
-
-    @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRecipes.STRAIN_COPY_SHAPELESS_SERIALIZER.get();
     }
 
-    @Override
-    public RecipeType<?> getType() {
-        return RecipeType.CRAFTING;
+    public ItemStack result() {
+        return result;
     }
 
-    public String group() {
-        return group;
-    }
-
-    @Override
-    public CraftingBookCategory category() {
-        return category;
-    }
-
-    public static class Serializer implements RecipeSerializer<StrainCopyShapelessRecipe> {
-        private static final Codec<NonNullList<Ingredient>> INGREDIENTS_CODEC = Ingredient.CODEC_NONEMPTY.listOf().flatXmap(
-                ingredients -> {
-                    Ingredient[] values = ingredients.toArray(Ingredient[]::new);
-                    if (values.length == 0) {
-                        return DataResult.error(() -> "No ingredients for shapeless recipe");
-                    }
-                    if (values.length > 9) {
-                        return DataResult.error(() -> "Too many ingredients for shapeless recipe");
-                    }
-                    return DataResult.success(NonNullList.of(Ingredient.EMPTY, values));
-                },
-                DataResult::success
-        );
-
-        public static final MapCodec<StrainCopyShapelessRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
-                CraftingBookCategory.CODEC.optionalFieldOf("category", CraftingBookCategory.MISC).forGetter(recipe -> recipe.category),
-                ItemStack.CODEC.fieldOf("result").forGetter(recipe -> recipe.result),
-                INGREDIENTS_CODEC.fieldOf("ingredients").forGetter(recipe -> recipe.ingredients)
-        ).apply(instance, StrainCopyShapelessRecipe::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, StrainCopyShapelessRecipe> STREAM_CODEC = StreamCodec.of(
-                (buf, recipe) -> {
-                    buf.writeUtf(recipe.group);
-                    buf.writeEnum(recipe.category);
-                    ItemStack.STREAM_CODEC.encode(buf, recipe.result);
-                    buf.writeVarInt(recipe.ingredients.size());
-                    for (Ingredient ingredient : recipe.ingredients) {
-                        Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
-                    }
-                },
-                buf -> {
-                    String group = buf.readUtf();
-                    CraftingBookCategory category = buf.readEnum(CraftingBookCategory.class);
-                    ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-                    int size = buf.readVarInt();
-                    NonNullList<Ingredient> ingredients = NonNullList.create();
-                    for (int i = 0; i < size; i++) {
-                        ingredients.add(Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-                    }
-                    return new StrainCopyShapelessRecipe(group, category, result, ingredients);
+    static final Codec<NonNullList<Ingredient>> INGREDIENTS_CODEC = CodecCompat.INGREDIENT.listOf().flatXmap(
+            ingredients -> {
+                Ingredient[] values = ingredients.toArray(Ingredient[]::new);
+                if (values.length == 0) {
+                    return DataResult.error(() -> "No ingredients for shapeless recipe");
                 }
-        );
+                if (values.length > 9) {
+                    return DataResult.error(() -> "Too many ingredients for shapeless recipe");
+                }
+                return DataResult.success(NonNullList.of(Ingredient.EMPTY, values));
+            },
+            DataResult::success
+    );
+
+    public static class Serializer implements CodecRecipeSerializer<StrainCopyShapelessRecipe> {
 
         @Override
-        public MapCodec<StrainCopyShapelessRecipe> codec() {
-            return CODEC;
+        public MapCodec<StrainCopyShapelessRecipe> codec(ResourceLocation id) {
+            return RecordCodecBuilder.mapCodec(instance -> instance.group(
+                    Codec.STRING.optionalFieldOf("group", "").forGetter(ShapelessRecipe::getGroup),
+                    CraftingBookCategory.CODEC.optionalFieldOf("category", CraftingBookCategory.MISC).forGetter(ShapelessRecipe::category),
+                    CodecCompat.ITEM_STACK.fieldOf("result").forGetter(StrainCopyShapelessRecipe::result),
+                    INGREDIENTS_CODEC.fieldOf("ingredients").forGetter(ShapelessRecipe::getIngredients)
+            ).apply(instance, (group, category, result, ingredients) ->
+                    new StrainCopyShapelessRecipe(id, group, category, result, ingredients)));
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, StrainCopyShapelessRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public StrainCopyShapelessRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            String group = buf.readUtf();
+            CraftingBookCategory category = buf.readEnum(CraftingBookCategory.class);
+            ItemStack result = buf.readItem();
+            int size = buf.readVarInt();
+            NonNullList<Ingredient> ingredients = NonNullList.create();
+            for (int i = 0; i < size; i++) {
+                ingredients.add(Ingredient.fromNetwork(buf));
+            }
+            return new StrainCopyShapelessRecipe(id, group, category, result, ingredients);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buf, StrainCopyShapelessRecipe recipe) {
+            buf.writeUtf(recipe.getGroup());
+            buf.writeEnum(recipe.category());
+            buf.writeItem(recipe.result);
+            buf.writeVarInt(recipe.getIngredients().size());
+            for (Ingredient ingredient : recipe.getIngredients()) {
+                ingredient.toNetwork(buf);
+            }
         }
     }
 }

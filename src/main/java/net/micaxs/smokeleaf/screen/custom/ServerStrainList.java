@@ -17,6 +17,7 @@ import java.util.List;
  * registered/named server-wide, shown as a bud icon, its name, and who discovered it.
  */
 public class ServerStrainList extends AbstractSelectionList<ServerStrainList.Row> {
+    private static final int SCROLLBAR_WIDTH = 6;
 
     private static final int ITEM_HEIGHT = 26;
 
@@ -24,8 +25,10 @@ public class ServerStrainList extends AbstractSelectionList<ServerStrainList.Row
 
     public ServerStrainList(Minecraft minecraft, int x, int y, int width, int height,
                              List<StrainDataPadPayload.Entry> entries) {
-        super(minecraft, width, height, y, ITEM_HEIGHT);
-        this.setX(x);
+        super(minecraft, width, height, y, y + height, ITEM_HEIGHT);
+        this.setLeftPos(x);
+        this.setRenderBackground(false);
+        this.setRenderTopAndBottom(false);
         // Symmetric margin on both sides (rows are centered by the base class — see
         // getScrollbarPosition below for why this can't be asymmetric) sized so the right margin
         // has room for the scrollbar plus a small gap, and the scrollbar sits flush against the
@@ -46,16 +49,10 @@ public class ServerStrainList extends AbstractSelectionList<ServerStrainList.Row
         return this.getRight() - SCROLLBAR_WIDTH;
     }
 
-    @Override
-    protected void renderListBackground(GuiGraphics guiGraphics) {
-    }
+
 
     @Override
-    protected void renderListSeparators(GuiGraphics guiGraphics) {
-    }
-
-    @Override
-    protected void updateWidgetNarration(NarrationElementOutput output) {
+    public void updateNarration(NarrationElementOutput output) {
     }
 
     public class Row extends AbstractSelectionList.Entry<Row> {
@@ -65,7 +62,7 @@ public class ServerStrainList extends AbstractSelectionList<ServerStrainList.Row
         Row(StrainDataPadPayload.Entry entry) {
             this.entry = entry;
             this.preview = new ItemStack(ModItems.GENERIC_BUD.get());
-            this.preview.set(ModDataComponentTypes.STRAIN_DATA.get(), entry.data());
+            ModDataComponentTypes.STRAIN_DATA.set(this.preview, entry.data());
         }
 
         @Override

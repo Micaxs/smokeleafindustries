@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeConnection;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeEndpointEnergyStorage;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeEndpointFluidHandler;
@@ -12,7 +15,6 @@ import net.micaxs.smokeleaf.block.entity.pipe.PipeRenderState;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
@@ -25,12 +27,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.data.ModelProperty;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -246,9 +248,9 @@ public class PipeBlockEntity extends BlockEntity {
     /** Whether the block at {@code pos}, approached from {@code dir}, exposes the given pipe type's capability. */
     public static boolean neighborHasCapability(PipeType type, ServerLevel level, BlockPos pos, Direction dir) {
         return switch (type) {
-            case ITEM -> level.getCapability(Capabilities.ItemHandler.BLOCK, pos, dir) != null;
-            case FLUID -> level.getCapability(Capabilities.FluidHandler.BLOCK, pos, dir) != null;
-            case ENERGY -> level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, dir) != null;
+            case ITEM -> CapHelper.get(level, pos, dir, ForgeCapabilities.ITEM_HANDLER) != null;
+            case FLUID -> CapHelper.get(level, pos, dir, ForgeCapabilities.FLUID_HANDLER) != null;
+            case ENERGY -> CapHelper.get(level, pos, dir, ForgeCapabilities.ENERGY) != null;
         };
     }
 
@@ -334,8 +336,8 @@ public class PipeBlockEntity extends BlockEntity {
     // -----------------------------------------------------------------------
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         byte typeMask = 0;
         for (PipeType type : PipeType.VALUES) {
             if (present[type.ordinal()]) typeMask |= (1 << type.ordinal());
@@ -345,8 +347,8 @@ public class PipeBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         byte typeMask = tag.getByte("Types");
         for (PipeType type : PipeType.VALUES) {
             present[type.ordinal()] = (typeMask & (1 << type.ordinal())) != 0;
@@ -377,17 +379,23 @@ public class PipeBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
         recomputeCaches();
         requestModelDataUpdate();
         if (level != null && level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, this::getFluidHandler, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

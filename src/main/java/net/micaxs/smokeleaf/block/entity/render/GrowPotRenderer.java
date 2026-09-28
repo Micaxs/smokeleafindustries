@@ -18,8 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
-
+import net.minecraftforge.client.model.data.ModelData;
 import java.util.List;
 
 public class GrowPotRenderer implements BlockEntityRenderer<GrowPotBlockEntity> {
@@ -128,7 +127,7 @@ public class GrowPotRenderer implements BlockEntityRenderer<GrowPotBlockEntity> 
             float r = ((color >> 16) & 0xFF) / 255.0f;
             float g = ((color >> 8) & 0xFF) / 255.0f;
             float b = (color & 0xFF) / 255.0f;
-            consumer.putBulkData(pose, quad, r, g, b, 1.0f, packedLight, packedOverlay);
+            consumer.putBulkData(pose, quad, r, g, b, packedLight, packedOverlay);
         }
     }
 

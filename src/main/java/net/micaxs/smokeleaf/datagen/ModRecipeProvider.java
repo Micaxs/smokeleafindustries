@@ -16,26 +16,25 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.ShapedRecipePattern;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.conditions.IConditionBuilder;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.crafting.conditions.IConditionBuilder;
 import net.micaxs.smokeleaf.recipe.ArmorUpgradeShapelessRecipe;
 import net.micaxs.smokeleaf.recipe.LiquifierRecipe;
 import net.micaxs.smokeleaf.recipe.StrainCopyShapedRecipe;
 import net.micaxs.smokeleaf.recipe.StrainCopyShapelessRecipe;
-import net.neoforged.neoforge.fluids.FluidStack;
-
+import net.minecraftforge.fluids.FluidStack;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class ModRecipeProvider extends RecipeProvider implements IConditionBuilder {
-    public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    public ModRecipeProvider(PackOutput output) {
+        super(output);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput recipeOutput) {
+    protected void buildRecipes(Consumer<FinishedRecipe> recipeOutput) {
         slab(recipeOutput, RecipeCategory.BUILDING_BLOCKS, ModBlocks.HEMP_PLANK_SLAB.get(), ModBlocks.HEMP_PLANKS.get());
         slab(recipeOutput, RecipeCategory.BUILDING_BLOCKS, ModBlocks.HEMP_STONE_SLAB.get(), ModBlocks.HEMP_STONE.get());
         slab(recipeOutput, RecipeCategory.BUILDING_BLOCKS, ModBlocks.HEMP_BRICK_SLAB.get(), ModBlocks.HEMP_BRICKS.get());
@@ -73,24 +72,24 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModItems.BUTTER.get()), Ingredient.of(ModTags.WEEDS));
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.HEMP_PLASTIC.get(), 4)
-                .requires(ModFluids.HASH_OIL_BUCKET)
-                .requires(ModItems.BIO_COMPOSITE)
-                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE), has(ModItems.BIO_COMPOSITE))
+                .requires(ModFluids.HASH_OIL_BUCKET.get())
+                .requires(ModItems.BIO_COMPOSITE.get())
+                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE.get()), has(ModItems.BIO_COMPOSITE.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.HEMP_COAL.get())
                 .requires(Items.COAL)
-                .requires(ModItems.HEMP_LEAF, 2)
-                .unlockedBy(getHasName(ModItems.HEMP_LEAF), has(ModItems.HEMP_LEAF))
+                .requires(ModItems.HEMP_LEAF.get(), 2)
+                .unlockedBy(getHasName(ModItems.HEMP_LEAF.get()), has(ModItems.HEMP_LEAF.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.REFLECTOR.get())
                 .pattern(" I ")
                 .pattern("IRI")
                 .pattern("   ")
-                .define('I', ModItems.HEMP_PLASTIC)
+                .define('I', ModItems.HEMP_PLASTIC.get())
                 .define('R', Items.REDSTONE)
-                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC), has(ModItems.HEMP_PLASTIC))
+                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC.get()), has(ModItems.HEMP_PLASTIC.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HPS_LAMP.get())
@@ -107,8 +106,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.EMPTY_BAG.get())
                 .pattern("I I")
                 .pattern(" I ")
-                .define('I', ModItems.HEMP_PLASTIC)
-                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC), has(ModItems.HEMP_PLASTIC))
+                .define('I', ModItems.HEMP_PLASTIC.get())
+                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC.get()), has(ModItems.HEMP_PLASTIC.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.HEMP_PLANKS.get(), 8)
@@ -116,8 +115,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("PBP")
                 .pattern("PPP")
                 .define('P', Items.OAK_PLANKS)
-                .define('B', ModFluids.HASH_OIL_BUCKET)
-                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC), has(ModItems.HEMP_PLASTIC))
+                .define('B', ModFluids.HASH_OIL_BUCKET.get())
+                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC.get()), has(ModItems.HEMP_PLASTIC.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.HEMP_STONE.get(), 8)
@@ -125,23 +124,23 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("PBP")
                 .pattern("PPP")
                 .define('P', Items.STONE)
-                .define('B', ModFluids.HASH_OIL_BUCKET)
-                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC), has(ModItems.HEMP_PLASTIC))
+                .define('B', ModFluids.HASH_OIL_BUCKET.get())
+                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC.get()), has(ModItems.HEMP_PLASTIC.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HEMP_FABRIC.get(), 1)
                 .pattern("PP ")
                 .pattern("PP ")
                 .pattern("   ")
-                .define('P', ModItems.HEMP_FIBERS)
-                .unlockedBy(getHasName(ModItems.HEMP_FIBERS), has(ModItems.HEMP_FIBERS))
+                .define('P', ModItems.HEMP_FIBERS.get())
+                .unlockedBy(getHasName(ModItems.HEMP_FIBERS.get()), has(ModItems.HEMP_FIBERS.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.HEMP_BRICKS.get(), 4)
                 .pattern("PP")
                 .pattern("PP")
-                .define('P', ModBlocks.HEMP_STONE)
-                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC), has(ModItems.HEMP_PLASTIC))
+                .define('P', ModBlocks.HEMP_STONE.get())
+                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC.get()), has(ModItems.HEMP_PLASTIC.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.MANUAL_GRINDER.get())
@@ -149,9 +148,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("ISI")
                 .pattern("SHS")
                 .define('S', Items.STONE)
-                .define('H', ModItems.HEMP_FIBERS)
+                .define('H', ModItems.HEMP_FIBERS.get())
                 .define('I', Items.IRON_INGOT)
-                .unlockedBy(getHasName(ModItems.HEMP_FIBERS), has(ModItems.HEMP_FIBERS))
+                .unlockedBy(getHasName(ModItems.HEMP_FIBERS.get()), has(ModItems.HEMP_FIBERS.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.DRYING_RACK.get())
@@ -159,9 +158,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("SPS")
                 .pattern("SHS")
                 .define('S', Items.IRON_INGOT)
-                .define('H', ModItems.HEMP_FIBERS)
+                .define('H', ModItems.HEMP_FIBERS.get())
                 .define('P', Items.OAK_PLANKS)
-                .unlockedBy(getHasName(ModItems.HEMP_FIBERS), has(ModItems.HEMP_FIBERS))
+                .unlockedBy(getHasName(ModItems.HEMP_FIBERS.get()), has(ModItems.HEMP_FIBERS.get()))
                 .save(recipeOutput);
 
         SimpleCookingRecipeBuilder.smelting(
@@ -170,7 +169,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         ModItems.HEMP_PLASTIC.get(),
                         0.15f,
                         320)
-                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE), has(ModItems.BIO_COMPOSITE))
+                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE.get()), has(ModItems.BIO_COMPOSITE.get()))
                 .save(recipeOutput, SmokeleafIndustries.MODID + ":smelting/hemp_plastic_from_bio_composite");
 
         saveStrainCopyShapelessRecipe(recipeOutput, ModItems.WEED_COOKIE.get(),
@@ -197,56 +196,56 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern(" S ")
                 .pattern("F  ")
                 .define('S', Items.STICK)
-                .define('F', ModItems.HEMP_FIBERS)
-                .unlockedBy(getHasName(ModItems.HEMP_FIBERS), has(ModItems.HEMP_FIBERS))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_stick"));
+                .define('F', ModItems.HEMP_FIBERS.get())
+                .unlockedBy(getHasName(ModItems.HEMP_FIBERS.get()), has(ModItems.HEMP_FIBERS.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "hemp_stick"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HEMP_STICK.get())
                 .pattern("F  ")
                 .pattern(" S ")
                 .pattern("  F")
                 .define('S', Items.STICK)
-                .define('F', ModItems.HEMP_FIBERS)
-                .unlockedBy(getHasName(ModItems.HEMP_FIBERS), has(ModItems.HEMP_FIBERS))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_stick_alt"));
+                .define('F', ModItems.HEMP_FIBERS.get())
+                .unlockedBy(getHasName(ModItems.HEMP_FIBERS.get()), has(ModItems.HEMP_FIBERS.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "hemp_stick_alt"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HEMP_HAMMER.get())
                 .pattern(" CF")
                 .pattern(" SC")
                 .pattern("S  ")
-                .define('S', ModItems.HEMP_STICK)
-                .define('F', ModItems.HEMP_FIBERS)
+                .define('S', ModItems.HEMP_STICK.get())
+                .define('F', ModItems.HEMP_FIBERS.get())
                 .define('C', Items.COPPER_INGOT)
-                .unlockedBy(getHasName(ModItems.HEMP_FIBERS), has(ModItems.HEMP_FIBERS))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_hammer"));
+                .unlockedBy(getHasName(ModItems.HEMP_FIBERS.get()), has(ModItems.HEMP_FIBERS.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "hemp_hammer"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HEMP_STICK.get())
                 .pattern("P")
                 .pattern("P")
-                .define('P', ModBlocks.HEMP_PLANKS)
-                .unlockedBy(getHasName(ModBlocks.HEMP_PLANKS), has(ModBlocks.HEMP_PLANKS))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_stick_from_planks"));
+                .define('P', ModBlocks.HEMP_PLANKS.get())
+                .unlockedBy(getHasName(ModBlocks.HEMP_PLANKS.get()), has(ModBlocks.HEMP_PLANKS.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "hemp_stick_from_planks"));
 
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BIO_COMPOSITE.get())
-                .requires(ModItems.HEMP_HAMMER)
-                .requires(ModItems.HEMP_LEAF, 3)
-                .requires(ModItems.HEMP_FIBERS, 1)
-                .unlockedBy(getHasName(ModItems.HEMP_HAMMER), has(ModItems.HEMP_HAMMER))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_plastic_from_hammering"));
+                .requires(ModItems.HEMP_HAMMER.get())
+                .requires(ModItems.HEMP_LEAF.get(), 3)
+                .requires(ModItems.HEMP_FIBERS.get(), 1)
+                .unlockedBy(getHasName(ModItems.HEMP_HAMMER.get()), has(ModItems.HEMP_HAMMER.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "hemp_plastic_from_hammering"));
 
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.UNFINISHED_HEMP_CORE.get(), 2)
-                .requires(ModItems.BIO_COMPOSITE)
+                .requires(ModItems.BIO_COMPOSITE.get())
                 .requires(Items.DIAMOND)
-                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE), has(ModItems.BIO_COMPOSITE))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "unfinished_hemp_core"));
+                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE.get()), has(ModItems.BIO_COMPOSITE.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "unfinished_hemp_core"));
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.HEMP_CORE.get())
-                .requires(ModItems.HEMP_HAMMER)
-                .requires(ModItems.HEMP_PLASTIC)
-                .requires(ModItems.UNFINISHED_HEMP_CORE)
-                .unlockedBy(getHasName(ModItems.UNFINISHED_HEMP_CORE), has(ModItems.UNFINISHED_HEMP_CORE))
+                .requires(ModItems.HEMP_HAMMER.get())
+                .requires(ModItems.HEMP_PLASTIC.get())
+                .requires(ModItems.UNFINISHED_HEMP_CORE.get())
+                .unlockedBy(getHasName(ModItems.UNFINISHED_HEMP_CORE.get()), has(ModItems.UNFINISHED_HEMP_CORE.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.BONG.get())
@@ -256,7 +255,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('P', Items.GLASS_PANE)
                 .define('B', Items.WATER_BUCKET)
                 .unlockedBy(getHasName(Items.WATER_BUCKET), has(Items.WATER_BUCKET))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "bong_recipe"));
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "bong_recipe"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.DAB_RIG.get())
                 .pattern("P  ")
@@ -266,31 +265,31 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('B', Items.WATER_BUCKET)
                 .define('G', Items.GLASS_BOTTLE)
                 .unlockedBy(getHasName(Items.WATER_BUCKET), has(Items.WATER_BUCKET))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "dab_rig_recipe"));
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "dab_rig_recipe"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PLANT_ANALYZER.get())
                 .pattern(" C ")
                 .pattern("WIW")
                 .pattern("PPP")
-                .define('W', ModItems.HEMP_LEAF)
-                .define('C', ModItems.HEMP_CORE)
+                .define('W', ModItems.HEMP_LEAF.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.IRON_INGOT)
-                .define('P', ModItems.HEMP_PLASTIC)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .define('P', ModItems.HEMP_PLASTIC.get())
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.LED_LIGHT.get())
                 .pattern("PLP")
                 .pattern("RGB")
                 .pattern("CAC")
-                .define('P', ModItems.HEMP_PLASTIC)
-                .define('L', ModItems.HEMP_CORE)
+                .define('P', ModItems.HEMP_PLASTIC.get())
+                .define('L', ModItems.HEMP_CORE.get())
                 .define('R', Items.RED_DYE)
                 .define('G', Items.GREEN_DYE)
                 .define('B', Items.BLUE_DYE)
                 .define('C', Items.NETHER_STAR)
                 .define('A', Items.TINTED_GLASS)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
 
@@ -300,11 +299,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HIH")
                 .pattern("CRC")
                 .pattern("HIH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.IRON_INGOT)
                 .define('R', Items.FURNACE)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Grinder
@@ -312,11 +311,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HIH")
                 .pattern("CGC")
                 .pattern("HIH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.IRON_INGOT)
                 .define('G', Items.GRINDSTONE)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Extractor
@@ -324,11 +323,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HCH")
                 .pattern("IGI")
                 .pattern("HCH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.IRON_INGOT)
                 .define('G', Items.GLASS_BOTTLE)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Liquifier
@@ -336,11 +335,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HCH")
                 .pattern("IBI")
                 .pattern("HCH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.GOLD_INGOT)
                 .define('B', Items.BUCKET)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Mutator
@@ -348,11 +347,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HCH")
                 .pattern("IGI")
                 .pattern("HCH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
-                .define('I', ModItems.HEMP_STICK)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
+                .define('I', ModItems.HEMP_STICK.get())
                 .define('G', Items.DIAMOND_BLOCK)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Synthesizer
@@ -360,11 +359,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HCH")
                 .pattern("IGI")
                 .pattern("HCH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.DIAMOND)
                 .define('G', Items.IRON_BLOCK)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Sequencer
@@ -372,11 +371,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HCH")
                 .pattern("IGI")
                 .pattern("HCH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.GLASS_BOTTLE)
                 .define('G', Items.GLOWSTONE)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Mixer
@@ -384,11 +383,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HCH")
                 .pattern("IGI")
                 .pattern("HCH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.IRON_INGOT)
                 .define('G', Items.CAULDRON)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Strain Modifier
@@ -396,11 +395,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HCH")
                 .pattern("IGI")
                 .pattern("HCH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.IRON_INGOT)
                 .define('G', Items.COMPARATOR)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Grow Pot
@@ -408,10 +407,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("H H")
                 .pattern("HCH")
                 .pattern("HBH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('B', Items.WATER_BUCKET)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
         // Dryer
@@ -419,11 +418,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HCH")
                 .pattern("IGI")
                 .pattern("HCH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.MAGMA_BLOCK)
-                .define('G', ModBlocks.DRYING_RACK)
-                .unlockedBy(getHasName(ModBlocks.DRYING_RACK), has(ModBlocks.DRYING_RACK))
+                .define('G', ModBlocks.DRYING_RACK.get())
+                .unlockedBy(getHasName(ModBlocks.DRYING_RACK.get()), has(ModBlocks.DRYING_RACK.get()))
                 .save(recipeOutput);
 
         // Confectioner (Gummy Machine) — previously an all-vanilla iron/hopper/redstone recipe with
@@ -433,11 +432,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("HCH")
                 .pattern("IGI")
                 .pattern("HCH")
-                .define('H', ModItems.HEMP_PLASTIC)
-                .define('C', ModItems.HEMP_CORE)
+                .define('H', ModItems.HEMP_PLASTIC.get())
+                .define('C', ModItems.HEMP_CORE.get())
                 .define('I', Items.IRON_INGOT)
                 .define('G', Items.HOPPER)
-                .unlockedBy(getHasName(ModItems.HEMP_CORE), has(ModItems.HEMP_CORE))
+                .unlockedBy(getHasName(ModItems.HEMP_CORE.get()), has(ModItems.HEMP_CORE.get()))
                 .save(recipeOutput);
 
 
@@ -469,24 +468,24 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .requires(Items.DIRT)
                 .requires(Items.BONE_MEAL)
                 .requires(Items.ROTTEN_FLESH)
-                .requires(ModItems.COMPOST)
-                .unlockedBy(getHasName(ModItems.COMPOST), has(ModItems.COMPOST))
+                .requires(ModItems.COMPOST.get())
+                .unlockedBy(getHasName(ModItems.COMPOST.get()), has(ModItems.COMPOST.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.COMPOST.get(), 2)
                 .requires(Items.OAK_LEAVES)
-                .requires(ModItems.HEMP_SEEDS)
+                .requires(ModItems.HEMP_SEEDS.get())
                 .requires(ModTags.LEAVES)
-                .requires(ModItems.COMPOST)
-                .unlockedBy(getHasName(ModItems.HEMP_SEEDS), has(ModItems.HEMP_SEEDS))
+                .requires(ModItems.COMPOST.get())
+                .unlockedBy(getHasName(ModItems.HEMP_SEEDS.get()), has(ModItems.HEMP_SEEDS.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.MYCORRHIZAE.get(), 2)
                 .requires(Items.RED_MUSHROOM)
                 .requires(Items.BROWN_MUSHROOM)
                 .requires(Items.BONE_MEAL)
-                .requires(ModItems.BIO_COMPOSITE)
-                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE), has(ModItems.BIO_COMPOSITE))
+                .requires(ModItems.BIO_COMPOSITE.get())
+                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE.get()), has(ModItems.BIO_COMPOSITE.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.DOLOMITE_LIME.get(), 2)
@@ -498,30 +497,30 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BLOOD_MEAL.get(), 2)
                 .requires(Items.ROTTEN_FLESH)
-                .requires(ModItems.CAT_URINE_BOTTLE)
+                .requires(ModItems.CAT_URINE_BOTTLE.get())
                 .requires(Items.BONE_MEAL)
-                .unlockedBy(getHasName(ModItems.CAT_URINE_BOTTLE), has(ModItems.CAT_URINE_BOTTLE))
+                .unlockedBy(getHasName(ModItems.CAT_URINE_BOTTLE.get()), has(ModItems.CAT_URINE_BOTTLE.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PHOSPHORUS_POWDER.get(), 2)
                 .requires(Items.GLOWSTONE_DUST)
-                .requires(ModItems.BIO_COMPOSITE)
+                .requires(ModItems.BIO_COMPOSITE.get())
                 .requires(Items.BONE_MEAL)
-                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE), has(ModItems.BIO_COMPOSITE))
+                .unlockedBy(getHasName(ModItems.BIO_COMPOSITE.get()), has(ModItems.BIO_COMPOSITE.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BAT_GUANO.get(), 2)
                 .requires(Items.BONE_MEAL)
                 .requires(Items.CHARCOAL)
-                .requires(ModItems.COMPOST)
-                .unlockedBy(getHasName(ModItems.COMPOST), has(ModItems.COMPOST))
+                .requires(ModItems.COMPOST.get())
+                .unlockedBy(getHasName(ModItems.COMPOST.get()), has(ModItems.COMPOST.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.KELP_MEAL.get(), 2)
                 .requires(Items.DRIED_KELP)
                 .requires(Items.DRIED_KELP)
-                .requires(ModItems.TOBACCO_LEAF)
-                .unlockedBy(getHasName(ModItems.TOBACCO_LEAF), has(ModItems.TOBACCO_LEAF))
+                .requires(ModItems.TOBACCO_LEAF.get())
+                .unlockedBy(getHasName(ModItems.TOBACCO_LEAF.get()), has(ModItems.TOBACCO_LEAF.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.WOOD_ASH.get(), 2)
@@ -541,62 +540,62 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.FISH_EMULSION.get(), 2)
-                .requires(ModItems.EMPTY_VIAL)
+                .requires(ModItems.EMPTY_VIAL.get())
                 .requires(Items.TROPICAL_FISH)
                 .requires(Items.COD)
                 .requires(Items.SALMON)
-                .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
+                .unlockedBy(getHasName(ModItems.EMPTY_VIAL.get()), has(ModItems.EMPTY_VIAL.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BLOOM_BOOSTER.get(), 2)
-                .requires(ModItems.EMPTY_VIAL)
+                .requires(ModItems.EMPTY_VIAL.get())
                 .requires(Items.ALLIUM)
                 .requires(Items.POPPY)
                 .requires(Items.DANDELION)
-                .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
+                .unlockedBy(getHasName(ModItems.EMPTY_VIAL.get()), has(ModItems.EMPTY_VIAL.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.FRUIT_FINISHER.get(), 2)
-                .requires(ModItems.EMPTY_VIAL)
+                .requires(ModItems.EMPTY_VIAL.get())
                 .requires(Items.APPLE)
                 .requires(Items.MELON_SLICE)
                 .requires(Items.SWEET_BERRIES)
-                .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
+                .unlockedBy(getHasName(ModItems.EMPTY_VIAL.get()), has(ModItems.EMPTY_VIAL.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.NITROGEN_BOOST.get(), 2)
-                .requires(ModItems.EMPTY_VIAL)
-                .requires(ModItems.CAT_URINE_BOTTLE)
+                .requires(ModItems.EMPTY_VIAL.get())
+                .requires(ModItems.CAT_URINE_BOTTLE.get())
                 .requires(Items.TORCHFLOWER)
-                .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
+                .unlockedBy(getHasName(ModItems.EMPTY_VIAL.get()), has(ModItems.EMPTY_VIAL.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.POTASH_BOOST.get(), 2)
-                .requires(ModItems.EMPTY_VIAL)
-                .requires(ModItems.WOOD_ASH)
+                .requires(ModItems.EMPTY_VIAL.get())
+                .requires(ModItems.WOOD_ASH.get())
                 .requires(Items.BONE_MEAL)
-                .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
+                .unlockedBy(getHasName(ModItems.EMPTY_VIAL.get()), has(ModItems.EMPTY_VIAL.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BALANCED_BOOST.get(), 2)
-                .requires(ModItems.EMPTY_VIAL)
+                .requires(ModItems.EMPTY_VIAL.get())
                 .requires(Items.CRIMSON_FUNGUS)
                 .requires(Items.VINE)
-                .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
+                .unlockedBy(getHasName(ModItems.EMPTY_VIAL.get()), has(ModItems.EMPTY_VIAL.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PHOSPHORUS_REDUCER.get(), 2)
-                .requires(ModItems.EMPTY_VIAL)
+                .requires(ModItems.EMPTY_VIAL.get())
                 .requires(Items.BLUE_ORCHID)
                 .requires(Items.SUGAR)
-                .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
+                .unlockedBy(getHasName(ModItems.EMPTY_VIAL.get()), has(ModItems.EMPTY_VIAL.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.POTASSIUM_REDUCER.get(), 2)
-                .requires(ModItems.EMPTY_VIAL)
+                .requires(ModItems.EMPTY_VIAL.get())
                 .requires(Items.CHORUS_FRUIT)
                 .requires(Items.GLOW_BERRIES)
-                .unlockedBy(getHasName(ModItems.EMPTY_VIAL), has(ModItems.EMPTY_VIAL))
+                .unlockedBy(getHasName(ModItems.EMPTY_VIAL.get()), has(ModItems.EMPTY_VIAL.get()))
                 .save(recipeOutput);
 
         // --- Logistics Pipes ---
@@ -604,27 +603,27 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("PPP")
                 .pattern("   ")
                 .pattern("PPP")
-                .define('P', ModItems.HEMP_PLASTIC)
-                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC), has(ModItems.HEMP_PLASTIC))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "item_pipe"));
+                .define('P', ModItems.HEMP_PLASTIC.get())
+                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC.get()), has(ModItems.HEMP_PLASTIC.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "item_pipe"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.FLUID_PIPE.get(), 4)
                 .pattern("PPP")
                 .pattern("LLL")
                 .pattern("PPP")
-                .define('P', ModItems.HEMP_PLASTIC)
+                .define('P', ModItems.HEMP_PLASTIC.get())
                 .define('L', Items.LAPIS_LAZULI)
-                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC), has(ModItems.HEMP_PLASTIC))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "fluid_pipe"));
+                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC.get()), has(ModItems.HEMP_PLASTIC.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "fluid_pipe"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ENERGY_PIPE.get(), 4)
                 .pattern("PPP")
                 .pattern("RRR")
                 .pattern("PPP")
-                .define('P', ModItems.HEMP_PLASTIC)
+                .define('P', ModItems.HEMP_PLASTIC.get())
                 .define('R', Items.REDSTONE)
-                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC), has(ModItems.HEMP_PLASTIC))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "energy_pipe"));
+                .unlockedBy(getHasName(ModItems.HEMP_PLASTIC.get()), has(ModItems.HEMP_PLASTIC.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "energy_pipe"));
 
         // Same shape/ingredients as the Hemp Hammer (2 Copper Ingot, Hemp Stick, Hemp Fibers),
         // with one Hemp Stick swapped for Hemp Fabric.
@@ -632,19 +631,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern(" CF")
                 .pattern(" HC")
                 .pattern("S  ")
-                .define('S', ModItems.HEMP_STICK)
-                .define('H', ModItems.HEMP_FABRIC)
-                .define('F', ModItems.HEMP_FIBERS)
+                .define('S', ModItems.HEMP_STICK.get())
+                .define('H', ModItems.HEMP_FABRIC.get())
+                .define('F', ModItems.HEMP_FIBERS.get())
                 .define('C', Items.COPPER_INGOT)
-                .unlockedBy(getHasName(ModItems.HEMP_FABRIC), has(ModItems.HEMP_FABRIC))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "pipe_wrench"));
+                .unlockedBy(getHasName(ModItems.HEMP_FABRIC.get()), has(ModItems.HEMP_FABRIC.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "pipe_wrench"));
 
         // Hemp Wool — 4 Hemp Fabric makes the plain (white) block, then any Hemp Wool + a dye
         // recolors it, exactly like vanilla wool + dye.
         ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, ModBlocks.HEMP_WOOL.get(DyeColor.WHITE).get())
-                .requires(ModItems.HEMP_FABRIC, 4)
-                .unlockedBy(getHasName(ModItems.HEMP_FABRIC), has(ModItems.HEMP_FABRIC))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_wool"));
+                .requires(ModItems.HEMP_FABRIC.get(), 4)
+                .unlockedBy(getHasName(ModItems.HEMP_FABRIC.get()), has(ModItems.HEMP_FABRIC.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "hemp_wool"));
 
         for (DyeColor color : DyeColor.values()) {
             var coloredWool = ModBlocks.HEMP_WOOL.get(color).get();
@@ -652,7 +651,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                     .requires(ModTags.HEMP_WOOL)
                     .requires(DyeItem.byColor(color))
                     .unlockedBy("has_hemp_wool", has(ModTags.HEMP_WOOL))
-                    .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID,
+                    .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID,
                             "dye_" + ModBlocks.hempWoolName(color)));
         }
 
@@ -660,29 +659,29 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.BAJA_HOODIE_HELMET.get())
                 .pattern("XXX")
                 .pattern("X X")
-                .define('X', ModItems.HEMP_FABRIC)
-                .unlockedBy(getHasName(ModItems.HEMP_FABRIC), has(ModItems.HEMP_FABRIC))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "baja_hoodie_helmet"));
+                .define('X', ModItems.HEMP_FABRIC.get())
+                .unlockedBy(getHasName(ModItems.HEMP_FABRIC.get()), has(ModItems.HEMP_FABRIC.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "baja_hoodie_helmet"));
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.BAJA_HOODIE_CHESTPLATE.get())
                 .pattern("X X")
                 .pattern("XXX")
                 .pattern("XXX")
-                .define('X', ModItems.HEMP_FABRIC)
-                .unlockedBy(getHasName(ModItems.HEMP_FABRIC), has(ModItems.HEMP_FABRIC))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "baja_hoodie_chestplate"));
+                .define('X', ModItems.HEMP_FABRIC.get())
+                .unlockedBy(getHasName(ModItems.HEMP_FABRIC.get()), has(ModItems.HEMP_FABRIC.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "baja_hoodie_chestplate"));
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.BAJA_HOODIE_LEGGINGS.get())
                 .pattern("XXX")
                 .pattern("X X")
                 .pattern("X X")
-                .define('X', ModItems.HEMP_FABRIC)
-                .unlockedBy(getHasName(ModItems.HEMP_FABRIC), has(ModItems.HEMP_FABRIC))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "baja_hoodie_leggings"));
+                .define('X', ModItems.HEMP_FABRIC.get())
+                .unlockedBy(getHasName(ModItems.HEMP_FABRIC.get()), has(ModItems.HEMP_FABRIC.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "baja_hoodie_leggings"));
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.BAJA_HOODIE_BOOTS.get())
                 .pattern("X X")
                 .pattern("X X")
-                .define('X', ModItems.HEMP_FABRIC)
-                .unlockedBy(getHasName(ModItems.HEMP_FABRIC), has(ModItems.HEMP_FABRIC))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "baja_hoodie_boots"));
+                .define('X', ModItems.HEMP_FABRIC.get())
+                .unlockedBy(getHasName(ModItems.HEMP_FABRIC.get()), has(ModItems.HEMP_FABRIC.get()))
+                .save(recipeOutput, new ResourceLocation(SmokeleafIndustries.MODID, "baja_hoodie_boots"));
 
         // Reinforced Baja Hoodie — upgrade each piece with 1 Hemp Plastic + 1 Netherite Ingot,
         // preserving enchantments/trim/durability like a smithing upgrade would.
@@ -693,48 +692,48 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
     }
 
-    private void saveArmorUpgradeRecipe(RecipeOutput out, net.minecraft.world.item.Item base, net.minecraft.world.item.Item upgraded) {
+    private void saveArmorUpgradeRecipe(Consumer<FinishedRecipe> out, net.minecraft.world.item.Item base, net.minecraft.world.item.Item upgraded) {
         ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(upgraded);
         Ingredient baseIngredient = Ingredient.of(base);
         NonNullList<Ingredient> ingredients = NonNullList.create();
         ingredients.add(baseIngredient);
-        ingredients.add(Ingredient.of(ModItems.HEMP_PLASTIC));
+        ingredients.add(Ingredient.of(ModItems.HEMP_PLASTIC.get()));
         ingredients.add(Ingredient.of(Items.NETHERITE_INGOT));
         ArmorUpgradeShapelessRecipe recipe = new ArmorUpgradeShapelessRecipe(
-                "", CraftingBookCategory.EQUIPMENT, baseIngredient, new ItemStack(upgraded), ingredients);
-        out.accept(id, recipe, null);
+                id, "", CraftingBookCategory.EQUIPMENT, baseIngredient, new ItemStack(upgraded), ingredients);
+        out.accept(CustomFinishedRecipe.of(recipe));
     }
 
-    private void saveStrainCopyShapelessRecipe(RecipeOutput out, net.minecraft.world.item.Item result, Ingredient... ingredients) {
+    private void saveStrainCopyShapelessRecipe(Consumer<FinishedRecipe> out, net.minecraft.world.item.Item result, Ingredient... ingredients) {
         ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(result);
         NonNullList<Ingredient> ingList = NonNullList.create();
         java.util.Collections.addAll(ingList, ingredients);
         StrainCopyShapelessRecipe recipe = new StrainCopyShapelessRecipe(
-                "", CraftingBookCategory.MISC, new ItemStack(result), ingList);
-        out.accept(id, recipe, null);
+                id, "", CraftingBookCategory.MISC, new ItemStack(result), ingList);
+        out.accept(CustomFinishedRecipe.of(recipe));
     }
 
-    private void saveStrainCopyShapedRecipe(RecipeOutput out, net.minecraft.world.item.Item result, Map<Character, Ingredient> key, String... pattern) {
+    private void saveStrainCopyShapedRecipe(Consumer<FinishedRecipe> out, net.minecraft.world.item.Item result, Map<Character, Ingredient> key, String... pattern) {
         ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(result);
-        ShapedRecipePattern shapedPattern = ShapedRecipePattern.of(key, List.of(pattern));
         StrainCopyShapedRecipe recipe = new StrainCopyShapedRecipe(
-                "", CraftingBookCategory.MISC, shapedPattern, new ItemStack(result), false);
-        out.accept(id, recipe, null);
+                id, "", CraftingBookCategory.MISC, key, List.of(pattern), new ItemStack(result), false);
+        out.accept(CustomFinishedRecipe.of(recipe));
     }
 
-    private static void liquifierExtract(RecipeOutput out,
+    private static void liquifierExtract(Consumer<FinishedRecipe> out,
                                         String name,
                                         net.minecraft.world.item.Item extractItem,
                                         net.minecraft.world.level.material.Fluid extractFluid) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID,
+        ResourceLocation id = new ResourceLocation(SmokeleafIndustries.MODID,
                 "liquifier/" + name + "_extract_to_fluid");
 
         LiquifierRecipe recipe = new LiquifierRecipe(
+                id,
                 Ingredient.of(extractItem),
                 new FluidStack(extractFluid, 500),
                 true
         );
 
-        out.accept(id, recipe, null);
+        out.accept(CustomFinishedRecipe.of(recipe));
     }
 }

@@ -13,9 +13,9 @@ public class HeavyHeadEffect extends MobEffect {
     }
 
 //    @Override
-//    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+//    public void applyEffectTick(LivingEntity livingEntity, int amplifier) {
 //        if (!livingEntity.level().isClientSide()) {
-//            MobEffectInstance self = livingEntity.getEffect(ModEffects.HEAVY_HEAD);
+//            MobEffectInstance self = livingEntity.getEffect(ModEffects.HEAVY_HEAD.get());
 //            if (self != null) {
 //                int duration = self.getDuration();
 //                livingEntity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, duration, amplifier, true, false, false));
@@ -25,7 +25,7 @@ public class HeavyHeadEffect extends MobEffect {
 //    }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 

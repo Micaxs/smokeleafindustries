@@ -1,0 +1,10 @@
+{
+  "type": "smokeleafindustries:extractor",
+  "ingredient": {
+    "item": "minecraft:milk_bucket"
+  },
+  "result": {
+    "count": 1,
+    "item": "smokeleafindustries:butter"
+  }
+}

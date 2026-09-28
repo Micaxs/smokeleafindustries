@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.ModFluids;
@@ -13,7 +16,6 @@ import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.screen.custom.MixerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -34,15 +36,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.FluidActionResult;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidActionResult;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -212,10 +214,10 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
 
             // Keep tanks separate: fill at most ONE tank per call.
             // Prefer filling a tank that already contains this fluid; otherwise the first empty one.
-            if (!TANK_A.isEmpty() && TANK_A.getFluid().is(resource.getFluid())) {
+            if (!TANK_A.isEmpty() && TANK_A.getFluid().getFluid().isSame(resource.getFluid())) {
                 return TANK_A.fill(resource, action);
             }
-            if (!TANK_B.isEmpty() && TANK_B.getFluid().is(resource.getFluid())) {
+            if (!TANK_B.isEmpty() && TANK_B.getFluid().getFluid().isSame(resource.getFluid())) {
                 return TANK_B.fill(resource, action);
             }
 
@@ -396,8 +398,8 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
 
     /** True when both fluids carry the same non-blank STRAIN_ID — pouring a strain's oil into both tanks isn't a real blend. */
     private static boolean isSameStrain(FluidStack a, FluidStack b) {
-        String idA = a.get(ModDataComponentTypes.STRAIN_ID.get());
-        String idB = b.get(ModDataComponentTypes.STRAIN_ID.get());
+        String idA = ModDataComponentTypes.STRAIN_ID.get(a);
+        String idB = ModDataComponentTypes.STRAIN_ID.get(b);
         return idA != null && !idA.isBlank() && idA.equals(idB);
     }
 
@@ -412,14 +414,14 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
             // Same strain in both tanks — pass it straight through as-is (still identified, still
             // that exact strain) instead of generating a brand-new "unidentified" hybrid that would
             // need re-identifying from scratch for no reason.
-            String strainId = a.get(ModDataComponentTypes.STRAIN_ID.get());
+            String strainId = ModDataComponentTypes.STRAIN_ID.get(a);
             StrainData same = StrainUtil.getStrain(a) != StrainData.EMPTY ? StrainUtil.getStrain(a) : StrainUtil.getStrain(b);
             FluidStack passthrough = new FluidStack(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), 500);
             StrainUtil.setStrain(passthrough, same);
-            passthrough.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
-            String creator = a.get(ModDataComponentTypes.STRAIN_CREATOR.get());
-            if (creator == null || creator.isBlank()) creator = b.get(ModDataComponentTypes.STRAIN_CREATOR.get());
-            if (creator != null && !creator.isBlank()) passthrough.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+            ModDataComponentTypes.STRAIN_ID.set(passthrough, strainId);
+            String creator = ModDataComponentTypes.STRAIN_CREATOR.get(a);
+            if (creator == null || creator.isBlank()) creator = ModDataComponentTypes.STRAIN_CREATOR.get(b);
+            if (creator != null && !creator.isBlank()) ModDataComponentTypes.STRAIN_CREATOR.set(passthrough, creator);
             if (!same.effects().isEmpty()) {
                 WeedFluidStackUtil.withWeedData(passthrough, same.effects(), same.amplifier(), same.durationTicks());
             }
@@ -427,8 +429,8 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
             return;
         }
 
-        int aTint = net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
-        int bTint = net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
+        int aTint = net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
+        int bTint = net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
 
         StrainData mixed = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
 
@@ -439,8 +441,8 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
         String nameB = StrainUtil.hasStrain(b) ? StrainUtil.getStrain(b).displayName() : "";
         if (nameA == null) nameA = "";
         if (nameB == null) nameB = "";
-        String strainIdA = a.get(ModDataComponentTypes.STRAIN_ID.get());
-        String strainIdB = b.get(ModDataComponentTypes.STRAIN_ID.get());
+        String strainIdA = ModDataComponentTypes.STRAIN_ID.get(a);
+        String strainIdB = ModDataComponentTypes.STRAIN_ID.get(b);
         if (strainIdA == null) strainIdA = "";
         if (strainIdB == null) strainIdB = "";
 
@@ -492,10 +494,10 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
 
         FluidStack out = new FluidStack(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), 500);
         StrainUtil.setStrain(out, mixed);
-        out.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
-        out.set(ModDataComponentTypes.STRAIN_ID.get(), mixKey);
+        ModDataComponentTypes.MIX_KEY.set(out, mixKey);
+        ModDataComponentTypes.STRAIN_ID.set(out, mixKey);
         if (!resolvedCreator.isBlank()) {
-            out.set(ModDataComponentTypes.STRAIN_CREATOR.get(), resolvedCreator);
+            ModDataComponentTypes.STRAIN_CREATOR.set(out, resolvedCreator);
         }
 
         // Also carry effect payload for consumption.
@@ -522,30 +524,30 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
 
     // NBT
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        tag.put("mixer.inventory", itemHandler.serializeNBT(regs));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("mixer.inventory", itemHandler.serializeNBT());
         tag.putInt("mixer.progress", progress);
         tag.putInt("mixer.maxProgress", maxProgress);
         tag.putInt("mixer.energy", ENERGY_STORAGE.getEnergyStored());
 
-        tag.put("mixer.tank_a", TANK_A.writeToNBT(regs, new CompoundTag()));
-        tag.put("mixer.tank_b", TANK_B.writeToNBT(regs, new CompoundTag()));
-        tag.put("mixer.tank_out", TANK_OUT.writeToNBT(regs, new CompoundTag()));
+        tag.put("mixer.tank_a", TANK_A.writeToNBT(new CompoundTag()));
+        tag.put("mixer.tank_b", TANK_B.writeToNBT(new CompoundTag()));
+        tag.put("mixer.tank_out", TANK_OUT.writeToNBT(new CompoundTag()));
 
-        super.saveAdditional(tag, regs);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        itemHandler.deserializeNBT(regs, tag.getCompound("mixer.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("mixer.inventory"));
         ENERGY_STORAGE.setEnergy(tag.getInt("mixer.energy"));
         progress = tag.getInt("mixer.progress");
         maxProgress = tag.getInt("mixer.maxProgress");
 
-        if (tag.contains("mixer.tank_a")) TANK_A.readFromNBT(regs, tag.getCompound("mixer.tank_a"));
-        if (tag.contains("mixer.tank_b")) TANK_B.readFromNBT(regs, tag.getCompound("mixer.tank_b"));
-        if (tag.contains("mixer.tank_out")) TANK_OUT.readFromNBT(regs, tag.getCompound("mixer.tank_out"));
+        if (tag.contains("mixer.tank_a")) TANK_A.readFromNBT(tag.getCompound("mixer.tank_a"));
+        if (tag.contains("mixer.tank_b")) TANK_B.readFromNBT(tag.getCompound("mixer.tank_b"));
+        if (tag.contains("mixer.tank_out")) TANK_OUT.readFromNBT(tag.getCompound("mixer.tank_out"));
     }
 
     @Override
@@ -554,13 +556,13 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider regs) {
-        return saveWithoutMetadata(regs);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
     }
 
     @Override
@@ -593,16 +595,21 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
     private boolean patchTank(FluidTank tank, String strainId, StrainRegistrySavedData.StrainEntry entry) {
         FluidStack fluid = tank.getFluid();
         if (fluid.isEmpty()) return false;
-        String fluidStrainId = fluid.get(ModDataComponentTypes.STRAIN_ID.get());
+        String fluidStrainId = ModDataComponentTypes.STRAIN_ID.get(fluid);
         if (!strainId.equals(fluidStrainId)) return false;
         StrainData current = StrainUtil.getStrain(fluid);
         if (current == StrainData.EMPTY) return false;
 
         FluidStack updated = fluid.copy();
         StrainUtil.setStrain(updated, StrainRegistrySavedData.withEntryApplied(current, entry));
-        if (!entry.creatorName().isBlank()) updated.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
+        if (!entry.creatorName().isBlank()) ModDataComponentTypes.STRAIN_CREATOR.set(updated, entry.creatorName());
         tank.setFluid(updated);
         return true;
     }
-}
 
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, this::getFluidHandler, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
+    }
+}

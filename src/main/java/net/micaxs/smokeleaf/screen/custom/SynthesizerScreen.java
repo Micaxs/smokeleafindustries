@@ -17,9 +17,9 @@ import java.util.Optional;
 
 public class SynthesizerScreen extends AbstractContainerScreen<SynthesizerMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/synthesizer/synthesizer_gui.png");
+    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/synthesizer/synthesizer_gui.png");
 
-    private static final ResourceLocation INFO_ICON = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/icons/info.png");
+    private static final ResourceLocation INFO_ICON = new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/icons/info.png");
     private static final int ICON_SIZE = 8;
     private static final float TOOLTIP_SCALE = 0.5f;
 
@@ -100,6 +100,7 @@ public class SynthesizerScreen extends AbstractContainerScreen<SynthesizerMenu> 
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         int x = (width - imageWidth) / 2;

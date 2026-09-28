@@ -7,7 +7,6 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.item.custom.WeedDerivedItem;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -18,9 +17,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -38,11 +35,11 @@ public class WeedEffectHelper {
             float effectMultiplier = ((WeedDerivedItem) weedDerivedItem.getItem()).getEffectFactor();
             finalDuration += (int) (weedItem.getDuration() * effectMultiplier);
 
-            var weedDerivedItemDuration = weedDerivedItem.get(ModDataComponentTypes.EFFECT_DURATION);
+            var weedDerivedItemDuration = ModDataComponentTypes.EFFECT_DURATION.get(weedDerivedItem);
             if (weedDerivedItemDuration != null) {
-                weedDerivedItem.set(ModDataComponentTypes.EFFECT_DURATION, finalDuration);
+                ModDataComponentTypes.EFFECT_DURATION.set(weedDerivedItem, finalDuration);
             }
-            weedDerivedItem.set(ModDataComponentTypes.ACTIVE_INGREDIENT, ingredient.getItem().getDescriptionId());
+            ModDataComponentTypes.ACTIVE_INGREDIENT.set(weedDerivedItem, ingredient.getItem().getDescriptionId());
 
             nameWeedBasedItem(ingredient, weedDerivedItem);
         }
@@ -57,7 +54,7 @@ public class WeedEffectHelper {
         Component weedBasedItemName = weedBasedItem.getItem().getName(weedBasedItem);
         String weedName = weedNameComponent.getString().replace(" Weed", "").replace(" weed", "");
 
-        weedBasedItem.set(DataComponents.CUSTOM_NAME, Component.literal(weedName.concat(" ").concat(weedBasedItemName.getString())));
+        weedBasedItem.setHoverName( Component.literal(weedName.concat(" ").concat(weedBasedItemName.getString())));
 
     }
 
@@ -116,7 +113,7 @@ public class WeedEffectHelper {
     }
 
     public static @Nullable BaseWeedItem getActiveWeedIngredient(ItemStack itemStack) {
-        String activeIngredient = itemStack.get(ModDataComponentTypes.ACTIVE_INGREDIENT);
+        String activeIngredient = ModDataComponentTypes.ACTIVE_INGREDIENT.get(itemStack);
         if (activeIngredient != null) {
             ResourceLocation id = ResourceLocation.tryParse(activeIngredient);
             if (id != null) {

@@ -1,6 +1,5 @@
 package net.micaxs.smokeleaf.strain;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -28,7 +27,7 @@ public class MixedStrainSavedData extends SavedData {
 
     public static MixedStrainSavedData get(MinecraftServer server) {
         return server.overworld().getDataStorage().computeIfAbsent(
-                new SavedData.Factory<>(MixedStrainSavedData::new, MixedStrainSavedData::load),
+                MixedStrainSavedData::load, MixedStrainSavedData::new,
                 DATA_NAME
         );
     }
@@ -71,14 +70,14 @@ public class MixedStrainSavedData extends SavedData {
     // -----------------------------------------------------------------------
 
     @Override
-    public CompoundTag save(CompoundTag tag, HolderLookup.Provider regs) {
+    public CompoundTag save(CompoundTag tag) {
         CompoundTag map = new CompoundTag();
         mixToName.forEach(map::putString);
         tag.put("mixes", map);
         return tag;
     }
 
-    public static MixedStrainSavedData load(CompoundTag tag, HolderLookup.Provider regs) {
+    public static MixedStrainSavedData load(CompoundTag tag) {
         MixedStrainSavedData data = new MixedStrainSavedData();
         CompoundTag map = tag.getCompound("mixes");
         for (String key : map.getAllKeys()) {

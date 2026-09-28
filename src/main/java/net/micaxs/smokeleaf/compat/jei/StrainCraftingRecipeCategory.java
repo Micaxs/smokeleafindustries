@@ -26,9 +26,9 @@ import java.util.List;
 public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraftingRecipeCategory.Display> {
 
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "strain_crafting");
+            new ResourceLocation(SmokeleafIndustries.MODID, "strain_crafting");
     private static final ResourceLocation VANILLA_BG =
-            ResourceLocation.withDefaultNamespace("textures/gui/container/crafting_table.png");
+            new ResourceLocation("textures/gui/container/crafting_table.png");
 
     public static final RecipeType<Display> RECIPE_TYPE =
             new RecipeType<>(UID, Display.class);

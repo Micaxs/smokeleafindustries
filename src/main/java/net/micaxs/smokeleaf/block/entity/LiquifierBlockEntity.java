@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
@@ -10,7 +13,6 @@ import net.micaxs.smokeleaf.recipe.ModRecipes;
 import net.micaxs.smokeleaf.screen.custom.LiquifierMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -29,7 +31,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,14 +40,14 @@ import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
 import net.micaxs.smokeleaf.strain.StrainTankHolder;
 import net.micaxs.smokeleaf.strain.StrainTankTracker;
 import net.micaxs.smokeleaf.strain.StrainUtil;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -159,8 +160,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
         ItemStack stack = itemHandler.getStackInSlot(INPUT_SLOT);
         if (stack.isEmpty()) return Optional.empty();
         return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.LIQUIFIER_TYPE.get(), new LiquifierRecipeInput(stack), level)
-                .map(RecipeHolder::value);
+                .getRecipeFor(ModRecipes.LIQUIFIER_TYPE.get(), new LiquifierRecipeInput(stack), level);
     }
 
     /**
@@ -169,7 +169,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
      * just comparing base fluid types — two different strains both liquify to the same underlying
      * {@code unidentified_mixture_fluid} type, differing only by their STRAIN_DATA component, so a
      * type-only check would let a mismatched strain "process" the input for no output (see
-     * {@link net.neoforged.neoforge.fluids.capability.templates.FluidTank#fill}, which rejects a
+     * {@link net.minecraftforge.fluids.capability.templates.FluidTank#fill}, which rejects a
      * fill whose components don't match the tank's current content).
      */
     private boolean hasSpaceFor(LiquifierRecipe recipe) {
@@ -206,13 +206,13 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
         // (MixtureWeedFluidType uses STRAIN_DATA to tint dynamically.)
         if (!in.isEmpty() && out.getFluid() == net.micaxs.smokeleaf.fluid.ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get()) {
             // Read STRAIN_DATA from input item (generic extract with strain data)
-            StrainData inputSD = in.get(ModDataComponentTypes.STRAIN_DATA.get());
+            StrainData inputSD = ModDataComponentTypes.STRAIN_DATA.get(in);
 
             // Ensure STRAIN_DATA exists.
             StrainData base;
             if (inputSD != null && inputSD != StrainData.EMPTY) {
                 base = inputSD;
-            } else if (out.has(ModDataComponentTypes.STRAIN_DATA.get())) {
+            } else if (ModDataComponentTypes.STRAIN_DATA.has(out)) {
                 base = StrainUtil.getStrain(out);
             } else {
                 base = new StrainData(
@@ -250,16 +250,16 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
             // Propagate strain ID from extract to fluid for lineage tracking.
             // If the extract has no explicit STRAIN_ID, derive a deterministic one from content
             // so two extracts with identical stats always share the same strain lineage.
-            var strainId = in.get(ModDataComponentTypes.STRAIN_ID.get());
+            var strainId = ModDataComponentTypes.STRAIN_ID.get(in);
             if (strainId == null && base != StrainData.EMPTY) {
                 strainId = StrainUtil.strainContentId(base);
             }
-            if (strainId != null) out.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+            if (strainId != null) ModDataComponentTypes.STRAIN_ID.set(out, strainId);
 
             // Propagate creator from extract item to fluid so "Discovered by" carries through to the bucket.
-            var strainCreator = in.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+            var strainCreator = ModDataComponentTypes.STRAIN_CREATOR.get(in);
             if (strainCreator != null && !strainCreator.isBlank()) {
-                out.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
+                ModDataComponentTypes.STRAIN_CREATOR.set(out, strainCreator);
             }
 
             // Roll THC/CBD + N/P/K once, only if unset — deterministic when strain ID is known.
@@ -328,23 +328,23 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        tag.put("liquifier.inventory", itemHandler.serializeNBT(regs));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("liquifier.inventory", itemHandler.serializeNBT());
         tag.putInt("liquifier.progress", progress);
         tag.putInt("liquifier.maxProgress", maxProgress);
         tag.putInt("liquifier.energy", ENERGY_STORAGE.getEnergyStored());
-        tag = FLUID_TANK.writeToNBT(regs, tag);
-        super.saveAdditional(tag, regs);
+        tag = FLUID_TANK.writeToNBT(tag);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        itemHandler.deserializeNBT(regs, tag.getCompound("liquifier.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("liquifier.inventory"));
         ENERGY_STORAGE.setEnergy(tag.getInt("liquifier.energy"));
         progress = tag.getInt("liquifier.progress");
         maxProgress = tag.getInt("liquifier.maxProgress");
-        FLUID_TANK.readFromNBT(regs, tag);
+        FLUID_TANK.readFromNBT(tag);
     }
 
     @Override
@@ -353,13 +353,13 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider regs) {
-        return saveWithoutMetadata(regs);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
     }
 
     @Override
@@ -378,14 +378,14 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
     public void applyStrainRegistryUpdate(String strainId, StrainRegistrySavedData.StrainEntry entry) {
         FluidStack fluid = FLUID_TANK.getFluid();
         if (fluid.isEmpty()) return;
-        String fluidStrainId = fluid.get(ModDataComponentTypes.STRAIN_ID.get());
+        String fluidStrainId = ModDataComponentTypes.STRAIN_ID.get(fluid);
         if (!strainId.equals(fluidStrainId)) return;
         StrainData current = StrainUtil.getStrain(fluid);
         if (current == StrainData.EMPTY) return;
 
         FluidStack updated = fluid.copy();
         StrainUtil.setStrain(updated, StrainRegistrySavedData.withEntryApplied(current, entry));
-        if (!entry.creatorName().isBlank()) updated.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
+        if (!entry.creatorName().isBlank()) ModDataComponentTypes.STRAIN_CREATOR.set(updated, entry.creatorName());
         FLUID_TANK.setFluid(updated);
         // FluidTank#setFluid just overwrites the field directly (unlike fill()/drain(), it never
         // calls onContentsChanged()), so without an explicit sync here the server-side data is
@@ -395,5 +395,11 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
             setChanged();
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
         }
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, this::getTank, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

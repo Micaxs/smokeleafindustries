@@ -10,8 +10,8 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.BlockTagsProvider;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -59,22 +59,18 @@ public class ModItemTagProvider extends ItemTagsProvider {
         this.copy(ModTags.HEMP_WOOL_BLOCKS, ModTags.HEMP_WOOL);
         this.copy(BlockTags.WOOL, ItemTags.WOOL);
 
-        // Pipe Wrench — grants Unbreaking (and Mending) eligibility, same as any vanilla tool.
-        this.tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.PIPE_WRENCH.get());
+        // Pipe Wrench — in 1.20.1 Unbreaking/Mending eligibility comes from the item being damageable
+        // (EnchantmentCategory.BREAKABLE), so no tag is needed.
 
-        // Baja Hoodie / Reinforced Baja Hoodie — membership in these base slot tags is what
-        // grants vanilla armor's trimmability, enchantability, and durability-loss-on-vanish
-        // behavior for free (they're all built from these four tags).
-        this.tag(ItemTags.HEAD_ARMOR)
+        // Baja Hoodie / Reinforced Baja Hoodie — in 1.20.1 enchantability comes from ArmorItem
+        // itself; trimmability is what the TRIMMABLE_ARMOR tag grants.
+        this.tag(ItemTags.TRIMMABLE_ARMOR)
                 .add(ModItems.BAJA_HOODIE_HELMET.get())
-                .add(ModItems.REINFORCED_BAJA_HOODIE_HELMET.get());
-        this.tag(ItemTags.CHEST_ARMOR)
+                .add(ModItems.REINFORCED_BAJA_HOODIE_HELMET.get())
                 .add(ModItems.BAJA_HOODIE_CHESTPLATE.get())
-                .add(ModItems.REINFORCED_BAJA_HOODIE_CHESTPLATE.get());
-        this.tag(ItemTags.LEG_ARMOR)
+                .add(ModItems.REINFORCED_BAJA_HOODIE_CHESTPLATE.get())
                 .add(ModItems.BAJA_HOODIE_LEGGINGS.get())
-                .add(ModItems.REINFORCED_BAJA_HOODIE_LEGGINGS.get());
-        this.tag(ItemTags.FOOT_ARMOR)
+                .add(ModItems.REINFORCED_BAJA_HOODIE_LEGGINGS.get())
                 .add(ModItems.BAJA_HOODIE_BOOTS.get())
                 .add(ModItems.REINFORCED_BAJA_HOODIE_BOOTS.get());
 

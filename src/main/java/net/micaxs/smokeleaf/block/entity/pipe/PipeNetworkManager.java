@@ -7,9 +7,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import net.neoforged.neoforge.capabilities.Capabilities;
 
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.EnumMap;
@@ -145,14 +144,14 @@ public final class PipeNetworkManager {
         setEndpointBearing(type, pos, pipe.hasAnyEndpointConnection(type));
     }
 
-    private static BlockCapabilityCache<?, Direction> createCache(PipeType type, ServerLevel level, BlockPos neighborPos, Direction context) {
+    private static BlockCapabilityCache<?> createCache(PipeType type, ServerLevel level, BlockPos neighborPos, Direction context) {
         switch (type) {
             case ITEM:
-                return BlockCapabilityCache.create(Capabilities.ItemHandler.BLOCK, level, neighborPos, context);
+                return BlockCapabilityCache.create(ForgeCapabilities.ITEM_HANDLER, level, neighborPos, context);
             case FLUID:
-                return BlockCapabilityCache.create(Capabilities.FluidHandler.BLOCK, level, neighborPos, context);
+                return BlockCapabilityCache.create(ForgeCapabilities.FLUID_HANDLER, level, neighborPos, context);
             case ENERGY:
-                return BlockCapabilityCache.create(Capabilities.EnergyStorage.BLOCK, level, neighborPos, context);
+                return BlockCapabilityCache.create(ForgeCapabilities.ENERGY, level, neighborPos, context);
             default:
                 throw new IllegalStateException("Unknown pipe type: " + type);
         }

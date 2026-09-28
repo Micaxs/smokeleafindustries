@@ -25,9 +25,9 @@ import java.util.List;
 
 public class ExtractorRecipeCategory implements IRecipeCategory<ExtractorRecipe> {
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "extractor");
+            new ResourceLocation(SmokeleafIndustries.MODID, "extractor");
     public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/extractor/extractor_gui.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/extractor/extractor_gui.png");
 
     public static final RecipeType<ExtractorRecipe> EXTRACTOR_RECIPE_RECIPE_TYPE =
             new RecipeType<>(UID, ExtractorRecipe.class);
@@ -75,7 +75,7 @@ public class ExtractorRecipeCategory implements IRecipeCategory<ExtractorRecipe>
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, ExtractorRecipe recipe, IFocusGroup focuses) {
-        var inputIngredient = recipe.getIngredients().getFirst();
+        var inputIngredient = recipe.getIngredients().get(0);
         if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
             builder.addSlot(RecipeIngredientRole.INPUT, 75, 6)
                     .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));

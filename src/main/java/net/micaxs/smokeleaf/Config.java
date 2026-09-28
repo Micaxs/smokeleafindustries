@@ -5,16 +5,15 @@ import java.util.*;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.config.ModConfigEvent;
-import net.neoforged.neoforge.common.ModConfigSpec;
-
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID)
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.common.ForgeConfigSpec;
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
-    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-    public static final ModConfigSpec.ConfigValue<List<? extends UnmodifiableConfig>> PLANT_NUTRIENTS =
+    public static final ForgeConfigSpec.ConfigValue<List<? extends UnmodifiableConfig>> PLANT_NUTRIENTS =
             BUILDER.defineListAllowEmpty(
                             "plant_nutrients",
                             defaultPlantNutrients(),
@@ -29,14 +28,14 @@ public class Config {
      * Keys can be either full resource locations ("smokeleafindustries:white_widow_extract_fluid")
      * or just the path ("white_widow_extract_fluid").
      */
-    public static final ModConfigSpec.ConfigValue<List<? extends UnmodifiableConfig>> EXTRACT_FLUID_STATS =
+    public static final ForgeConfigSpec.ConfigValue<List<? extends UnmodifiableConfig>> EXTRACT_FLUID_STATS =
             BUILDER.defineListAllowEmpty(
                     "extract_fluid_stats",
                     defaultExtractFluidStats(),
                     Config::validateExtractFluidStatsElement
             );
 
-    static final ModConfigSpec SPEC = BUILDER.build();
+    static final ForgeConfigSpec SPEC = BUILDER.build();
 
     // Cache resolved targets for quick lookup; keys include both "namespace:path" and plain "path".
     private static final Map<String, NutrientTarget> PLANT_NUTRIENTS_CACHE = new HashMap<>();
@@ -159,7 +158,7 @@ public class Config {
 
             // If the key is a full RL, also index by its path for convenience
             try {
-                ResourceLocation rl = ResourceLocation.parse(key);
+                ResourceLocation rl = new ResourceLocation(key);
                 PLANT_NUTRIENTS_CACHE.putIfAbsent(rl.getPath(), target);
             } catch (Exception ignored) {
                 // If the key is just a path, that's fine.

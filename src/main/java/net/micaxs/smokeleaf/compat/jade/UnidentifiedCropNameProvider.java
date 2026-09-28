@@ -8,13 +8,13 @@ import net.minecraft.resources.ResourceLocation;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
-import snownee.jade.api.JadeIds;
+import snownee.jade.api.Identifiers;
 import snownee.jade.api.config.IPluginConfig;
 
 public enum UnidentifiedCropNameProvider implements IBlockComponentProvider {
     INSTANCE;
 
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "unidentified_crop_name");
+    private static final ResourceLocation UID = new ResourceLocation(SmokeleafIndustries.MODID, "unidentified_crop_name");
 
     @Override
     public ResourceLocation getUid() {
@@ -30,7 +30,9 @@ public enum UnidentifiedCropNameProvider implements IBlockComponentProvider {
 
         if (!trimmed.isEmpty()) {
             Component title = Component.literal(trimmed + " Plant");
-            tooltip.replace(JadeIds.CORE_OBJECT_NAME, title);
+            // Jade 11 has no replace(): drop the core name line and put ours in its place.
+            tooltip.remove(Identifiers.CORE_OBJECT_NAME);
+            tooltip.add(0, snownee.jade.api.theme.IThemeHelper.get().title(title), Identifiers.CORE_OBJECT_NAME);
         }
     }
 }

@@ -1,19 +1,20 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraft.core.registries.Registries;
+
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.block.custom.SequencerBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 
 public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
-            DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, SmokeleafIndustries.MODID);
+            DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, SmokeleafIndustries.MODID);
 
 
     public static final Supplier<BlockEntityType<BaseWeedCropBlockEntity>> BASE_WEED_CROP_BE =
@@ -56,13 +57,13 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<DryingRackBlockEntity>> DRYING_RACK_BE = BLOCK_ENTITIES.register("drying_rack_be",
             () -> BlockEntityType.Builder.of(DryingRackBlockEntity::new, ModBlocks.DRYING_RACK.get()).build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReflectorBlockEntity>> REFLECTOR = BLOCK_ENTITIES.register("reflector_be",
+    public static final RegistryObject<BlockEntityType<ReflectorBlockEntity>> REFLECTOR = BLOCK_ENTITIES.register("reflector_be",
             () -> BlockEntityType.Builder.of(ReflectorBlockEntity::new, ModBlocks.REFLECTOR.get()).build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GrowLightBlockEntity>> GROW_LIGHT = BLOCK_ENTITIES.register("grow_light_be",
+    public static final RegistryObject<BlockEntityType<GrowLightBlockEntity>> GROW_LIGHT = BLOCK_ENTITIES.register("grow_light_be",
             () -> BlockEntityType.Builder.of(GrowLightBlockEntity::new, ModBlocks.LED_LIGHT.get()).build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GrowPotBlockEntity>> GROW_POT = BLOCK_ENTITIES.register("grow_pot_be",
+    public static final RegistryObject<BlockEntityType<GrowPotBlockEntity>> GROW_POT = BLOCK_ENTITIES.register("grow_pot_be",
             () -> BlockEntityType.Builder.of(GrowPotBlockEntity::new, ModBlocks.GROW_POT.get()).build(null));
 
     public static final Supplier<BlockEntityType<MixerBlockEntity>> MIXER_BE = BLOCK_ENTITIES.register("mixer_be",

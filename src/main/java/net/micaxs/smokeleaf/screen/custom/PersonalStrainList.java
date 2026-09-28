@@ -19,6 +19,7 @@ import java.util.List;
  * be recreated) and a note when this player wasn't the original discoverer.
  */
 public class PersonalStrainList extends AbstractSelectionList<PersonalStrainList.Row> {
+    private static final int SCROLLBAR_WIDTH = 6;
 
     private static final int LINE_HEIGHT = 10;
     private static final int ITEM_HEIGHT = 40;
@@ -28,8 +29,10 @@ public class PersonalStrainList extends AbstractSelectionList<PersonalStrainList
 
     public PersonalStrainList(Minecraft minecraft, int x, int y, int width, int height,
                                List<StrainDataPadPayload.Entry> entries, String selfName) {
-        super(minecraft, width, height, y, ITEM_HEIGHT);
-        this.setX(x);
+        super(minecraft, width, height, y, y + height, ITEM_HEIGHT);
+        this.setLeftPos(x);
+        this.setRenderBackground(false);
+        this.setRenderTopAndBottom(false);
         // Symmetric margin on both sides (rows are centered by the base class — see
         // getScrollbarPosition below for why this can't be asymmetric) sized so the right margin
         // has room for the scrollbar plus a small gap, and the scrollbar sits flush against the
@@ -51,18 +54,10 @@ public class PersonalStrainList extends AbstractSelectionList<PersonalStrainList
         return this.getRight() - SCROLLBAR_WIDTH;
     }
 
-    @Override
-    protected void renderListBackground(GuiGraphics guiGraphics) {
-        // Panel texture already draws the recessed list frame; nothing to do here.
-    }
+
 
     @Override
-    protected void renderListSeparators(GuiGraphics guiGraphics) {
-        // No vanilla header/footer separator sprites — they don't match this UI's theme.
-    }
-
-    @Override
-    protected void updateWidgetNarration(NarrationElementOutput output) {
+    public void updateNarration(NarrationElementOutput output) {
     }
 
     public class Row extends AbstractSelectionList.Entry<Row> {
@@ -72,7 +67,7 @@ public class PersonalStrainList extends AbstractSelectionList<PersonalStrainList
         Row(StrainDataPadPayload.Entry entry) {
             this.entry = entry;
             this.preview = new ItemStack(ModItems.GENERIC_BUD.get());
-            this.preview.set(ModDataComponentTypes.STRAIN_DATA.get(), entry.data());
+            ModDataComponentTypes.STRAIN_DATA.set(this.preview, entry.data());
         }
 
         @Override

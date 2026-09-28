@@ -13,9 +13,9 @@ public class EuphoricHazeEffect extends MobEffect {
     }
 
 //    @Override
-//    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+//    public void applyEffectTick(LivingEntity livingEntity, int amplifier) {
 //        if (!livingEntity.level().isClientSide()) {
-//            MobEffectInstance self = livingEntity.getEffect(ModEffects.EUPHORIC_HAZE);
+//            MobEffectInstance self = livingEntity.getEffect(ModEffects.EUPHORIC_HAZE.get());
 //            if (self != null) {
 //                int duration = self.getDuration();
 //                livingEntity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, duration, amplifier, true, false, false));
@@ -26,7 +26,7 @@ public class EuphoricHazeEffect extends MobEffect {
 //    }
 
     @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 

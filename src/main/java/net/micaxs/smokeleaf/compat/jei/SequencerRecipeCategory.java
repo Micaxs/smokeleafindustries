@@ -30,9 +30,9 @@ import java.util.List;
 public class SequencerRecipeCategory implements IRecipeCategory<SequencerRecipe> {
 
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "sequencer");
+            new ResourceLocation(SmokeleafIndustries.MODID, "sequencer");
     public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/sequencer/sequencer_gui.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/sequencer/sequencer_gui.png");
 
     public static final RecipeType<SequencerRecipe> SEQUENCER_RECIPE_TYPE =
             new RecipeType<>(UID, SequencerRecipe.class);
@@ -119,7 +119,7 @@ public class SequencerRecipeCategory implements IRecipeCategory<SequencerRecipe>
                             b.copyWithCount(1),
                             c.copyWithCount(1)
                     );
-                    dna.set(ModDataComponentTypes.DNA_CONTENTS.get(), contents);
+                    ModDataComponentTypes.DNA_CONTENTS.set(dna, contents);
                     out.add(dna);
                     if (++produced >= limit) return out;
                 }
@@ -128,7 +128,7 @@ public class SequencerRecipeCategory implements IRecipeCategory<SequencerRecipe>
 
         if (out.isEmpty()) {
             ItemStack dna = newDNAStack();
-            dna.set(ModDataComponentTypes.DNA_CONTENTS.get(), DNAContents.EMPTY);
+            ModDataComponentTypes.DNA_CONTENTS.set(dna, DNAContents.EMPTY);
             out.add(dna);
         }
         return out;

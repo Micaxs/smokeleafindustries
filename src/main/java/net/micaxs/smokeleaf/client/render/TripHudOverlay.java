@@ -6,13 +6,12 @@ import net.micaxs.smokeleaf.effect.TripTier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderGuiEvent;
-
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.client.event.RenderGuiEvent;
 /** Small icon + name badge in the top-left corner showing which {@link TripTier} is currently active. */
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
 public final class TripHudOverlay {
     private TripHudOverlay() {}
 
@@ -25,7 +24,7 @@ public final class TripHudOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || mc.options.hideGui) return;
 
-        MobEffectInstance stoned = mc.player.getEffect(ModEffects.STONED);
+        MobEffectInstance stoned = mc.player.getEffect(ModEffects.STONED.get());
         if (stoned == null || !stoned.isVisible()) return;
 
         TripTier tier = TripTier.byAmplifier(stoned.getAmplifier());

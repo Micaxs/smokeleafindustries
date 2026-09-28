@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.recipe.DryingRecipe;
@@ -8,7 +11,6 @@ import net.micaxs.smokeleaf.recipe.ModRecipes;
 import net.micaxs.smokeleaf.screen.custom.DryerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -24,15 +26,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +57,7 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
 
             return level.getRecipeManager()
                     .getRecipeFor(ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(stack), level)
-                    .filter(r -> acceptsForMachine(r.value()))
+                    .filter(r -> acceptsForMachine(r))
                     .isPresent();
         }
     };
@@ -148,13 +149,13 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
         if (level == null || level.isClientSide()) return;
 
         boolean hasEnergy = this.ENERGY_STORAGE.getEnergyStored() > 0;
-        Optional<RecipeHolder<DryingRecipe>> recipeOpt = getCurrentRecipe();
+        Optional<DryingRecipe> recipeOpt = getCurrentRecipe();
 
         Optional<ItemStack> plannedOutput = recipeOpt.flatMap(this::getPlannedOutput);
         boolean canOutput = plannedOutput.filter(this::canInsertIntoOutput).isPresent();
 
         if (hasEnergy && recipeOpt.isPresent() && canOutput) {
-            this.maxProgress = (int) Math.max(1, recipeOpt.get().value().time() / 3);
+            this.maxProgress = (int) Math.max(1, recipeOpt.get().time() / 3);
 
             increaseCraftingProgress();
             this.ENERGY_STORAGE.extractEnergy(20, false);
@@ -188,21 +189,21 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
         return !recipe.result().isEmpty() || recipe.dryBud();
     }
 
-    private Optional<RecipeHolder<DryingRecipe>> getCurrentRecipe() {
+    private Optional<DryingRecipe> getCurrentRecipe() {
         if (this.level == null) return Optional.empty();
         ItemStack in = itemHandler.getStackInSlot(INPUT_SLOT);
         if (in.isEmpty()) return Optional.empty();
 
         return this.level.getRecipeManager()
                 .getRecipeFor(ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(in), level)
-                .filter(r -> acceptsForMachine(r.value()));
+                .filter(r -> acceptsForMachine(r));
     }
 
-    private Optional<ItemStack> getPlannedOutput(RecipeHolder<DryingRecipe> recipeHolder) {
+    private Optional<ItemStack> getPlannedOutput(DryingRecipe recipeHolder) {
         ItemStack in = itemHandler.getStackInSlot(INPUT_SLOT);
         if (in.isEmpty()) return Optional.empty();
 
-        DryingRecipe recipe = recipeHolder.value();
+        DryingRecipe recipe = recipeHolder;
         if (!recipe.result().isEmpty()) {
             ItemStack out = recipe.result().copy();
             out.setCount(Math.max(1, out.getCount()));
@@ -212,7 +213,7 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
         if (recipe.dryBud()) {
             ItemStack dried = in.copy();
             dried.setCount(1);
-            dried.set(ModDataComponentTypes.DRY, true);
+            ModDataComponentTypes.DRY.set(dried, true);
             return Optional.of(dried);
         }
 
@@ -224,21 +225,21 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
         if (existing.isEmpty()) {
             return planned.getCount() <= planned.getMaxStackSize();
         }
-        if (!ItemStack.isSameItemSameComponents(existing, planned)) {
+        if (!ItemStack.isSameItemSameTags(existing, planned)) {
             return false;
         }
         int max = Math.min(existing.getMaxStackSize(), planned.getMaxStackSize());
         return existing.getCount() + planned.getCount() <= max;
     }
 
-    private void craftItem(RecipeHolder<DryingRecipe> recipe, ItemStack plannedOutput) {
+    private void craftItem(DryingRecipe recipe, ItemStack plannedOutput) {
         // Consume exactly 1 input
         itemHandler.extractItem(INPUT_SLOT, 1, false);
 
         ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
         if (existing.isEmpty()) {
             itemHandler.setStackInSlot(OUTPUT_SLOT, plannedOutput.copy());
-        } else if (ItemStack.isSameItemSameComponents(existing, plannedOutput)) {
+        } else if (ItemStack.isSameItemSameTags(existing, plannedOutput)) {
             int newCount = Math.min(existing.getCount() + plannedOutput.getCount(), existing.getMaxStackSize());
             existing.setCount(newCount);
             itemHandler.setStackInSlot(OUTPUT_SLOT, existing);
@@ -259,18 +260,18 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
 
     // NBT Data
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("dryer.inventory", itemHandler.serializeNBT(registries));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("dryer.inventory", itemHandler.serializeNBT());
         tag.putInt("dryer.progress", progress);
         tag.putInt("dryer.maxProgress", maxProgress);
         tag.putInt("dryer.energy", ENERGY_STORAGE.getEnergyStored());
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("dryer.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("dryer.inventory"));
         ENERGY_STORAGE.setEnergy(tag.getInt("dryer.energy"));
         progress = tag.getInt("dryer.progress");
         maxProgress = tag.getInt("dryer.maxProgress");
@@ -283,12 +284,18 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, null, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

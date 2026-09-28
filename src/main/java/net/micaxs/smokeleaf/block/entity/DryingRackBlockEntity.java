@@ -8,7 +8,6 @@ import net.micaxs.smokeleaf.recipe.DryingRecipeInput;
 import net.micaxs.smokeleaf.recipe.ModRecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -24,7 +23,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,7 +69,7 @@ public class DryingRackBlockEntity extends BlockEntity {
                 continue;
             }
 
-            Optional<RecipeHolder<DryingRecipe>> recipeHolderOpt = level.getRecipeManager()
+            Optional<DryingRecipe> recipeHolderOpt = level.getRecipeManager()
                     .getRecipeFor(ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(stack), level);
 
             if (recipeHolderOpt.isEmpty()) {
@@ -79,7 +77,7 @@ public class DryingRackBlockEntity extends BlockEntity {
                 continue;
             }
 
-            DryingRecipe recipe = recipeHolderOpt.get().value();
+            DryingRecipe recipe = recipeHolderOpt.get();
 
             if (recipe.dryBud() && stack.getItem() instanceof BaseBudItem budItem) {
                 // Skip everything (including particles) if already dry
@@ -143,11 +141,11 @@ public class DryingRackBlockEntity extends BlockEntity {
         ItemStack stack = items[slot];
         if (stack.isEmpty()) return 0;
 
-        Optional<RecipeHolder<DryingRecipe>> recipeHolderOpt =
+        Optional<DryingRecipe> recipeHolderOpt =
                 level.getRecipeManager().getRecipeFor(ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(stack), level);
         if (recipeHolderOpt.isEmpty()) return 0;
 
-        DryingRecipe recipe = recipeHolderOpt.get().value();
+        DryingRecipe recipe = recipeHolderOpt.get();
         if (recipe.dryBud() && stack.getItem() instanceof BaseBudItem budItem) {
             return Math.max(1, budItem.dryingTime);
         }
@@ -155,7 +153,7 @@ public class DryingRackBlockEntity extends BlockEntity {
     }
 
     private boolean isDry(ItemStack stack) {
-        Boolean v = stack.get(ModDataComponentTypes.DRY);
+        Boolean v = ModDataComponentTypes.DRY.get(stack);
         return v != null && v;
     }
 
@@ -240,23 +238,23 @@ public class DryingRackBlockEntity extends BlockEntity {
 
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         for (int i = 0; i < SLOT_COUNT; i++) {
             CompoundTag slotTag = new CompoundTag();
-            if (!items[i].isEmpty()) slotTag.put("stack", items[i].save(registries));
+            if (!items[i].isEmpty()) slotTag.put("stack", items[i].save(new CompoundTag()));
             slotTag.putInt("prog", progress[i]);
             tag.put("S" + i, slotTag);
         }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         for (int i = 0; i < SLOT_COUNT; i++) {
             CompoundTag slotTag = tag.getCompound("S" + i);
             if (slotTag.contains("stack")) {
-                items[i] = ItemStack.parse(registries, slotTag.getCompound("stack")).orElse(ItemStack.EMPTY);
+                items[i] = ItemStack.of(slotTag.getCompound("stack"));
             } else {
                 items[i] = ItemStack.EMPTY;
             }
@@ -270,12 +268,12 @@ public class DryingRackBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
     }
 }

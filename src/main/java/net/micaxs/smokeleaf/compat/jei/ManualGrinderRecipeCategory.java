@@ -28,9 +28,9 @@ import java.util.List;
 public class ManualGrinderRecipeCategory implements IRecipeCategory<ManualGrinderRecipe> {
 
     public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "manual_grinder");
+            new ResourceLocation(SmokeleafIndustries.MODID, "manual_grinder");
     private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
+            new ResourceLocation(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
 
     public static final RecipeType<ManualGrinderRecipe> RECIPE_TYPE =
             new RecipeType<>(UID, ManualGrinderRecipe.class);
@@ -65,7 +65,7 @@ public class ManualGrinderRecipeCategory implements IRecipeCategory<ManualGrinde
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, ManualGrinderRecipe recipe, IFocusGroup focuses) {
-        var inputIngredient = recipe.getIngredients().getFirst();
+        var inputIngredient = recipe.getIngredients().get(0);
         if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
             builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
                     .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));

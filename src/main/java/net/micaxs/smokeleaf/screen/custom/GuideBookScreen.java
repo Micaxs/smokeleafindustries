@@ -23,7 +23,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
 
@@ -45,7 +44,7 @@ import java.util.Optional;
  * rather than being silently truncated.
  */
 public class GuideBookScreen extends Screen {
-    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation TEX = new ResourceLocation(
             SmokeleafIndustries.MODID, "textures/gui/smokeleaf_guide.png");
     private static final int TEX_W = 256, TEX_H = 256;
 
@@ -230,7 +229,7 @@ public class GuideBookScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
         if (mode == Mode.PAGE) {
             int pl = pageLeft();
             int top = top();
@@ -239,7 +238,7 @@ public class GuideBookScreen extends Screen {
                 return true;
             }
         }
-        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        return super.mouseScrolled(mouseX, mouseY, scrollY);
     }
 
     @Override
@@ -258,9 +257,8 @@ public class GuideBookScreen extends Screen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    @Override
-    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        this.renderTransparentBackground(g);
+    private void renderBookBackground(GuiGraphics g, int mouseX, int mouseY) {
+        this.renderBackground(g);
         g.blit(TEX, pageLeft(), top(), IMAGE_WIDTH, IMAGE_HEIGHT, (float) PAGE_U, (float) PAGE_V, SRC_IMAGE_WIDTH, SRC_IMAGE_HEIGHT, TEX_W, TEX_H);
         renderTabRail(g, mouseX, mouseY);
     }
@@ -290,6 +288,7 @@ public class GuideBookScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        renderBookBackground(g, mouseX, mouseY);
         super.render(g, mouseX, mouseY, partialTick);
         if (categories.isEmpty()) {
             g.drawCenteredString(font, "No guide content loaded", pageLeft() + IMAGE_WIDTH / 2, top() + IMAGE_HEIGHT / 2, 0xFF553311);
@@ -382,13 +381,13 @@ public class GuideBookScreen extends Screen {
         int gridY = top + PAGE_TEXT_Y_OFFSET + sc(10);
         int slot = sc(18);
 
-        Optional<RecipeHolder<?>> holder = level != null ? level.getRecipeManager().byKey(recipeId) : Optional.empty();
+        Optional<? extends Recipe<?>> holder = level != null ? level.getRecipeManager().byKey(recipeId) : Optional.empty();
         if (holder.isEmpty()) {
             g.drawString(font, "(missing recipe: " + recipeId + ")", pl + PAGE_TEXT_X_OFFSET, gridY, 0xAA0000, false);
             return;
         }
 
-        Recipe<?> recipe = holder.get().value();
+        Recipe<?> recipe = holder.get();
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
         int gw, gh;
         if (recipe instanceof ShapedRecipe shaped) {

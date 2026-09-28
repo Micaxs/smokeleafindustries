@@ -69,7 +69,7 @@ public final class ExtractFluidStats {
     }
 
     private static void putDefault(String path, int n, int p, int k) {
-        DEFAULTS.put(ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, path), new Stats(n, p, k, 0, 0));
+        DEFAULTS.put(new ResourceLocation(SmokeleafIndustries.MODID, path), new Stats(n, p, k, 0, 0));
     }
 
     public static Stats get(Fluid fluid) {

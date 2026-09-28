@@ -7,7 +7,7 @@
   "p": 6,
   "k": 11,
   "effects": [
-    "minecraft:wind_charged"
+    "minecraft:jump_boost"
   ],
   "amp": 1,
   "dur": 200,

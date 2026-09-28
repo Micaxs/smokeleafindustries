@@ -5,8 +5,7 @@ import net.micaxs.smokeleaf.effect.harmful.BrainMeltEffect;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
-
+import net.minecraftforge.client.event.MovementInputUpdateEvent;
 public final class BrainMeltInputHandler {
 
     private BrainMeltInputHandler() {}
@@ -14,7 +13,7 @@ public final class BrainMeltInputHandler {
     public static void onInputUpdate(MovementInputUpdateEvent event) {
         if (!(event.getEntity() instanceof LocalPlayer player)) return;
 
-        MobEffectInstance inst = player.getEffect(ModEffects.BRAIN_MELT);
+        MobEffectInstance inst = player.getEffect(ModEffects.BRAIN_MELT.get());
         if (inst != null) {
             // You can use inst.getAmplifier() if you want to scale the effect with potency
 

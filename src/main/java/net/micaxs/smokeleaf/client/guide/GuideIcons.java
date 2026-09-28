@@ -29,8 +29,8 @@ public final class GuideIcons {
         ItemStack stack = new ItemStack(item);
         String effective = (strainId != null && !strainId.isBlank()) ? strainId : DEFAULT_STRAIN;
         StrainRegistry.get(effective).ifPresent(data -> {
-            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
-            stack.set(ModDataComponentTypes.STRAIN_ID.get(), effective);
+            ModDataComponentTypes.STRAIN_DATA.set(stack, data);
+            ModDataComponentTypes.STRAIN_ID.set(stack, effective);
         });
         return stack;
     }

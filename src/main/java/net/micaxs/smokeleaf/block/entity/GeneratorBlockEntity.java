@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyUtil;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
@@ -10,7 +13,6 @@ import net.micaxs.smokeleaf.recipe.ModRecipes;
 import net.micaxs.smokeleaf.screen.custom.GeneratorMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -23,14 +25,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -186,8 +187,7 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
         if (level == null || stack.isEmpty()) return Optional.empty();
         GeneratorRecipeInput input = new GeneratorRecipeInput(stack);
         return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.GENERATOR_TYPE.get(), input, level)
-                .map(RecipeHolder::value);
+                .getRecipeFor(ModRecipes.GENERATOR_TYPE.get(), input, level);
     }
 
     private void pushEnergyToNeighbours() {
@@ -209,20 +209,20 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        tag.put("generator.inventory", itemHandler.serializeNBT(provider));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("generator.inventory", itemHandler.serializeNBT());
         tag.putInt("generator.burnTime", burnTime);
         tag.putInt("generator.maxBurnTime", maxBurnTime);
         tag.putInt("generator.remainingEnergy", remainingEnergy);
         tag.putInt("generator.genPerTick", generationPerTick);
         tag.putInt("generator.energy", ENERGY_STORAGE.getEnergyStored());
-        super.saveAdditional(tag, provider);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        itemHandler.deserializeNBT(provider, tag.getCompound("generator.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("generator.inventory"));
         ENERGY_STORAGE.setEnergy(tag.getInt("generator.energy"));
         burnTime = tag.getInt("generator.burnTime");
         maxBurnTime = tag.getInt("generator.maxBurnTime");
@@ -236,12 +236,18 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        return saveWithoutMetadata(provider);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, null, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

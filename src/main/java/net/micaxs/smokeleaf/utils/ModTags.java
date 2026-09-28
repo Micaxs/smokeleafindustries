@@ -33,10 +33,10 @@ public class ModTags {
     public static final TagKey<Item> UNIDENTIFIED_SEEDS = tag("unidentified_seeds");
 
     private static TagKey<Item> tag(String name) {
-        return ItemTags.create(ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, name));
+        return ItemTags.create(new ResourceLocation(SmokeleafIndustries.MODID, name));
     }
 
     private static TagKey<Block> blockTag(String name) {
-        return BlockTags.create(ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, name));
+        return BlockTags.create(new ResourceLocation(SmokeleafIndustries.MODID, name));
     }
 }

@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.client.model;
 
+import net.minecraft.resources.ResourceLocation;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.entity.PipeBlockEntity;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeConnection;
@@ -19,9 +20,9 @@ import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.IDynamicBakedModel;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.geometry.UnbakedGeometryHelper;
+import net.minecraftforge.client.model.IDynamicBakedModel;
+import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.geometry.UnbakedGeometryHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -63,8 +64,10 @@ public class PipeBakedModel implements IDynamicBakedModel {
     private final ModelState modelState;
     private final ItemOverrides overrides;
     private final TextureAtlasSprite particleIcon;
+    private final ResourceLocation modelLocation;
 
-    public PipeBakedModel(Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, TextureAtlasSprite particleIcon) {
+    public PipeBakedModel(Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, TextureAtlasSprite particleIcon, ResourceLocation modelLocation) {
+        this.modelLocation = modelLocation;
         this.spriteGetter = spriteGetter;
         this.modelState = modelState;
         this.overrides = overrides;
@@ -82,7 +85,7 @@ public class PipeBakedModel implements IDynamicBakedModel {
 
         List<BlockElement> elements = buildElements(renderState);
         if (elements.isEmpty()) return List.of();
-        return UnbakedGeometryHelper.bakeElements(elements, spriteGetter, modelState);
+        return UnbakedGeometryHelper.bakeElements(elements, spriteGetter, modelState, modelLocation);
     }
 
     /** Fixed full-texture mapping used on every face, regardless of that face's actual size/position — see the class doc. */

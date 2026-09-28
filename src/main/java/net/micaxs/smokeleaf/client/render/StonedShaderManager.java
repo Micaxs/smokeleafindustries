@@ -6,11 +6,10 @@ import net.micaxs.smokeleaf.effect.TripTier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.TickEvent;
 /**
  * Loads/unloads one of {@link TripTier}'s 8 GLSL post-process shaders based on the amplifier of
  * the player's {@link ModEffects#STONED} effect (each amplifier value 0-7 selects a tier — see
@@ -21,7 +20,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
  * The {@code Intensity} uniform fades the effect out over the last 3 seconds of the STONED
  * duration; {@code Time} drives each shader's animation (kaleidoscope spin, colour cycling, etc).
  */
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
 public final class StonedShaderManager {
     private StonedShaderManager() {}
 
@@ -48,7 +47,8 @@ public final class StonedShaderManager {
     }
 
     @SubscribeEvent
-    public static void onClientTick(ClientTickEvent.Post event) {
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getInstance();
 
         if (mc.player == null || mc.level == null) {
@@ -59,7 +59,7 @@ public final class StonedShaderManager {
             return;
         }
 
-        MobEffectInstance stoned = mc.player.getEffect(ModEffects.STONED);
+        MobEffectInstance stoned = mc.player.getEffect(ModEffects.STONED.get());
 
         // "visible" doubles as the trip-streak gate (see TripStreakTracker) — the shader only
         // shows once the player has used the same item 3 times in a row.
@@ -82,8 +82,18 @@ public final class StonedShaderManager {
 
         PostChain chain = mc.gameRenderer.currentEffect();
         if (chain != null) {
-            chain.setUniform("Intensity", computeIntensity(mc, stoned));
-            chain.setUniform("Time", shaderTime);
+            setUniform(chain, "Intensity", computeIntensity(mc, stoned));
+            setUniform(chain, "Time", shaderTime);
+        }
+    }
+
+    // PostChain has no public setUniform in 1.20.1 — write the uniform on every pass directly.
+    private static void setUniform(PostChain chain, String name, float value) {
+        java.util.List<net.minecraft.client.renderer.PostPass> passes =
+                net.minecraftforge.fml.util.ObfuscationReflectionHelper.getPrivateValue(PostChain.class, chain, "f_110009_");
+        if (passes == null) return;
+        for (net.minecraft.client.renderer.PostPass pass : passes) {
+            pass.getEffect().safeGetUniform(name).set(value);
         }
     }
 }

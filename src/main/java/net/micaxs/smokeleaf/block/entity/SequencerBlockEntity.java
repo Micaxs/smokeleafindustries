@@ -1,11 +1,14 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraft.core.Direction;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.recipe.*;
 import net.micaxs.smokeleaf.screen.custom.SequencerMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -20,15 +23,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,8 +60,8 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             return switch (slot) {
-                case DNA_SLOT -> stack.is(ModItems.DNA_STRAND);
-                case BASE_EXTRACT -> stack.is(ModItems.BASE_EXTRACT);
+                case DNA_SLOT -> stack.is(ModItems.DNA_STRAND.get());
+                case BASE_EXTRACT -> stack.is(ModItems.BASE_EXTRACT.get());
                 case OUTPUT_SLOT -> false;
                 default -> false;
             };
@@ -138,7 +140,7 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
-    private Optional<RecipeHolder<SequencerRecipe>> getCurrentRecipe() {
+    private Optional<SequencerRecipe> getCurrentRecipe() {
         SequencerRecipeInput input = new SequencerRecipeInput(
                 itemHandler.getStackInSlot(DNA_SLOT),
                 itemHandler.getStackInSlot(BASE_EXTRACT)
@@ -157,7 +159,7 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
             return false;
         }
 
-        ItemStack outputSimulated = opt.get().value().assemble(
+        ItemStack outputSimulated = opt.get().assemble(
                 new SequencerRecipeInput(itemHandler.getStackInSlot(DNA_SLOT), itemHandler.getStackInSlot(BASE_EXTRACT)), level.registryAccess()
         );
 
@@ -167,7 +169,7 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
     private void craftItem() {
         var opt = getCurrentRecipe();
         if (opt.isEmpty()) return;
-        SequencerRecipe recipe = opt.get().value();
+        SequencerRecipe recipe = opt.get();
         ItemStack output = recipe.assemble(
                 new SequencerRecipeInput(itemHandler.getStackInSlot(DNA_SLOT),
                         itemHandler.getStackInSlot(BASE_EXTRACT)),
@@ -181,14 +183,14 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
         ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
         if (existing.isEmpty()) {
             itemHandler.setStackInSlot(OUTPUT_SLOT, output);
-        } else if (ItemStack.isSameItemSameComponents(existing, output)) {
+        } else if (ItemStack.isSameItemSameTags(existing, output)) {
             existing.grow(output.getCount());
         }
     }
 
     private boolean canInsertItemIntoOutputSlot(ItemStack stack) {
         ItemStack existing = itemHandler.getStackInSlot(OUTPUT_SLOT);
-        return existing.isEmpty() || ItemStack.isSameItemSameComponents(existing, stack);
+        return existing.isEmpty() || ItemStack.isSameItemSameTags(existing, stack);
     }
 
     private boolean canInsertAmountIntoOutputSlot(int count) {
@@ -206,26 +208,26 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("sequencer.inventory", itemHandler.serializeNBT(registries));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("sequencer.inventory", itemHandler.serializeNBT());
         tag.putInt("sequencer.progress", progress);
         tag.putInt("sequencer.maxProgress", maxProgress);
         tag.putInt("sequencer.energy", ENERGY_STORAGE.getEnergyStored());
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("sequencer.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("sequencer.inventory"));
         ENERGY_STORAGE.setEnergy(tag.getInt("sequencer.energy"));
         progress = tag.getInt("sequencer.progress");
         maxProgress = tag.getInt("sequencer.maxProgress");
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
@@ -234,7 +236,13 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookup) {
-        super.onDataPacket(net, pkt, lookup);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, null, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

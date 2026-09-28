@@ -34,7 +34,7 @@ public class BongItem extends Item {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    public int getUseDuration(ItemStack stack) {
         return 30;
     }
 
@@ -68,14 +68,8 @@ public class BongItem extends Item {
         return effects;
     }
 
-    private Holder<MobEffect> toHolder(MobEffect effect, LivingEntity entity) {
-        return BuiltInRegistries.MOB_EFFECT
-                .getResourceKey(effect)
-                .flatMap(key -> entity.level()
-                        .registryAccess()
-                        .registryOrThrow(Registries.MOB_EFFECT)
-                        .getHolder(key))
-                .orElseThrow(() -> new IllegalStateException("Unregistered MobEffect: " + effect));
+    private MobEffect toHolder(MobEffect effect, LivingEntity entity) {
+        return effect;
     }
 
 
@@ -117,7 +111,7 @@ public class BongItem extends Item {
             // (see TripStreakTracker) — it still grants STONED either way.
             int maxDuration = offhandEffects.stream().mapToInt(MobEffectInstance::getDuration).max().orElse(0);
             if (maxDuration > 0) {
-                MobEffectInstance existing = livingEntity.getEffect(ModEffects.STONED);
+                MobEffectInstance existing = livingEntity.getEffect(ModEffects.STONED.get());
                 int tier = net.micaxs.smokeleaf.effect.TripTier.forThc(
                         offhandStrain != net.micaxs.smokeleaf.strain.StrainData.EMPTY ? offhandStrain.thc() : 0).ordinal();
                 float cbdMult = net.micaxs.smokeleaf.effect.TripTier.cbdDurationMultiplier(
@@ -130,7 +124,7 @@ public class BongItem extends Item {
                     confirmed = net.micaxs.smokeleaf.effect.TripStreakTracker.registerUseAndGetStreak(p, streakKey)
                             >= net.micaxs.smokeleaf.effect.TripStreakTracker.REQUIRED_STREAK;
                 }
-                livingEntity.addEffect(new MobEffectInstance(ModEffects.STONED, stonedDuration, tier, false, confirmed));
+                livingEntity.addEffect(new MobEffectInstance(ModEffects.STONED.get(), stonedDuration, tier, false, confirmed));
             }
         }
         return super.finishUsingItem(stack, level, livingEntity);

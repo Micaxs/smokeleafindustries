@@ -1,40 +1,40 @@
 package net.micaxs.smokeleaf.recipe;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.micaxs.smokeleaf.component.ManualGrinderContents;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.custom.ManualGrinderItem;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 
 public class LoadManualGrinderRecipe extends CustomRecipe {
 
     public static final int MAX_STORED = 3;
 
-    public LoadManualGrinderRecipe(CraftingBookCategory category) {
-        super(category);
+    public LoadManualGrinderRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, category);
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingContainer input, Level level) {
         ItemStack grinder = ItemStack.EMPTY;
         ItemStack ingredient = ItemStack.EMPTY;
         int slotCount = 0;
 
-        for (int i = 0; i < input.size(); i++) {
+        for (int i = 0; i < input.getContainerSize(); i++) {
             ItemStack stack = input.getItem(i);
             if (stack.isEmpty()) continue;
 
             if (stack.getItem() instanceof ManualGrinderItem) {
                 if (!grinder.isEmpty()) return false;
-                if (stack.has(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get())) return false;
+                if (ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.has(stack)) return false;
                 grinder = stack;
             } else {
                 // Any stack size is fine here — CommonEvents#onManualGrinderCraft tops up
@@ -44,7 +44,7 @@ public class LoadManualGrinderRecipe extends CustomRecipe {
                 if (ingredient.isEmpty()) {
                     if (!hasManualGrinderRecipe(level, stack)) return false;
                     ingredient = stack;
-                } else if (!ItemStack.isSameItemSameComponents(ingredient, stack)) {
+                } else if (!ItemStack.isSameItemSameTags(ingredient, stack)) {
                     return false;
                 }
                 slotCount++;
@@ -62,12 +62,12 @@ public class LoadManualGrinderRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(CraftingContainer input, RegistryAccess provider) {
         ItemStack grinder = ItemStack.EMPTY;
         ItemStack ingredient = ItemStack.EMPTY;
         int totalCount = 0;
 
-        for (int i = 0; i < input.size(); i++) {
+        for (int i = 0; i < input.getContainerSize(); i++) {
             ItemStack stack = input.getItem(i);
             if (stack.isEmpty()) continue;
             if (stack.getItem() instanceof ManualGrinderItem) {
@@ -84,7 +84,7 @@ public class LoadManualGrinderRecipe extends CustomRecipe {
 
         // Store the full input stack (all data components, incl. THC/CBD)
         ItemStack stored = ingredient.copyWithCount(Math.min(totalCount, MAX_STORED));
-        result.set(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get(),
+        ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.set(result,
                 ManualGrinderContents.fromStack(stored));
 
         return result;
@@ -96,7 +96,7 @@ public class LoadManualGrinderRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(RegistryAccess provider) {
         return ItemStack.EMPTY;
     }
 
@@ -105,22 +105,11 @@ public class LoadManualGrinderRecipe extends CustomRecipe {
         return Serializer.INSTANCE;
     }
 
-    public static class Serializer implements RecipeSerializer<LoadManualGrinderRecipe> {
+    public static class Serializer extends SimpleCraftingRecipeSerializer<LoadManualGrinderRecipe> {
         public static final Serializer INSTANCE = new Serializer();
-        private static final LoadManualGrinderRecipe TEMPLATE =
-                new LoadManualGrinderRecipe(CraftingBookCategory.MISC);
-        private static final MapCodec<LoadManualGrinderRecipe> CODEC = MapCodec.unit(TEMPLATE);
-        private static final StreamCodec<RegistryFriendlyByteBuf, LoadManualGrinderRecipe> STREAM_CODEC =
-                StreamCodec.unit(TEMPLATE);
 
-        @Override
-        public MapCodec<LoadManualGrinderRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, LoadManualGrinderRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public Serializer() {
+            super(LoadManualGrinderRecipe::new);
         }
     }
 }

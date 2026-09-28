@@ -4,7 +4,6 @@ import net.micaxs.smokeleaf.Config;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
@@ -128,8 +127,8 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         if (strain != null && strain != StrainData.EMPTY) {
             tag.put("strain_data", StrainData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, strain).result().orElse(new CompoundTag()));
         }
@@ -142,8 +141,8 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         strain = StrainData.EMPTY;
         if (tag.contains("strain_data")) {
             StrainData.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, tag.get("strain_data"))
@@ -160,13 +159,13 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
+import net.micaxs.smokeleaf.utils.CapHelper;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.ModFluids;
@@ -14,7 +17,6 @@ import net.micaxs.smokeleaf.strain.StrainTankTracker;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -30,19 +32,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,13 +80,13 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
     private boolean isValidMold(ItemStack stack) {
         if (level == null) return false;
         return level.getRecipeManager().getAllRecipesFor(ModRecipes.GUMMY_TYPE.get()).stream()
-                .anyMatch(h -> h.value().mold().test(stack));
+                .anyMatch(h -> h.mold().test(stack));
     }
 
     private boolean isValidCatalyst(ItemStack stack) {
         if (level == null) return false;
         return level.getRecipeManager().getAllRecipesFor(ModRecipes.GUMMY_TYPE.get()).stream()
-                .anyMatch(h -> h.value().catalyst().ingredient().test(stack));
+                .anyMatch(h -> h.catalyst().ingredient().test(stack));
     }
 
     public IItemHandler getItemHandler(@Nullable Direction direction) {
@@ -173,8 +174,7 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
         ItemStack catalyst = itemHandler.getStackInSlot(SLOT_CATALYST);
         if (mold.isEmpty() || catalyst.isEmpty()) return Optional.empty();
         return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.GUMMY_TYPE.get(), new GummyRecipeInput(mold, catalyst), level)
-                .map(RecipeHolder::value);
+                .getRecipeFor(ModRecipes.GUMMY_TYPE.get(), new GummyRecipeInput(mold, catalyst), level);
     }
 
     private ItemStack buildGummyOutput(FluidStack oil, ItemStack recipeOutput) {
@@ -182,10 +182,10 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
         StrainData strainData = StrainUtil.getStrain(oil);
         if (strainData != null && strainData != StrainData.EMPTY) {
             StrainUtil.setStrain(result, strainData);
-            String strainId = oil.get(ModDataComponentTypes.STRAIN_ID.get());
-            if (strainId != null) result.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
-            String strainCreator = oil.get(ModDataComponentTypes.STRAIN_CREATOR.get());
-            if (strainCreator != null) result.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
+            String strainId = ModDataComponentTypes.STRAIN_ID.get(oil);
+            if (strainId != null) ModDataComponentTypes.STRAIN_ID.set(result, strainId);
+            String strainCreator = ModDataComponentTypes.STRAIN_CREATOR.get(oil);
+            if (strainCreator != null) ModDataComponentTypes.STRAIN_CREATOR.set(result, strainCreator);
         }
         return result;
     }
@@ -293,23 +293,23 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        tag.put("gummy_machine.inventory", itemHandler.serializeNBT(regs));
+    protected void saveAdditional(CompoundTag tag) {
+        tag.put("gummy_machine.inventory", itemHandler.serializeNBT());
         tag.putInt("gummy_machine.progress", progress);
         tag.putInt("gummy_machine.maxProgress", maxProgress);
         tag.putInt("gummy_machine.energy", ENERGY_STORAGE.getEnergyStored());
-        tag = FLUID_TANK.writeToNBT(regs, tag);
-        super.saveAdditional(tag, regs);
+        tag = FLUID_TANK.writeToNBT(tag);
+        super.saveAdditional(tag);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        itemHandler.deserializeNBT(regs, tag.getCompound("gummy_machine.inventory"));
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("gummy_machine.inventory"));
         ENERGY_STORAGE.setEnergy(tag.getInt("gummy_machine.energy"));
         progress = tag.getInt("gummy_machine.progress");
         maxProgress = tag.getInt("gummy_machine.maxProgress");
-        FLUID_TANK.readFromNBT(regs, tag);
+        FLUID_TANK.readFromNBT(tag);
     }
 
     @Override
@@ -318,13 +318,13 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider regs) {
-        return saveWithoutMetadata(regs);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
     }
 
     @Override
@@ -343,14 +343,14 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
     public void applyStrainRegistryUpdate(String strainId, StrainRegistrySavedData.StrainEntry entry) {
         FluidStack fluid = FLUID_TANK.getFluid();
         if (fluid.isEmpty()) return;
-        String fluidStrainId = fluid.get(ModDataComponentTypes.STRAIN_ID.get());
+        String fluidStrainId = ModDataComponentTypes.STRAIN_ID.get(fluid);
         if (!strainId.equals(fluidStrainId)) return;
         StrainData current = StrainUtil.getStrain(fluid);
         if (current == StrainData.EMPTY) return;
 
         FluidStack updated = fluid.copy();
         StrainUtil.setStrain(updated, StrainRegistrySavedData.withEntryApplied(current, entry));
-        if (!entry.creatorName().isBlank()) updated.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
+        if (!entry.creatorName().isBlank()) ModDataComponentTypes.STRAIN_CREATOR.set(updated, entry.creatorName());
         FLUID_TANK.setFluid(updated);
         // FluidTank#setFluid just overwrites the field directly (unlike fill()/drain(), it never
         // calls onContentsChanged()), so without an explicit sync here the server-side data is
@@ -360,5 +360,11 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
             setChanged();
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
         }
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        LazyOptional<T> handler = CapHelper.of(cap, side, this::getItemHandler, this::getTank, this::getEnergyStorage);
+        return handler.isPresent() ? handler : super.getCapability(cap, side);
     }
 }

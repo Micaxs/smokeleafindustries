@@ -1,11 +1,10 @@
 package net.micaxs.smokeleaf.command;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID)
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.RegisterCommandsEvent;
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID)
 public final class ModCommands {
 
     private ModCommands() {}

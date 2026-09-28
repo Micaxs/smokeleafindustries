@@ -6,8 +6,8 @@ import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidStack;
 import org.joml.Vector3f;
 
 /**
@@ -104,24 +104,24 @@ public class MixtureWeedFluidType extends WeedFluidType {
         ItemStack bucket = super.getBucket(stack);
         StrainData strain = StrainUtil.getStrain(stack);
         if (strain != StrainData.EMPTY) {
-            bucket.set(ModDataComponentTypes.STRAIN_DATA.get(), strain);
+            ModDataComponentTypes.STRAIN_DATA.set(bucket, strain);
         }
-        String mixKey = stack.get(ModDataComponentTypes.MIX_KEY.get());
+        String mixKey = ModDataComponentTypes.MIX_KEY.get(stack);
         if (mixKey != null && !mixKey.isBlank()) {
-            bucket.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
+            ModDataComponentTypes.MIX_KEY.set(bucket, mixKey);
         }
         // Also copy STRAIN_ID so the Mutator can reuse the stable mix key for every seed batch.
-        String strainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+        String strainId = ModDataComponentTypes.STRAIN_ID.get(stack);
         if (strainId != null && !strainId.isBlank()) {
-            bucket.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+            ModDataComponentTypes.STRAIN_ID.set(bucket, strainId);
         } else if (mixKey != null && !mixKey.isBlank()) {
             // Fallback: STRAIN_ID and MIX_KEY are the same for mixer-produced fluids.
-            bucket.set(ModDataComponentTypes.STRAIN_ID.get(), mixKey);
+            ModDataComponentTypes.STRAIN_ID.set(bucket, mixKey);
         }
         // Copy STRAIN_CREATOR so "Discovered by" tooltip shows on the bucket.
-        String creator = stack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        String creator = ModDataComponentTypes.STRAIN_CREATOR.get(stack);
         if (creator != null && !creator.isBlank()) {
-            bucket.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+            ModDataComponentTypes.STRAIN_CREATOR.set(bucket, creator);
         }
         return bucket;
     }
@@ -145,9 +145,9 @@ public class MixtureWeedFluidType extends WeedFluidType {
 
         // Perceived luminance
         float luma = 0.2126f * r + 0.7152f * g + 0.0722f * b;
-        r = Math.clamp((int) (luma + satScale * (r - luma)), 0, 255);
-        g = Math.clamp((int) (luma + satScale * (g - luma)), 0, 255);
-        b = Math.clamp((int) (luma + satScale * (b - luma)), 0, 255);
+        r = net.minecraft.util.Mth.clamp((int) (luma + satScale * (r - luma)), 0, 255);
+        g = net.minecraft.util.Mth.clamp((int) (luma + satScale * (g - luma)), 0, 255);
+        b = net.minecraft.util.Mth.clamp((int) (luma + satScale * (b - luma)), 0, 255);
 
         return (a << 24) | (r << 16) | (g << 8) | b;
     }

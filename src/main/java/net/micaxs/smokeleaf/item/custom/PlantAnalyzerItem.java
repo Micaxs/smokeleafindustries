@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import org.jetbrains.annotations.Nullable;
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.block.custom.GrowPotBlock;
 import net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock;
@@ -16,9 +17,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.List;
 
 public class PlantAnalyzerItem extends Item {
@@ -55,7 +55,7 @@ public class PlantAnalyzerItem extends Item {
 
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         tooltipComponents.add(Component.translatable("tooltip.smokeleafindustries.plant_analyzer").withStyle(ChatFormatting.GRAY));
     }
 

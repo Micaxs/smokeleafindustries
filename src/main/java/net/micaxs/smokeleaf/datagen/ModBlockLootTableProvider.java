@@ -24,16 +24,14 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePrope
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
+import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
 import java.util.Set;
 import java.util.function.Supplier;
 
 public class ModBlockLootTableProvider extends BlockLootSubProvider {
-    protected ModBlockLootTableProvider(HolderLookup.Provider registries) {
-        super(Set.of(), FeatureFlags.REGISTRY.allFlags(), registries);
+    protected ModBlockLootTableProvider() {
+        super(Set.of(), FeatureFlags.REGISTRY.allFlags());
     }
 
     @Override
@@ -110,9 +108,9 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
 
     }
 
-    private void addSimpleCropLoot(DeferredBlock<Block> tobaccoCrop,
-                                   DeferredItem<Item> tobaccoLeaf,
-                                   DeferredItem<Item> tobaccoSeeds) {
+    private void addSimpleCropLoot(RegistryObject<Block> tobaccoCrop,
+                                   RegistryObject<Item> tobaccoLeaf,
+                                   RegistryObject<Item> tobaccoSeeds) {
         Block block = tobaccoCrop.get();
         CropBlock crop = (CropBlock) block;
 
@@ -145,7 +143,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         );
     }
 
-    private void addCropLoot(net.neoforged.neoforge.registries.DeferredBlock<Block> cropBlock,
+    private void addCropLoot(net.minecraftforge.registries.RegistryObject<Block> cropBlock,
                             java.util.function.Supplier<Item> budSupplier,
                             java.util.function.Supplier<Item> seedsSupplier,
                             java.util.function.Supplier<Item> leafSupplier) {
@@ -186,7 +184,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
                         .add(LootItem.lootTableItem(leafItem)));
     }
 
-//    private void addCropLoot(DeferredBlock<Block> cropBlock, Supplier<Item> budSupplier, Supplier<Item> seedsSupplier, Supplier<Item> leafSupplier) {
+//    private void addCropLoot(RegistryObject<Block> cropBlock, Supplier<Item> budSupplier, Supplier<Item> seedsSupplier, Supplier<Item> leafSupplier) {
 //        LootItemCondition.Builder cropIsHarvestable = LootItemBlockStatePropertyCondition
 //                .hasBlockStateProperties(cropBlock.get())
 //                .setProperties(StatePropertiesPredicate.Builder.properties()
@@ -221,7 +219,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
 //    }
 
 
-    private void addHempCropLoot(DeferredBlock<Block> cropBlock, Supplier<Item> budSupplier, Supplier<Item> seedsSupplier, Supplier<Item> leafSupplier) {
+    private void addHempCropLoot(RegistryObject<Block> cropBlock, Supplier<Item> budSupplier, Supplier<Item> seedsSupplier, Supplier<Item> leafSupplier) {
         LootItemCondition.Builder cropIsHarvestable = LootItemBlockStatePropertyCondition
                 .hasBlockStateProperties(cropBlock.get())
                 .setProperties(StatePropertiesPredicate.Builder.properties()
@@ -257,7 +255,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
     }
 
 
-    private void addUnidentifiedCropLoot(net.neoforged.neoforge.registries.DeferredBlock<Block> cropBlock,
+    private void addUnidentifiedCropLoot(net.minecraftforge.registries.RegistryObject<Block> cropBlock,
                                         java.util.function.Supplier<Item> weedSupplier,
                                         java.util.function.Supplier<Item> seedsSupplier,
                                         java.util.function.Supplier<Item> leafSupplier) {
@@ -292,6 +290,6 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
 
     @Override
     protected Iterable<Block> getKnownBlocks() {
-        return ModBlocks.BLOCKS.getEntries().stream().map(Holder::value)::iterator;
+        return ModBlocks.BLOCKS.getEntries().stream().map(RegistryObject::get)::iterator;
     }
 }

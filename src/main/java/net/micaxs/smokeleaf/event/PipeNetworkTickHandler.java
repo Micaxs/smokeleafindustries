@@ -9,17 +9,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -32,7 +31,7 @@ import java.util.Set;
  * instantly (no item entities, no travel animation — see the pipe system plan for why this is both
  * what was asked for visually and what keeps long runs cheap).
  */
-@EventBusSubscriber(modid = SmokeleafIndustries.MODID)
+@Mod.EventBusSubscriber(modid = SmokeleafIndustries.MODID)
 public final class PipeNetworkTickHandler {
 
     private static final int ITEM_FLUID_INTERVAL_TICKS = 4;
@@ -42,8 +41,9 @@ public final class PipeNetworkTickHandler {
     private PipeNetworkTickHandler() {}
 
     @SubscribeEvent
-    public static void onLevelTick(LevelTickEvent.Post event) {
-        if (!(event.getLevel() instanceof ServerLevel level)) return;
+    public static void onLevelTick(TickEvent.LevelTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (!(event.level instanceof ServerLevel level)) return;
         PipeNetworkManager manager = PipeNetworkManager.get(level);
         long gameTime = level.getGameTime();
 

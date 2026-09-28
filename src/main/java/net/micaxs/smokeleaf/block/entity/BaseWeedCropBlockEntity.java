@@ -4,7 +4,6 @@ import net.micaxs.smokeleaf.Config;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -71,8 +70,8 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
 
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("thc", this.thc);
         tag.putInt("cbd", this.cbd);
         tag.putInt("ph", this.ph);
@@ -82,8 +81,8 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         this.thc = tag.getInt("thc");
         this.cbd = tag.getInt("cbd");
         this.ph = tag.getInt("ph");
@@ -174,9 +173,9 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
     }
 
     public void writeToItem(ItemStack stack) {
-        StrainData existing = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
+        StrainData existing = ModDataComponentTypes.STRAIN_DATA.get(stack);
         if (existing != null) {
-            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+            ModDataComponentTypes.STRAIN_DATA.set(stack, new StrainData(
                     existing.colorArgb(), existing.leafColor(), thc, cbd,
                     existing.nitrogen(), existing.phosphorus(), existing.potassium(),
                     existing.effects(), existing.amplifier(), existing.durationTicks(),
@@ -185,8 +184,8 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
                     "", ""
             ));
         } else {
-            stack.set(ModDataComponentTypes.THC.get(), thc);
-            stack.set(ModDataComponentTypes.CBD.get(), cbd);
+            ModDataComponentTypes.THC.set(stack, thc);
+            ModDataComponentTypes.CBD.set(stack, cbd);
         }
     }
 
@@ -198,13 +197,13 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return saveWithoutMetadata(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
     }
 
     public void sync() {
