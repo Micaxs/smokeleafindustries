@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:dryer",
+  "category": "smokeleafindustries:machines",
+  "sortnum": 4,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:dryer" }
+  ]
+}

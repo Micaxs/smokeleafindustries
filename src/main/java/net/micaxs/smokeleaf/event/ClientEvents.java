@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientChatEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.neoforged.neoforge.client.event.RenderNameTagEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
@@ -125,7 +126,85 @@ public class ClientEvents {
         }
     }
 
+    // -------- Scrambled Mouth: mutate outgoing chat text --------
+    @SubscribeEvent
+    public static void onClientChat(ClientChatEvent event) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || !mc.player.hasEffect(ModEffects.SCRAMBLED_MOUTH)) return;
 
+        String message = event.getMessage();
+        if (message == null || message.isEmpty() || message.startsWith("/")) return;
+
+        String scrambled = scrambleMessage(message);
+        if (!message.equals(scrambled)) {
+            event.setMessage(scrambled);
+        }
+    }
+
+    private static String scrambleMessage(String input) {
+        if (input == null || input.isEmpty()) return input;
+
+        StringBuilder result = new StringBuilder(input.length());
+        int i = 0;
+        while (i < input.length()) {
+            char ch = input.charAt(i);
+            if (Character.isWhitespace(ch)) {
+                result.append(ch);
+                i++;
+                continue;
+            }
+
+            int start = i;
+            while (i < input.length() && !Character.isWhitespace(input.charAt(i))) {
+                i++;
+            }
+
+            String word = input.substring(start, i);
+            if (word.length() > 1 && RAND.nextFloat() < 0.75F) {
+                result.append(scrambleWord(word));
+            } else {
+                result.append(word);
+            }
+        }
+
+        return result.toString();
+    }
+
+    private static String scrambleWord(String word) {
+        if (word.length() <= 1) return word;
+
+        char[] chars = word.toCharArray();
+        java.util.ArrayList<Integer> digitIndexes = new java.util.ArrayList<>();
+        java.util.ArrayList<Integer> letterIndexes = new java.util.ArrayList<>();
+
+        for (int i = 0; i < chars.length; i++) {
+            if (Character.isDigit(chars[i])) {
+                digitIndexes.add(i);
+            } else if (Character.isLetter(chars[i])) {
+                letterIndexes.add(i);
+            }
+        }
+
+        java.util.ArrayList<Integer> candidates = digitIndexes.isEmpty() ? letterIndexes : digitIndexes;
+        if (candidates.isEmpty()) return word;
+
+        int index = candidates.get(RAND.nextInt(candidates.size()));
+        char target = chars[index];
+
+        if (Character.isDigit(target)) {
+            int digit = target - '0';
+            int delta = RAND.nextBoolean() ? 1 : -1;
+            digit = (digit + delta + 10) % 10;
+            chars[index] = (char) ('0' + digit);
+            return new String(chars);
+        }
+
+        int base = Character.isUpperCase(target) ? 'A' : 'a';
+        int offset = RAND.nextBoolean() ? 1 : -1;
+        int shifted = ((target - base + offset + 26) % 26) + base;
+        chars[index] = (char) shifted;
+        return new String(chars);
+    }
 
 
     // -------- Zombified: render player as a zombie --------

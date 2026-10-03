@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:potash_boost",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 14,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:potash_boost" } ]
+}

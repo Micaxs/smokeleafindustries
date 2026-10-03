@@ -1,0 +1,8 @@
+{
+  "icon": "smokeleafindustries:dab_rig",
+  "category": "smokeleafindustries:effects",
+  "sortnum": 3,
+  "pages": [
+    { "type": "text" }
+  ]
+}

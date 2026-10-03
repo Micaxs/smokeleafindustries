@@ -31,14 +31,26 @@ public record ManualGrinderRecipe(Ingredient ingredient, ItemStack result, int g
         ItemStack in = input.getItem(0);
 
         if (!in.isEmpty()) {
-            if (out.getItem() instanceof BaseWeedItem weedItem) {
-                weedItem.initializeStack(out);
+            // If input carries StrainData, copy it to the output (primary path for generic items)
+            net.micaxs.smokeleaf.strain.StrainData strainData =
+                    in.get(ModDataComponentTypes.STRAIN_DATA.get());
+            if (strainData != null) {
+                out.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+            } else {
+                // Legacy path: per-strain items without StrainData
+                if (out.getItem() instanceof BaseWeedItem weedItem) {
+                    weedItem.initializeStack(out);
+                }
+                Integer thc = in.get(ModDataComponentTypes.THC.get());
+                Integer cbd = in.get(ModDataComponentTypes.CBD.get());
+                if (thc != null) out.set(ModDataComponentTypes.THC.get(), thc);
+                if (cbd != null) out.set(ModDataComponentTypes.CBD.get(), cbd);
             }
-
-            Integer thc = in.get(ModDataComponentTypes.THC.get());
-            Integer cbd = in.get(ModDataComponentTypes.CBD.get());
-            if (thc != null) out.set(ModDataComponentTypes.THC.get(), thc);
-            if (cbd != null) out.set(ModDataComponentTypes.CBD.get(), cbd);
+            // Propagate strain lineage components
+            String strainId = in.get(ModDataComponentTypes.STRAIN_ID.get());
+            if (strainId != null) out.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+            String strainCreator = in.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+            if (strainCreator != null) out.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
         }
 
         return out;

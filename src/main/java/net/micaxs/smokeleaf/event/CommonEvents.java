@@ -7,14 +7,22 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
+import net.micaxs.smokeleaf.item.custom.StrainBookItem;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.item.custom.ManualGrinderItem;
+import net.micaxs.smokeleaf.item.custom.UnidentifiedMixtureBucketItem;
+import net.micaxs.smokeleaf.strain.MixedStrainSavedData;
+import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainRegistry;
+import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
+import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.micaxs.smokeleaf.utils.WeedDataUtil;
 import net.micaxs.smokeleaf.villager.ModVillagers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -31,8 +39,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
@@ -44,13 +54,15 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.event.entity.player.AnvilRepairEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-
 import java.util.*;
 
 @EventBusSubscriber(modid = SmokeleafIndustries.MODID)
@@ -148,16 +160,74 @@ public class CommonEvents {
 
 
     // -------- ManualGrinder Crafting Recipe --------
+    // LoadManualGrinderRecipe lets 1-3 grind-worths of the same item load a Manual Grinder,
+    // spread across up to 3 grid slots in any stack size. The vanilla crafting grid always
+    // removes exactly 1 item from every contributing slot when the result is taken, no matter
+    // how many are actually needed — fine when the player used 3 separate one-count slots, but
+    // insufficient when (say) a single stack of 8 supplies all 3. This event fires before that
+    // vanilla removal, so it tops up the shortfall by shrinking the surplus out of whichever
+    // ingredient slot(s) have more than 1, leaving the vanilla -1-per-slot pass to finish the job.
     @SubscribeEvent
     public static void onManualGrinderCraft(PlayerEvent.ItemCraftedEvent event) {
         ItemStack result = event.getCrafting();
         if (!(result.getItem() instanceof ManualGrinderItem)) {
             return;
         }
+
+        ManualGrinderContents contents = result.get(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get());
+        if (contents == null) return;
+
+        ItemStack stored = contents.stack();
+        int storedCount = stored.getCount();
+
+        Container matrix = event.getInventory();
+        List<Integer> ingredientSlots = new ArrayList<>();
+        for (int i = 0; i < matrix.getContainerSize(); i++) {
+            ItemStack slotStack = matrix.getItem(i);
+            if (!slotStack.isEmpty() && !(slotStack.getItem() instanceof ManualGrinderItem)
+                    && ItemStack.isSameItemSameComponents(slotStack, stored)) {
+                ingredientSlots.add(i);
+            }
+        }
+
+        int deficit = storedCount - ingredientSlots.size();
+        for (int slot : ingredientSlots) {
+            if (deficit <= 0) break;
+            int surplus = matrix.getItem(slot).getCount() - 1;
+            if (surplus <= 0) continue;
+            int take = Math.min(surplus, deficit);
+            matrix.removeItem(slot, take);
+            deficit -= take;
+        }
     }
 
 
 
+
+
+    // -------- Baja Hoodie: full set negates the Stoned effect --------
+    private static boolean wearsFullSet(Player player, Item helmet, Item chest, Item legs, Item boots) {
+        return player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).is(helmet)
+                && player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST).is(chest)
+                && player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.LEGS).is(legs)
+                && player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET).is(boots);
+    }
+
+    private static boolean wearsFullBajaSet(Player player) {
+        return wearsFullSet(player, ModItems.BAJA_HOODIE_HELMET.get(), ModItems.BAJA_HOODIE_CHESTPLATE.get(),
+                ModItems.BAJA_HOODIE_LEGGINGS.get(), ModItems.BAJA_HOODIE_BOOTS.get())
+                || wearsFullSet(player, ModItems.REINFORCED_BAJA_HOODIE_HELMET.get(), ModItems.REINFORCED_BAJA_HOODIE_CHESTPLATE.get(),
+                ModItems.REINFORCED_BAJA_HOODIE_LEGGINGS.get(), ModItems.REINFORCED_BAJA_HOODIE_BOOTS.get());
+    }
+
+    @SubscribeEvent
+    public static void onStonedApplicable(MobEffectEvent.Applicable event) {
+        if (event.getEffectInstance() == null || event.getEffectInstance().getEffect() != ModEffects.STONED) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (wearsFullBajaSet(player)) {
+            event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+        }
+    }
 
 
     // -------- Player Effects: Chillout, Zombified, Sticky Icky --------
@@ -175,6 +245,12 @@ public class CommonEvents {
         Level lvl = player.level();
         if (lvl.isClientSide) return;
         ServerLevel level = (ServerLevel) lvl;
+
+        // Baja Hoodie: cure Stoned immediately if the full set gets equipped while already high,
+        // rather than just blocking future re-applications.
+        if (player.hasEffect(ModEffects.STONED) && wearsFullBajaSet(player)) {
+            player.removeEffect(ModEffects.STONED);
+        }
 
         // Chillout: pacify nearby zombies + particles
         if (player.hasEffect(ModEffects.CHILLOUT)) {
@@ -348,7 +424,8 @@ public class CommonEvents {
             boolean hasWeedData =
                     src.has(ModDataComponentTypes.ACTIVE_INGREDIENT.get()) ||
                             src.has(ModDataComponentTypes.THC.get()) ||
-                            src.has(ModDataComponentTypes.CBD.get());
+                            src.has(ModDataComponentTypes.CBD.get()) ||
+                            src.has(ModDataComponentTypes.STRAIN_DATA.get());
 
             if (hasWeedData) {
                 WeedDataUtil.copyWeedComponents(src, result);
@@ -427,31 +504,31 @@ public class CommonEvents {
             );
 
             addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.WHITE_WIDOW_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BUBBLE_KUSH_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.LEMON_HAZE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.SOUR_DIESEL_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BLUE_ICE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BUBBLEGUM_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.PURPLE_HAZE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.OG_KUSH_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.JACK_HERER_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.GARY_PEYTON_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.AMNESIA_HAZE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.AK47_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.GHOST_TRAIN_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.GRAPE_APE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.COTTON_CANDY_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BANANA_KUSH_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.CARBON_FIBER_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BIRTHDAY_CAKE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BLUE_COOKIES_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.AFGHANI_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.MOONBOW_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.LAVA_CAKE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.JELLY_RANCHER_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.STRAWBERRY_SHORTCAKE_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.PINK_KUSH_BAG, 1), new ItemStack(Items.EMERALD, 1), 10, 5, 0.01f)
+                    (pTrader, pRandom) -> weedOffer(4, "white_widow"),
+                    (pTrader, pRandom) -> weedOffer(4, "bubble_kush"),
+                    (pTrader, pRandom) -> weedOffer(5, "lemon_haze"),
+                    (pTrader, pRandom) -> weedOffer(4, "sour_diesel"),
+                    (pTrader, pRandom) -> weedOffer(4, "blue_ice"),
+                    (pTrader, pRandom) -> weedOffer(5, "bubblegum"),
+                    (pTrader, pRandom) -> weedOffer(6, "purple_haze"),
+                    (pTrader, pRandom) -> weedOffer(3, "og_kush"),
+                    (pTrader, pRandom) -> weedOffer(4, "jack_herer"),
+                    (pTrader, pRandom) -> weedOffer(5, "gary_peyton"),
+                    (pTrader, pRandom) -> weedOffer(6, "amnesia_haze"),
+                    (pTrader, pRandom) -> weedOffer(5, "ak47"),
+                    (pTrader, pRandom) -> weedOffer(4, "ghost_train"),
+                    (pTrader, pRandom) -> weedOffer(6, "grape_ape"),
+                    (pTrader, pRandom) -> weedOffer(6, "cotton_candy"),
+                    (pTrader, pRandom) -> weedOffer(5, "banana_kush"),
+                    (pTrader, pRandom) -> weedOffer(4, "carbon_fiber"),
+                    (pTrader, pRandom) -> weedOffer(6, "birthday_cake"),
+                    (pTrader, pRandom) -> weedOffer(5, "blue_cookies"),
+                    (pTrader, pRandom) -> weedOffer(6, "afghani"),
+                    (pTrader, pRandom) -> weedOffer(4, "moonbow"),
+                    (pTrader, pRandom) -> weedOffer(6, "lava_cake"),
+                    (pTrader, pRandom) -> weedOffer(5, "jelly_rancher"),
+                    (pTrader, pRandom) -> weedOffer(6, "strawberry_shortcake"),
+                    (pTrader, pRandom) -> weedOffer(5, "pink_kush")
             );
             addRandomTrades(trades, 2, 1,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.TOBACCO, 10), new ItemStack(Items.EMERALD, 1), 6, 5, 0.01f),
@@ -460,7 +537,7 @@ public class CommonEvents {
 
             addRandomTrades(trades, 3, 2,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HEMP_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.EMPTY_TINCTURE, 4), new ItemStack(Items.EMERALD, 1), 4, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.INFUSED_BUTTER, 3), new ItemStack(Items.EMERALD, 1), 7, 10, 0.01f)
             );
@@ -493,64 +570,64 @@ public class CommonEvents {
             );
 
             addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.WHITE_WIDOW_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BUBBLE_KUSH_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.LEMON_HAZE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.SOUR_DIESEL_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BLUE_ICE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BUBBLEGUM_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.PURPLE_HAZE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 3), new ItemStack(ModItems.OG_KUSH_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.JACK_HERER_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.GARY_PEYTON_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.AMNESIA_HAZE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.AK47_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.GHOST_TRAIN_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.GRAPE_APE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.COTTON_CANDY_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BANANA_KUSH_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.CARBON_FIBER_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.BIRTHDAY_CAKE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BLUE_COOKIES_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.AFGHANI_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.MOONBOW_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.LAVA_CAKE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.JELLY_RANCHER_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.STRAWBERRY_SHORTCAKE_WEED.get(), 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.PINK_KUSH_WEED.get(), 1), 6, 5, 0.01f)
+                    (pTrader, pRandom) -> weedOffer(4, "white_widow"),
+                    (pTrader, pRandom) -> weedOffer(4, "bubble_kush"),
+                    (pTrader, pRandom) -> weedOffer(5, "lemon_haze"),
+                    (pTrader, pRandom) -> weedOffer(4, "sour_diesel"),
+                    (pTrader, pRandom) -> weedOffer(4, "blue_ice"),
+                    (pTrader, pRandom) -> weedOffer(5, "bubblegum"),
+                    (pTrader, pRandom) -> weedOffer(6, "purple_haze"),
+                    (pTrader, pRandom) -> weedOffer(3, "og_kush"),
+                    (pTrader, pRandom) -> weedOffer(4, "jack_herer"),
+                    (pTrader, pRandom) -> weedOffer(5, "gary_peyton"),
+                    (pTrader, pRandom) -> weedOffer(6, "amnesia_haze"),
+                    (pTrader, pRandom) -> weedOffer(5, "ak47"),
+                    (pTrader, pRandom) -> weedOffer(4, "ghost_train"),
+                    (pTrader, pRandom) -> weedOffer(6, "grape_ape"),
+                    (pTrader, pRandom) -> weedOffer(6, "cotton_candy"),
+                    (pTrader, pRandom) -> weedOffer(5, "banana_kush"),
+                    (pTrader, pRandom) -> weedOffer(4, "carbon_fiber"),
+                    (pTrader, pRandom) -> weedOffer(6, "birthday_cake"),
+                    (pTrader, pRandom) -> weedOffer(5, "blue_cookies"),
+                    (pTrader, pRandom) -> weedOffer(6, "afghani"),
+                    (pTrader, pRandom) -> weedOffer(4, "moonbow"),
+                    (pTrader, pRandom) -> weedOffer(6, "lava_cake"),
+                    (pTrader, pRandom) -> weedOffer(5, "jelly_rancher"),
+                    (pTrader, pRandom) -> weedOffer(6, "strawberry_shortcake"),
+                    (pTrader, pRandom) -> weedOffer(5, "pink_kush")
             );
             addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.WHITE_WIDOW_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BUBBLE_KUSH_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.LEMON_HAZE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.SOUR_DIESEL_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BLUE_ICE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BUBBLEGUM_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.PURPLE_HAZE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 3), new ItemStack(ModItems.OG_KUSH_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.JACK_HERER_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.GARY_PEYTON_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.AMNESIA_HAZE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.AK47_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.GHOST_TRAIN_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.GRAPE_APE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.COTTON_CANDY_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BANANA_KUSH_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.CARBON_FIBER_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.BIRTHDAY_CAKE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BLUE_COOKIES_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.AFGHANI_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.MOONBOW_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.LAVA_CAKE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.JELLY_RANCHER_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 6), new ItemStack(ModItems.STRAWBERRY_SHORTCAKE_GUMMY.get(), 1), 4, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.PINK_KUSH_GUMMY.get(), 1), 4, 5, 0.01f)
+                    (pTrader, pRandom) -> gummyOffer(4, "white_widow"),
+                    (pTrader, pRandom) -> gummyOffer(4, "bubble_kush"),
+                    (pTrader, pRandom) -> gummyOffer(5, "lemon_haze"),
+                    (pTrader, pRandom) -> gummyOffer(4, "sour_diesel"),
+                    (pTrader, pRandom) -> gummyOffer(4, "blue_ice"),
+                    (pTrader, pRandom) -> gummyOffer(5, "bubblegum"),
+                    (pTrader, pRandom) -> gummyOffer(6, "purple_haze"),
+                    (pTrader, pRandom) -> gummyOffer(3, "og_kush"),
+                    (pTrader, pRandom) -> gummyOffer(4, "jack_herer"),
+                    (pTrader, pRandom) -> gummyOffer(5, "gary_peyton"),
+                    (pTrader, pRandom) -> gummyOffer(6, "amnesia_haze"),
+                    (pTrader, pRandom) -> gummyOffer(5, "ak47"),
+                    (pTrader, pRandom) -> gummyOffer(4, "ghost_train"),
+                    (pTrader, pRandom) -> gummyOffer(6, "grape_ape"),
+                    (pTrader, pRandom) -> gummyOffer(6, "cotton_candy"),
+                    (pTrader, pRandom) -> gummyOffer(5, "banana_kush"),
+                    (pTrader, pRandom) -> gummyOffer(4, "carbon_fiber"),
+                    (pTrader, pRandom) -> gummyOffer(6, "birthday_cake"),
+                    (pTrader, pRandom) -> gummyOffer(5, "blue_cookies"),
+                    (pTrader, pRandom) -> gummyOffer(6, "afghani"),
+                    (pTrader, pRandom) -> gummyOffer(4, "moonbow"),
+                    (pTrader, pRandom) -> gummyOffer(6, "lava_cake"),
+                    (pTrader, pRandom) -> gummyOffer(5, "jelly_rancher"),
+                    (pTrader, pRandom) -> gummyOffer(6, "strawberry_shortcake"),
+                    (pTrader, pRandom) -> gummyOffer(5, "pink_kush")
             );
 
             addRandomTrades(trades, 3, 2,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BASE_EXTRACT.get(), 1), 8, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 8), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 7), new ItemStack(ModFluids.HEMP_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
+                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 7), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BUTTER.get(), 1), 6, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 14), new ItemStack(ModItems.DNA_STRAND.get(), 1), 6, 10, 0.01f)
             );
@@ -574,10 +651,82 @@ public class CommonEvents {
         }
     }
 
+    private static ItemStack strainedStack(Item item, String strainId) {
+        ItemStack stack = new ItemStack(item);
+        StrainRegistry.get(strainId).ifPresent(data -> {
+            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+            stack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+        });
+        return stack;
+    }
+
+    private static MerchantOffer weedOffer(int emeraldCost, String strainId) {
+        return new MerchantOffer(new ItemCost(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_WEED.get(), strainId), 6, 5, 0.01f);
+    }
+
+    private static MerchantOffer gummyOffer(int emeraldCost, String strainId) {
+        return new MerchantOffer(new ItemCost(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_GUMMY.get(), strainId), 4, 5, 0.01f);
+    }
+
     private static void addRandomTrades(Int2ObjectMap<List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing>> trades, int level, int pick, net.minecraft.world.entity.npc.VillagerTrades.ItemListing... candidates) {
         List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing> pool = new ArrayList<>(List.of(candidates));
         Collections.shuffle(pool);
         List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing> levelList = trades.get(level);
         levelList.addAll(pool.subList(0, Math.min(pick, pool.size())));
+    }
+
+    // -----------------------------------------------------------------------
+    // Mixed-strain naming via Anvil
+    // -----------------------------------------------------------------------
+
+    /**
+     * The anvil naming flow is intentionally disabled; custom strain names are handled by the
+     * dedicated Strain Modifier machine instead.
+     */
+    @SubscribeEvent
+    public static void onAnvilUpdate(AnvilUpdateEvent event) {
+        // intentionally disabled
+    }
+
+    /**
+     * The anvil naming flow is intentionally disabled; custom strain names are handled by the
+     * dedicated Strain Modifier machine instead.
+     */
+    @SubscribeEvent
+    public static void onAnvilRepair(AnvilRepairEvent event) {
+        // intentionally disabled
+    }
+
+    // -------- Strain Discovery Tracking --------
+
+    @SubscribeEvent
+    public static void onItemPickup(ItemEntityPickupEvent.Post event) {
+        Player player = event.getPlayer();
+        if (player.level().isClientSide) return;
+        recordStrainDiscovery(player, event.getOriginalStack());
+    }
+
+    private static void recordStrainDiscovery(Player player, ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return;
+        String strainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+        if (strainId == null) {
+            StrainData sd = StrainUtil.getStrain(stack);
+            if (sd != StrainData.EMPTY) {
+                strainId = StrainUtil.strainContentId(sd);
+            }
+        }
+        if (strainId != null && !strainId.isBlank()) {
+            StrainBookItem.addDiscovery(player, strainId);
+        }
+    }
+
+    /**
+     * On player login, sync embedded strain names from the server registry so offline-obtained
+     * items reflect any renames that happened while the player was away.
+     */
+    @SubscribeEvent
+    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer sp)) return;
+        StrainRegistrySavedData.get(sp.server).syncPlayerInventory(sp);
     }
 }

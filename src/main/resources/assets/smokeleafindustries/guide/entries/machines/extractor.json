@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:extractor",
+  "category": "smokeleafindustries:machines",
+  "sortnum": 5,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:extractor" }
+  ]
+}

@@ -12,6 +12,7 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
+import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.recipe.DryingRecipe;
 import net.minecraft.client.Minecraft;
@@ -19,11 +20,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
 
@@ -61,13 +61,25 @@ public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, DryingRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
-                .addIngredients(recipe.getIngredients().getFirst());
+        var inputIngredient = recipe.getIngredients().getFirst();
+        if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
+                    .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
+        } else {
+            builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
+                    .addIngredients(inputIngredient);
+        }
 
         ItemStack result = recipe.result();
         if (!result.isEmpty()) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
-                    .addItemStack(result.copy());
+            if (JeiStrainHelper.isStrainItem(result.getItem())) {
+                builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
+                        .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(
+                                JeiStrainHelper.coloredStacks(result.getItem(), focuses).stream()));
+            } else {
+                builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
+                        .addItemStack(result.copy());
+            }
             return;
         }
 
@@ -99,17 +111,9 @@ public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
             builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
                     .addItemStack(dried);
         } else {
-
-            List<ItemStack> driedVariants = Arrays.stream(recipe.ingredient().getItems())
-                    .filter(s -> s.getItem() instanceof BaseBudItem)
-                    .map(s -> {
-                        ItemStack dried = s.copy();
-                        dried.set(ModDataComponentTypes.DRY.get(), Boolean.TRUE);
-                        return dried;
-                    })
-                    .collect(Collectors.toList());
+            var driedVariants = JeiStrainHelper.coloredDriedBudStacks(ModItems.GENERIC_BUD.get(), focuses);
             builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
-                    .addItemStacks(driedVariants);
+                    .addIngredients(Ingredient.of(driedVariants.stream()));
         }
     }
 

@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:fish_emulsion",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 18,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:fish_emulsion" } ]
+}

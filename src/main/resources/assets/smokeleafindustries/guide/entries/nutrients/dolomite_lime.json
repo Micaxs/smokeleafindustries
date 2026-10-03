@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:dolomite_lime",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 5,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:dolomite_lime" } ]
+}

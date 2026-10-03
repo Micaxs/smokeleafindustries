@@ -1,5 +1,24 @@
+Additional Feature Idea's:
 
-| Make it so you can plant this seed and it grows into a new unique plant. The plant texture should also have 2 masks, 1 for the buds and 1 for the plant color (plant color will be randomly picked from an array of values) mask that I can recolor based on the data. The plant should also have a unique name when the seed has been identified (can get from the seed data).
-| Make a Block to identify the seeds (1 input slot that can hold the seed and then input field to change name and some info to show the N/P/K and THC/CDB values) (should show the N/P/K and THC/CDB values and allow the person the name the weed/seed) -> this should add it to the seed data.
+# Edible Factory Block
+A machine that has an oil input tank, a cast item input, a additional item input and an output.
+This machine is used to make edibles such as gummies, and future weed infused edibles. (The cast will identify what type of edible is being made - Gummy Cast = Gummies).
 
-| When harvesting the unique plant it should give you the drops correctly. (Bud, seeds, and leaves) -> apply the THC/CDB values on the bud, and the same data from the planted seed should be applied to the seeds that drop as well. (so you can plant the seeds from the unique plant and get the same plant with the same data).
+# Curing Jars
+A block/sealed jar where dried buds can be palced in to increase their THC potency and side effects changes/increases (CuredData component).
+
+# Infused Drinks
+Craftable Drinks (Iced Tea, soda) with straindata that gives the effects.
+
+# Strain book
+A book / catalog item that tracks discovered strains, and how to re-make the strain if you have discovered the strain before.
+
+# Cross Breeding plants
+Another way to make new strains by crossbreeding two plants A X B, where A and B are 2 plants, and X is where the new plant 25% chance its a new strain (same as mixer) otherwise its either a copy of Plant A or Plant B.
+
+# Hemp Oil Lamp
+A lamp that uses an oil to light up an area.
+
+# Vape + Cartridges
+An item that needs to be crafted alongside a filled cartridge (with a specific strain) to be used. When used, it gives the effects of the strain in the cartridge.
+

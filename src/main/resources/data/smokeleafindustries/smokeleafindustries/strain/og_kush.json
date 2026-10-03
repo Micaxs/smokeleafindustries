@@ -1,0 +1,20 @@
+{
+  "color": -5382520,
+  "leaf_color": -3811245,
+  "thc": 25,
+  "cbd": 10,
+  "n": 12,
+  "p": 13,
+  "k": 15,
+  "effects": [
+    "minecraft:resistance"
+  ],
+  "amp": 1,
+  "dur": 210,
+  "identified": true,
+  "name": "OG Kush",
+  "weed_leaf_color": -6048444,
+  "weed_color": -5844096,
+  "extract_leaf_color": -3389,
+  "extract_color": -2952287
+}

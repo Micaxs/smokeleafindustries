@@ -1,0 +1,25 @@
+{
+  "icon": "smokeleafindustries:bud",
+  "category": "smokeleafindustries:strains",
+  "sortnum": 22,
+  "pages": [
+    {
+      "type": "text"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:bud",
+      "strain": "purple_haze"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:weed",
+      "strain": "purple_haze"
+    },
+    {
+      "type": "spotlight",
+      "item": "smokeleafindustries:seeds",
+      "strain": "purple_haze"
+    }
+  ]
+}

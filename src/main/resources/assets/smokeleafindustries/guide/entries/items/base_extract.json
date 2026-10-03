@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:base_extract",
+  "category": "smokeleafindustries:items",
+  "sortnum": 1,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:base_extract" }
+  ]
+}

@@ -1,0 +1,989 @@
+
+{
+  "header": {
+    "reportVersion": 5,
+    "event": "Allocation failed - JavaScript heap out of memory",
+    "trigger": "OOMError",
+    "filename": "report.20260914.004041.6832.0.001.json",
+    "dumpEventTime": "2026-09-14T00:40:41Z",
+    "dumpEventTimeStamp": "1789339241108",
+    "processId": 6832,
+    "threadId": 0,
+    "cwd": "/run/media/mica/SSD2/Projects/smokeleafindustry",
+    "commandLine": [
+      "copilot",
+      "--no-warnings",
+      "--report-on-fatalerror",
+      "--optimize-for-size",
+      "--expose-gc",
+      "copilot"
+    ],
+    "nodejsVersion": "v24.20.0",
+    "glibcVersionRuntime": "2.44",
+    "glibcVersionCompiler": "2.28",
+    "wordSize": 64,
+    "arch": "x64",
+    "platform": "linux",
+    "componentVersions": {
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.8",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "node": "24.20.0",
+      "openssl": "3.5.7",
+      "simdjson": "4.6.6",
+      "simdutf": "6.4.0",
+      "sqlite": "3.53.4",
+      "tz": "2026c",
+      "undici": "7.29.0",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.53",
+      "zlib": "1.3.2.1-motley-42c2f19",
+      "zstd": "1.5.7"
+    },
+    "release": {
+      "name": "node",
+      "lts": "Krypton",
+      "headersUrl": "https://nodejs.org/download/release/v24.20.0/node-v24.20.0-headers.tar.gz",
+      "sourceUrl": "https://nodejs.org/download/release/v24.20.0/node-v24.20.0.tar.gz"
+    },
+    "osName": "Linux",
+    "osRelease": "7.2.4-3-cachyos",
+    "osVersion": "#1 SMP PREEMPT_DYNAMIC Sat, 12 Sep 2026 01:51:25 +0000",
+    "osMachine": "x86_64",
+    "cpus": [
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3692,
+        "user": 1638610,
+        "nice": 397350,
+        "sys": 414210,
+        "idle": 17036470,
+        "irq": 70310
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 4339,
+        "user": 2797880,
+        "nice": 681050,
+        "sys": 392990,
+        "idle": 15533260,
+        "irq": 55950
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3691,
+        "user": 1655620,
+        "nice": 391500,
+        "sys": 395910,
+        "idle": 17019310,
+        "irq": 119450
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3693,
+        "user": 1058810,
+        "nice": 231810,
+        "sys": 336930,
+        "idle": 17912140,
+        "irq": 54530
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3691,
+        "user": 1838460,
+        "nice": 437450,
+        "sys": 328850,
+        "idle": 16532990,
+        "irq": 497920
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 4616,
+        "user": 2993300,
+        "nice": 597960,
+        "sys": 316350,
+        "idle": 15483160,
+        "irq": 40910
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3592,
+        "user": 716320,
+        "nice": 159280,
+        "sys": 367360,
+        "idle": 18189510,
+        "irq": 33570
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 637290,
+        "nice": 138310,
+        "sys": 335780,
+        "idle": 18341340,
+        "irq": 32030
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 674120,
+        "nice": 168890,
+        "sys": 290210,
+        "idle": 18322540,
+        "irq": 31120
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3592,
+        "user": 714710,
+        "nice": 196490,
+        "sys": 263060,
+        "idle": 18278110,
+        "irq": 30110
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 598480,
+        "nice": 148000,
+        "sys": 241930,
+        "idle": 18481480,
+        "irq": 29300
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 492410,
+        "nice": 102560,
+        "sys": 227410,
+        "idle": 18678320,
+        "irq": 28940
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3446,
+        "user": 336720,
+        "nice": 164650,
+        "sys": 87240,
+        "idle": 18885150,
+        "irq": 16930
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 4616,
+        "user": 1657420,
+        "nice": 294790,
+        "sys": 113400,
+        "idle": 17352260,
+        "irq": 18500
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3692,
+        "user": 395540,
+        "nice": 203940,
+        "sys": 83050,
+        "idle": 18787400,
+        "irq": 16670
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3682,
+        "user": 329480,
+        "nice": 131870,
+        "sys": 107580,
+        "idle": 18952030,
+        "irq": 19280
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 3604,
+        "user": 576410,
+        "nice": 246920,
+        "sys": 108870,
+        "idle": 18531430,
+        "irq": 18370
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 4552,
+        "user": 2185000,
+        "nice": 310600,
+        "sys": 151220,
+        "idle": 16765000,
+        "irq": 20490
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 89600,
+        "nice": 105640,
+        "sys": 33880,
+        "idle": 19156040,
+        "irq": 7130
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 92400,
+        "nice": 90740,
+        "sys": 38720,
+        "idle": 19165450,
+        "irq": 7530
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 104130,
+        "nice": 137100,
+        "sys": 29060,
+        "idle": 19110210,
+        "irq": 7120
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 130810,
+        "nice": 153860,
+        "sys": 32960,
+        "idle": 19064280,
+        "irq": 7320
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 95660,
+        "nice": 122520,
+        "sys": 32250,
+        "idle": 19137650,
+        "irq": 7090
+      },
+      {
+        "model": "AMD Ryzen 9 5900X 12-Core Processor",
+        "speed": 1731,
+        "user": 107960,
+        "nice": 81120,
+        "sys": 45360,
+        "idle": 19161460,
+        "irq": 7950
+      }
+    ],
+    "networkInterfaces": [
+      {
+        "name": "lo",
+        "internal": true,
+        "mac": "00:00:00:00:00:00",
+        "address": "127.0.0.1",
+        "netmask": "255.0.0.0",
+        "family": "IPv4"
+      },
+      {
+        "name": "enp6s0",
+        "internal": false,
+        "mac": "f0:2f:74:f8:3b:1b",
+        "address": "192.168.0.140",
+        "netmask": "255.255.255.0",
+        "family": "IPv4"
+      },
+      {
+        "name": "lo",
+        "internal": true,
+        "mac": "00:00:00:00:00:00",
+        "address": "::1",
+        "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+        "family": "IPv6",
+        "scopeid": 0
+      },
+      {
+        "name": "enp6s0",
+        "internal": false,
+        "mac": "f0:2f:74:f8:3b:1b",
+        "address": "fe80::375e:ae91:906f:19f6",
+        "netmask": "ffff:ffff:ffff:ffff::",
+        "family": "IPv6",
+        "scopeid": 2
+      }
+    ],
+    "host": "boxxy"
+  },
+  "javascriptStack": {
+    "message": "No stack.",
+    "stack": [
+      "Unavailable."
+    ],
+    "errorProperties": {
+    }
+  },
+  "javascriptHeap": {
+    "totalMemory": 4296331264,
+    "executableMemory": 15003648,
+    "totalCommittedMemory": 4296085504,
+    "availableMemory": 4079752,
+    "totalGlobalHandlesMemory": 155648,
+    "usedGlobalHandlesMemory": 89728,
+    "usedMemory": 4289440528,
+    "memoryLimit": 4298113024,
+    "mallocedMemory": 2121800,
+    "externalMemory": 36751205,
+    "peakMallocedMemory": 1151104840,
+    "nativeContextCount": 1,
+    "detachedContextCount": 0,
+    "doesZapGarbage": 0,
+    "heapSpaces": {
+      "read_only_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "new_space": {
+        "memorySize": 2097152,
+        "committedMemory": 2097152,
+        "capacity": 1048512,
+        "used": 0,
+        "available": 1048512
+      },
+      "old_space": {
+        "memorySize": 4268916736,
+        "committedMemory": 4268916736,
+        "capacity": 4265598272,
+        "used": 4265397368,
+        "available": 200904
+      },
+      "code_space": {
+        "memorySize": 12582912,
+        "committedMemory": 12402688,
+        "capacity": 11762240,
+        "used": 11762240,
+        "available": 0
+      },
+      "shared_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "trusted_space": {
+        "memorySize": 7204864,
+        "committedMemory": 7139328,
+        "capacity": 6792968,
+        "used": 6792968,
+        "available": 0
+      },
+      "shared_trusted_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "new_large_object_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 1048576,
+        "used": 0,
+        "available": 1048576
+      },
+      "large_object_space": {
+        "memorySize": 2707456,
+        "committedMemory": 2707456,
+        "capacity": 2675008,
+        "used": 2675008,
+        "available": 0
+      },
+      "code_large_object_space": {
+        "memorySize": 2420736,
+        "committedMemory": 2420736,
+        "capacity": 2414720,
+        "used": 2414720,
+        "available": 0
+      },
+      "shared_large_object_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "shared_trusted_large_object_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "trusted_large_object_space": {
+        "memorySize": 401408,
+        "committedMemory": 401408,
+        "capacity": 398224,
+        "used": 398224,
+        "available": 0
+      }
+    }
+  },
+  "nativeStack": [
+    {
+      "pc": "0x00000000009fd934",
+      "symbol": "node::TriggerNodeReport(v8::Isolate*, node::Environment*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, v8::Local<v8::Value>) [copilot]"
+    },
+    {
+      "pc": "0x00000000009fded7",
+      "symbol": "node::TriggerNodeReport(v8::Isolate*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, v8::Local<v8::Value>) [copilot]"
+    },
+    {
+      "pc": "0x000000000075760c",
+      "symbol": "node::OOMErrorHandler(char const*, v8::OOMDetails const&) [copilot]"
+    },
+    {
+      "pc": "0x0000000000c60e30",
+      "symbol": " [copilot]"
+    },
+    {
+      "pc": "0x0000000000c60f1f",
+      "symbol": " [copilot]"
+    },
+    {
+      "pc": "0x0000000000f047f5",
+      "symbol": " [copilot]"
+    },
+    {
+      "pc": "0x0000000000f04822",
+      "symbol": " [copilot]"
+    },
+    {
+      "pc": "0x0000000000f04b1a",
+      "symbol": " [copilot]"
+    },
+    {
+      "pc": "0x0000000000f1581a",
+      "symbol": " [copilot]"
+    },
+    {
+      "pc": "0x0000000000f19bc0",
+      "symbol": " [copilot]"
+    },
+    {
+      "pc": "0x00000000019b78a1",
+      "symbol": " [copilot]"
+    }
+  ],
+  "resourceUsage": {
+    "free_memory": 47106314240,
+    "total_memory": 67316375552,
+    "rss": 5019725824,
+    "constrained_memory": 18446744073709551615,
+    "available_memory": 47106314240,
+    "userCpuSeconds": 10952.4,
+    "kernelCpuSeconds": 3243.17,
+    "cpuConsumptionPercent": 89.8797,
+    "userCpuConsumptionPercent": 69.3455,
+    "kernelCpuConsumptionPercent": 20.5342,
+    "maxRss": 5019725824,
+    "pageFaults": {
+      "IORequired": 121,
+      "IONotRequired": 43728807
+    },
+    "fsActivity": {
+      "reads": 290880,
+      "writes": 65736
+    }
+  },
+  "uvthreadResourceUsage": {
+    "userCpuSeconds": 4219.92,
+    "kernelCpuSeconds": 557.303,
+    "cpuConsumptionPercent": 30.2471,
+    "userCpuConsumptionPercent": 26.7185,
+    "kernelCpuConsumptionPercent": 3.52857,
+    "fsActivity": {
+      "reads": 273504,
+      "writes": 24
+    }
+  },
+  "libuv": [
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bc064e0"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x0000000006b64b60"
+    },
+    {
+      "type": "timer",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004bc8ae28",
+      "repeat": 0,
+      "firesInMsFromNow": 2131690722,
+      "expired": false
+    },
+    {
+      "type": "check",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bc8aec0"
+    },
+    {
+      "type": "idle",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000000004bc8af38"
+    },
+    {
+      "type": "prepare",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bc8afb0"
+    },
+    {
+      "type": "check",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bc8b028"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bc8b0a0"
+    },
+    {
+      "type": "tty",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000000004bc858f0",
+      "width": 204,
+      "height": 48,
+      "fd": 20,
+      "writeQueueSize": 0,
+      "readable": true,
+      "writable": true
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bc7ef48",
+      "signum": 28,
+      "signal": "SIGWINCH"
+    },
+    {
+      "type": "tty",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004bdedce0",
+      "width": 204,
+      "height": 48,
+      "fd": 22,
+      "writeQueueSize": 0,
+      "readable": true,
+      "writable": true
+    },
+    {
+      "type": "tty",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000000004bdf7490",
+      "width": 204,
+      "height": 48,
+      "fd": 23,
+      "writeQueueSize": 0,
+      "readable": true,
+      "writable": true
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bcba978"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004bf4cb28"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bf74d48",
+      "signum": 15,
+      "signal": "SIGTERM"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bfa1108",
+      "signum": 2,
+      "signal": "SIGINT"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c3c3bc8",
+      "signum": 1,
+      "signal": "SIGHUP"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c28a8f8",
+      "signum": 3,
+      "signal": "SIGQUIT"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x00007f9bd40d6398"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004ca78908",
+      "signum": 18,
+      "signal": "SIGCONT"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c398828",
+      "signum": 14,
+      "signal": "SIGALRM"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x00007f9c0c033d48",
+      "signum": 6,
+      "signal": "SIGABRT"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x00007f9c1003fb38",
+      "signum": 26,
+      "signal": "SIGVTALRM"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c2ab278",
+      "signum": 24,
+      "signal": "SIGXCPU"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c26a938",
+      "signum": 25,
+      "signal": "SIGXFSZ"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c3b2878",
+      "signum": 12,
+      "signal": "SIGUSR2"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bf9b9e8",
+      "signum": 5,
+      "signal": "SIGTRAP"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004bf9d2b8",
+      "signum": 31,
+      "signal": "SIGSYS"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c2a13b8",
+      "signum": 6,
+      "signal": "SIGABRT"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c2a1b18",
+      "signum": 29,
+      "signal": "SIGIO"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c388918",
+      "signum": 29,
+      "signal": "SIGIO"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004c293e38",
+      "signum": 30,
+      "signal": "SIGPWR"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004ca36fb8",
+      "signum": 16,
+      "signal": "SIGSTKFLT"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004ef7bf48"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004efd62d8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004f018418"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004efe4ab8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004f00c0d8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000000004f048e38"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004ef9c4a8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004effe4f8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004f09dad8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004c2a4c88"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004c1648d8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004f0aa138"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004c3bc798"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004c2b1028"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004bf52cf8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004eff8bb8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004c0a84b8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004f219138"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004c38d548"
+    },
+    {
+      "type": "timer",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x0000000052759220",
+      "repeat": 0,
+      "firesInMsFromNow": 97,
+      "expired": false
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004f2d2068"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004f21fbe8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004f172668"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000000004bf520a8"
+    },
+    {
+      "type": "loop",
+      "is_active": true,
+      "address": "0x0000000006b77aa0",
+      "loopIdleTimeSeconds": 11047.8
+    }
+  ],
+  "workers": [
+  ],
+  "userLimits": {
+    "core_file_size_blocks": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "data_seg_size_bytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "file_size_blocks": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_locked_memory_bytes": {
+      "soft": 8388608,
+      "hard": 8388608
+    },
+    "max_memory_size_bytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "open_files": {
+      "soft": 1048576,
+      "hard": 1048576
+    },
+    "stack_size_bytes": {
+      "soft": 8388608,
+      "hard": "unlimited"
+    },
+    "cpu_time_seconds": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_user_processes": {
+      "soft": 256330,
+      "hard": 256330
+    },
+    "virtual_memory_bytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    }
+  },
+  "sharedObjects": [
+    "linux-vdso.so.1",
+    "/usr/lib/libdl.so.2",
+    "/usr/lib/libstdc++.so.6",
+    "/usr/lib/libm.so.6",
+    "/usr/lib/libgcc_s.so.1",
+    "/usr/lib/libpthread.so.0",
+    "/usr/lib/libc.so.6",
+    "/lib64/ld-linux-x86-64.so.2",
+    "/home/mica/.cache/copilot/pkg/linux-x64/1.0.83/prebuilds/linux-x64/runtime.node",
+    "/usr/lib/libnss_mymachines.so.2",
+    "/usr/lib/libnss_resolve.so.2",
+    "/home/mica/.cache/copilot/pkg/linux-x64/1.0.83/prebuilds/linux-x64/cli-native.node"
+  ]
+}

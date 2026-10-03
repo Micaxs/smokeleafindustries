@@ -1,6 +1,7 @@
 package net.micaxs.smokeleaf.strain;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 
@@ -17,6 +18,7 @@ import java.util.List;
  */
 public record StrainData(
         int colorArgb,
+        int leafColor,
         int thc,
         int cbd,
         int nitrogen,
@@ -26,22 +28,58 @@ public record StrainData(
         int amplifier,
         int durationTicks,
         boolean identified,
-        String displayName
+        String displayName,
+        TypeColors typeColors,
+        String baseStrain1,
+        String baseStrain2
 ) {
 
+    /** Per-item-type tint overrides; all-zero values fall back to the base bud colors. */
+    public record TypeColors(
+            int weedColorArgb,
+            int weedLeafColor,
+            int seedsColorArgb,
+            int seedsLeafColor,
+            int extractColorArgb,
+            int extractLeafColor
+    ) {
+        public static final TypeColors NONE = new TypeColors(0, 0, 0, 0, 0, 0);
+
+        static final MapCodec<TypeColors> MAP_CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+                Codec.INT.optionalFieldOf("weed_color", 0).forGetter(TypeColors::weedColorArgb),
+                Codec.INT.optionalFieldOf("weed_leaf_color", 0).forGetter(TypeColors::weedLeafColor),
+                Codec.INT.optionalFieldOf("seeds_color", 0).forGetter(TypeColors::seedsColorArgb),
+                Codec.INT.optionalFieldOf("seeds_leaf_color", 0).forGetter(TypeColors::seedsLeafColor),
+                Codec.INT.optionalFieldOf("extract_color", 0).forGetter(TypeColors::extractColorArgb),
+                Codec.INT.optionalFieldOf("extract_leaf_color", 0).forGetter(TypeColors::extractLeafColor)
+        ).apply(inst, TypeColors::new));
+    }
+
+    /** Returns the weed highlight color, falling back to the base colorArgb. */
+    public int weedColorArgbEffective()    { int v = typeColors.weedColorArgb();   return v != 0 ? v : colorArgb; }
+    /** Returns the weed body color, falling back to the base leafColor. */
+    public int weedLeafColorEffective()    { int v = typeColors.weedLeafColor();   return v != 0 ? v : leafColor; }
+    /** Returns the seeds highlight color, falling back to the base colorArgb. */
+    public int seedsColorArgbEffective()   { int v = typeColors.seedsColorArgb();  return v != 0 ? v : colorArgb; }
+    /** Returns the seeds body color, falling back to the base leafColor. */
+    public int seedsLeafColorEffective()   { int v = typeColors.seedsLeafColor();  return v != 0 ? v : leafColor; }
+    /** Returns the extract highlight color, falling back to the base colorArgb. */
+    public int extractColorArgbEffective() { int v = typeColors.extractColorArgb();return v != 0 ? v : colorArgb; }
+    /** Returns the extract body color, falling back to the base leafColor. */
+    public int extractLeafColorEffective() { int v = typeColors.extractLeafColor();return v != 0 ? v : leafColor; }
+
     public static final StrainData EMPTY = new StrainData(
-            0xFFFFFFFF,
-            0, 0,
-            0, 0, 0,
-            List.of(),
-            0,
-            0,
-            false,
-            ""
+            0xFFFFFFFF, 0xFF4A7A2E,
+            0, 0, 0, 0, 0,
+            List.of(), 0, 0,
+            false, "",
+            TypeColors.NONE,
+            "", ""
     );
 
     public static final Codec<StrainData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.INT.fieldOf("color").forGetter(StrainData::colorArgb),
+            Codec.INT.optionalFieldOf("leaf_color", 0xFF4A7A2E).forGetter(StrainData::leafColor),
             Codec.INT.fieldOf("thc").forGetter(StrainData::thc),
             Codec.INT.fieldOf("cbd").forGetter(StrainData::cbd),
             Codec.INT.fieldOf("n").forGetter(StrainData::nitrogen),
@@ -51,6 +89,10 @@ public record StrainData(
             Codec.INT.fieldOf("amp").forGetter(StrainData::amplifier),
             Codec.INT.fieldOf("dur").forGetter(StrainData::durationTicks),
             Codec.BOOL.fieldOf("identified").forGetter(StrainData::identified),
-            Codec.STRING.fieldOf("name").forGetter(StrainData::displayName)
+            Codec.STRING.fieldOf("name").forGetter(StrainData::displayName),
+            TypeColors.MAP_CODEC.forGetter(StrainData::typeColors),
+            Codec.STRING.optionalFieldOf("base_strain_1", "").forGetter(StrainData::baseStrain1),
+            Codec.STRING.optionalFieldOf("base_strain_2", "").forGetter(StrainData::baseStrain2)
     ).apply(inst, StrainData::new));
 }
+

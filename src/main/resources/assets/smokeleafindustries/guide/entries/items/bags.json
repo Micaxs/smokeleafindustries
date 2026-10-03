@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:bag",
+  "category": "smokeleafindustries:items",
+  "sortnum": 2,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:empty_bag" }
+  ]
+}

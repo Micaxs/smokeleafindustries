@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.sound.ModSounds;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.minecraft.core.Holder;
@@ -101,12 +102,35 @@ public class BongItem extends Item {
             livingEntity.setItemInHand(InteractionHand.OFF_HAND, offhandItem);
 
             List<MobEffectInstance> offhandEffects = getOffhandEffects(offhandItem, livingEntity);
+            net.micaxs.smokeleaf.strain.StrainData offhandStrain = net.micaxs.smokeleaf.strain.StrainUtil.getStrain(offhandItem);
             spawnSmokeParticles(level, livingEntity);
             offhandItem.shrink(1);
 
             // Apply the offhand item's effects
             for (MobEffectInstance effect : offhandEffects) {
                 livingEntity.addEffect(effect);
+            }
+
+            // Grant STONED for the same duration as the longest weed effect. The trip shader
+            // tier is picked from the offhand item's THC; high CBD (27-30) shortens the duration.
+            // The trip only actually shows once the same item has been smoked 3 times in a row
+            // (see TripStreakTracker) — it still grants STONED either way.
+            int maxDuration = offhandEffects.stream().mapToInt(MobEffectInstance::getDuration).max().orElse(0);
+            if (maxDuration > 0) {
+                MobEffectInstance existing = livingEntity.getEffect(ModEffects.STONED);
+                int tier = net.micaxs.smokeleaf.effect.TripTier.forThc(
+                        offhandStrain != net.micaxs.smokeleaf.strain.StrainData.EMPTY ? offhandStrain.thc() : 0).ordinal();
+                float cbdMult = net.micaxs.smokeleaf.effect.TripTier.cbdDurationMultiplier(
+                        offhandStrain != net.micaxs.smokeleaf.strain.StrainData.EMPTY ? offhandStrain.cbd() : 0);
+                int adjustedDuration = Math.max(1, Math.round(maxDuration * cbdMult));
+                int stonedDuration = existing != null ? existing.getDuration() + adjustedDuration : adjustedDuration;
+                boolean confirmed = true;
+                if (livingEntity instanceof net.minecraft.world.entity.player.Player p) {
+                    String streakKey = net.micaxs.smokeleaf.effect.TripStreakTracker.keyFor(offhandItem, offhandStrain);
+                    confirmed = net.micaxs.smokeleaf.effect.TripStreakTracker.registerUseAndGetStreak(p, streakKey)
+                            >= net.micaxs.smokeleaf.effect.TripStreakTracker.REQUIRED_STREAK;
+                }
+                livingEntity.addEffect(new MobEffectInstance(ModEffects.STONED, stonedDuration, tier, false, confirmed));
             }
         }
         return super.finishUsingItem(stack, level, livingEntity);

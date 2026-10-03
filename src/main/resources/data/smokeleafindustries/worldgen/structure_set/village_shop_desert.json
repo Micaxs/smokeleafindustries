@@ -1,0 +1,11 @@
+{
+  "structures": [
+    { "structure": "smokeleafindustries:village_shop_desert", "weight": 1 }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 123456790,
+    "separation": 4,
+    "spacing": 16
+  }
+}

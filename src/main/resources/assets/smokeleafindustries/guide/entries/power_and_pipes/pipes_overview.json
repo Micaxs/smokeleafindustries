@@ -1,0 +1,11 @@
+{
+  "icon": "smokeleafindustries:item_pipe",
+  "category": "smokeleafindustries:power_and_pipes",
+  "sortnum": 2,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:item_pipe" },
+    { "type": "spotlight", "item": "smokeleafindustries:fluid_pipe" },
+    { "type": "spotlight", "item": "smokeleafindustries:energy_pipe" }
+  ]
+}

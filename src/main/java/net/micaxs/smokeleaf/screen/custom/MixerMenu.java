@@ -1,6 +1,9 @@
 package net.micaxs.smokeleaf.screen.custom;
 
 import net.micaxs.smokeleaf.block.entity.MixerBlockEntity;
+import net.micaxs.smokeleaf.component.ModDataComponentTypes;
+import net.micaxs.smokeleaf.fluid.ModFluids;
+import net.micaxs.smokeleaf.item.custom.UnidentifiedMixtureBucketItem;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
@@ -12,11 +15,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -66,28 +67,19 @@ public class MixerMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot == null || !slot.hasItem()) return ItemStack.EMPTY;
 
         ItemStack stack = slot.getItem();
-        itemstack = stack.copy();
+        ItemStack itemstack = stack.copy();
 
-        int vanillaSlots = 36;
-        int teSlots = 2;
-        int teStart = 0;
-        int teEnd = teSlots;
-        int invStart = teSlots;
-        int invEnd = teSlots + vanillaSlots;
-
-        if (index < teSlots) {
-            if (!this.moveItemStackTo(stack, invStart, invEnd, true)) {
-                return ItemStack.EMPTY;
-            }
+        // The mixer has no item input/output slots — only fluid tanks accessed via buttons.
+        // Menu slots are: 0-26 = player main inventory, 27-35 = player hotbar.
+        // Shift-click cycles between main inventory and hotbar.
+        if (index < 27) {
+            if (!this.moveItemStackTo(stack, 27, 36, false)) return ItemStack.EMPTY;
         } else {
-            if (!this.moveItemStackTo(stack, teStart, teEnd, false)) {
-                return ItemStack.EMPTY;
-            }
+            if (!this.moveItemStackTo(stack, 0, 27, false)) return ItemStack.EMPTY;
         }
 
         if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
@@ -115,6 +107,15 @@ public class MixerMenu extends AbstractContainerMenu {
         // Carried (mouse cursor)
         ItemStack carried = getCarried();
         if (!carried.isEmpty()) {
+            if (carried.getItem() instanceof UnidentifiedMixtureBucketItem) {
+                if (emptyCustomOilBucket(carried, tank)) {
+                    setCarried(new ItemStack(Items.BUCKET));
+                    blockEntity.setChanged();
+                    broadcastChanges();
+                    return true;
+                }
+                return false; // bucket present but tank rejected it — don't fall through
+            }
             FluidActionResult res = FluidUtil.tryEmptyContainer(carried, tank, 1000, player, true);
             if (res.isSuccess()) {
                 setCarried(res.getResult());
@@ -161,11 +162,42 @@ public class MixerMenu extends AbstractContainerMenu {
     private boolean tryEmptyHandInto(Player player, InteractionHand hand, IFluidHandler handler) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty()) return false;
+        if (held.getItem() instanceof UnidentifiedMixtureBucketItem) {
+            if (emptyCustomOilBucket(held, handler)) {
+                player.setItemInHand(hand, new ItemStack(Items.BUCKET));
+                blockEntity.setChanged();
+                broadcastChanges();
+                return true;
+            }
+            return false;
+        }
         FluidActionResult res = FluidUtil.tryEmptyContainer(held, handler, 1000, player, true);
         if (res.isSuccess()) {
             player.setItemInHand(hand, res.getResult());
             blockEntity.setChanged();
             broadcastChanges();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Drains a {@link UnidentifiedMixtureBucketItem} into the given tank, preserving {@code STRAIN_DATA}
+     * (which {@link net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper} would strip).
+     */
+    private boolean emptyCustomOilBucket(ItemStack bucket, IFluidHandler tank) {
+        FluidStack fluid = new FluidStack(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), 1000);
+        StrainData strain = StrainUtil.getStrain(bucket);
+        if (strain != StrainData.EMPTY) {
+            StrainUtil.setStrain(fluid, strain);
+        }
+        String mixKey = bucket.get(ModDataComponentTypes.MIX_KEY.get());
+        if (mixKey != null) {
+            fluid.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
+        }
+        int filled = tank.fill(fluid, IFluidHandler.FluidAction.SIMULATE);
+        if (filled == 1000) {
+            tank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
             return true;
         }
         return false;
@@ -230,16 +262,9 @@ public class MixerMenu extends AbstractContainerMenu {
     }
 
     private static ItemStack filledBucketForFluid(FluidStack drained) {
-        Fluid fluid = drained.getFluid();
-        Item bucketItem = fluid.getBucket();
-        ItemStack stack = new ItemStack(bucketItem);
-
-        StrainData strain = StrainUtil.getStrain(drained);
-        if (strain != StrainData.EMPTY) {
-            StrainUtil.setStrain(stack, strain);
-        }
-
-        return stack;
+        // Use FluidUtil.getFilledBucket so FluidType.getBucket(FluidStack) is called,
+        // which copies STRAIN_DATA / MIX_KEY / STRAIN_ID / STRAIN_CREATOR onto the bucket item.
+        return FluidUtil.getFilledBucket(drained);
     }
 
     private void addPlayerInventory(Inventory playerInventory) {

@@ -1,0 +1,20 @@
+{
+  "color": -4537687,
+  "leaf_color": -4728457,
+  "thc": 15,
+  "cbd": 10,
+  "n": 9,
+  "p": 6,
+  "k": 11,
+  "effects": [
+    "minecraft:wind_charged"
+  ],
+  "amp": 1,
+  "dur": 200,
+  "identified": true,
+  "name": "White Widow",
+  "weed_leaf_color": -6704029,
+  "weed_color": -5129569,
+  "extract_leaf_color": -3892,
+  "extract_color": -2496065
+}

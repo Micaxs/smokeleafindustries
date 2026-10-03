@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:phosphorus_reducer",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 16,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:phosphorus_reducer" } ]
+}

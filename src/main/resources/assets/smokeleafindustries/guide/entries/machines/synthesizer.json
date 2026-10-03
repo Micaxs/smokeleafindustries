@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:synthesizer",
+  "category": "smokeleafindustries:machines",
+  "sortnum": 11,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:synthesizer" }
+  ]
+}

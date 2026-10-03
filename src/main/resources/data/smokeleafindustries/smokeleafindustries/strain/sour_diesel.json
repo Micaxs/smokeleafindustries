@@ -1,0 +1,20 @@
+{
+  "color": -34437,
+  "leaf_color": -1919072,
+  "thc": 19,
+  "cbd": 6,
+  "n": 11,
+  "p": 13,
+  "k": 10,
+  "effects": [
+    "minecraft:haste"
+  ],
+  "amp": 1,
+  "dur": 170,
+  "identified": true,
+  "name": "Sour Diesel",
+  "weed_leaf_color": -1860466,
+  "weed_color": -5151135,
+  "extract_leaf_color": -5932,
+  "extract_color": -13628
+}

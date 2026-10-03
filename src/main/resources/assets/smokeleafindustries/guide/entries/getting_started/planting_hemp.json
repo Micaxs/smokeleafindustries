@@ -1,0 +1,8 @@
+{
+  "icon": "minecraft:iron_hoe",
+  "category": "smokeleafindustries:getting_started",
+  "sortnum": 3,
+  "pages": [
+    { "type": "text" }
+  ]
+}

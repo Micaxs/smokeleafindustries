@@ -2,20 +2,59 @@ package net.micaxs.smokeleaf.strain;
 
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.UUID;
 
 public final class StrainUtil {
     private StrainUtil() {}
 
     public static final int DEFAULT_UNIDENTIFIED_COLOR = 0xFFAAAAAA;
+
+    /** Flagship preset used to tint the bare {@code Item#getDefaultInstance()} of a generic strain item. */
+    public static final String DEFAULT_DISPLAY_STRAIN = "og_kush";
+
+    /**
+     * A stack of {@code item} carrying {@link #DEFAULT_DISPLAY_STRAIN}'s data — meant for
+     * {@code Item#getDefaultInstance()} overrides on generic bud/weed/seeds/extract/bag/gummy items.
+     * Every one of those items renders through an {@code ItemColor} handler that falls back to flat
+     * grey when no {@code StrainData} component is present (see
+     * {@code SmokeleafIndustriesClient#onItemColor}); a plain {@code new ItemStack(item)} — which is
+     * exactly what {@code Item#getDefaultInstance()} returns unless overridden — is what several
+     * external views fall back to (JEI's tag-membership lookup in particular resolves tag contents
+     * to each item's default instance directly, bypassing JEI's own ingredient list entirely, so
+     * recoloring the JEI ingredient list alone doesn't reach it).
+     */
+    public static ItemStack defaultTintedInstance(Item item) {
+        ItemStack stack = new ItemStack(item);
+        StrainRegistry.get(DEFAULT_DISPLAY_STRAIN).ifPresent(data -> {
+            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
+            stack.set(ModDataComponentTypes.STRAIN_ID.get(), DEFAULT_DISPLAY_STRAIN);
+        });
+        return stack;
+    }
+
+    public static final int MAX_EFFECTS = 4;
+
+    /**
+     * Returns a deterministic UUID string derived from the content of a StrainData.
+     * Two StrainData with identical thc/cbd/color/effects will always produce the same ID.
+     * Used when a strain item has no explicit STRAIN_ID (e.g. plain generic extracts from farmland).
+     */
+    public static String strainContentId(StrainData sd) {
+        String key = sd.thc() + ":" + sd.cbd() + ":" + sd.colorArgb() + ":" + sd.effects().toString();
+        return UUID.nameUUIDFromBytes(key.getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+    }
 
     public static boolean hasStrain(ItemStack stack) {
         return stack != null && !stack.isEmpty() && stack.has(ModDataComponentTypes.STRAIN_DATA.get());
@@ -62,26 +101,44 @@ public final class StrainUtil {
 
         int cA = hasStrain(a) ? getStrain(a).colorArgb() : aTint;
         int cB = hasStrain(b) ? getStrain(b).colorArgb() : bTint;
+        int leafA = hasStrain(a) ? getStrain(a).leafColor() : 0xFF4A7A2E;
+        int leafB = hasStrain(b) ? getStrain(b).leafColor() : 0xFF4A7A2E;
 
         int mixedColor = mixColors(cA, amtA, cB, amtB);
+        int mixedLeafColor = mixColors(leafA, amtA, leafB, amtB);
 
-        // Effects union
+        // Effects union: read from WeedFluidStackUtil AND STRAIN_DATA (generic extract fluids store effects in STRAIN_DATA)
         var effects = new LinkedHashSet<ResourceLocation>();
         var wa = (a != null) ? WeedFluidStackUtil.getWeedData(a) : null;
         var wb = (b != null) ? WeedFluidStackUtil.getWeedData(b) : null;
         if (wa != null) effects.addAll(wa.effects());
         if (wb != null) effects.addAll(wb.effects());
-        List<ResourceLocation> effList = new ArrayList<>(effects);
+        // Also pull effects from STRAIN_DATA on each fluid (for generic extract fluids)
+        if (a != null && hasStrain(a)) effects.addAll(getStrain(a).effects());
+        if (b != null && hasStrain(b)) effects.addAll(getStrain(b).effects());
+
+        // Hard cap at MAX_EFFECTS
+        List<ResourceLocation> effList = effects.stream().limit(MAX_EFFECTS).collect(java.util.stream.Collectors.toList());
 
         int amp = 0;
-        int dur = 0;
-        if (wa != null) { amp = Math.max(amp, wa.amplifier()); dur = Math.max(dur, wa.durationTicks()); }
-        if (wb != null) { amp = Math.max(amp, wb.amplifier()); dur = Math.max(dur, wb.durationTicks()); }
+        if (wa != null) amp = Math.max(amp, wa.amplifier());
+        if (wb != null) amp = Math.max(amp, wb.amplifier());
 
-        // N/P/K (and optionally THC/CBD) derived from input extract stats.
-        // This makes mixture stats deterministic for a given pair of extract fluids.
+        // N/P/K (and THC/CBD) derived from input extract stats.
+        // Prefer STRAIN_DATA on the fluid stack (set by the liquifier for generic extracts).
+        // Fall back to static ExtractFluidStats for named extract fluids.
         var sa = (a != null) ? ExtractFluidStats.get(a.getFluid()) : ExtractFluidStats.Stats.EMPTY;
         var sb = (b != null) ? ExtractFluidStats.get(b.getFluid()) : ExtractFluidStats.Stats.EMPTY;
+
+        // If ExtractFluidStats has no data for this fluid, read from STRAIN_DATA component.
+        if (sa == ExtractFluidStats.Stats.EMPTY && hasStrain(a)) {
+            StrainData sda = getStrain(a);
+            sa = new ExtractFluidStats.Stats(sda.nitrogen(), sda.phosphorus(), sda.potassium(), sda.thc(), sda.cbd());
+        }
+        if (sb == ExtractFluidStats.Stats.EMPTY && hasStrain(b)) {
+            StrainData sdb = getStrain(b);
+            sb = new ExtractFluidStats.Stats(sdb.nitrogen(), sdb.phosphorus(), sdb.potassium(), sdb.thc(), sdb.cbd());
+        }
         int total = Math.max(1, amtA + amtB);
 
         int n = (sa.n() * amtA + sb.n() * amtB) / total;
@@ -91,8 +148,23 @@ public final class StrainUtil {
         int thc = (sa.thc() * amtA + sb.thc() * amtB) / total;
         int cbd = (sa.cbd() * amtA + sb.cbd() * amtB) / total;
 
+        String parent1 = hasStrain(a) ? getStrain(a).displayName() : "";
+        String parent2 = hasStrain(b) ? getStrain(b).displayName() : "";
+
+        // durationTicks is derived purely from the mix's own final CBD (the same formula used
+        // everywhere effect duration is actually computed at consumption time — see
+        // StrainEffectsUtil#computeDurationTicks) rather than inherited from each input's own
+        // leftover WeedFluidData. That legacy field only ever got set incidentally depending on
+        // exactly how/where a fluid was created, so two batches of "the same" strain could end up
+        // with different stored durationTicks despite being otherwise byte-identical — which is
+        // exactly the one field ItemStack/FluidStack component equality needs to match for two
+        // stacks to be allowed to merge, so that alone was silently blocking seeds/oils of the same
+        // strain from ever stacking together.
+        int dur = StrainEffectsUtil.computeDurationTicks(cbd, 1.0f);
+
         return new StrainData(
                 mixedColor,
+                mixedLeafColor,
                 thc,
                 cbd,
                 n,
@@ -102,7 +174,10 @@ public final class StrainUtil {
                 amp,
                 dur,
                 false,
-                ""
+                "",
+                StrainData.TypeColors.NONE,
+                parent1,
+                parent2
         );
     }
 
@@ -111,23 +186,44 @@ public final class StrainUtil {
      *
      * If THC/CBD or N/P/K are unset (all zeros), we roll them once and return a new StrainData.
      * If any of those values are already present, we keep the data as-is.
+     * When a strainId is provided, stat generation is deterministic (same ID → same stats).
      */
     public static StrainData finalizeMixtureStats(StrainData base, RandomSource random) {
+        return finalizeMixtureStats(base, random, null);
+    }
+
+    public static StrainData finalizeMixtureStats(StrainData base, RandomSource random, @org.jetbrains.annotations.Nullable String strainId) {
         if (base == null || base == StrainData.EMPTY) return StrainData.EMPTY;
-        if (random == null) return base;
 
         boolean needsCannabinoids = base.thc() == 0 && base.cbd() == 0;
         boolean needsNpk = base.nitrogen() == 0 && base.phosphorus() == 0 && base.potassium() == 0;
         if (!needsCannabinoids && !needsNpk) return base;
 
-        int thc = needsCannabinoids ? random.nextInt(31) : base.thc();
-        int cbd = needsCannabinoids ? random.nextInt(31) : base.cbd();
-        int n = needsNpk ? random.nextInt(15) : base.nitrogen();
-        int p = needsNpk ? random.nextInt(15) : base.phosphorus();
-        int k = needsNpk ? random.nextInt(15) : base.potassium();
+        // If a strain ID is known, use a deterministic seed so the same strain always gets the same stats.
+        final java.util.Random deterministicRng;
+        if (strainId != null && !strainId.isBlank()) {
+            long seed = strainId.chars().asLongStream().reduce(1L, (acc, c) -> acc * 31L + c);
+            deterministicRng = new java.util.Random(seed);
+        } else if (random != null) {
+            deterministicRng = null;
+        } else {
+            return base;
+        }
+
+        java.util.function.IntSupplier rng31 = deterministicRng != null
+                ? () -> deterministicRng.nextInt(31) : () -> random.nextInt(31);
+        java.util.function.IntSupplier rng15 = deterministicRng != null
+                ? () -> deterministicRng.nextInt(15) : () -> random.nextInt(15);
+
+        int thc = needsCannabinoids ? Math.max(1, rng31.getAsInt()) : base.thc();
+        int cbd = needsCannabinoids ? Math.max(1, rng31.getAsInt()) : base.cbd();
+        int n = needsNpk ? Math.max(1, rng15.getAsInt()) : base.nitrogen();
+        int p = needsNpk ? Math.max(1, rng15.getAsInt()) : base.phosphorus();
+        int k = needsNpk ? Math.max(1, rng15.getAsInt()) : base.potassium();
 
         return new StrainData(
                 base.colorArgb(),
+                base.leafColor(),
                 thc,
                 cbd,
                 n,
@@ -137,7 +233,10 @@ public final class StrainUtil {
                 base.amplifier(),
                 base.durationTicks(),
                 base.identified(),
-                base.displayName()
+                base.displayName(),
+                base.typeColors(),
+                base.baseStrain1(),
+                base.baseStrain2()
         );
     }
 
@@ -157,4 +256,16 @@ public final class StrainUtil {
     public static int getR(int argb) { return (argb >>> 16) & 0xFF; }
     public static int getG(int argb) { return (argb >>> 8) & 0xFF; }
     public static int getB(int argb) { return argb & 0xFF; }
+
+    /**
+     * Appends a "Discovered by: {player}" tooltip line if the item stack carries a
+     * {@code STRAIN_CREATOR} component. Preset/builtin strains never have this set.
+     */
+    public static void appendCreatorTooltip(ItemStack stack, List<Component> tooltip) {
+        String creator = stack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+        if (creator != null && !creator.isBlank()) {
+            tooltip.add(Component.literal("Discovered by: " + creator)
+                    .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+        }
+    }
 }

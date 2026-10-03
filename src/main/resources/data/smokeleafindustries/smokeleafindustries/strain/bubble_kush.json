@@ -1,0 +1,20 @@
+{
+  "color": -4020394,
+  "leaf_color": -2633650,
+  "thc": 20,
+  "cbd": 5,
+  "n": 10,
+  "p": 8,
+  "k": 16,
+  "effects": [
+    "minecraft:strength"
+  ],
+  "amp": 1,
+  "dur": 180,
+  "identified": true,
+  "name": "Bubble Kush",
+  "weed_leaf_color": -3030192,
+  "weed_color": -8227025,
+  "extract_leaf_color": -4669,
+  "extract_color": -597607
+}

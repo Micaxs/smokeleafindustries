@@ -1,0 +1,10 @@
+{
+  "icon": "smokeleafindustries:extract",
+  "category": "smokeleafindustries:making_your_own_strain",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "text"
+    }
+  ]
+}

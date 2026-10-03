@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +62,7 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
     };
 
     public IItemHandler getItemHandler(@Nullable Direction direction) {
-        return this.itemHandler;
+        return ExtractRestrictedItemHandler.outputOnly(this.itemHandler, OUTPUT_SLOT);
     }
 
     private static final int INPUT_SLOT = 0;

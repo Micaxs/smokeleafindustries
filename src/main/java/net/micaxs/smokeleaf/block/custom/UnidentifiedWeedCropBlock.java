@@ -42,6 +42,17 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
     public static final int SECOND_STAGE_MAX_AGE = BaseWeedCropBlock.SECOND_STAGE_MAX_AGE;
     public static final IntegerProperty AGE = BaseWeedCropBlock.AGE;
     public static final BooleanProperty TOP = BaseWeedCropBlock.TOP;
+    /**
+     * Purely cosmetic toggle with no effect on shape/model choice — both values map to the same
+     * model. Its only purpose is to give {@link net.micaxs.smokeleaf.block.entity.UnidentifiedWeedCropBlockEntity#sync()}
+     * a genuine BlockState value to flip. Merely re-sending block-entity data (which is all a
+     * normal strain update needs) never triggers a client-side chunk re-render on its own —
+     * Level.setBlock() short-circuits before notifying the renderer whenever the BlockState value
+     * doesn't actually change — so without this, the BlockColor tint (which reads this block's
+     * StrainData) stays stuck at its old color until some unrelated real state change (e.g. the
+     * crop's next growth tick) happens to force a rebuild.
+     */
+    public static final BooleanProperty RENDER_SYNC = BooleanProperty.create("render_sync");
 
     private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{
             Block.box(0.0, 0.0, 0.0, 16.0, 2.0, 16.0),
@@ -61,7 +72,8 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(this.getAgeProperty(), 0)
-                .setValue(TOP, false));
+                .setValue(TOP, false)
+                .setValue(RENDER_SYNC, false));
     }
 
     @Override
@@ -144,12 +156,12 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
 
     @Override
     protected ItemLike getBaseSeedId() {
-        return ModItems.UNIDENTIFIED_SEEDS.get();
+        return ModItems.GENERIC_SEEDS.get();
     }
 
     @Override
     public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AGE, TOP);
+        builder.add(AGE, TOP, RENDER_SYNC);
     }
 
     protected boolean isTop(BlockState state) {
@@ -181,6 +193,10 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
             cropBe.setStrain(d);
+            String sid = stack.get(ModDataComponentTypes.STRAIN_ID.get());
+            if (sid != null && !sid.isBlank()) cropBe.setStrainId(sid);
+            String creator = stack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+            if (creator != null && !creator.isBlank()) cropBe.setStrainCreator(creator);
             cropBe.sync();
         }
     }
@@ -219,32 +235,63 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
 
         // If not fully grown, drop 1 seed.
         if (state.getValue(AGE) < getMaxAge()) {
-            ItemStack seed = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
-            BlockEntity be = builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
-            if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
-                StrainData d = cropBe.getStrain();
-                if (d != StrainData.EMPTY) seed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
-            }
+            ItemStack seed = new ItemStack(ModItems.GENERIC_SEEDS.get());
+        BlockEntity be = builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
+        if (be instanceof UnidentifiedWeedCropBlockEntity cropBe) {
+            StrainData d = cropBe.getStrain();
+            if (d != StrainData.EMPTY) seed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+            String sid = cropBe.getStrainId();
+            if (!sid.isBlank()) seed.set(ModDataComponentTypes.STRAIN_ID.get(), sid);
+            String creator = cropBe.getStrainCreator();
+            if (!creator.isBlank()) seed.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+        }
             return java.util.List.of(seed);
         }
 
         BlockEntity be = builder.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
-        StrainData d = (be instanceof UnidentifiedWeedCropBlockEntity cropBe) ? cropBe.getStrain() : StrainData.EMPTY;
+        StrainData original = (be instanceof UnidentifiedWeedCropBlockEntity cropBe) ? cropBe.getStrain() : StrainData.EMPTY;
+        String sid = (be instanceof UnidentifiedWeedCropBlockEntity cropBe2) ? cropBe2.getStrainId() : "";
+        String creator = (be instanceof UnidentifiedWeedCropBlockEntity cropBe3) ? cropBe3.getStrainCreator() : "";
 
-        // Weed + seeds with strain + hemp leaf.
-        ItemStack weed = new ItemStack(ModItems.UNIDENTIFIED_WEED.get());
-        ItemStack seeds = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
-        ItemStack leaf = new ItemStack(ModItems.HEMP_LEAF.get());
-        if (d != StrainData.EMPTY) {
-            weed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
-            seeds.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+        // Compute bud scaling (THC/CBD and count) but keep original strain data for the seed drop
+        int budCount = 1;
+        StrainData budStrain = original;
+        if (original != StrainData.EMPTY && be instanceof UnidentifiedWeedCropBlockEntity cropBe4) {
+            int scaledThc = cropBe4.getThc();
+            int scaledCbd = cropBe4.getCbd();
+            budCount = cropBe4.getBudCount();
+            // Create a copy of the original strain with patched THC/CBD for buds only.
+            budStrain = new StrainData(original.colorArgb(), original.leafColor(), scaledThc, scaledCbd,
+                    original.nitrogen(), original.phosphorus(), original.potassium(),
+                    original.effects(), original.amplifier(), original.durationTicks(),
+                    original.identified(), original.displayName(), original.typeColors(),
+                    original.baseStrain1(), original.baseStrain2());
         }
-        return java.util.List.of(weed, seeds, leaf);
+
+        // Bud + seeds (seeds keep the original strain data) + hemp leaf.
+        ItemStack bud = new ItemStack(ModItems.GENERIC_BUD.get(), budCount);
+        ItemStack seeds = new ItemStack(ModItems.GENERIC_SEEDS.get());
+        ItemStack leaf = new ItemStack(ModItems.HEMP_LEAF.get());
+        if (budStrain != StrainData.EMPTY) {
+            bud.set(ModDataComponentTypes.STRAIN_DATA.get(), budStrain);
+        }
+        if (original != StrainData.EMPTY) {
+            seeds.set(ModDataComponentTypes.STRAIN_DATA.get(), original);
+        }
+        if (!sid.isBlank()) {
+            bud.set(ModDataComponentTypes.STRAIN_ID.get(), sid);
+            seeds.set(ModDataComponentTypes.STRAIN_ID.get(), sid);
+        }
+        if (!creator.isBlank()) {
+            bud.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+            seeds.set(ModDataComponentTypes.STRAIN_CREATOR.get(), creator);
+        }
+        return java.util.List.of(bud, seeds, leaf);
     }
 
     @Override
     public @NotNull ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
-        ItemStack stack = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+        ItemStack stack = new ItemStack(ModItems.GENERIC_SEEDS.get());
         StrainData d = getStrainAt(level, isTop(state) ? pos.below() : pos);
         if (d != StrainData.EMPTY) {
             stack.set(ModDataComponentTypes.STRAIN_DATA.get(), d);

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "minecraft:book" },
+    { "item": "smokeleafindustries:hemp_fibers" },
+    { "item": "smokeleafindustries:hemp_fibers" }
+  ],
+  "result": {
+    "count": 1,
+    "id": "smokeleafindustries:strain_book"
+  }
+}

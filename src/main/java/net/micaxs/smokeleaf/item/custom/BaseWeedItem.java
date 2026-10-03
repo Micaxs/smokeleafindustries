@@ -3,8 +3,8 @@ package net.micaxs.smokeleaf.item.custom;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
+import net.micaxs.smokeleaf.strain.StrainEffectsUtil;
 import net.micaxs.smokeleaf.strain.StrainUtil;
-import net.micaxs.smokeleaf.utils.WeedEffectHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,6 +13,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -60,6 +61,7 @@ public class BaseWeedItem extends Item {
     private boolean variableDuration;
     private final String[] weedNameParts = new String[2];
     private float durationMultiplier = 1;
+    private String nameSuffix = " Weed";
 
     public BaseWeedItem(Properties pProperties, MobEffect effect, int iDuration, int iAmplifier, int iThc, int iCbd, String weedNamePart1, String weedNamePart2) {
         this(pProperties, effect, iDuration, iAmplifier, iThc, iCbd, true);
@@ -85,13 +87,24 @@ public class BaseWeedItem extends Item {
         stack.set(ModDataComponentTypes.CBD.get(), this.cbdLevel);
     }
 
+    /** Sets the name suffix appended after the strain name (e.g. " Weed", " Extract"). */
+    public BaseWeedItem withNameSuffix(String suffix) {
+        this.nameSuffix = suffix;
+        return this;
+    }
+
     @Override
     public Component getName(ItemStack stack) {
         StrainData d = StrainUtil.getStrain(stack);
         if (d != StrainData.EMPTY && d.displayName() != null && !d.displayName().isBlank()) {
-            return Component.literal(d.displayName() + " Weed");
+            return Component.literal(d.displayName() + nameSuffix);
         }
         return super.getName(stack);
+    }
+
+    @Override
+    public ItemStack getDefaultInstance() {
+        return StrainUtil.defaultTintedInstance(this);
     }
 
     @Override
@@ -99,26 +112,24 @@ public class BaseWeedItem extends Item {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 
         StrainData d = StrainUtil.getStrain(stack);
-        if (d != StrainData.EMPTY) {
-            tooltipComponents.add(Component.literal("THC: " + d.thc() + "%  CBD: " + d.cbd() + "%"));
-            tooltipComponents.add(Component.literal("NPK: " + d.nitrogen() + "/" + d.phosphorus() + "/" + d.potassium()));
-        }
+        if (d == StrainData.EMPTY) return;
 
-        List<MobEffectInstance> previews = buildEffectInstances(stack);
-        if (previews.isEmpty()) {
-            return;
-        }
-
-        MobEffectInstance first = previews.get(0);
-        MobEffect eff = first.getEffect().value();
-        int dur = first.getDuration();
-        tooltipComponents.add(WeedEffectHelper.getEffectTooltip(eff, dur, true));
-
-        tooltipComponents.add(Component.empty());
         tooltipComponents.add(getLevelsText(stack));
 
+        List<MobEffectInstance> previews = buildEffectInstances(stack);
+        if (!previews.isEmpty()) {
+            MobEffectInstance first = previews.get(0);
+            MobEffect baseEff = first.getEffect().value();
+            int seconds = first.getDuration() / 20;
+            tooltipComponents.add(
+                    Component.literal("Effect: ").withStyle(ChatFormatting.GRAY)
+                            .append(Component.translatable(baseEff.getDescriptionId())
+                                    .append(Component.literal(" (" + seconds + "s)").withStyle(ChatFormatting.GRAY))
+                                    .withStyle(ChatFormatting.GREEN))
+            );
+        }
+
         if (previews.size() > 1) {
-            // use MutableComponent so .append(...) is available
             MutableComponent joined = Component.empty();
             for (int i = 1; i < previews.size(); i++) {
                 MobEffect extra = previews.get(i).getEffect().value();
@@ -133,10 +144,8 @@ public class BaseWeedItem extends Item {
                             .withStyle(ChatFormatting.GRAY)
             );
         }
-
-        if (this.variableDuration) {
-            tooltipComponents.add(Component.translatable("tooltip.smokeleafindustries.base_weed").withStyle(ChatFormatting.DARK_GRAY));
-        }
+        // "Discovered by" is intentionally not shown on weed/extract — data is preserved on the
+        // item for lineage tracking but only displayed on seeds, buds, and oil buckets.
     }
 
     private Component getLevelsText(ItemStack stack) {
@@ -157,6 +166,14 @@ public class BaseWeedItem extends Item {
     }
 
     public MobEffect getEffect(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        if (d != StrainData.EMPTY && !d.effects().isEmpty()) {
+            MobEffect strainEffect = BuiltInRegistries.MOB_EFFECT.get(d.effects().get(0));
+            if (strainEffect != null) {
+                return strainEffect;
+            }
+        }
+
         String effectId = stack.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get());
         if (effectId == null) {
             effectId = BuiltInRegistries.MOB_EFFECT.getKey(this.effect).toString();
@@ -170,96 +187,49 @@ public class BaseWeedItem extends Item {
     }
 
     public int getTHC(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        if (d != StrainData.EMPTY) {
+            return d.thc();
+        }
         Integer thc = stack.get(ModDataComponentTypes.THC.get());
         return thc != null ? thc : this.thcLevel;
     }
 
     public int getCBD(ItemStack stack) {
+        StrainData d = StrainUtil.getStrain(stack);
+        if (d != StrainData.EMPTY) {
+            return d.cbd();
+        }
         Integer cbd = stack.get(ModDataComponentTypes.CBD.get());
         return cbd != null ? cbd : this.cbdLevel;
     }
 
-    // Unified duration derived from CBD, in ticks
+    // Unified duration derived from CBD, delegated to StrainEffectsUtil
     private int computeUnifiedDurationTicks(ItemStack stack) {
-        int cbd = getCBD(stack);
-        int seconds;
-        if (cbd > 30) seconds = 60;
-        else if (cbd > 15) seconds = 20;
-        else seconds = 10; // cbd <= 15
-        // Allow multiplier to tweak final duration if needed
-        return (int) (seconds * 20 * this.durationMultiplier);
-    }
-
-    // Extra effects count derived from THC
-    private int computeExtraEffectCount(int thc) {
-        if (thc > 35) return 2;
-        if (thc > 20 && thc < 35) return 1;
-        return 0;
-    }
-
-    // Deterministic extra effects based on seed from item id, base effect id, THC, CBD
-    private List<MobEffect> getDeterministicExtraEffects(ItemStack stack, int count) {
-        if (count <= 0 || ADDITIONAL_EFFECT_POOL.isEmpty()) return List.of();
-
-        MobEffect base = getEffect(stack);
-        ResourceLocation baseId = base != null ? BuiltInRegistries.MOB_EFFECT.getKey(base) : null;
-
-        int thc = getTHC(stack);
-        int cbd = getCBD(stack);
-        long seed = 1469598103934665603L; // FNV offset basis
-        seed ^= (baseId != null ? baseId.toString().hashCode() : 0);
-        seed = (seed * 1099511628211L) ^ thc;
-        seed = (seed * 1099511628211L) ^ cbd;
-
-        String activeStr = stack.get(ModDataComponentTypes.ACTIVE_INGREDIENT.get());
-        if (activeStr != null) {
-            seed = (seed * 1099511628211L) ^ activeStr.hashCode();
-        }
-
-        List<MobEffect> candidates = new ArrayList<>();
-        for (ResourceLocation rl : ADDITIONAL_EFFECT_POOL) {
-            if (rl == null) continue;
-            if (baseId != null && rl.equals(baseId)) continue;
-            MobEffect eff = BuiltInRegistries.MOB_EFFECT.get(rl);
-            if (eff != null) candidates.add(eff);
-        }
-        if (candidates.isEmpty()) return List.of();
-
-        Collections.shuffle(candidates, new Random(seed));
-        if (count >= candidates.size()) return List.copyOf(candidates);
-        return List.copyOf(candidates.subList(0, count));
-    }
-
-    private static Holder<MobEffect> toHolder(MobEffect effect) {
-        if (effect == null) return null;
-        var registry = BuiltInRegistries.MOB_EFFECT;
-        var keyOpt = registry.getResourceKey(effect);
-        if (keyOpt.isPresent()) {
-            return registry.getHolderOrThrow(keyOpt.get());
-        }
-        return Holder.direct(effect);
+        return StrainEffectsUtil.computeDurationTicks(getCBD(stack), this.durationMultiplier);
     }
 
     public List<MobEffectInstance> buildEffectInstances(ItemStack stack) {
-        int durationTicks = computeUnifiedDurationTicks(stack);
-        int amp = this.effectAmplifier;
-
-        List<MobEffectInstance> out = new ArrayList<>();
-
-        MobEffect base = getEffect(stack);
-        Holder<MobEffect> baseHolder = toHolder(base);
-        if (baseHolder != null) {
-            out.add(new MobEffectInstance(baseHolder, durationTicks, amp, false, true, true));
+        StrainData d = StrainUtil.getStrain(stack);
+        List<MobEffectInstance> effects;
+        // If the strain data has explicit effects (from mixing), use them directly.
+        // This ensures all effects in d.effects() are applied, not just the THC-pool-selected ones.
+        if (d != StrainData.EMPTY && !d.effects().isEmpty()) {
+            effects = StrainEffectsUtil.buildEffectInstancesFromList(
+                    getCBD(stack), this.effectAmplifier, d.effects(), this.durationMultiplier);
+        } else {
+            effects = StrainEffectsUtil.buildEffectInstances(
+                    getTHC(stack), getCBD(stack), this.effectAmplifier,
+                    getEffect(stack), this.durationMultiplier, ADDITIONAL_EFFECT_POOL);
         }
 
-        int extraCount = computeExtraEffectCount(getTHC(stack));
-        for (MobEffect eff : getDeterministicExtraEffects(stack, extraCount)) {
-            Holder<MobEffect> effHolder = toHolder(eff);
-            if (effHolder != null) {
-                out.add(new MobEffectInstance(effHolder, durationTicks, amp, false, true, true));
-            }
+        List<MobEffectInstance> filtered = new ArrayList<>();
+        for (MobEffectInstance inst : effects) {
+            if (inst == null || inst.getEffect() == null) continue;
+            if (inst.getEffect().value() == MobEffects.CONFUSION) continue;
+            filtered.add(inst);
         }
-        return out;
+        return filtered;
     }
 
     // Apply effects on consume/use

@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:worm_castings",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 2,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:worm_castings" } ]
+}

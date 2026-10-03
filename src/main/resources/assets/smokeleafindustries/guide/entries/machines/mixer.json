@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:mixer",
+  "category": "smokeleafindustries:machines",
+  "sortnum": 8,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:mixer" }
+  ]
+}

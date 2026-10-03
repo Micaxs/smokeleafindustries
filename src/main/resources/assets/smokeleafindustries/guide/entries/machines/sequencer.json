@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:sequencer",
+  "category": "smokeleafindustries:machines",
+  "sortnum": 12,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:sequencer" }
+  ]
+}

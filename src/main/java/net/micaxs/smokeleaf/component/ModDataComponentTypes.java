@@ -44,6 +44,12 @@ public class ModDataComponentTypes {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> THC = register("thc", builder -> builder.persistent(Codec.INT));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> CBD = register("cbd", builder -> builder.persistent(Codec.INT));
 
+    // Highest THC/CBD among the weeds rolled into a Blunt/Joint — used to pick the STONED trip
+    // shader tier and CBD duration discount at consumption time. Kept separate from THC/CBD above
+    // since those get silently overwritten by the generic crafting-preview strain copy hook.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRIP_THC = register("trip_thc", builder -> builder.persistent(Codec.INT));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRIP_CBD = register("trip_cbd", builder -> builder.persistent(Codec.INT));
+
     // Weed Extract Fluid payload (effects attached at machine-time to FluidStacks)
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<WeedFluidData>> WEED_FLUID_DATA =
             register("weed_fluid_data", b -> b.persistent(WeedFluidData.CODEC));
@@ -66,6 +72,18 @@ public class ModDataComponentTypes {
     // Custom strain payload for player-created strains (items and mixture fluids)
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<StrainData>> STRAIN_DATA =
             register("strain_data", b -> b.persistent(StrainData.CODEC));
+
+    // Canonical mix key for mixer-produced strains (sorted "strainA||strainB"), used for server-wide naming
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> MIX_KEY =
+            register("mix_key", builder -> builder.persistent(Codec.STRING));
+
+    /** Universal strain lineage identifier (UUID string for mutator-created strains, MIX_KEY value for mixer-blended strains). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> STRAIN_ID =
+            register("strain_id", builder -> builder.persistent(Codec.STRING));
+
+    /** The player who first named / discovered this strain. Empty for preset/builtin strains. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> STRAIN_CREATOR =
+            register("strain_creator", builder -> builder.persistent(Codec.STRING));
 
     private static <T>DeferredHolder<DataComponentType<?>, DataComponentType<T>> register(String name, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
         return DATA_COMPONENT_TYPES.register(name, () -> builderOperator.apply(DataComponentType.builder()).build());

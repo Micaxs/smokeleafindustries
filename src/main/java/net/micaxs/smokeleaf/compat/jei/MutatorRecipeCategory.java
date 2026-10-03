@@ -71,25 +71,49 @@ public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
     public void setRecipe(IRecipeLayoutBuilder builder, MutatorRecipe recipe, IFocusGroup focuses) {
         var ingredients = recipe.getIngredients();
         if (ingredients.size() > 0) {
-            builder.addSlot(RecipeIngredientRole.INPUT, SEED_X, SEED_Y)
-                    .addIngredients(ingredients.get(0));
+            var seedIngredient = ingredients.get(0);
+            if (JeiStrainHelper.isStrainIngredient(seedIngredient)) {
+                builder.addSlot(RecipeIngredientRole.INPUT, SEED_X, SEED_Y)
+                        .addIngredients(JeiStrainHelper.coloredIngredient(seedIngredient, focuses));
+            } else {
+                builder.addSlot(RecipeIngredientRole.INPUT, SEED_X, SEED_Y)
+                        .addIngredients(seedIngredient);
+            }
         }
         if (ingredients.size() > 1) {
-            builder.addSlot(RecipeIngredientRole.INPUT, EXTRACT_X, EXTRACT_Y)
-                    .addIngredients(ingredients.get(1));
+            var extractIngredient = ingredients.get(1);
+            if (JeiStrainHelper.isStrainIngredient(extractIngredient)) {
+                builder.addSlot(RecipeIngredientRole.INPUT, EXTRACT_X, EXTRACT_Y)
+                        .addIngredients(JeiStrainHelper.coloredIngredient(extractIngredient, focuses));
+            } else {
+                builder.addSlot(RecipeIngredientRole.INPUT, EXTRACT_X, EXTRACT_Y)
+                        .addIngredients(extractIngredient);
+            }
         }
 
         FluidStack fluid = recipe.getFluid();
         if (!fluid.isEmpty()) {
+            // The recipe's own declared fluid is always the bare, uncolored generic oil — but any
+            // strain's oil actually works in-game (the Mutator checks fluid validity itself, not
+            // recipe-declared identity; see MutatorRecipe#matches), and the output seed inherits
+            // whichever strain's oil was really used. Cycle strain-tinted oil here, paired with the
+            // identically-ordered output cycling below, instead of always showing "Unidentified".
             builder.addSlot(RecipeIngredientRole.INPUT, FLUID_X, FLUID_Y)
                     .setFluidRenderer(FLUID_CAPACITY, false, FLUID_W, FLUID_H)
-                    .addIngredient(NeoForgeTypes.FLUID_STACK, fluid.copy());
+                    .addIngredients(NeoForgeTypes.FLUID_STACK,
+                            JeiStrainHelper.coloredFluidStacks(fluid.getFluid(), fluid.getAmount(), focuses));
         }
 
         ItemStack out = recipe.output();
         if (!out.isEmpty()) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
-                    .addItemStack(out.copy());
+            if (JeiStrainHelper.isStrainItem(out.getItem())) {
+                builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
+                        .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(
+                                JeiStrainHelper.coloredStacks(out.getItem(), focuses).stream()));
+            } else {
+                builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
+                        .addItemStack(out.copy());
+            }
         }
     }
 

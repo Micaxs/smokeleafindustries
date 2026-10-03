@@ -1,27 +1,16 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "key": {
-    "A": {
-      "item": "minecraft:amethyst_shard"
+  "ingredients": [
+    {
+      "item": "smokeleafindustries:bio_composite"
     },
-    "D": {
+    {
       "item": "minecraft:diamond"
-    },
-    "G": {
-      "item": "minecraft:glowstone_dust"
-    },
-    "R": {
-      "item": "minecraft:redstone"
     }
-  },
-  "pattern": [
-    "RAR",
-    "GDG",
-    "RAR"
   ],
   "result": {
-    "count": 1,
+    "count": 2,
     "id": "smokeleafindustries:unfinished_hemp_core"
   }
 }

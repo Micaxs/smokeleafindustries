@@ -9,7 +9,14 @@
     "smokeleafindustries:hemp_seeds_from_village_plains_chest",
     "smokeleafindustries:manual_grinder_from_village_plains_chest",
     "smokeleafindustries:white_widow_bag_from_trial_chamber_loot",
-    "smokeleafindustries:bong_from_trial_chamber_loot"
+    "smokeleafindustries:bong_from_trial_chamber_loot",
+    "smokeleafindustries:dual_arc_lamp_from_desert_pyramid",
+    "smokeleafindustries:dual_arc_lamp_from_desert_well",
+    "smokeleafindustries:dual_arc_lamp_from_ocean_ruin_warm",
+    "smokeleafindustries:dual_arc_lamp_from_ocean_ruin_cold",
+    "smokeleafindustries:dual_arc_lamp_from_trail_ruins_common",
+    "smokeleafindustries:dual_arc_lamp_from_trail_ruins_rare",
+    "smokeleafindustries:dual_arc_lamp_from_trial_chamber_loot"
   ],
   "replace": false
 }

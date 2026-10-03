@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:bud",
+  "category": "smokeleafindustries:strains",
+  "sortnum": 0,
+  "pages": [
+    { "type": "text" },
+    { "type": "text" }
+  ]
+}

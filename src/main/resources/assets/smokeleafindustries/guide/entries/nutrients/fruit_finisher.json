@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:fruit_finisher",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 12,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:fruit_finisher" } ]
+}

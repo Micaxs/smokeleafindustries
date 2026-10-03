@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:grow_pot",
+  "category": "smokeleafindustries:growing_plants",
+  "sortnum": 2,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:grow_pot" }
+  ]
+}

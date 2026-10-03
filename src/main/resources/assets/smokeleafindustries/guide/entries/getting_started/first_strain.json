@@ -1,0 +1,11 @@
+{
+  "icon": "smokeleafindustries:dna_strand",
+  "category": "smokeleafindustries:getting_started",
+  "sortnum": 8,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:dna_strand" },
+    { "type": "spotlight", "item": "smokeleafindustries:base_extract" },
+    { "type": "spotlight", "item": "smokeleafindustries:bud", "strain": "white_widow" }
+  ]
+}

@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -116,7 +117,7 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     public IItemHandler getItemHandler(@Nullable net.minecraft.core.Direction dir) {
-        return itemHandler;
+        return ExtractRestrictedItemHandler.outputOnly(itemHandler, OUTPUT_SLOT);
     }
     public IEnergyStorage getEnergyStorage(@Nullable net.minecraft.core.Direction dir) {
         return ENERGY_STORAGE;

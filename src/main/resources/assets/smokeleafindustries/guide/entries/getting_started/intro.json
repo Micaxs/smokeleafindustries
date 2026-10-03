@@ -1,0 +1,8 @@
+{
+  "icon": "smokeleafindustries:hemp_seeds",
+  "category": "smokeleafindustries:getting_started",
+  "sortnum": 1,
+  "pages": [
+    { "type": "text" }
+  ]
+}

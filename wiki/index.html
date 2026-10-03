@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smokeleaf Industry — Wiki</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ── Reset & base ───────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        :root {
+            --green-900: #0a1f0e;
+            --green-800: #0f2a15;
+            --green-700: #1a3d23;
+            --green-600: #2d5a39;
+            --green-500: #4a8a5a;
+            --green-400: #6ab07a;
+            --green-300: #8fcf9e;
+            --green-200: #b8e5c2;
+            --green-100: #dcf5e0;
+            --green-50:  #edfbf0;
+
+            --amber-500: #d4a843;
+            --amber-400: #e0bf6a;
+            --amber-300: #ecd48c;
+
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748b;
+            --slate-400: #94a3b8;
+            --slate-300: #cbd5e1;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --slate-50:  #f8fafc;
+
+            --sidebar-w: 260px;
+            --header-h: 56px;
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+
+            --bg:       var(--slate-50);
+            --surface:  #fff;
+            --border:   var(--slate-200);
+            --text:     var(--slate-900);
+            --text-dim: var(--slate-500);
+            --accent:   var(--green-600);
+            --accent-l: var(--green-100);
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            font-size: 15px;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        a { color: var(--green-600); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        img { max-width: 100%; }
+
+        /* ── Sidebar ─────────────────────────────────────────── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--green-900);
+            color: var(--green-200);
+            overflow-y: auto;
+            z-index: 100;
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--green-700);
+            margin-bottom: 12px;
+        }
+        .sidebar-logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.3px;
+        }
+        .sidebar-logo small {
+            font-size: 12px;
+            color: var(--green-400);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .sidebar nav { padding: 0 8px; flex: 1; }
+        .sidebar nav a {
+            display: block;
+            padding: 7px 12px;
+            border-radius: 6px;
+            color: var(--green-300);
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .sidebar nav a:hover {
+            background: var(--green-800);
+            color: #fff;
+            text-decoration: none;
+        }
+        .sidebar nav .section-label {
+            padding: 16px 12px 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--green-600);
+        }
+        .sidebar nav a.sub { padding-left: 24px; font-weight: 400; font-size: 13px; }
+
+        /* ── Main content ────────────────────────────────────── */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            max-width: 880px;
+            padding: 48px 56px 80px;
+        }
+
+        .main > section { margin-bottom: 48px; }
+
+        h2 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            margin: 0 0 6px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid var(--green-500);
+            display: inline-block;
+        }
+        h3 {
+            font-size: 19px;
+            font-weight: 600;
+            margin: 28px 0 10px;
+            color: var(--green-800);
+        }
+        h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0 6px;
+            color: var(--slate-700);
+        }
+        p, ul, ol { margin-bottom: 12px; }
+        ul, ol { padding-left: 22px; }
+        li { margin-bottom: 4px; }
+
+        .main > section > p { color: var(--slate-600); max-width: 680px; }
+
+        blockquote {
+            border-left: 4px solid var(--green-300);
+            background: var(--green-50);
+            padding: 12px 18px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            color: var(--slate-700);
+        }
+        blockquote strong { color: var(--green-800); }
+
+        code {
+            font-family: var(--mono);
+            font-size: 13px;
+            background: var(--slate-100);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--slate-800);
+        }
+        pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            background: var(--slate-900);
+            color: var(--green-200);
+            padding: 16px 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        /* ── Card grid ────────────────────────────────────────── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+            transition: box-shadow 0.15s;
+        }
+        .card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card h4 { margin: 0 0 4px; font-size: 14px; }
+        .card p { margin: 0; font-size: 13px; color: var(--text-dim); }
+        .card .tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1px 8px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+        }
+        .tag-power { background: #fff3cd; color: #856404; }
+        .tag-item  { background: #d1ecf1; color: #0c5460; }
+        .tag-machine { background: #f8d7da; color: #721c24; }
+        .tag-cons  { background: #e2d9f3; color: #5a3e8a; }
+
+        /* ── Hero ─────────────────────────────────────────────── */
+        .hero {
+            background: linear-gradient(135deg, var(--green-800), var(--green-700));
+            color: #fff;
+            border-radius: 14px;
+            padding: 32px 36px;
+            margin-bottom: 40px;
+        }
+        .hero h2 { border: none; color: #fff; display: block; margin: 0 0 6px; font-size: 28px; }
+        .hero p { color: var(--green-200); max-width: 600px; margin: 0; font-size: 15px; }
+
+        /* ── Flow chart (text-based) ──────────────────────────── */
+        .flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px 4px;
+            margin: 16px 0 24px;
+        }
+        .flow-step {
+            background: var(--green-100);
+            color: var(--green-800);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .flow-arrow { color: var(--slate-400); font-size: 16px; font-weight: 300; }
+
+        /* ── Responsive ───────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .sidebar { width: 200px; }
+            .main { margin-left: 200px; padding: 32px 24px 60px; }
+        }
+        @media (max-width: 640px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                padding: 12px 0;
+            }
+            .main { margin-left: 0; padding: 24px 16px 60px; }
+            .card-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Table ────────────────────────────────────────────── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: var(--green-50);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--green-700);
+        }
+        tr:hover td { background: var(--slate-50); }
+    </style>
+</head>
+<body>
+
+<!-- ════════════ Sidebar ════════════ -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <h1>🌿 Smokeleaf Wiki</h1>
+        <small>Industry &amp; Alchemy Guide</small>
+    </div>
+    <nav>
+        <div class="section-label">Getting Started</div>
+        <a href="#overview">Overview</a>
+        <a href="#progression" class="sub">Quick Start</a>
+        <a href="#strain-system">Strain System</a>
+
+        <div class="section-label">Progression</div>
+        <a href="#hemp">1 · Hemp</a>
+        <a href="#crops">2 · Crops &amp; Buds</a>
+        <a href="#drying">3 · Drying</a>
+        <a href="#grinding">4 · Grinding</a>
+        <a href="#consumables">5 · Consumables</a>
+        <a href="#power">6 · Power</a>
+        <a href="#extraction">7 · Extraction</a>
+        <a href="#liquify">8 · Liquify</a>
+        <a href="#mixing">9 · Mixing</a>
+        <a href="#mutation">10 · Mutation</a>
+        <a href="#dna">11 · DNA</a>
+
+        <div class="section-label">Reference</div>
+        <a href="#machines">Machines</a>
+        <a href="#items">Items</a>
+        <a href="#strain-list">Strains</a>
+        <a href="#tips">Tips</a>
+    </nav>
+</aside>
+
+<!-- ════════════ Main ════════════ -->
+<div class="main">
+
+<!-- ─── HERO ─── -->
+<div class="hero">
+    <h2>🌿 Smokeleaf Industry</h2>
+    <p>
+        A complete cannabis-cultivation and alchemy modification for Minecraft (NeoForge 1.21.1).
+        Grow strains, process them into extracts, mix custom genetics, and build an industrial
+        operation from humble hemp seeds.
+    </p>
+</div>
+
+<section id="overview">
+    <h2>Overview</h2>
+    <p>
+        Smokeleaf Industry transforms Minecraft agriculture into a complex production line.
+        Start by harvesting wild <strong>hemp</strong>, progress through <strong>drying</strong>,
+        <strong>grinding</strong>, and <strong>extraction</strong>, and eventually unlock
+        <strong>DNA synthesis</strong> to breed custom strain genetics.
+    </p>
+    <p>
+        Every step preserves <strong>strain data</strong> — the THC, CBD, and effects that make
+        each strain unique. The mod uses a <em>generic-item + component</em> architecture:
+        instead of 25 separate items for each strain, a single <code>weed</code> item carries a
+        <code>StrainData</code> component that determines its color, stats, and effects.
+    </p>
+</section>
+
+<section id="progression">
+    <h2>Quick Start</h2>
+    <p>The mod follows a clear tech-tree. Here is the full progression chain:</p>
+
+    <div class="flow">
+        <span class="flow-step">Hemp</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Crop</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Drying</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Grinding</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Consumables</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Power</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Extraction</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Liquify</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Mixing</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Mutation</span><span class="flow-arrow">→</span>
+        <span class="flow-step">DNA</span>
+    </div>
+
+    <blockquote>
+        <strong>Pro tip:</strong> You don't <em>need</em> to build every machine at once.
+        Hemp → Crop → Drying Rack → Manual Grinder → Joints is a perfectly valid early-game
+        loop. Power and electric machines come later.
+    </blockquote>
+</section>
+
+<section id="strain-system">
+    <h2>Strain System</h2>
+    <p>
+        The heart of the mod. Every weed, bud, seed, and extract carries a
+        <strong>StrainData</strong> component that defines its:
+    </p>
+    <ul>
+        <li><strong>THC</strong> — determines how many extra effects are applied when consumed</li>
+        <li><strong>CBD</strong> — scales effect duration</li>
+        <li><strong>Color</strong> — derived deterministically from the strain ID</li>
+    </ul>
+    <p>
+        There are <strong>25 preset strains</strong> (e.g. White Widow, OG Kush, Blue Cookies)
+        that you can find or craft. You can also <strong>create custom strains</strong> via the
+        Mutation and DNA systems — mix extracts in the Mixer, apply the resulting mixture in the
+        Mutator, and get seeds with a brand-new genetic profile.
+    </p>
+
+    <blockquote>
+        <strong>Old vs New system:</strong> The mod is mid-migration from 25 per-strain items to
+        a generic-item + component system. Bags and gummies still use the old per-strain items;
+        everything else (seeds, buds, weed, extract) uses the new system.
+    </blockquote>
+
+    <h4>StrainData record</h4>
+    <pre>StrainData(int thc, int cbd)
+// THC → added effect count, CBD → duration multiplier</pre>
+</section>
+
+<!-- ════════════ PROGRESSION ════════════ -->
+
+<!-- 1 · Hemp -->
+<section id="hemp">
+    <h2>1 · Hemp</h2>
+    <p>
+        The entry point. Find <strong>hemp plants</strong> growing in the world. When you break
+        a plant you get:
+    </p>
+    <ul>
+        <li><code>hemp_leaf</code> (×4 with shears) — craft into hemp fibers, then fabric</li>
+        <li><code>generic_bud</code> (random strain) — your first source of usable bud</li>
+    </ul>
+    <p>
+        Hemp is also your source of building materials: hemp bricks, slabs, stairs, and walls.
+    </p>
+
+    <div class="card-grid">
+        <div class="card"><span class="tag tag-item">Harvest</span><h4>Hemp Leaf</h4><p>Shear hemp plants for 4 leaves. Used for fibers and bio-composite.</p></div>
+        <div class="card"><span class="tag tag-item">Harvest</span><h4>Generic Bud</h4><p>Breaking hemp gives a random-strain bud. Your first step into the strain system.</p></div>
+        <div class="card"><span class="tag tag-item">Craft</span><h4>Hemp Fiber</h4><p>9 hemp leaf → 1 hemp fiber (manual grinder or crafting).</p></div>
+        <div class="card"><span class="tag tag-item">Craft</span><h4>Hemp Fabric</h4><p>4 hemp fiber → 1 hemp fabric.</p></div>
+    </div>
+</section>
+
+<!-- 2 · Crops -->
+<section id="crops">
+    <h2>2 · Crops &amp; Buds</h2>
+    <p>
+        Plant <code>generic_seeds</code> (with StrainData) in a crop block or Grow Pot.
+        The harvested bud preserves the strain's genetics — THC, CBD, and color carry through.
+    </p>
+    <p>
+        Seeds can be obtained by:
+    </p>
+    <ul>
+        <li>Breaking hemp (rare drop)</li>
+        <li>Crafting from buds in the Mutator</li>
+        <li>DNA synthesis (end-game)</li>
+    </ul>
+
+    <div class="card-grid">
+        <div class="card"><span class="tag tag-machine">Block</span><h4>Grow Pot</h4><p>Automated plant pot. Place seeds + fertilizer for hands-off growing.</p></div>
+        <div class="card"><span class="tag tag-item">Item</span><h4>Fertilizers</h4><p>Various recipes: bonemeal, bat guano, blood meal, fish emulsion, bloom booster, etc.</p></div>
+    </div>
+</section>
+
+<!-- 3 · Drying -->
+<section id="drying">
+    <h2>3 · Drying</h2>
+    <p>
+        Fresh buds contain moisture. Dry them before grinding for a <strong>bonus yield</strong>
+        and better effects. Two options:
+    </p>
+
+    <div class="card-grid">
+        <div class="card">
+            <span class="tag tag-machine">Machine</span>
+            <h4>Drying Rack</h4>
+            <p>Passive — no power required. 12 slots. Hang buds and wait.</p>
+        </div>
+        <div class="card">
+            <span class="tag tag-machine">Machine</span>
+            <h4>Dryer</h4>
+            <p>Electric — 2 slots, faster. Requires power.</p>
+        </div>
+    </div>
+    <p>
+        Dried buds have the <code>DRY = true</code> component. The Grinder gives
+        <strong>+1 bonus weed</strong> for dry buds.
+    </p>
+</section>
+
+<!-- 4 · Grinding -->
+<section id="grinding">
+    <h2>4 · Grinding</h2>
+    <p>Convert <code>generic_bud</code> → <code>generic_weed</code>. Strain data is preserved.</p>
+    <div class="card-grid">
+        <div class="card">
+            <span class="tag tag-item">Tool</span>
+            <h4>Manual Grinder</h4>
+            <p>Hand-held. Right-click to grind. No power needed. 40 ticks per operation.</p>
+        </div>
+        <div class="card">
+            <span class="tag tag-machine">Machine</span>
+            <h4>Grinder</h4>
+            <p>Electric — 64,000 FE buffer. Faster throughput.</p>
+        </div>
+    </div>
+    <blockquote><strong>Bonus:</strong> Dry buds yield 2 weed instead of 1. Always dry before grinding!</blockquote>
+</section>
+
+<!-- 5 · Consumables -->
+<section id="consumables">
+    <h2>5 · Consumables</h2>
+    <p>Once you have weed, you can craft a variety of consumables at the crafting table.</p>
+
+    <div class="card-grid">
+        <div class="card"><span class="tag tag-cons">Craft</span><h4>Joint</h4><p>Paper + Paper + Weed + Weed + Tobacco = Joint. Stores weed in NBT.</p></div>
+        <div class="card"><span class="tag tag-cons">Craft</span><h4>Blunt</h4><p>Paper×6 + Weed×3 = Blunt. Stores weed in NBT.</p></div>
+        <div class="card"><span class="tag tag-cons">Craft</span><h4>Infused Butter</h4><p>Butter + Weed → Infused Butter. (StrainData preserved via StrainCopy recipe.)</p></div>
+        <div class="card"><span class="tag tag-cons">Craft</span><h4>Hash Brownie</h4><p>Weed + Infused Butter + Cocoa + Hash Oil → Hash Brownie.</p></div>
+        <div class="card"><span class="tag tag-cons">Craft</span><h4>Herb Cake</h4><p>Weed + Infused Butter + Sugar + Egg + Milk → Herb Cake.</p></div>
+        <div class="card"><span class="tag tag-cons">Craft</span><h4>Bag</h4><p>8 Weed + Empty Bag → Strain Bag. Bag → 8 Weed (strain preserved).</p></div>
+    </div>
+
+    <blockquote>
+        <strong>Note:</strong> Joints and Blunts store their weed in NBT, not the StrainData
+        component. This is legacy behavior that will eventually be unified.
+    </blockquote>
+</section>
+
+<!-- 6 · Power -->
+<section id="power">
+    <h2>6 · Power</h2>
+    <p>
+        Most advanced machines require Forge Energy (FE). The <strong>Generator</strong> is
+        your first source — it burns weed or bud to produce 40 FE/t.
+    </p>
+
+    <table>
+        <tr><th>Fuel</th><th>Energy</th><th>Burn Time</th></tr>
+        <tr><td>Weed</td><td>3,200 FE</td><td>80 ticks</td></tr>
+        <tr><td>Bud</td><td>6,400 FE</td><td>160 ticks</td></tr>
+        <tr><td>Hash Oil</td><td>—</td><td>—</td></tr>
+        <tr><td>Hemp Coal</td><td>—</td><td>—</td></tr>
+        <tr><td>Hemp Oil</td><td>—</td><td>—</td></tr>
+    </table>
+
+    <p>
+        The Generator pushes FE to connected machines. Use it to power your Grinder, Extractor,
+        Liquifier, Mixer, Mutator, and other electric machines.
+    </p>
+</section>
+
+<!-- 7 · Extraction -->
+<section id="extraction">
+    <h2>7 · Extraction</h2>
+    <p>
+        The <strong>Extractor</strong> converts <code>generic_weed</code> or
+        <code>generic_bud</code> into <code>generic_extract</code>. Strain data is preserved.
+    </p>
+    <div class="card-grid">
+        <div class="card"><span class="tag tag-machine">Machine</span><h4>Extractor</h4><p>Electric (64,000 FE). Weed → Extract or Bud → Extract. 1:1 ratio.</p></div>
+    </div>
+    <p>
+        Extract is a key intermediate — it's used in the Liquifier and Mutator.
+    </p>
+</section>
+
+<!-- 8 · Liquify -->
+<section id="liquify">
+    <h2>8 · Liquify</h2>
+    <p>
+        The <strong>Liquifier</strong> converts <code>generic_extract</code> into fluid extract.
+        It also converts weed and seeds into hash oil and hemp oil.
+    </p>
+    <div class="card-grid">
+        <div class="card"><span class="tag tag-machine">Machine</span><h4>Liquifier</h4><p>Electric. 8,000mb tank. Extract → Fluid Extract (strain data on FluidStack).</p></div>
+    </div>
+    <p>
+        Fluid extract carries strain data via the <code>STRAIN_DATA</code> component on the
+        FluidStack — the new system for fluid-based strain tracking.
+    </p>
+    <table>
+        <tr><th>Input</th><th>Output Fluid</th><th>Amount</th></tr>
+        <tr><td>Weed</td><td>Hash Oil</td><td>100 mb</td></tr>
+        <tr><td>Seeds</td><td>Hemp Oil</td><td>100 mb</td></tr>
+        <tr><td>Extract (per strain)</td><td>Unidentified Mixture</td><td>250 mb</td></tr>
+    </table>
+</section>
+
+<!-- 9 · Mixing -->
+<section id="mixing">
+    <h2>9 · Mixing</h2>
+    <p>
+        The <strong>Mixer</strong> combines two extract fluids (250 mb each) to produce
+        500 mb of <code>UnidentifiedMixtureFluid</code> with combined StrainData from both parents.
+    </p>
+    <div class="card-grid">
+        <div class="card"><span class="tag tag-machine">Machine</span><h4>Mixer</h4><p>Electric. Dual 4,000mb input tanks + 8,000mb output tank.</p></div>
+    </div>
+    <p>
+        This is the bridge between extraction and mutation — mixed fluid carries the genetic
+        information for new strains.
+    </p>
+</section>
+
+<!-- 10 · Mutation -->
+<section id="mutation">
+    <h2>10 · Mutation</h2>
+    <p>
+        The <strong>Mutator</strong> creates new seeds with custom genetics. It requires:
+    </p>
+    <ul>
+        <li>Hemp seeds (base)</li>
+        <li>Base extract</li>
+        <li>Unidentified Mixture fluid (from the Mixer)</li>
+    </ul>
+    <p>
+        The output seeds carry the mixture's combined StrainData — a <strong>brand-new strain</strong>
+        with deterministic stats derived from the strain ID.
+    </p>
+    <div class="card-grid">
+        <div class="card"><span class="tag tag-machine">Machine</span><h4>Mutator</h4><p>Electric. Seeds + Extract + Mixture → Custom-strain Seeds.</p></div>
+    </div>
+    <blockquote>
+        <strong>Deterministic stats:</strong> <code>StrainUtil.finalizeMixtureStats()</code> uses a
+        deterministic seed from the strain ID. The same ID always gets the same THC/CBD values.
+    </blockquote>
+</section>
+
+<!-- 11 · DNA -->
+<section id="dna">
+    <h2>11 · DNA</h2>
+    <p>
+        The end-game. Two machines let you <strong>synthesize</strong> and
+        <strong>sequence</strong> DNA to reproduce any of the 25 preset strains.
+    </p>
+    <div class="card-grid">
+        <div class="card"><span class="tag tag-machine">Machine</span><h4>Synthesizer</h4><p>Empty DNA Strand + 3 Reagents → Filled DNA Strand.</p></div>
+        <div class="card"><span class="tag tag-machine">Machine</span><h4>Sequencer</h4><p>Filled DNA + Base Extract → Output with target strain. (No recipes exist yet.)</p></div>
+    </div>
+    <blockquote>
+        ⚠️ The Sequencer currently has <strong>no recipes</strong>. There is no way to produce
+        the 25 preset strains via DNA yet — this is a known TODO.
+    </blockquote>
+</section>
+
+<!-- ════════════ REFERENCE ════════════ -->
+
+<section id="machines">
+    <h2>Machines</h2>
+    <table>
+        <tr><th>Machine</th><th>Power</th><th>Slots / Tanks</th><th>Description</th></tr>
+        <tr><td>Drying Rack</td><td>None</td><td>12 slots</td><td>Passive bud drying</td></tr>
+        <tr><td>Dryer</td><td>Electric</td><td>2 slots</td><td>Electric bud drying</td></tr>
+        <tr><td>Manual Grinder</td><td>None</td><td>Hand tool</td><td>Right-click to grind</td></tr>
+        <tr><td>Grinder</td><td>64,000 FE</td><td>—</td><td>Electric bud → weed</td></tr>
+        <tr><td>Generator</td><td>40 FE/t output</td><td>—</td><td>Burns weed/bud for FE</td></tr>
+        <tr><td>Extractor</td><td>64,000 FE</td><td>—</td><td>Weed/bud → extract</td></tr>
+        <tr><td>Liquifier</td><td>Electric</td><td>8,000mb tank</td><td>Extract → fluid extract</td></tr>
+        <tr><td>Mixer</td><td>Electric</td><td>2×4,000mb in + 8,000mb out</td><td>Combines extract fluids</td></tr>
+        <tr><td>Mutator</td><td>Electric</td><td>—</td><td>Seeds + extract + fluid → custom seeds</td></tr>
+        <tr><td>Synthesizer</td><td>Electric</td><td>—</td><td>DNA strand + reagents → filled DNA</td></tr>
+        <tr><td>Sequencer</td><td>Electric</td><td>—</td><td>Filled DNA + extract → strain (no recipes yet)</td></tr>
+    </table>
+</section>
+
+<section id="items">
+    <h2>Key Items</h2>
+    <table>
+        <tr><th>Item</th><th>Generic?</th><th>Strain Data</th><th>Category</th></tr>
+        <tr><td>Generic Seeds</td><td>✅</td><td>StrainData</td><td>Plantable</td></tr>
+        <tr><td>Generic Bud</td><td>✅</td><td>StrainData</td><td>Harvest / Process</td></tr>
+        <tr><td>Generic Weed</td><td>✅</td><td>StrainData</td><td>Consumable / Process</td></tr>
+        <tr><td>Generic Extract</td><td>✅</td><td>StrainData</td><td>Process</td></tr>
+        <tr><td>Generic Bag</td><td>✅</td><td>StrainData</td><td>Storage</td></tr>
+        <tr><td>Joint</td><td>❌ (1 item)</td><td>NBT (legacy)</td><td>Consumable</td></tr>
+        <tr><td>Blunt</td><td>❌ (1 item)</td><td>NBT (legacy)</td><td>Consumable</td></tr>
+        <tr><td>Infused Butter</td><td>❌ (1 item)</td><td>StrainData</td><td>Ingredient</td></tr>
+        <tr><td>Hash Brownie</td><td>❌ (1 item)</td><td>CustomData (legacy)</td><td>Consumable</td></tr>
+        <tr><td>Herb Cake</td><td>❌ (1 item)</td><td>CustomData (legacy)</td><td>Consumable</td></tr>
+        <tr><td>DNA Strand</td><td>❌ (1 item)</td><td>DNA contents</td><td>Process</td></tr>
+        <tr><td>Hemp Seeds</td><td>❌ (1 item)</td><td>None</td><td>Plantable (base)</td></tr>
+        <tr><td>Hemp Leaf</td><td>❌ (1 item)</td><td>None</td><td>Material</td></tr>
+        <tr><td>Hemp Fiber</td><td>❌ (1 item)</td><td>None</td><td>Material</td></tr>
+        <tr><td>Hemp Fabric</td><td>❌ (1 item)</td><td>None</td><td>Material</td></tr>
+        <tr><td>Butter</td><td>❌ (1 item)</td><td>None</td><td>Ingredient</td></tr>
+        <tr><td>Base Extract</td><td>❌ (1 item)</td><td>None</td><td>Ingredient</td></tr>
+        <tr><td>Empty Bag</td><td>❌ (1 item)</td><td>None</td><td>Container</td></tr>
+    </table>
+</section>
+
+<section id="strain-list">
+    <h2>Preset Strains</h2>
+    <p>The 25 preset strains available in the mod. Each has deterministic THC, CBD, and color.</p>
+    <table>
+        <tr><th>Strain</th><th>Type</th></tr>
+        <tr><td>OG Kush</td><td>Common</td></tr>
+        <tr><td>White Widow</td><td>Common</td></tr>
+        <tr><td>Blue Cookies</td><td>Common</td></tr>
+        <tr><td>Sour Diesel</td><td>Common</td></tr>
+        <tr><td>Purple Haze</td><td>Common</td></tr>
+        <tr><td>Jack Herer</td><td>Common</td></tr>
+        <tr><td>Amnesia Haze</td><td>Common</td></tr>
+        <tr><td>Green Crack</td><td>Common</td></tr>
+        <tr><td>Blue Ice</td><td>Common</td></tr>
+        <tr><td>Bubblegum</td><td>Common</td></tr>
+        <tr><td>Strawberry Shortcake</td><td>Common</td></tr>
+        <tr><td>Lava Cake</td><td>Common</td></tr>
+        <tr><td>Cotton Candy</td><td>Common</td></tr>
+        <tr><td>Grape Ape</td><td>Common</td></tr>
+        <tr><td>Ghost Train</td><td>Common</td></tr>
+        <tr><td>Moonbow</td><td>Common</td></tr>
+        <tr><td>Lemon Haze</td><td>Common</td></tr>
+        <tr><td>Jelly Rancher</td><td>Common</td></tr>
+        <tr><td>Birthday Cake</td><td>Common</td></tr>
+        <tr><td>Pink Kush</td><td>Common</td></tr>
+        <tr><td>Bubble Kush</td><td>Common</td></tr>
+        <tr><td>Banana Kush</td><td>Common</td></tr>
+        <tr><td>Afghani</td><td>Common</td></tr>
+        <tr><td>AK-47</td><td>Common</td></tr>
+        <tr><td>Carbon Fiber</td><td>Common</td></tr>
+    </table>
+</section>
+
+<section id="tips">
+    <h2>Tips &amp; Known Issues</h2>
+
+    <h4>Efficiency</h4>
+    <ul>
+        <li><strong>Always dry buds</strong> before grinding — you get ×2 output.</li>
+        <li>Set up a Generator + Grinder early for automated weed production.</li>
+        <li>Hemp is renewable; set up a farm for continuous leaf and seed supply.</li>
+        <li>Use the Drying Rack (free) for bulk drying; save the Dryer for speed.</li>
+    </ul>
+
+    <h4>Strain System</h4>
+    <ul>
+        <li>Strain data is stored in the <code>STRAIN_DATA</code> component. Most recipes copy it automatically.</li>
+        <li>Bags preserve strain when converting between bag ↔ 8 weed.</li>
+        <li>Custom strains from the Mutator have deterministic stats — same ID = same THC/CBD every time.</li>
+    </ul>
+
+    <h4>Known Issues (TODO)</h4>
+    <ul>
+        <li>UEI mixture bucket missing THC/CBD tooltip.</li>
+        <li>Sequencer has no recipes (no way to make the 25 strains via DNA).</li>
+        <li>Liquifier doesn't give 250 mb oil per extract.</li>
+        <li>Cake/brownie don't preserve or apply StrainData.</li>
+        <li>JEI screens show grayscale unidentified items instead of colored strain variants.</li>
+        <li>JEI item tags should list 25 colored strains, not unidentified versions.</li>
+        <li>25 per-strain bags and gummies still registered as individual items (old system).</li>
+        <li>25 separate named extract fluids still in ModFluids/ModFluidTypes.</li>
+        <li>WeedDerivedItem (cake, brownie, cookies) uses legacy CustomData NBT for effects.</li>
+    </ul>
+
+    <h4>Development Commands</h4>
+    <pre>./gradlew build              # Compile + package mod jar
+./gradlew runClient          # Launch Minecraft client (dev)
+./gradlew runServer          # Launch dedicated server
+./gradlew runData            # Regenerate src/generated/resources/
+./gradlew runGameTestServer  # Run in-world game tests</pre>
+</section>
+
+<footer style="margin-top:48px;padding-top:16px;border-top:1px solid var(--border);font-size:13px;color:var(--text-dim);">
+    Smokeleaf Industry — Unofficial Player Wiki &middot; Generated from codebase documentation.
+</footer>
+
+</div><!-- /main -->
+
+</body>
+</html>

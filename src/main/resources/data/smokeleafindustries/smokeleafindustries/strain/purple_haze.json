@@ -1,0 +1,20 @@
+{
+  "color": -2000385,
+  "leaf_color": -2050136,
+  "thc": 16,
+  "cbd": 9,
+  "n": 11,
+  "p": 13,
+  "k": 7,
+  "effects": [
+    "minecraft:luck"
+  ],
+  "amp": 1,
+  "dur": 140,
+  "identified": true,
+  "name": "Purple Haze",
+  "weed_leaf_color": -4417904,
+  "weed_color": -2722314,
+  "extract_leaf_color": -6177,
+  "extract_color": -14337
+}

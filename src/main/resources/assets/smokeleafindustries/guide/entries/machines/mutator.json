@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:mutator",
+  "category": "smokeleafindustries:machines",
+  "sortnum": 9,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:mutator" }
+  ]
+}

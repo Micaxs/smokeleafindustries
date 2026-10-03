@@ -1,0 +1,8 @@
+{
+  "type": "smokeleafindustries:liquifier",
+  "ingredient": { "item": "smokeleafindustries:seeds" },
+  "output": {
+    "fluid": "smokeleafindustries:hash_oil_fluid",
+    "amount": 100
+  }
+}

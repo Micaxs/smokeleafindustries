@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:liquifier",
+  "category": "smokeleafindustries:machines",
+  "sortnum": 6,
+  "pages": [
+    { "type": "text" },
+    { "type": "crafting", "recipe": "smokeleafindustries:liquifier" }
+  ]
+}

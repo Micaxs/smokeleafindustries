@@ -1,0 +1,12 @@
+{
+  "type": "smokeleafindustries:sequencer",
+  "dna": { "item": "smokeleafindustries:dna_strand" },
+  "base_extract": { "item": "smokeleafindustries:base_extract" },
+  "required_reagents": [
+    { "item": "minecraft:gold_nugget" },
+    { "item": "minecraft:wheat" },
+    { "item": "minecraft:bone_meal" }
+  ],
+  "result": { "id": "smokeleafindustries:extract", "count": 1 },
+  "strain_id": "jack_herer"
+}

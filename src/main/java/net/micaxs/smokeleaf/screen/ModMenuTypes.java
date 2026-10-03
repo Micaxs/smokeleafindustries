@@ -10,6 +10,8 @@ import net.micaxs.smokeleaf.screen.custom.SynthesizerMenu;
 import net.micaxs.smokeleaf.screen.custom.SequencerMenu;
 import net.micaxs.smokeleaf.screen.custom.DryerMenu;
 import net.micaxs.smokeleaf.screen.custom.MixerMenu;
+import net.micaxs.smokeleaf.screen.custom.StrainModifierMenu;
+import net.micaxs.smokeleaf.screen.custom.GummyMachineMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -50,6 +52,12 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<MixerMenu>> MIXER_MENU =
             registerMenuType("mixer_menu", MixerMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<StrainModifierMenu>> STRAIN_MODIFIER_MENU =
+            registerMenuType("strain_modifier_menu", StrainModifierMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<GummyMachineMenu>> GUMMY_MACHINE_MENU =
+            registerMenuType("gummy_machine_menu", GummyMachineMenu::new);
 
 
     private static <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>, MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {

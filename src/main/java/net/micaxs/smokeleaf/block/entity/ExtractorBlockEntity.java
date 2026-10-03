@@ -2,7 +2,6 @@ package net.micaxs.smokeleaf.block.entity;
 
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
-import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.recipe.ExtractorRecipe;
@@ -34,6 +33,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -62,12 +62,6 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
                 return false;
             }
 
-            // Custom strains can't be extracted.
-            if (stack.is(ModItems.UNIDENTIFIED_BUD.get()) || stack.is(ModItems.UNIDENTIFIED_WEED.get())
-                    || stack.has(ModDataComponentTypes.STRAIN_DATA.get())) {
-                return false;
-            }
-
             return level.getRecipeManager()
                     .getRecipeFor(ModRecipes.EXTRACTOR_TYPE.get(), new ExtractorRecipeInput(stack), level)
                     .isPresent();
@@ -75,7 +69,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     };
 
     public IItemHandler getItemHandler(@Nullable Direction direction) {
-        return this.itemHandler;
+        return ExtractRestrictedItemHandler.outputOnly(this.itemHandler, OUTPUT_SLOT);
     }
 
     private static final int ENERGY_CONSTANT = 40;
@@ -155,6 +149,17 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     private ItemStack buildOutputWithWeedData(ItemStack input, ItemStack recipeOutput) {
         ItemStack result = new ItemStack(recipeOutput.getItem(), recipeOutput.getCount());
 
+        var strainData = input.get(ModDataComponentTypes.STRAIN_DATA.get());
+        if (strainData != null) {
+            result.set(ModDataComponentTypes.STRAIN_DATA.get(), strainData);
+            // Propagate strain ID for lineage tracking
+            var strainId = input.get(ModDataComponentTypes.STRAIN_ID.get());
+            if (strainId != null) result.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
+            var strainCreator = input.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+            if (strainCreator != null) result.set(ModDataComponentTypes.STRAIN_CREATOR.get(), strainCreator);
+            return result;
+        }
+
         Integer thc = input.get(ModDataComponentTypes.THC.get());
         if (thc != null) result.set(ModDataComponentTypes.THC.get(), thc);
 
@@ -169,6 +174,10 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private boolean areWeedDataEqual(ItemStack a, ItemStack b) {
+        var aStrain = a.get(ModDataComponentTypes.STRAIN_DATA.get());
+        var bStrain = b.get(ModDataComponentTypes.STRAIN_DATA.get());
+        if (!Objects.equals(aStrain, bStrain)) return false;
+
         Integer aTHC = a.get(ModDataComponentTypes.THC.get());
         Integer bTHC = b.get(ModDataComponentTypes.THC.get());
         if (!Objects.equals(aTHC, bTHC)) return false;
@@ -228,11 +237,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
 
     private boolean hasRecipe() {
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
-        // Custom strains can't be extracted (double check for automation insertion).
-        if (input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())
-                || input.has(ModDataComponentTypes.STRAIN_DATA.get())) {
-            return false;
-        }
+        if (input.isEmpty() || level == null) return false;
 
         Optional<RecipeHolder<ExtractorRecipe>> recipe = getCurrentRecipe();
         if (recipe.isEmpty()) return false;
@@ -268,11 +273,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
         if (recipe.isEmpty()) return;
 
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
-        // Custom strains can't be extracted (safety).
-        if (input.is(ModItems.UNIDENTIFIED_BUD.get()) || input.is(ModItems.UNIDENTIFIED_WEED.get())
-                || input.has(ModDataComponentTypes.STRAIN_DATA.get())) {
-            return;
-        }
+        if (input.isEmpty() || level == null) return;
 
         ItemStack recipeOut = recipe.get().value().output();
         ItemStack candidate = buildOutputWithWeedData(input, recipeOut);

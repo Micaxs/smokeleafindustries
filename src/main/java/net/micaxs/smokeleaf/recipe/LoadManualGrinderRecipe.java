@@ -16,6 +16,8 @@ import net.minecraft.network.codec.StreamCodec;
 
 public class LoadManualGrinderRecipe extends CustomRecipe {
 
+    public static final int MAX_STORED = 3;
+
     public LoadManualGrinderRecipe(CraftingBookCategory category) {
         super(category);
     }
@@ -24,6 +26,7 @@ public class LoadManualGrinderRecipe extends CustomRecipe {
     public boolean matches(CraftingInput input, Level level) {
         ItemStack grinder = ItemStack.EMPTY;
         ItemStack ingredient = ItemStack.EMPTY;
+        int slotCount = 0;
 
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getItem(i);
@@ -34,12 +37,20 @@ public class LoadManualGrinderRecipe extends CustomRecipe {
                 if (stack.has(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get())) return false;
                 grinder = stack;
             } else {
-                if (!ingredient.isEmpty()) return false;
-                if (!hasManualGrinderRecipe(level, stack)) return false;
-                ingredient = stack;
+                // Any stack size is fine here — CommonEvents#onManualGrinderCraft tops up
+                // the vanilla grid's "-1 per slot" removal to match how much actually gets
+                // stored. But the number of *slots* is capped at MAX_STORED, since that's
+                // how many of them vanilla will each dock by 1 when the result is taken.
+                if (ingredient.isEmpty()) {
+                    if (!hasManualGrinderRecipe(level, stack)) return false;
+                    ingredient = stack;
+                } else if (!ItemStack.isSameItemSameComponents(ingredient, stack)) {
+                    return false;
+                }
+                slotCount++;
             }
         }
-        return !grinder.isEmpty() && !ingredient.isEmpty();
+        return !grinder.isEmpty() && !ingredient.isEmpty() && slotCount <= MAX_STORED;
     }
 
     private boolean hasManualGrinderRecipe(Level level, ItemStack stack) {
@@ -54,14 +65,16 @@ public class LoadManualGrinderRecipe extends CustomRecipe {
     public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
         ItemStack grinder = ItemStack.EMPTY;
         ItemStack ingredient = ItemStack.EMPTY;
+        int totalCount = 0;
 
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getItem(i);
             if (stack.isEmpty()) continue;
             if (stack.getItem() instanceof ManualGrinderItem) {
                 grinder = stack;
-            } else if (ingredient.isEmpty()) {
-                ingredient = stack;
+            } else {
+                if (ingredient.isEmpty()) ingredient = stack;
+                totalCount += stack.getCount();
             }
         }
         if (grinder.isEmpty() || ingredient.isEmpty()) return ItemStack.EMPTY;
@@ -70,7 +83,7 @@ public class LoadManualGrinderRecipe extends CustomRecipe {
         result.setCount(1);
 
         // Store the full input stack (all data components, incl. THC/CBD)
-        ItemStack stored = ingredient.copyWithCount(1);
+        ItemStack stored = ingredient.copyWithCount(Math.min(totalCount, MAX_STORED));
         result.set(ModDataComponentTypes.MANUAL_GRINDER_CONTENTS.get(),
                 ManualGrinderContents.fromStack(stored));
 

@@ -1,0 +1,20 @@
+{
+  "color": -4733608,
+  "leaf_color": -5119912,
+  "thc": 19,
+  "cbd": 6,
+  "n": 9,
+  "p": 12,
+  "k": 15,
+  "effects": [
+    "minecraft:speed"
+  ],
+  "amp": 1,
+  "dur": 160,
+  "identified": true,
+  "name": "Lemon Haze",
+  "weed_leaf_color": -7095484,
+  "weed_color": -5260201,
+  "extract_leaf_color": -3649,
+  "extract_color": -2167392
+}

@@ -8,17 +8,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidActionResult;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
-import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.fluids.FluidStack;
 
 public class LiquifierMenu extends AbstractContainerMenu {
     public final LiquifierBlockEntity blockEntity;
@@ -223,9 +221,9 @@ public class LiquifierMenu extends AbstractContainerMenu {
     }
 
     private static ItemStack filledBucketForFluid(FluidStack drained) {
-        Fluid fluid = drained.getFluid();
-        Item bucketItem = fluid.getBucket();
-        return new ItemStack(bucketItem);
+        // Use FluidUtil.getFilledBucket so FluidType.getBucket(FluidStack) is called,
+        // which copies STRAIN_DATA / MIX_KEY / STRAIN_ID onto the bucket item.
+        return net.neoforged.neoforge.fluids.FluidUtil.getFilledBucket(drained);
     }
 
     private static final int HOTBAR_SLOT_COUNT = 9;

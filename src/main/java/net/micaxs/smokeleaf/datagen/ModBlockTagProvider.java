@@ -6,6 +6,7 @@ import net.micaxs.smokeleaf.utils.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -88,6 +89,14 @@ public class ModBlockTagProvider extends BlockTagsProvider  {
                 .add(Blocks.DIRT)
                 .add(Blocks.FARMLAND)
                 .add(Blocks.PODZOL);
+
+        var hempWool = this.tag(ModTags.HEMP_WOOL_BLOCKS);
+        var vanillaWool = this.tag(BlockTags.WOOL);
+        for (DyeColor color : DyeColor.values()) {
+            var block = ModBlocks.HEMP_WOOL.get(color).get();
+            hempWool.add(block);
+            vanillaWool.add(block);
+        }
 
     }
 

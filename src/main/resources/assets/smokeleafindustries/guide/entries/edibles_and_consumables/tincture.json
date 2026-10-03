@@ -1,0 +1,9 @@
+{
+  "icon": "smokeleafindustries:hash_oil_tincture",
+  "category": "smokeleafindustries:edibles_and_consumables",
+  "sortnum": 2,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:empty_tincture" }
+  ]
+}

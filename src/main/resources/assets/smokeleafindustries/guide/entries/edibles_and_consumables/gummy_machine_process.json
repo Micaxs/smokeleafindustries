@@ -1,0 +1,11 @@
+{
+  "icon": "smokeleafindustries:gummy",
+  "category": "smokeleafindustries:edibles_and_consumables",
+  "sortnum": 0,
+  "pages": [
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:gummy_mold" },
+    { "type": "spotlight", "item": "smokeleafindustries:gummy_worm_mold" },
+    { "type": "crafting", "recipe": "smokeleafindustries:gummy_machine" }
+  ]
+}

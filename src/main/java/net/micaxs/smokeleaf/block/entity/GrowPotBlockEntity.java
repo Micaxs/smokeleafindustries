@@ -78,6 +78,10 @@ public class GrowPotBlockEntity extends BlockEntity {
 
     @Nullable
     private StrainData customStrain;
+    @Nullable
+    private String customStrainId;
+    @Nullable
+    private String customStrainCreator;
 
     public GrowPotBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GROW_POT.get(), pos, state);
@@ -229,14 +233,22 @@ public class GrowPotBlockEntity extends BlockEntity {
 
         // Custom strain: emit UNIDENTIFIED_BUD with strain data (mirrors harvest() logic)
         if (hasCustomStrain()) {
-            ItemStack bud = new ItemStack(ModItems.UNIDENTIFIED_BUD.get());
+            ItemStack bud = new ItemStack(ModItems.GENERIC_BUD.get());
             StrainData d = customStrain;
             if (d != null) {
-                d = new StrainData(d.colorArgb(), getThc(), getCbd(),
+                d = new StrainData(d.colorArgb(), d.leafColor(), getThc(), getCbd(),
                         getNitrogen(), getPhosphorus(), getPotassium(),
                         d.effects(), d.amplifier(), d.durationTicks(),
-                        d.identified(), d.displayName());
+                        d.identified(), d.displayName(),
+                        d.typeColors(),
+                        "", "");
                 bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+            }
+            if (customStrainId != null) {
+                bud.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+            }
+            if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+                bud.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
             }
             int budFactor = getBudCount();
             if (budFactor > 1) bud.setCount(bud.getCount() * budFactor);
@@ -266,8 +278,20 @@ public class GrowPotBlockEntity extends BlockEntity {
                 if (drop.getCount() > 0 && budFactor > 1) {
                     drop.setCount(drop.getCount() * budFactor);
                 }
-                BaseBudItem.setThc(drop, thcVal);
-                BaseBudItem.setCbd(drop, cbdVal);
+                StrainData existing = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
+                if (existing != null) {
+                    drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                            existing.colorArgb(), existing.leafColor(), thcVal, cbdVal,
+                            existing.nitrogen(), existing.phosphorus(), existing.potassium(),
+                            existing.effects(), existing.amplifier(), existing.durationTicks(),
+                            existing.identified(), existing.displayName(),
+                            existing.typeColors(),
+                            "", ""
+                    ));
+                } else {
+                    BaseBudItem.setThc(drop, thcVal);
+                    BaseBudItem.setCbd(drop, cbdVal);
+                }
             }
         }
 
@@ -297,7 +321,8 @@ public class GrowPotBlockEntity extends BlockEntity {
         this.cropBlock = crop;
         this.cropAge = 0;
         this.growthProgressTicks = 0;
-        initFromCrop(crop);
+        // initFromCrop is called by the caller before plantCrop (and setCustomStrain may
+        // override the values afterward), so we must NOT call it again here.
         setChangedAndSync();
     }
 
@@ -368,13 +393,21 @@ public class GrowPotBlockEntity extends BlockEntity {
 
         // Custom strain harvest: bypass vanilla crop drops and directly emit Unidentified Bud.
         if (hasCustomStrain()) {
-            ItemStack bud = new ItemStack(ModItems.UNIDENTIFIED_BUD.get());
+            ItemStack bud = new ItemStack(ModItems.GENERIC_BUD.get());
             StrainData d = customStrain;
             if (d != null) {
                 // Apply current pot nutrient-derived THC/CBD into the strain data (so player care matters)
-                d = new StrainData(d.colorArgb(), getThc(), getCbd(), getNitrogen(), getPhosphorus(), getPotassium(),
-                        d.effects(), d.amplifier(), d.durationTicks(), d.identified(), d.displayName());
+                d = new StrainData(d.colorArgb(), d.leafColor(), getThc(), getCbd(), getNitrogen(), getPhosphorus(), getPotassium(),
+                        d.effects(), d.amplifier(), d.durationTicks(), d.identified(), d.displayName(),
+                        d.typeColors(),
+                        "", "");
                 bud.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+            }
+            if (customStrainId != null) {
+                bud.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+            }
+            if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+                bud.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
             }
             int budFactor = getBudCount();
             if (budFactor > 1) bud.setCount(bud.getCount() * budFactor);
@@ -408,8 +441,20 @@ public class GrowPotBlockEntity extends BlockEntity {
                 if (drop.getCount() > 0 && budFactor > 1) {
                     drop.setCount(drop.getCount() * budFactor);
                 }
-                BaseBudItem.setThc(drop, thcVal);
-                BaseBudItem.setCbd(drop, cbdVal);
+                StrainData existing = drop.get(ModDataComponentTypes.STRAIN_DATA.get());
+                if (existing != null) {
+                    drop.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
+                            existing.colorArgb(), existing.leafColor(), thcVal, cbdVal,
+                            existing.nitrogen(), existing.phosphorus(), existing.potassium(),
+                            existing.effects(), existing.amplifier(), existing.durationTicks(),
+                            existing.identified(), existing.displayName(),
+                            existing.typeColors(),
+                            "", ""
+                    ));
+                } else {
+                    BaseBudItem.setThc(drop, thcVal);
+                    BaseBudItem.setCbd(drop, cbdVal);
+                }
             }
         }
 
@@ -427,9 +472,13 @@ public class GrowPotBlockEntity extends BlockEntity {
 
         // Return correct seed for custom strains
         if (hasCustomStrain()) {
-            ItemStack seed = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+            ItemStack seed = new ItemStack(ModItems.GENERIC_SEEDS.get());
             StrainData d = customStrain;
             if (d != null) seed.set(ModDataComponentTypes.STRAIN_DATA.get(), d);
+            if (customStrainId != null) seed.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+            if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+                seed.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
+            }
             if (!player.addItem(seed)) {
                 Block.popResource(level, worldPosition, seed);
             }
@@ -483,11 +532,18 @@ public class GrowPotBlockEntity extends BlockEntity {
 
     public int getBudCount() {
         if (cropBlock == null) return 0;
-        var cropId = BuiltInRegistries.BLOCK.getKey(cropBlock);
-        var targetOpt = Config.getNutrientTargetFor(cropId);
-        if (targetOpt.isEmpty()) return 1;
 
-        var t = targetOpt.get();
+        // For custom strains, the strain's own NPK is the optimal target
+        Config.NutrientTarget t;
+        if (hasCustomStrain() && customStrain != null) {
+            t = new Config.NutrientTarget(customStrain.nitrogen(), customStrain.phosphorus(), customStrain.potassium());
+        } else {
+            var cropId = BuiltInRegistries.BLOCK.getKey(cropBlock);
+            var targetOpt = Config.getNutrientTargetFor(cropId);
+            if (targetOpt.isEmpty()) return 1;
+            t = targetOpt.get();
+        }
+
         int dn = Math.abs(this.nitrogen - t.n);
         int dp = Math.abs(this.phosphorus - t.p);
         int dk = Math.abs(this.potassium - t.k);
@@ -503,11 +559,18 @@ public class GrowPotBlockEntity extends BlockEntity {
 
     private int computeWithNutrients(int base) {
         if (cropBlock == null) return base;
-        var cropId = BuiltInRegistries.BLOCK.getKey(cropBlock);
-        var targetOpt = Config.getNutrientTargetFor(cropId);
-        if (targetOpt.isEmpty()) return base;
 
-        var t = targetOpt.get();
+        // For custom strains, the strain's own NPK values are the optimal target
+        Config.NutrientTarget t;
+        if (hasCustomStrain() && customStrain != null) {
+            t = new Config.NutrientTarget(customStrain.nitrogen(), customStrain.phosphorus(), customStrain.potassium());
+        } else {
+            var cropId = BuiltInRegistries.BLOCK.getKey(cropBlock);
+            var targetOpt = Config.getNutrientTargetFor(cropId);
+            if (targetOpt.isEmpty()) return base;
+            t = targetOpt.get();
+        }
+
         int dn = Math.abs(this.nitrogen - t.n);
         int dp = Math.abs(this.phosphorus - t.p);
         int dk = Math.abs(this.potassium - t.k);
@@ -519,7 +582,9 @@ public class GrowPotBlockEntity extends BlockEntity {
         int totalDiff = dn + dp + dk;
         int reduction = (int) Math.round(base * 0.10 * totalDiff);
         int value = base - reduction;
-        return Mth.clamp(value, 0, 100);
+        // Floor: always at least 1, and never below half the base genetic value
+        int floor = Math.max(1, base / 2);
+        return Mth.clamp(value, floor, 100);
     }
 
     @Nullable
@@ -535,10 +600,25 @@ public class GrowPotBlockEntity extends BlockEntity {
     public void setCustomStrain(ItemStack seedStack) {
         if (seedStack == null || seedStack.isEmpty()) {
             this.customStrain = null;
+            this.customStrainId = null;
+            this.customStrainCreator = null;
             return;
         }
         StrainData d = seedStack.get(ModDataComponentTypes.STRAIN_DATA.get());
         this.customStrain = (d != null && d != StrainData.EMPTY) ? d : null;
+        this.customStrainId = seedStack.get(ModDataComponentTypes.STRAIN_ID.get());
+        this.customStrainCreator = seedStack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
+
+        // Copy only the genetic traits (thc/cbd) from the strain — the strain's NPK values
+        // are the OPTIMAL TARGET the player must reach via fertilizers, not starting values.
+        // N/P/K remain at 0 until the player applies fertilizer.
+        if (this.customStrain != null) {
+            this.thc = this.customStrain.thc();
+            this.cbd = this.customStrain.cbd();
+            this.nitrogen = 0;
+            this.phosphorus = 0;
+            this.potassium = 0;
+        }
     }
 
     public boolean hasCustomStrain() {
@@ -552,6 +632,8 @@ public class GrowPotBlockEntity extends BlockEntity {
 
     public void clearCustomStrain() {
         this.customStrain = null;
+        this.customStrainId = null;
+        this.customStrainCreator = null;
     }
 
     @Override
@@ -573,6 +655,12 @@ public class GrowPotBlockEntity extends BlockEntity {
         if (customStrain != null && customStrain != StrainData.EMPTY) {
             tag.put("custom_strain", (CompoundTag) StrainData.CODEC.encodeStart(NbtOps.INSTANCE, customStrain).result().orElse(new CompoundTag()));
         }
+        if (customStrainId != null) {
+            tag.putString("custom_strain_id", customStrainId);
+        }
+        if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+            tag.putString("custom_strain_creator", customStrainCreator);
+        }
     }
 
     @Override
@@ -585,6 +673,8 @@ public class GrowPotBlockEntity extends BlockEntity {
         this.thc = this.cbd = this.ph = this.nitrogen = this.phosphorus = this.potassium = 0;
         this.autoExportCooldown = 0;
         this.customStrain = null;
+        this.customStrainId = null;
+        this.customStrainCreator = null;
 
         if (tag.contains("Pot")) {
             PotData.CODEC.parse(NbtOps.INSTANCE, tag.get("Pot"))
@@ -613,6 +703,12 @@ public class GrowPotBlockEntity extends BlockEntity {
                     .result()
                     .ifPresent(d -> this.customStrain = d);
         }
+        if (tag.contains("custom_strain_id")) {
+            this.customStrainId = tag.getString("custom_strain_id");
+        }
+        if (tag.contains("custom_strain_creator")) {
+            this.customStrainCreator = tag.getString("custom_strain_creator");
+        }
     }
 
     public void drops() {
@@ -624,9 +720,15 @@ public class GrowPotBlockEntity extends BlockEntity {
         if (hasCrop() && cropBlock != null) {
             ItemStack seedStack;
             if (hasCustomStrain()) {
-                seedStack = new ItemStack(ModItems.UNIDENTIFIED_SEEDS.get());
+                seedStack = new ItemStack(ModItems.GENERIC_SEEDS.get());
                 if (customStrain != null && customStrain != StrainData.EMPTY) {
                     seedStack.set(ModDataComponentTypes.STRAIN_DATA.get(), customStrain);
+                }
+                if (customStrainId != null) {
+                    seedStack.set(ModDataComponentTypes.STRAIN_ID.get(), customStrainId);
+                }
+                if (customStrainCreator != null && !customStrainCreator.isBlank()) {
+                    seedStack.set(ModDataComponentTypes.STRAIN_CREATOR.get(), customStrainCreator);
                 }
             } else {
                 seedStack = new ItemStack(cropBlock.getBaseSeedId().asItem());

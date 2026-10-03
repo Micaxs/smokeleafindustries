@@ -19,32 +19,7 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<BaseWeedCropBlockEntity>> BASE_WEED_CROP_BE =
             BLOCK_ENTITIES.register("base_weed_crop_be",
                     () -> BlockEntityType.Builder.of(BaseWeedCropBlockEntity::new,
-                            ModBlocks.HEMP_CROP.get(),
-                            ModBlocks.WHITE_WIDOW_CROP.get(),
-                            ModBlocks.BUBBLE_KUSH_CROP.get(),
-                            ModBlocks.LEMON_HAZE_CROP.get(),
-                            ModBlocks.SOUR_DIESEL_CROP.get(),
-                            ModBlocks.BLUE_ICE_CROP.get(),
-                            ModBlocks.PURPLE_HAZE_CROP.get(),
-                            ModBlocks.BUBBLEGUM_CROP.get(),
-                            ModBlocks.OG_KUSH_CROP.get(),
-                            ModBlocks.JACK_HERER_CROP.get(),
-                            ModBlocks.GARY_PEYTON_CROP.get(),
-                            ModBlocks.AMNESIA_HAZE_CROP.get(),
-                            ModBlocks.AK47_CROP.get(),
-                            ModBlocks.GHOST_TRAIN_CROP.get(),
-                            ModBlocks.GRAPE_APE_CROP.get(),
-                            ModBlocks.COTTON_CANDY_CROP.get(),
-                            ModBlocks.BANANA_KUSH_CROP.get(),
-                            ModBlocks.CARBON_FIBER_CROP.get(),
-                            ModBlocks.BIRTHDAY_CAKE_CROP.get(),
-                            ModBlocks.BLUE_COOKIES_CROP.get(),
-                            ModBlocks.AFGHANI_CROP.get(),
-                            ModBlocks.MOONBOW_CROP.get(),
-                            ModBlocks.LAVA_CAKE_CROP.get(),
-                            ModBlocks.JELLY_RANCHER_CROP.get(),
-                            ModBlocks.STRAWBERRY_SHORTCAKE_CROP.get(),
-                            ModBlocks.PINK_KUSH_CROP.get()
+                            ModBlocks.HEMP_CROP.get()
                     ).build(null));
 
 
@@ -93,6 +68,14 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<MixerBlockEntity>> MIXER_BE = BLOCK_ENTITIES.register("mixer_be",
             () -> BlockEntityType.Builder.of(MixerBlockEntity::new, ModBlocks.MIXER.get()).build(null));
 
+    public static final Supplier<BlockEntityType<StrainModifierBlockEntity>> STRAIN_MODIFIER_BE = BLOCK_ENTITIES.register("strain_modifier_be",
+            () -> BlockEntityType.Builder.of(StrainModifierBlockEntity::new, ModBlocks.STRAIN_MODIFIER.get()).build(null));
+
+    public static final Supplier<BlockEntityType<GummyMachineBlockEntity>> GUMMY_MACHINE_BE = BLOCK_ENTITIES.register("gummy_machine_be",
+            () -> BlockEntityType.Builder.of(GummyMachineBlockEntity::new, ModBlocks.GUMMY_MACHINE.get()).build(null));
+
+    public static final Supplier<BlockEntityType<PipeBlockEntity>> PIPE_BE = BLOCK_ENTITIES.register("pipe_be",
+            () -> BlockEntityType.Builder.of(PipeBlockEntity::new, ModBlocks.PIPE.get()).build(null));
 
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);

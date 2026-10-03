@@ -1,0 +1,11 @@
+{
+  "icon": "smokeleafindustries:pipe_wrench",
+  "category": "smokeleafindustries:power_and_pipes",
+  "sortnum": 3,
+  "pages": [
+    { "type": "text" },
+    { "type": "text" },
+    { "type": "spotlight", "item": "smokeleafindustries:pipe_wrench" },
+    { "type": "crafting", "recipe": "smokeleafindustries:pipe_wrench" }
+  ]
+}

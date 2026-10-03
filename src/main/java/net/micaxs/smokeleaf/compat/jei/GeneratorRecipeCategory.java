@@ -66,9 +66,14 @@ public class GeneratorRecipeCategory implements IRecipeCategory<GeneratorRecipe>
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, GeneratorRecipe recipe, IFocusGroup focuses) {
-        // Single input slot
-        builder.addSlot(RecipeIngredientRole.INPUT, 14, 14)
-                .addIngredients(recipe.getIngredients().getFirst());
+        var inputIngredient = recipe.getIngredients().getFirst();
+        if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 14, 14)
+                    .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
+        } else {
+            builder.addSlot(RecipeIngredientRole.INPUT, 14, 14)
+                    .addIngredients(inputIngredient);
+        }
     }
 
     @Override

@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:potassium_reducer",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 17,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:potassium_reducer" } ]
+}

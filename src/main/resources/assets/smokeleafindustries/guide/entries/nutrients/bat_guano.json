@@ -1,0 +1,6 @@
+{
+  "icon": "smokeleafindustries:bat_guano",
+  "category": "smokeleafindustries:nutrients",
+  "sortnum": 8,
+  "pages": [ { "type": "spotlight", "item": "smokeleafindustries:bat_guano" } ]
+}

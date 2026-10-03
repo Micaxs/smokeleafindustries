@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "cross": "smokeleafindustries:block/pink_kush/pink_kush_stage_0"
-  }
-}

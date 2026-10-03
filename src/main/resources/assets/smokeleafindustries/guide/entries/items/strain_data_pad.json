@@ -1,0 +1,8 @@
+{
+  "icon": "smokeleafindustries:strain_book",
+  "category": "smokeleafindustries:items",
+  "sortnum": 3,
+  "pages": [
+    { "type": "text" }
+  ]
+}

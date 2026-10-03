@@ -1,0 +1,10 @@
+{
+  "type": "smokeleafindustries:extractor",
+  "ingredient": {
+    "item": "smokeleafindustries:weed"
+  },
+  "result": {
+    "id": "smokeleafindustries:extract",
+    "count": 1
+  }
+}

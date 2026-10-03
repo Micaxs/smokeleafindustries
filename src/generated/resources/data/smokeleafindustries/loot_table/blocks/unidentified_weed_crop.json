@@ -20,7 +20,7 @@
               "function": "smokeleafindustries:apply_unidentified_strain"
             }
           ],
-          "name": "smokeleafindustries:unidentified_seeds"
+          "name": "smokeleafindustries:seeds"
         }
       ],
       "functions": [
@@ -63,7 +63,7 @@
               "function": "smokeleafindustries:apply_unidentified_strain"
             }
           ],
-          "name": "smokeleafindustries:unidentified_weed"
+          "name": "smokeleafindustries:bud"
         }
       ],
       "rolls": 1.0
