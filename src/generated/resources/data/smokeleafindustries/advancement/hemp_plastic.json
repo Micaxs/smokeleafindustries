@@ -1,0 +1,32 @@
+{
+  "parent": "smokeleafindustries:root",
+  "criteria": {
+    "smelted_hemp_plastic": {
+      "conditions": {
+        "recipe_id": "smokeleafindustries:hemp_plastic_from_bio_composite"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.smokeleafindustries.hemp_plastic.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "smokeleafindustries:hemp_plastic"
+    },
+    "title": {
+      "translate": "advancement.smokeleafindustries.hemp_plastic.title"
+    }
+  },
+  "requirements": [
+    [
+      "smelted_hemp_plastic"
+    ]
+  ],
+  "rewards": {
+    "experience": 10
+  },
+  "sends_telemetry_event": true
+}

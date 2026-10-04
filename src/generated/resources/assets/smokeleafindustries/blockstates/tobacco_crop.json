@@ -1,0 +1,25 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "smokeleafindustries:block/tobacco_stage_0"
+    },
+    "age=1": {
+      "model": "smokeleafindustries:block/tobacco_stage_1"
+    },
+    "age=2": {
+      "model": "smokeleafindustries:block/tobacco_stage_2"
+    },
+    "age=3": {
+      "model": "smokeleafindustries:block/tobacco_stage_3"
+    },
+    "age=4": {
+      "model": "smokeleafindustries:block/tobacco_stage_4"
+    },
+    "age=5": {
+      "model": "smokeleafindustries:block/tobacco_stage_5"
+    },
+    "age=6": {
+      "model": "smokeleafindustries:block/tobacco_stage_6"
+    }
+  }
+}

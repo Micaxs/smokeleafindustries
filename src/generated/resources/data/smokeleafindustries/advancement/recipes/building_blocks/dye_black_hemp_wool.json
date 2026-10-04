@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_hemp_fibers": {
+    "has_hemp_wool": {
       "conditions": {
         "items": [
           {
-            "items": "smokeleafindustries:hemp_fibers"
+            "items": "#smokeleafindustries:hemp_wool"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "smokeleafindustries:hemp_stick_alt"
+        "recipe": "smokeleafindustries:dye_black_hemp_wool"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_hemp_fibers"
+      "has_hemp_wool"
     ]
   ],
   "rewards": {
     "recipes": [
-      "smokeleafindustries:hemp_stick_alt"
+      "smokeleafindustries:dye_black_hemp_wool"
     ]
   }
 }

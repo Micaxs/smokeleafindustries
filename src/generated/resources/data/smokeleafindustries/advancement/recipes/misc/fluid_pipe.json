@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_hemp_plastic": {
+      "conditions": {
+        "items": [
+          {
+            "items": "smokeleafindustries:hemp_plastic"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "smokeleafindustries:fluid_pipe"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_hemp_plastic"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "smokeleafindustries:fluid_pipe"
+    ]
+  }
+}

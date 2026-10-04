@@ -201,15 +201,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy(getHasName(ModItems.HEMP_FIBERS), has(ModItems.HEMP_FIBERS))
                 .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_stick"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HEMP_STICK.get())
-                .pattern("F  ")
-                .pattern(" S ")
-                .pattern("  F")
-                .define('S', Items.STICK)
-                .define('F', ModItems.HEMP_FIBERS)
-                .unlockedBy(getHasName(ModItems.HEMP_FIBERS), has(ModItems.HEMP_FIBERS))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_stick_alt"));
-
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.HEMP_HAMMER.get())
                 .pattern(" CF")
                 .pattern(" SC")
@@ -639,10 +630,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy(getHasName(ModItems.HEMP_FABRIC), has(ModItems.HEMP_FABRIC))
                 .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "pipe_wrench"));
 
-        // Hemp Wool — 4 Hemp Fabric makes the plain (white) block, then any Hemp Wool + a dye
-        // recolors it, exactly like vanilla wool + dye.
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, ModBlocks.HEMP_WOOL.get(DyeColor.WHITE).get())
-                .requires(ModItems.HEMP_FABRIC, 4)
+        // Hemp Wool — 2x2 Hemp Fabric makes the plain (white) block, then any Hemp Wool + a dye
+        // recolors it, exactly like vanilla wool + dye. Shaped (like vanilla string -> wool) so it
+        // doesn't also match the Baja Hoodie Boots pattern.
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.HEMP_WOOL.get(DyeColor.WHITE).get())
+                .pattern("FF")
+                .pattern("FF")
+                .define('F', ModItems.HEMP_FABRIC)
                 .unlockedBy(getHasName(ModItems.HEMP_FABRIC), has(ModItems.HEMP_FABRIC))
                 .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_wool"));
 

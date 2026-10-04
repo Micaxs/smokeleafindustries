@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "smokeleafindustries:block/gray_hemp_wool"
+  }
+}

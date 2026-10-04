@@ -25,13 +25,9 @@ public class AddItemModifier extends LootModifier {
         this.item = item;
     }
 
+    // Conditions are already checked by LootModifier.apply(); testing them again here would roll random chances twice.
     @Override
     protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext lootContext) {
-        for(LootItemCondition condition : this.conditions) {
-            if (!condition.test(lootContext)) {
-                return generatedLoot;
-            }
-        }
         generatedLoot.add(new ItemStack(this.item));
         return generatedLoot;
     }

@@ -538,7 +538,6 @@ public class CommonEvents {
             addRandomTrades(trades, 3, 2,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.EMPTY_TINCTURE, 4), new ItemStack(Items.EMERALD, 1), 4, 10, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.INFUSED_BUTTER, 3), new ItemStack(Items.EMERALD, 1), 7, 10, 0.01f)
             );
 
@@ -551,7 +550,6 @@ public class CommonEvents {
 
             addRandomTrades(trades, 5, 2,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HERB_CAKE, 1), new ItemStack(Items.EMERALD, 6), 4, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HASH_OIL_TINCTURE, 1), new ItemStack(Items.EMERALD, 5), 4, 20, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BLUNT, 2), new ItemStack(Items.EMERALD, 3), 6, 20, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.JOINT, 3), new ItemStack(Items.EMERALD, 2), 8, 20, 0.01f)
             );
@@ -644,7 +642,6 @@ public class CommonEvents {
             addRandomTrades(trades, 5, 2,
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 10), new ItemStack(ModItems.DNA_STRAND.get(), 1), 4, 20, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 14), new ItemStack(ModItems.HEMP_CORE.get(), 1), 2, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 8), new ItemStack(ModItems.HASH_OIL_TINCTURE.get(), 1), 2, 20, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 13), new ItemStack(ModItems.MANUAL_GRINDER.get(), 1), 1, 20, 0.01f),
                     (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 16), new ItemStack(ModItems.HEMP_HAMMER.get(), 1), 1, 20, 0.01f)
             );

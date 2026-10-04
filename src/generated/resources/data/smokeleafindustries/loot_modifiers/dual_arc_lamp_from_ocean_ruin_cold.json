@@ -1,0 +1,14 @@
+{
+  "type": "smokeleafindustries:add_item",
+  "conditions": [
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:archaeology/ocean_ruin_cold"
+    },
+    {
+      "chance": 0.2,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "item": "smokeleafindustries:dual_arc_lamp"
+}

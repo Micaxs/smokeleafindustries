@@ -1,0 +1,21 @@
+{
+  "type": "smokeleafindustries:armor_upgrade_shapeless",
+  "base": {
+    "item": "smokeleafindustries:baja_hoodie_helmet"
+  },
+  "ingredients": [
+    {
+      "item": "smokeleafindustries:baja_hoodie_helmet"
+    },
+    {
+      "item": "smokeleafindustries:hemp_plastic"
+    },
+    {
+      "item": "minecraft:netherite_ingot"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "smokeleafindustries:reinforced_baja_hoodie_helmet"
+  }
+}

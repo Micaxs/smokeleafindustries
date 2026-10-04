@@ -2,7 +2,7 @@ package net.micaxs.smokeleaf.item.custom;
 
 import com.google.gson.JsonArray;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
-import net.micaxs.smokeleaf.utils.HashOilHelper;
+//import net.micaxs.smokeleaf.utils.HashOilHelper;
 import net.micaxs.smokeleaf.utils.WeedEffectHelper;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
