@@ -17,6 +17,10 @@ Start creating your own weed empire!
 - Custom Fluids (Hemp Oil, Hash Oil).
 - And a bunch of custom items, blocks and more!
 
+## Create Mod Integration
+If you would liek to have Create automation/integration with this mod, I'd sugegst you have a look at the addon mod that adds compatibility/integration with create processes rather then through machines.
+You can find the addon mod here: https://www.curseforge.com/minecraft/mc-mods/create-smokeleaf
+
 ## Installation
 - The Jar (Mod File) goes into your `mods` folder in your NeoForge 1.21.1 instance.
 
