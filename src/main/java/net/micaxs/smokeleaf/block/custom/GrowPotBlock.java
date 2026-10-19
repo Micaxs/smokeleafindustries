@@ -7,10 +7,9 @@ import net.micaxs.smokeleaf.block.entity.ModBlockEntities;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.FertilizerItem;
 import net.micaxs.smokeleaf.item.custom.PlantAnalyzerItem;
-import net.micaxs.smokeleaf.screen.custom.MagnifyingGlassScreen;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
+import net.micaxs.smokeleaf.client.ClientScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -34,8 +33,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -114,7 +111,7 @@ public class GrowPotBlock extends BaseEntityBlock {
 
         if (holdingMagnifyingGlass) {
             if (level.isClientSide()) {
-                openAnalyzerScreen(pos);
+                ClientScreens.openAnalyzerScreen(pos);
             }
             return InteractionResult.SUCCESS;
         }
@@ -207,11 +204,6 @@ public class GrowPotBlock extends BaseEntityBlock {
 
 
 
-
-    @OnlyIn(Dist.CLIENT)
-    public static void openAnalyzerScreen(BlockPos pos) {
-        Minecraft.getInstance().setScreen(new MagnifyingGlassScreen(pos));
-    }
 
 
     @Override
