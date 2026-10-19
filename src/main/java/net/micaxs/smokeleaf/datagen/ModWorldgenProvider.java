@@ -1,6 +1,7 @@
 package net.micaxs.smokeleaf.datagen;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
+import net.micaxs.smokeleaf.villager.ModTrades;
 import net.micaxs.smokeleaf.worldgen.ModBiomeModifiers;
 import net.micaxs.smokeleaf.worldgen.ModConfiguredFeatures;
 import net.micaxs.smokeleaf.worldgen.ModPlacedFeatures;
@@ -19,7 +20,9 @@ public class ModWorldgenProvider extends DatapackBuiltinEntriesProvider {
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)
             .add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap)
-            .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap);
+            .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap)
+            .add(Registries.VILLAGER_TRADE, ModTrades::bootstrapTrades)
+            .add(Registries.TRADE_SET, ModTrades::bootstrapTradeSets);
 
 
     public ModWorldgenProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {

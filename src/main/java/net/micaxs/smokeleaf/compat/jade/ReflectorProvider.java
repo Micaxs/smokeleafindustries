@@ -8,7 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import snownee.jade.api.BlockAccessor;
@@ -17,18 +17,35 @@ import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
-public enum ReflectorProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum ReflectorProvider implements IBlockComponentProvider {
     INSTANCE;
 
-    private static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "reflector");
+    /**
+     * Server half of this provider. Since 1.21.6 Jade requires the server data provider and the
+     * client tooltip provider to be separate objects; this one just forwards to the shared logic.
+     */
+    public enum Data implements IServerDataProvider<BlockAccessor> {
+        INSTANCE;
+
+        @Override
+        public Identifier getUid() {
+            return ReflectorProvider.INSTANCE.getUid();
+        }
+
+        @Override
+        public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
+            ReflectorProvider.INSTANCE.appendServerData(tag, accessor);
+        }
+    }
+
+    private static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "reflector");
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return UID;
     }
 
-    @Override
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
         if (!(accessor.getBlockEntity() instanceof ReflectorBlockEntity be)) return;
 
@@ -37,7 +54,7 @@ public enum ReflectorProvider implements IBlockComponentProvider, IServerDataPro
         tag.putBoolean("hasLamp", hasLamp);
 
         if (hasLamp) {
-            ResourceLocation id = BuiltInRegistries.ITEM.getKey(lamp.getItem());
+            Identifier id = BuiltInRegistries.ITEM.getKey(lamp.getItem());
             if (id != null) tag.putString("lampId", id.toString());
 
             int remTicks = be.getLampRemainingTicks(); // remaining ticks until break
@@ -50,7 +67,7 @@ public enum ReflectorProvider implements IBlockComponentProvider, IServerDataPro
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         CompoundTag data = accessor.getServerData();
 
-        boolean hasLamp = data.getBoolean("hasLamp");
+        boolean hasLamp = data.getBooleanOr("hasLamp", false);
         if (!hasLamp) {
             tooltip.add(Component.literal("Lamp: ").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal("None").withStyle(ChatFormatting.DARK_GRAY)));
@@ -60,8 +77,8 @@ public enum ReflectorProvider implements IBlockComponentProvider, IServerDataPro
         // Lamp name
         Item item = null;
         if (data.contains("lampId")) {
-            ResourceLocation id = ResourceLocation.tryParse(data.getString("lampId"));
-            if (id != null) item = BuiltInRegistries.ITEM.get(id);
+            Identifier id = Identifier.tryParse(data.getStringOr("lampId", ""));
+            if (id != null) item = BuiltInRegistries.ITEM.getValue(id);
         }
         Component lampName = item != null
                 ? Component.translatable(item.getDescriptionId()).withStyle(ChatFormatting.WHITE)
@@ -70,7 +87,7 @@ public enum ReflectorProvider implements IBlockComponentProvider, IServerDataPro
         tooltip.add(Component.literal("Lamp: ").withStyle(ChatFormatting.GRAY).append(lampName));
 
         // Time left
-        int sec = data.getInt("remSec");
+        int sec = data.getIntOr("remSec", 0);
         tooltip.add(Component.literal("Time Left: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(formatMMSS(sec)).withStyle(ChatFormatting.WHITE)));
     }

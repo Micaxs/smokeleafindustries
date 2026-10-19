@@ -1,8 +1,6 @@
 {
   "type": "smokeleafindustries:grinder",
-  "ingredient": {
-    "item": "smokeleafindustries:hemp_leaf"
-  },
+  "ingredient": "smokeleafindustries:hemp_leaf",
   "result": {
     "id": "smokeleafindustries:hemp_fibers",
     "count": 2

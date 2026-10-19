@@ -4,9 +4,8 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.joml.Vector3f;
 
@@ -16,9 +15,9 @@ import org.joml.Vector3f;
  */
 public class MixtureWeedFluidType extends WeedFluidType {
 
-    public MixtureWeedFluidType(ResourceLocation stillTexture,
-                               ResourceLocation flowingTexture,
-                               ResourceLocation overlayTexture,
+    public MixtureWeedFluidType(Identifier stillTexture,
+                               Identifier flowingTexture,
+                               Identifier overlayTexture,
                                int tintColor,
                                Vector3f fogColor,
                                Properties properties,
@@ -30,56 +29,12 @@ public class MixtureWeedFluidType extends WeedFluidType {
     }
 
     @Override
-    public IClientFluidTypeExtensions getClientFluidTypeExtensions() {
-        final IClientFluidTypeExtensions base = super.getClientFluidTypeExtensions();
-        return new IClientFluidTypeExtensions() {
-            @Override
-            public ResourceLocation getStillTexture() {
-                return base.getStillTexture();
-            }
-
-            @Override
-            public ResourceLocation getFlowingTexture() {
-                return base.getFlowingTexture();
-            }
-
-            @Override
-            public ResourceLocation getOverlayTexture() {
-                return base.getOverlayTexture();
-            }
-
-            @Override
-            public Vector3f modifyFogColor(net.minecraft.client.Camera camera, float partialTick,
-                                          net.minecraft.client.multiplayer.ClientLevel level, int renderDistance,
-                                          float darkenWorldAmount, Vector3f fluidFogColor) {
-                return base.modifyFogColor(camera, partialTick, level, renderDistance, darkenWorldAmount, fluidFogColor);
-            }
-
-            @Override
-            public void modifyFogRender(net.minecraft.client.Camera camera,
-                                       net.minecraft.client.renderer.FogRenderer.FogMode mode,
-                                       float renderDistance,
-                                       float partialTick,
-                                       float nearDistance,
-                                       float farDistance,
-                                       com.mojang.blaze3d.shaders.FogShape shape) {
-                base.modifyFogRender(camera, mode, renderDistance, partialTick, nearDistance, farDistance, shape);
-            }
-
-            @Override
-            public int getTintColor(FluidStack stack) {
-                StrainData strain = StrainUtil.getStrain(stack);
-                if (strain != StrainData.EMPTY) {
-                    return applyThcVibrancy(strain.colorArgb(), strain.thc());
-                }
-                return base.getTintColor(stack);
-            }
-
-            @Override
-            public int getTintColor() {
-                return base.getTintColor();
-            }
-        };
+    public int getTintColor(FluidStack stack) {
+        StrainData strain = StrainUtil.getStrain(stack);
+        if (strain != StrainData.EMPTY) {
+            return applyThcVibrancy(strain.colorArgb(), strain.thc());
+        }
+        return getTintColor();
     }
 
     // -----------------------------------------------------------------------

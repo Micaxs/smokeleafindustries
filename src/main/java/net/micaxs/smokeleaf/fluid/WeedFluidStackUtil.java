@@ -3,7 +3,7 @@ package net.micaxs.smokeleaf.fluid;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,7 +17,7 @@ import java.util.List;
 public final class WeedFluidStackUtil {
     private WeedFluidStackUtil() {}
 
-    public static FluidStack withWeedData(FluidStack stack, List<ResourceLocation> effects, int amplifier, int durationTicks) {
+    public static FluidStack withWeedData(FluidStack stack, List<Identifier> effects, int amplifier, int durationTicks) {
         if (stack == null || stack.isEmpty()) return stack;
         stack.set(ModDataComponentTypes.WEED_FLUID_DATA.get(), new WeedFluidData(List.copyOf(effects), amplifier, durationTicks));
         return stack;
@@ -33,9 +33,9 @@ public final class WeedFluidStackUtil {
         WeedFluidData data = getWeedData(stack);
         if (data.effects().isEmpty()) return;
 
-        for (ResourceLocation id : data.effects()) {
+        for (Identifier id : data.effects()) {
             if (id == null) continue;
-            MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(id);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.getValue(id);
             if (effect == null) continue;
             Holder<MobEffect> holder = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
             entity.addEffect(new MobEffectInstance(holder, data.durationTicks(), data.amplifier()));

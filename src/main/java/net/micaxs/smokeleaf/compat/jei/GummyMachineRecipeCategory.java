@@ -13,18 +13,18 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.recipe.GummyRecipe;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 public class GummyMachineRecipeCategory implements IRecipeCategory<GummyRecipe> {
-    public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "gummy_machine");
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/gummy_machine/gummy_machine_gui.png");
+    public static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "gummy_machine");
+    private static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/gummy_machine/gummy_machine_gui.png");
     public static final RecipeType<GummyRecipe> GUMMY_MACHINE_RECIPE_TYPE =
             new RecipeType<>(UID, GummyRecipe.class);
 
@@ -73,7 +73,7 @@ public class GummyMachineRecipeCategory implements IRecipeCategory<GummyRecipe> 
                 .addIngredients(recipe.mold());
 
         builder.addSlot(RecipeIngredientRole.INPUT, CATALYST_X, CATALYST_Y)
-                .addIngredients(recipe.catalyst().asDisplayIngredient());
+                .addItemStacks(recipe.catalyst().displayStacks());
 
         FluidStack fluid = recipe.oil();
         if (!fluid.isEmpty()) {
@@ -86,8 +86,7 @@ public class GummyMachineRecipeCategory implements IRecipeCategory<GummyRecipe> 
         if (!out.isEmpty()) {
             if (JeiStrainHelper.isStrainItem(out.getItem())) {
                 builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
-                        .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(
-                                JeiStrainHelper.coloredStacks(out.getItem(), focuses).stream()));
+                        .addItemStacks(JeiStrainHelper.coloredStacks(out.getItem(), focuses));
             } else {
                 builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
                         .addItemStack(out.copy());
@@ -97,7 +96,7 @@ public class GummyMachineRecipeCategory implements IRecipeCategory<GummyRecipe> 
 
     @Override
     public void draw(GummyRecipe recipe, IRecipeSlotsView recipeSlotsView,
-                     GuiGraphics guiGraphics, double mouseX, double mouseY) {
+                     GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         background.draw(guiGraphics);
     }
 

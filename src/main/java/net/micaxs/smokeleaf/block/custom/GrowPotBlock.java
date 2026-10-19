@@ -17,7 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.BlockGetter;
@@ -31,7 +30,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -42,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class GrowPotBlock extends BaseEntityBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final MapCodec<GrowPotBlock> CODEC = simpleCodec(GrowPotBlock::new);
 
     public GrowPotBlock(Properties properties) {
@@ -79,15 +78,15 @@ public class GrowPotBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide ? null :
+        return level.isClientSide() ? null :
                 createTickerHelper(type, ModBlockEntities.GROW_POT.get(), GrowPotBlockEntity::tick);
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof GrowPotBlockEntity pot)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (!(be instanceof GrowPotBlockEntity pot)) return InteractionResult.TRY_WITH_EMPTY_HAND;
 
         boolean holdingBoneMeal = !stack.isEmpty() && stack.is(Items.BONE_MEAL);
         boolean holdingMagnifyingGlass = !stack.isEmpty() && stack.getItem() instanceof PlantAnalyzerItem;
@@ -114,37 +113,37 @@ public class GrowPotBlock extends BaseEntityBlock {
         boolean sneaking = player.isShiftKeyDown();
 
         if (holdingMagnifyingGlass) {
-            if (level.isClientSide) {
+            if (level.isClientSide()) {
                 openAnalyzerScreen(pos);
             }
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if ((sneaking && emptyHand && (pot.hasCrop() || pot.hasSoil()))
                     || canInsertSoil || canPlantCrop || canFertilize || canBonemeal || canHarvest || tryingFertilizeFullyGrown) {
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         if (sneaking && emptyHand && level instanceof ServerLevel serverLevel) {
             if (pot.hasCrop()) {
                 if (pot.removeCropAndGiveSeed(serverLevel, player)) {
-                    return ItemInteractionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
             } else if (pot.hasSoil()) {
                 if (pot.removeSoilAndGiveBack(serverLevel, player)) {
-                    return ItemInteractionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
             }
         }
 
         if (tryingFertilizeFullyGrown) {
             if (player != null) {
-                player.displayClientMessage(Component.translatable("tooltip.smokeleafindustries.add_fertilizer"), true);
+                player.sendOverlayMessage(Component.translatable("tooltip.smokeleafindustries.add_fertilizer"));
             }
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (canInsertSoil) {
@@ -152,7 +151,7 @@ public class GrowPotBlock extends BaseEntityBlock {
             pot.setSoil(soilBlock.defaultBlockState());
             if (!player.isCreative()) stack.shrink(1);
             pot.setChangedAndSync();
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (canPlantCrop) {
@@ -166,7 +165,7 @@ public class GrowPotBlock extends BaseEntityBlock {
                     pot.plantCrop(crop);
                     if (!player.isCreative()) stack.shrink(1);
                     pot.setChangedAndSync();
-                    return ItemInteractionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
             }
 
@@ -176,7 +175,7 @@ public class GrowPotBlock extends BaseEntityBlock {
                 pot.plantCrop(crop);
                 if (!player.isCreative()) stack.shrink(1);
                 pot.setChangedAndSync();
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
 
@@ -186,34 +185,24 @@ public class GrowPotBlock extends BaseEntityBlock {
             pot.addPotassium(fert.getK());
             if (!player.isCreative()) stack.shrink(1);
             pot.setChangedAndSync();
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (canBonemeal && pot.applyBonemeal(level)) {
             if (!player.isCreative()) stack.shrink(1);
             level.levelEvent(1505, pos, 0);
             pot.setChangedAndSync();
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (canHarvest && level instanceof ServerLevel serverLevel) {
             pot.harvest(serverLevel);
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.getBlock() != newState.getBlock()) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof GrowPotBlockEntity growPotBlockEntity) {
-                growPotBlockEntity.drops();
-            }
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
 
 
 
@@ -230,12 +219,4 @@ public class GrowPotBlock extends BaseEntityBlock {
         return InteractionResult.PASS;
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(Component.literal("Instructions:").withStyle(ChatFormatting.GRAY));
-        tooltipComponents.add(Component.translatable("tooltip.smokeleafindustries.grow_pot.soil").withStyle(ChatFormatting.DARK_GRAY));
-        tooltipComponents.add(Component.translatable("tooltip.smokeleafindustries.grow_pot.plant").withStyle(ChatFormatting.DARK_GRAY));
-        tooltipComponents.add(Component.translatable("tooltip.smokeleafindustries.grow_pot.info").withStyle(ChatFormatting.DARK_GRAY));
-    }
 }

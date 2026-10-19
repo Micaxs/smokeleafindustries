@@ -6,7 +6,7 @@ import net.micaxs.smokeleaf.strain.StrainData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.network.chat.Component;
@@ -16,17 +16,34 @@ import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
-public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum GrowPotProvider implements IBlockComponentProvider {
     INSTANCE;
 
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "grow_pot_jade");
+    /**
+     * Server half of this provider. Since 1.21.6 Jade requires the server data provider and the
+     * client tooltip provider to be separate objects; this one just forwards to the shared logic.
+     */
+    public enum Data implements IServerDataProvider<BlockAccessor> {
+        INSTANCE;
+
+        @Override
+        public Identifier getUid() {
+            return GrowPotProvider.INSTANCE.getUid();
+        }
+
+        @Override
+        public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
+            GrowPotProvider.INSTANCE.appendServerData(tag, accessor);
+        }
+    }
+
+    private static final Identifier UID = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "grow_pot_jade");
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return UID;
     }
 
-    @Override
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
         if (!(accessor.getBlockEntity() instanceof GrowPotBlockEntity pot)) return;
 
@@ -44,14 +61,14 @@ public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvi
         // Soil RL if present
         BlockState soil = pot.getSoilState();
         if (soil != null) {
-            ResourceLocation soilId = BuiltInRegistries.BLOCK.getKey(soil.getBlock());
+            Identifier soilId = BuiltInRegistries.BLOCK.getKey(soil.getBlock());
             if (soilId != null) tag.putString("soil", soilId.toString());
         }
 
         // Crop RL if present
         BlockState cropState = pot.getBottomCropStateForRender();
         if (cropState != null) {
-            ResourceLocation cropId = BuiltInRegistries.BLOCK.getKey(cropState.getBlock());
+            Identifier cropId = BuiltInRegistries.BLOCK.getKey(cropState.getBlock());
             if (cropId != null) tag.putString("crop", cropId.toString());
         }
 
@@ -81,8 +98,8 @@ public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvi
 
         // Soil line
         if (data.contains("soil")) {
-            ResourceLocation soilId = ResourceLocation.tryParse(data.getString("soil"));
-            Block soilBlock = soilId != null ? BuiltInRegistries.BLOCK.get(soilId) : null;
+            Identifier soilId = Identifier.tryParse(data.getStringOr("soil", ""));
+            Block soilBlock = soilId != null ? BuiltInRegistries.BLOCK.getValue(soilId) : null;
             Component soilName = soilBlock != null
                     ? Component.translatable(soilBlock.getDescriptionId())
                     : Component.literal("Unknown");
@@ -95,10 +112,10 @@ public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvi
         if (data.contains("crop")) {
             Component cropName;
             if (data.contains("strain_name")) {
-                cropName = Component.literal(data.getString("strain_name")).withStyle(ChatFormatting.LIGHT_PURPLE);
+                cropName = Component.literal(data.getStringOr("strain_name", "")).withStyle(ChatFormatting.LIGHT_PURPLE);
             } else {
-                ResourceLocation cropId = ResourceLocation.tryParse(data.getString("crop"));
-                Block cropBlock = cropId != null ? BuiltInRegistries.BLOCK.get(cropId) : null;
+                Identifier cropId = Identifier.tryParse(data.getStringOr("crop", ""));
+                Block cropBlock = cropId != null ? BuiltInRegistries.BLOCK.getValue(cropId) : null;
                 cropName = cropBlock != null
                         ? Component.translatable(cropBlock.getDescriptionId())
                         : Component.literal("Unknown");
@@ -108,9 +125,9 @@ public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvi
             if (data.contains("thc") && data.contains("cbd")) {
                 tooltip.add(Component.literal("THC: ")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(data.getInt("thc") + "%").withStyle(ChatFormatting.GREEN))
+                        .append(Component.literal(data.getIntOr("thc", 0) + "%").withStyle(ChatFormatting.GREEN))
                         .append(Component.literal("  CBD: ").withStyle(ChatFormatting.GRAY))
-                        .append(Component.literal(data.getInt("cbd") + "%").withStyle(ChatFormatting.AQUA)));
+                        .append(Component.literal(data.getIntOr("cbd", 0) + "%").withStyle(ChatFormatting.AQUA)));
             }
         } else {
             tooltip.add(Component.literal("Crop: None"));
@@ -118,8 +135,8 @@ public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvi
 
         // Growth line (like Jade crops)
         if (data.contains("age") && data.contains("maxAge")) {
-            int age = data.getInt("age");
-            int maxAge = data.getInt("maxAge");
+            int age = data.getIntOr("age", 0);
+            int maxAge = data.getIntOr("maxAge", 0);
             if (maxAge > 0) {
                 if (age >= maxAge) {
                     tooltip.add(
@@ -143,8 +160,8 @@ public enum GrowPotProvider implements IBlockComponentProvider, IServerDataProvi
 
         // Separate N, P, K lines with Analyzer color logic
         if (hasAll(data, "n", "p", "k", "tn", "tp", "tk")) {
-            int n = data.getInt("n"), p = data.getInt("p"), k = data.getInt("k");
-            int tn = data.getInt("tn"), tp = data.getInt("tp"), tk = data.getInt("tk");
+            int n = data.getIntOr("n", 0), p = data.getIntOr("p", 0), k = data.getIntOr("k", 0);
+            int tn = data.getIntOr("tn", 0), tp = data.getIntOr("tp", 0), tk = data.getIntOr("tk", 0);
 
             if (tn == 0 && tp == 0 && tk == 0) return;
 

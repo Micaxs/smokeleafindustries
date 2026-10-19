@@ -1,8 +1,6 @@
 {
   "type": "smokeleafindustries:grinder",
-  "ingredient": {
-    "item": "smokeleafindustries:dried_tobacco_leaves"
-  },
+  "ingredient": "smokeleafindustries:dried_tobacco_leaves",
   "result": {
     "id": "smokeleafindustries:tobacco",
     "count": 2

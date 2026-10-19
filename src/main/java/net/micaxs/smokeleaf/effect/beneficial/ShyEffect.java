@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.effect.beneficial;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,13 +13,13 @@ public class ShyEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity livingEntity, int amplifier) {
         if (!livingEntity.level().isClientSide()) {
             if (livingEntity instanceof Player player) {
                 player.setInvisible(player.isShiftKeyDown());
             }
         }
-        return super.applyEffectTick(livingEntity, amplifier);
+        return super.applyEffectTick(serverLevel, livingEntity, amplifier);
     }
 
     @Override

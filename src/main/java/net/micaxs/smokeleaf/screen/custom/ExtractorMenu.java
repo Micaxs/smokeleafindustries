@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class ExtractorMenu extends AbstractContainerMenu {
     public final ExtractorBlockEntity blockEntity;
@@ -38,8 +38,8 @@ public class ExtractorMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 0, 80, 11));
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 1, 80, 59));
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 0, 80, 11));
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 1, 80, 59));
 
         addDataSlots(data);
     }

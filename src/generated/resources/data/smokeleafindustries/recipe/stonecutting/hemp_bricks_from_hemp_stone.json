@@ -1,10 +1,7 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "smokeleafindustries:hemp_stone"
-  },
+  "ingredient": "smokeleafindustries:hemp_stone",
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:hemp_bricks"
   }
 }

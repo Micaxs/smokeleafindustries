@@ -1,22 +1,21 @@
 package net.micaxs.smokeleaf.recipe;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
-import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 /**
  * Like vanilla shapeless crafting, but the first ingredient matching {@code baseIngredient} is
@@ -24,37 +23,27 @@ import net.minecraft.world.level.Level;
  * enchantments, trims, custom names and durability all carry over, the same way the vanilla
  * netherite smithing upgrade preserves them. Used for Baja Hoodie -&gt; Reinforced Baja Hoodie.
  */
-public class ArmorUpgradeShapelessRecipe implements CraftingRecipe {
+public class ArmorUpgradeShapelessRecipe extends ShapelessRecipe {
 
-    private final String group;
-    private final CraftingBookCategory category;
     private final Ingredient baseIngredient;
-    private final ItemStack result;
-    private final NonNullList<Ingredient> ingredients;
-    private final ShapelessRecipe delegate;
+    private final ItemStackTemplate result;
+    private final List<Ingredient> ingredients;
 
-    public ArmorUpgradeShapelessRecipe(String group, CraftingBookCategory category, Ingredient baseIngredient,
-                                        ItemStack result, NonNullList<Ingredient> ingredients) {
-        this.group = group;
-        this.category = category;
+    public ArmorUpgradeShapelessRecipe(Recipe.CommonInfo commonInfo, CraftingRecipe.CraftingBookInfo bookInfo, Ingredient baseIngredient,
+                                        ItemStackTemplate result, List<Ingredient> ingredients) {
+        super(commonInfo, bookInfo, result, ingredients);
         this.baseIngredient = baseIngredient;
         this.result = result;
         this.ingredients = ingredients;
-        this.delegate = new ShapelessRecipe(group, category, result, ingredients);
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
-        return delegate.matches(input, level);
-    }
-
-    @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingInput input) {
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getItem(i);
             if (baseIngredient.test(stack)) {
-                ItemStack upgraded = stack.transmuteCopy(result.getItem(), result.getCount());
-                upgraded.applyComponents(result.getComponentsPatch());
+                ItemStack upgraded = stack.transmuteCopy(result.item().value(), result.count());
+                upgraded.applyComponents(result.components());
                 return upgraded;
             }
         }
@@ -62,95 +51,43 @@ public class ArmorUpgradeShapelessRecipe implements CraftingRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return delegate.canCraftInDimensions(w, h);
+    public RecipeSerializer<ShapelessRecipe> getSerializer() {
+        @SuppressWarnings("unchecked")
+        RecipeSerializer<ShapelessRecipe> serializer = (RecipeSerializer<ShapelessRecipe>) (RecipeSerializer<?>) ModRecipes.ARMOR_UPGRADE_SHAPELESS_SERIALIZER.get();
+        return serializer;
     }
 
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return result.copy();
+    public Ingredient baseIngredient() {
+        return baseIngredient;
     }
 
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
+    public ItemStackTemplate result() {
+        return result;
+    }
+
+    public List<Ingredient> ingredients() {
         return ingredients;
     }
 
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipes.ARMOR_UPGRADE_SHAPELESS_SERIALIZER.get();
-    }
-
-    @Override
-    public RecipeType<?> getType() {
-        return RecipeType.CRAFTING;
-    }
-
-    public String group() {
-        return group;
-    }
-
-    @Override
-    public CraftingBookCategory category() {
-        return category;
-    }
-
-    public static class Serializer implements RecipeSerializer<ArmorUpgradeShapelessRecipe> {
-        private static final Codec<NonNullList<Ingredient>> INGREDIENTS_CODEC = Ingredient.CODEC_NONEMPTY.listOf().flatXmap(
-                ingredients -> {
-                    Ingredient[] values = ingredients.toArray(Ingredient[]::new);
-                    if (values.length == 0) {
-                        return DataResult.error(() -> "No ingredients for shapeless recipe");
-                    }
-                    if (values.length > 9) {
-                        return DataResult.error(() -> "Too many ingredients for shapeless recipe");
-                    }
-                    return DataResult.success(NonNullList.of(Ingredient.EMPTY, values));
-                },
-                DataResult::success
-        );
+    public static class Serializer {
+        public static final MapCodec<CraftingRecipe.CraftingBookInfo> BOOK_INFO_CODEC =
+                Recipe.BookInfo.mapCodec(CraftingBookCategory.CODEC, CraftingBookCategory.EQUIPMENT, CraftingRecipe.CraftingBookInfo::new);
 
         public static final MapCodec<ArmorUpgradeShapelessRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
-                CraftingBookCategory.CODEC.optionalFieldOf("category", CraftingBookCategory.EQUIPMENT).forGetter(recipe -> recipe.category),
-                Ingredient.CODEC_NONEMPTY.fieldOf("base").forGetter(recipe -> recipe.baseIngredient),
-                ItemStack.CODEC.fieldOf("result").forGetter(recipe -> recipe.result),
-                INGREDIENTS_CODEC.fieldOf("ingredients").forGetter(recipe -> recipe.ingredients)
+                Recipe.CommonInfo.MAP_CODEC.forGetter(r -> r.commonInfo),
+                BOOK_INFO_CODEC.forGetter(r -> r.bookInfo),
+                Ingredient.CODEC.fieldOf("base").forGetter(ArmorUpgradeShapelessRecipe::baseIngredient),
+                ItemStackTemplate.CODEC.fieldOf("result").forGetter(ArmorUpgradeShapelessRecipe::result),
+                Ingredient.CODEC.listOf(1, 9).fieldOf("ingredients").forGetter(ArmorUpgradeShapelessRecipe::ingredients)
         ).apply(instance, ArmorUpgradeShapelessRecipe::new));
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, ArmorUpgradeShapelessRecipe> STREAM_CODEC = StreamCodec.of(
-                (buf, recipe) -> {
-                    buf.writeUtf(recipe.group);
-                    buf.writeEnum(recipe.category);
-                    Ingredient.CONTENTS_STREAM_CODEC.encode(buf, recipe.baseIngredient);
-                    ItemStack.STREAM_CODEC.encode(buf, recipe.result);
-                    buf.writeVarInt(recipe.ingredients.size());
-                    for (Ingredient ingredient : recipe.ingredients) {
-                        Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
-                    }
-                },
-                buf -> {
-                    String group = buf.readUtf();
-                    CraftingBookCategory category = buf.readEnum(CraftingBookCategory.class);
-                    Ingredient baseIngredient = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
-                    ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-                    int size = buf.readVarInt();
-                    NonNullList<Ingredient> ingredients = NonNullList.create();
-                    for (int i = 0; i < size; i++) {
-                        ingredients.add(Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-                    }
-                    return new ArmorUpgradeShapelessRecipe(group, category, baseIngredient, result, ingredients);
-                }
+        public static final StreamCodec<RegistryFriendlyByteBuf, ArmorUpgradeShapelessRecipe> STREAM_CODEC = StreamCodec.composite(
+                Recipe.CommonInfo.STREAM_CODEC, r -> r.commonInfo,
+                CraftingRecipe.CraftingBookInfo.STREAM_CODEC, r -> r.bookInfo,
+                Ingredient.CONTENTS_STREAM_CODEC, ArmorUpgradeShapelessRecipe::baseIngredient,
+                ItemStackTemplate.STREAM_CODEC, ArmorUpgradeShapelessRecipe::result,
+                Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), ArmorUpgradeShapelessRecipe::ingredients,
+                ArmorUpgradeShapelessRecipe::new
         );
-
-        @Override
-        public MapCodec<ArmorUpgradeShapelessRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, ArmorUpgradeShapelessRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
     }
 }

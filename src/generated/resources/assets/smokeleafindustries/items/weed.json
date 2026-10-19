@@ -1,0 +1,16 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "smokeleafindustries:item/weed",
+    "tints": [
+      {
+        "type": "smokeleafindustries:strain",
+        "role": "weed_leaf"
+      },
+      {
+        "type": "smokeleafindustries:strain",
+        "role": "weed_color"
+      }
+    ]
+  }
+}

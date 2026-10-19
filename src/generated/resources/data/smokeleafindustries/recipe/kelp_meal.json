@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:dried_kelp"
-    },
-    {
-      "item": "minecraft:dried_kelp"
-    },
-    {
-      "item": "smokeleafindustries:tobacco_leaves"
-    }
+    "minecraft:dried_kelp",
+    "minecraft:dried_kelp",
+    "smokeleafindustries:tobacco_leaves"
   ],
   "result": {
     "count": 2,

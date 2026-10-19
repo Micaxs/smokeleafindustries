@@ -17,9 +17,9 @@ import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.recipe.ManualGrinderRecipe;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -27,10 +27,10 @@ import java.util.List;
 
 public class ManualGrinderRecipeCategory implements IRecipeCategory<ManualGrinderRecipe> {
 
-    public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "manual_grinder");
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
+    public static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "manual_grinder");
+    private static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
 
     public static final RecipeType<ManualGrinderRecipe> RECIPE_TYPE =
             new RecipeType<>(UID, ManualGrinderRecipe.class);
@@ -68,7 +68,7 @@ public class ManualGrinderRecipeCategory implements IRecipeCategory<ManualGrinde
         var inputIngredient = recipe.getIngredients().getFirst();
         if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
             builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
-                    .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
+                    .addItemStacks(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
         } else {
             builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
                     .addIngredients(inputIngredient);
@@ -78,7 +78,7 @@ public class ManualGrinderRecipeCategory implements IRecipeCategory<ManualGrinde
                 ? Minecraft.getInstance().level.registryAccess() : null).copy();
         if (result.getItem() instanceof BaseWeedItem || result.getItem() instanceof BaseBudItem) {
             builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
-                    .addIngredients(Ingredient.of(JeiStrainHelper.coloredStacks(result.getItem(), focuses).stream()));
+                    .addItemStacks(JeiStrainHelper.coloredStacks(result.getItem(), focuses));
         } else {
             builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
                     .addItemStack(result);
@@ -87,14 +87,12 @@ public class ManualGrinderRecipeCategory implements IRecipeCategory<ManualGrinde
 
     @Override
     public void draw(ManualGrinderRecipe recipe, IRecipeSlotsView view,
-                     GuiGraphics guiGraphics, double mouseX, double mouseY) {
+                     GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         background.draw(guiGraphics);
         progress.draw(guiGraphics, 42, 16);
         Minecraft mc = Minecraft.getInstance();
         String ticks = recipe.grindTime() + " Ticks";
-        guiGraphics.drawString(mc.font,
-                Component.translatable("jei.smokeleafindustries.grind_time", ticks),
-                22, 38, 0xB8B8B8, false);
+        guiGraphics.text(mc.font, Component.translatable("jei.smokeleafindustries.grind_time", ticks), 22, 38, 0xFFB8B8B8, false);
     }
 
     @Override

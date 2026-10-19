@@ -6,12 +6,8 @@
     "II"
   ],
   "key": {
-    "P": {
-      "item": "smokeleafindustries:hemp_plastic"
-    },
-    "I": {
-      "item": "minecraft:iron_ingot"
-    }
+    "P": "smokeleafindustries:hemp_plastic",
+    "I": "minecraft:iron_ingot"
   },
   "result": {
     "count": 1,

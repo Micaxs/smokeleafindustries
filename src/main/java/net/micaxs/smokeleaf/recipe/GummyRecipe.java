@@ -1,5 +1,8 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.util.ExtraCodecs;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
@@ -12,7 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -30,7 +33,18 @@ import java.util.stream.Stream;
  * {@link #matches}; the oil fluid type/amount is validated in the block entity's tick loop,
  * matching every other fluid-consuming machine recipe in this mod (Liquifier, Mutator).
  */
-public record GummyRecipe(Ingredient mold, IngredientWithCount catalyst, FluidStack oil, ItemStack output) implements Recipe<GummyRecipeInput> {
+public record GummyRecipe(Ingredient mold, IngredientWithCount catalyst, FluidStackTemplate oilTemplate, ItemStackTemplate outputTemplate) implements ModMachineRecipe<GummyRecipeInput> {
+
+    /** Fresh copy of the oil (stored as a template: stacks can't be created while recipes load). */
+    public FluidStack oil() {
+        return oilTemplate.create();
+    }
+
+    /** Fresh copy of the output (stored as a template: stacks can't be created while recipes load). */
+    public ItemStack output() {
+        return outputTemplate.create();
+    }
+
 
     @Override
     public boolean matches(GummyRecipeInput input, Level level) {
@@ -40,21 +54,14 @@ public record GummyRecipe(Ingredient mold, IngredientWithCount catalyst, FluidSt
     }
 
     @Override
-    public ItemStack assemble(GummyRecipeInput input, HolderLookup.Provider provider) {
-        return output.copy();
+    public ItemStack assemble(GummyRecipeInput input) {
+        return output();
     }
 
-    @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return true;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return output.copy();
+        return output();
     }
 
-    @Override
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> list = NonNullList.create();
         list.add(mold);
@@ -63,29 +70,29 @@ public record GummyRecipe(Ingredient mold, IngredientWithCount catalyst, FluidSt
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<GummyRecipe> getSerializer() {
         return ModRecipes.GUMMY_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<GummyRecipe> getType() {
         return ModRecipes.GUMMY_TYPE.get();
     }
 
-    public static class Serializer implements RecipeSerializer<GummyRecipe> {
+    public static class Serializer {
 
-        private static final MapCodec<FluidStack> FLUID_STACK_OBJECT = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(FluidStack::getFluid),
-                Codec.INT.fieldOf("amount").forGetter(FluidStack::getAmount)
-        ).apply(inst, (Fluid fluid, Integer amt) -> new FluidStack(fluid, amt)));
+        public static final MapCodec<FluidStackTemplate> FLUID_STACK_OBJECT = RecordCodecBuilder.mapCodec(inst -> inst.group(
+                BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(t -> t.fluid().value()),
+                ExtraCodecs.POSITIVE_INT.fieldOf("amount").forGetter(FluidStackTemplate::amount)
+        ).apply(inst, (Fluid fluid, Integer amt) -> new FluidStackTemplate(fluid, amt)));
 
         // JSON: {"item":"<id>", "count": N?}
-        private static final MapCodec<ItemStack> OUTPUT_STACK_JSON = new MapCodec<>() {
+        public static final MapCodec<ItemStackTemplate> OUTPUT_STACK_JSON = new MapCodec<>() {
             @Override
-            public <T> DataResult<ItemStack> decode(DynamicOps<T> ops, MapLike<T> input) {
+            public <T> DataResult<ItemStackTemplate> decode(DynamicOps<T> ops, MapLike<T> input) {
                 T itemElem = input.get("item");
                 if (itemElem == null) return DataResult.error(() -> "Missing output key \"item\"");
-                DataResult<ResourceLocation> id = ResourceLocation.CODEC.parse(ops, itemElem);
+                DataResult<Identifier> id = Identifier.CODEC.parse(ops, itemElem);
                 int count;
                 T countElem = input.get("count");
                 if (countElem != null) {
@@ -94,18 +101,15 @@ public record GummyRecipe(Ingredient mold, IngredientWithCount catalyst, FluidSt
                 } else {
                     count = 1;
                 }
-                return id.map(rl -> {
-                    Item it = BuiltInRegistries.ITEM.get(rl);
-                    return new ItemStack(it, Math.max(1, count));
-                });
+                return id.map(rl -> new ItemStackTemplate(BuiltInRegistries.ITEM.getValue(rl), Math.max(1, count)));
             }
 
             @Override
-            public <T> com.mojang.serialization.RecordBuilder<T> encode(ItemStack value, DynamicOps<T> ops, com.mojang.serialization.RecordBuilder<T> builder) {
-                ResourceLocation rl = BuiltInRegistries.ITEM.getKey(value.getItem());
-                builder.add(ops.createString("item"), ResourceLocation.CODEC.encodeStart(ops, rl));
-                if (value.getCount() > 1) {
-                    builder.add(ops.createString("count"), Codec.INT.encodeStart(ops, value.getCount()));
+            public <T> com.mojang.serialization.RecordBuilder<T> encode(ItemStackTemplate value, DynamicOps<T> ops, com.mojang.serialization.RecordBuilder<T> builder) {
+                Identifier rl = BuiltInRegistries.ITEM.getKey(value.item().value());
+                builder.add(ops.createString("item"), Identifier.CODEC.encodeStart(ops, rl));
+                if (value.count() > 1) {
+                    builder.add(ops.createString("count"), Codec.INT.encodeStart(ops, value.count()));
                 }
                 return builder;
             }
@@ -117,40 +121,27 @@ public record GummyRecipe(Ingredient mold, IngredientWithCount catalyst, FluidSt
         };
 
         public static final MapCodec<GummyRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("mold").forGetter(GummyRecipe::mold),
+                Ingredient.CODEC.fieldOf("mold").forGetter(GummyRecipe::mold),
                 IngredientWithCount.CODEC.fieldOf("catalyst").forGetter(GummyRecipe::catalyst),
-                FLUID_STACK_OBJECT.fieldOf("oil").forGetter(GummyRecipe::oil),
-                OUTPUT_STACK_JSON.fieldOf("output").forGetter(GummyRecipe::output)
+                FLUID_STACK_OBJECT.fieldOf("oil").forGetter(GummyRecipe::oilTemplate),
+                OUTPUT_STACK_JSON.fieldOf("output").forGetter(GummyRecipe::outputTemplate)
         ).apply(inst, GummyRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, FluidStack> FLUID_STACK_STREAM_CODEC =
-                StreamCodec.of(
-                        (buf, stack) -> {
-                            ByteBufCodecs.idMapper(BuiltInRegistries.FLUID).encode(buf, stack.getFluid());
-                            buf.writeVarInt(stack.getAmount());
-                        },
-                        buf -> {
-                            Fluid f = ByteBufCodecs.idMapper(BuiltInRegistries.FLUID).decode(buf);
-                            int amt = buf.readVarInt();
-                            return new FluidStack(f, amt);
-                        }
-                );
+        private static final StreamCodec<RegistryFriendlyByteBuf, FluidStackTemplate> FLUID_STACK_STREAM_CODEC = FluidStackTemplate.STREAM_CODEC;
 
         public static final StreamCodec<RegistryFriendlyByteBuf, GummyRecipe> STREAM_CODEC =
                 StreamCodec.composite(
                         Ingredient.CONTENTS_STREAM_CODEC, GummyRecipe::mold,
                         IngredientWithCount.STREAM_CODEC, GummyRecipe::catalyst,
-                        FLUID_STACK_STREAM_CODEC, GummyRecipe::oil,
-                        ItemStack.STREAM_CODEC, GummyRecipe::output,
+                        FLUID_STACK_STREAM_CODEC, GummyRecipe::oilTemplate,
+                        ItemStackTemplate.STREAM_CODEC, GummyRecipe::outputTemplate,
                         GummyRecipe::new
                 );
 
-        @Override
         public MapCodec<GummyRecipe> codec() {
             return CODEC;
         }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, GummyRecipe> streamCodec() {
             return STREAM_CODEC;
         }

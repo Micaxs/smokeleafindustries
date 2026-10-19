@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": {
-      "item": "smokeleafindustries:hemp_core"
-    },
-    "G": {
-      "item": "minecraft:glowstone"
-    },
-    "H": {
-      "item": "smokeleafindustries:hemp_plastic"
-    },
-    "I": {
-      "item": "minecraft:glass_bottle"
-    }
+    "C": "smokeleafindustries:hemp_core",
+    "G": "minecraft:glowstone",
+    "H": "smokeleafindustries:hemp_plastic",
+    "I": "minecraft:glass_bottle"
   },
   "pattern": [
     "HCH",
@@ -21,7 +13,6 @@
     "HCH"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:sequencer"
   }
 }

@@ -1,7 +1,5 @@
 {
   "type": "smokeleafindustries:generator",
-  "ingredient": {
-    "item": "smokeleafindustries:weed"
-  },
+  "ingredient": "smokeleafindustries:weed",
   "total_energy": 3200
 }

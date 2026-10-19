@@ -1,7 +1,5 @@
 {
   "type": "smokeleafindustries:generator",
-  "ingredient": {
-    "item": "smokeleafindustries:bud"
-  },
+  "ingredient": "smokeleafindustries:bud",
   "total_energy": 6400
 }

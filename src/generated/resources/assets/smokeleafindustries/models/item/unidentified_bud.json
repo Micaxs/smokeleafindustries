@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "smokeleafindustries:item/generic_bud_base",
-    "layer1": "smokeleafindustries:item/generic_bud_mask"
-  }
-}

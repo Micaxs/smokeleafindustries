@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class StrainModifierMenu extends AbstractContainerMenu {
 
@@ -38,9 +38,9 @@ public class StrainModifierMenu extends AbstractContainerMenu {
         addPlayerHotbar(inv);
 
         // Slot positions derived from pixel analysis of strain_modifier_gui.png
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, StrainModifierBlockEntity.SLOT_SEED, 8, 8));
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, StrainModifierBlockEntity.SLOT_LEAF, 26, 59));
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, StrainModifierBlockEntity.SLOT_OUTPUT, 153, 8));
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, StrainModifierBlockEntity.SLOT_SEED, 8, 8));
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, StrainModifierBlockEntity.SLOT_LEAF, 26, 59));
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, StrainModifierBlockEntity.SLOT_OUTPUT, 153, 8));
 
         addDataSlots(data);
     }

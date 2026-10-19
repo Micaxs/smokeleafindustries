@@ -10,7 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,12 +25,15 @@ import java.util.List;
 
 public class JointRecipe extends CustomRecipe {
 
+    private final CraftingBookCategory category;
+
     private static final TagKey<Item> JOINT_WEEDS = ModTags.WEEDS;
     private final Item tobaccoItem;
     private final Item jointResult;
 
     public JointRecipe(CraftingBookCategory category, Item tobaccoItem, Item jointResult) {
-        super(category);
+        super();
+        this.category = category;
         this.tobaccoItem = tobaccoItem;
         this.jointResult = jointResult;
     }
@@ -73,7 +76,7 @@ public class JointRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(CraftingInput input) {
         if (!hasPattern(input)) return ItemStack.EMPTY;
         ItemStack left = input.getItem(3);
         ItemStack right = input.getItem(5);
@@ -85,61 +88,57 @@ public class JointRecipe extends CustomRecipe {
         return joint;
     }
 
-    @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return w >= 3 && h >= 3;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
         return new ItemStack(jointResult);
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<JointRecipe> getSerializer() {
         return ModRecipes.JOINT_SERIALIZER.get();
     }
 
-    public static class Serializer implements RecipeSerializer<JointRecipe> {
-        public static final Serializer INSTANCE = new Serializer();
+    @Override
+    public CraftingBookCategory category() {
+        return category;
+    }
 
-        private static final MapCodec<JointRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+    public static class Serializer {
+
+        public static final MapCodec<JointRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        ResourceLocation.CODEC.fieldOf("tobacco").forGetter(r -> BuiltInRegistries.ITEM.getKey(r.tobaccoItem)),
-                        ResourceLocation.CODEC.fieldOf("result").forGetter(r -> BuiltInRegistries.ITEM.getKey(r.jointResult)),
+                        Identifier.CODEC.fieldOf("tobacco").forGetter(r -> BuiltInRegistries.ITEM.getKey(r.tobaccoItem)),
+                        Identifier.CODEC.fieldOf("result").forGetter(r -> BuiltInRegistries.ITEM.getKey(r.jointResult)),
                         CraftingBookCategory.CODEC.optionalFieldOf("category", CraftingBookCategory.MISC)
                                 .forGetter(JointRecipe::category)
                 ).apply(instance, (tobaccoRL, resultRL, cat) ->
                         new JointRecipe(
                                 cat,
-                                BuiltInRegistries.ITEM.get(tobaccoRL),
-                                BuiltInRegistries.ITEM.get(resultRL)
+                                BuiltInRegistries.ITEM.getValue(tobaccoRL),
+                                BuiltInRegistries.ITEM.getValue(resultRL)
                         ))
         );
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, JointRecipe> STREAM_CODEC =
+        public static final StreamCodec<RegistryFriendlyByteBuf, JointRecipe> STREAM_CODEC =
                 StreamCodec.of(
                         (buf, recipe) -> {
-                            buf.writeResourceLocation(BuiltInRegistries.ITEM.getKey(recipe.tobaccoItem));
-                            buf.writeResourceLocation(BuiltInRegistries.ITEM.getKey(recipe.jointResult));
+                            buf.writeIdentifier(BuiltInRegistries.ITEM.getKey(recipe.tobaccoItem));
+                            buf.writeIdentifier(BuiltInRegistries.ITEM.getKey(recipe.jointResult));
                             buf.writeEnum(recipe.category());
                         },
                         buf -> {
-                            ResourceLocation tob = buf.readResourceLocation();
-                            ResourceLocation res = buf.readResourceLocation();
+                            Identifier tob = buf.readIdentifier();
+                            Identifier res = buf.readIdentifier();
                             CraftingBookCategory cat = buf.readEnum(CraftingBookCategory.class);
                             return new JointRecipe(
                                     cat,
-                                    BuiltInRegistries.ITEM.get(tob),
-                                    BuiltInRegistries.ITEM.get(res)
+                                    BuiltInRegistries.ITEM.getValue(tob),
+                                    BuiltInRegistries.ITEM.getValue(res)
                             );
                         }
                 );
 
-        @Override
         public MapCodec<JointRecipe> codec() { return CODEC; }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, JointRecipe> streamCodec() { return STREAM_CODEC; }
     }
 }

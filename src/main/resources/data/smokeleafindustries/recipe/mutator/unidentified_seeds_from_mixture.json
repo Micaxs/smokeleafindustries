@@ -2,12 +2,10 @@
   "type": "smokeleafindustries:mutator",
   "ingredients": [
     {
-      "item": "smokeleafindustries:hemp_seeds",
-      "count": 1
+      "ingredient": "smokeleafindustries:hemp_seeds"
     },
     {
-      "item": "smokeleafindustries:base_extract",
-      "count": 1
+      "ingredient": "smokeleafindustries:base_extract"
     }
   ],
   "fluid": {

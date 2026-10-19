@@ -1,6 +1,5 @@
 package net.micaxs.smokeleaf.event;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.component.ManualGrinderContents;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
@@ -34,19 +33,17 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.feline.Cat;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.trading.ItemCost;
-import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -56,12 +53,13 @@ import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
-import net.neoforged.neoforge.event.entity.player.AnvilRepairEvent;
+import net.neoforged.neoforge.event.entity.player.AnvilCraftEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import java.util.*;
 
@@ -86,15 +84,12 @@ public class CommonEvents {
         if (level.isClientSide()) return;
 
         long now = level.getGameTime();
-        long last = cat.getPersistentData().getLong(TAG_LAST_TIME);
+        long last = cat.getPersistentData().getLongOr(TAG_LAST_TIME, 0L);
 
         if (now - last < COOLDOWN_TICKS) {
             long remaining = COOLDOWN_TICKS - (now - last);
             long seconds = remaining / 20;
-            player.displayClientMessage(
-                    Component.translatable("message.smokeleafindustries.cat_urine_cooldown", seconds),
-                    true
-            );
+            player.sendOverlayMessage(Component.translatable("message.smokeleafindustries.cat_urine_cooldown", seconds));
             return;
         }
 
@@ -243,7 +238,7 @@ public class CommonEvents {
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         Level lvl = player.level();
-        if (lvl.isClientSide) return;
+        if (lvl.isClientSide()) return;
         ServerLevel level = (ServerLevel) lvl;
 
         // Baja Hoodie: cure Stoned immediately if the full set gets equipped while already high,
@@ -319,7 +314,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onVillagerInteract(PlayerInteractEvent.EntityInteract event) {
         Player player = event.getEntity();
-        if (player.level().isClientSide) return;
+        if (player.level().isClientSide()) return;
 
         if (event.getTarget() instanceof Villager villager) {
             if (player.hasEffect(ModEffects.CHILLOUT)) {
@@ -336,7 +331,7 @@ public class CommonEvents {
 
     // -------- Tree Cutting & Veinmining Effects --------
     @SubscribeEvent
-    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+    public static void onBlockBreak(BreakBlockEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         Player player = event.getPlayer();
         if (player == null) return;
@@ -490,187 +485,7 @@ public class CommonEvents {
 
 
 
-    // -------- Villager Trades --------
-    @SubscribeEvent
-    public static void addCustomTrades(net.neoforged.neoforge.event.village.VillagerTradesEvent event) {
-        if (event.getType() == ModVillagers.STONER.value()) {
-            Int2ObjectMap<List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing>> trades = event.getTrades();
-
-            addRandomTrades(trades, 1, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HEMP_FIBERS, 18), new ItemStack(Items.EMERALD, 1), 16, 2, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HEMP_COAL, 5), new ItemStack(Items.EMERALD, 1), 16, 2, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.DRIED_TOBACCO_LEAF, 8), new ItemStack(Items.EMERALD, 1), 12, 2, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HEMP_LEAF, 5), new ItemStack(Items.EMERALD, 1), 10, 2, 0.01f)
-            );
-
-            addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> weedOffer(4, "white_widow"),
-                    (pTrader, pRandom) -> weedOffer(4, "bubble_kush"),
-                    (pTrader, pRandom) -> weedOffer(5, "lemon_haze"),
-                    (pTrader, pRandom) -> weedOffer(4, "sour_diesel"),
-                    (pTrader, pRandom) -> weedOffer(4, "blue_ice"),
-                    (pTrader, pRandom) -> weedOffer(5, "bubblegum"),
-                    (pTrader, pRandom) -> weedOffer(6, "purple_haze"),
-                    (pTrader, pRandom) -> weedOffer(3, "og_kush"),
-                    (pTrader, pRandom) -> weedOffer(4, "jack_herer"),
-                    (pTrader, pRandom) -> weedOffer(5, "gary_peyton"),
-                    (pTrader, pRandom) -> weedOffer(6, "amnesia_haze"),
-                    (pTrader, pRandom) -> weedOffer(5, "ak47"),
-                    (pTrader, pRandom) -> weedOffer(4, "ghost_train"),
-                    (pTrader, pRandom) -> weedOffer(6, "grape_ape"),
-                    (pTrader, pRandom) -> weedOffer(6, "cotton_candy"),
-                    (pTrader, pRandom) -> weedOffer(5, "banana_kush"),
-                    (pTrader, pRandom) -> weedOffer(4, "carbon_fiber"),
-                    (pTrader, pRandom) -> weedOffer(6, "birthday_cake"),
-                    (pTrader, pRandom) -> weedOffer(5, "blue_cookies"),
-                    (pTrader, pRandom) -> weedOffer(6, "afghani"),
-                    (pTrader, pRandom) -> weedOffer(4, "moonbow"),
-                    (pTrader, pRandom) -> weedOffer(6, "lava_cake"),
-                    (pTrader, pRandom) -> weedOffer(5, "jelly_rancher"),
-                    (pTrader, pRandom) -> weedOffer(6, "strawberry_shortcake"),
-                    (pTrader, pRandom) -> weedOffer(5, "pink_kush")
-            );
-            addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.TOBACCO, 10), new ItemStack(Items.EMERALD, 1), 6, 5, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BIO_COMPOSITE, 1), new ItemStack(Items.EMERALD, 3), 8, 5, 0.01f)
-            );
-
-            addRandomTrades(trades, 3, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModFluids.HASH_OIL_BUCKET, 1), new ItemStack(Items.EMERALD, 3), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.INFUSED_BUTTER, 3), new ItemStack(Items.EMERALD, 1), 7, 10, 0.01f)
-            );
-
-            addRandomTrades(trades, 4, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.WEED_COOKIE, 1), new ItemStack(Items.EMERALD, 2), 8, 15, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HASH_BROWNIE, 1), new ItemStack(Items.EMERALD, 3), 6, 15, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.DAB_RIG, 1), new ItemStack(Items.EMERALD, 3), 1, 15, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BONG, 1), new ItemStack(Items.EMERALD, 4), 1, 15, 0.01f)
-            );
-
-            addRandomTrades(trades, 5, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.HERB_CAKE, 1), new ItemStack(Items.EMERALD, 6), 4, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.BLUNT, 2), new ItemStack(Items.EMERALD, 3), 6, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(ModItems.JOINT, 3), new ItemStack(Items.EMERALD, 2), 8, 20, 0.01f)
-            );
-        }
-
-        if (event.getType() == ModVillagers.DEALER.value()) {
-            Int2ObjectMap<List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing>> trades = event.getTrades();
-
-            trades.get(1).add((pTrader, pRandom) -> new MerchantOffer(
-                    new ItemCost(Items.EMERALD, 1),
-                    new ItemStack(ModItems.HEMP_SEEDS.get(), 1), 16, 2, 0.01f)
-            );
-            trades.get(1).add((pTrader, pRandom) -> new MerchantOffer(
-                    new ItemCost(Items.EMERALD, 1),
-                    new ItemStack(ModItems.TOBACCO_SEEDS.get(), 1), 16, 2, 0.01f)
-            );
-
-            addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> weedOffer(4, "white_widow"),
-                    (pTrader, pRandom) -> weedOffer(4, "bubble_kush"),
-                    (pTrader, pRandom) -> weedOffer(5, "lemon_haze"),
-                    (pTrader, pRandom) -> weedOffer(4, "sour_diesel"),
-                    (pTrader, pRandom) -> weedOffer(4, "blue_ice"),
-                    (pTrader, pRandom) -> weedOffer(5, "bubblegum"),
-                    (pTrader, pRandom) -> weedOffer(6, "purple_haze"),
-                    (pTrader, pRandom) -> weedOffer(3, "og_kush"),
-                    (pTrader, pRandom) -> weedOffer(4, "jack_herer"),
-                    (pTrader, pRandom) -> weedOffer(5, "gary_peyton"),
-                    (pTrader, pRandom) -> weedOffer(6, "amnesia_haze"),
-                    (pTrader, pRandom) -> weedOffer(5, "ak47"),
-                    (pTrader, pRandom) -> weedOffer(4, "ghost_train"),
-                    (pTrader, pRandom) -> weedOffer(6, "grape_ape"),
-                    (pTrader, pRandom) -> weedOffer(6, "cotton_candy"),
-                    (pTrader, pRandom) -> weedOffer(5, "banana_kush"),
-                    (pTrader, pRandom) -> weedOffer(4, "carbon_fiber"),
-                    (pTrader, pRandom) -> weedOffer(6, "birthday_cake"),
-                    (pTrader, pRandom) -> weedOffer(5, "blue_cookies"),
-                    (pTrader, pRandom) -> weedOffer(6, "afghani"),
-                    (pTrader, pRandom) -> weedOffer(4, "moonbow"),
-                    (pTrader, pRandom) -> weedOffer(6, "lava_cake"),
-                    (pTrader, pRandom) -> weedOffer(5, "jelly_rancher"),
-                    (pTrader, pRandom) -> weedOffer(6, "strawberry_shortcake"),
-                    (pTrader, pRandom) -> weedOffer(5, "pink_kush")
-            );
-            addRandomTrades(trades, 2, 1,
-                    (pTrader, pRandom) -> gummyOffer(4, "white_widow"),
-                    (pTrader, pRandom) -> gummyOffer(4, "bubble_kush"),
-                    (pTrader, pRandom) -> gummyOffer(5, "lemon_haze"),
-                    (pTrader, pRandom) -> gummyOffer(4, "sour_diesel"),
-                    (pTrader, pRandom) -> gummyOffer(4, "blue_ice"),
-                    (pTrader, pRandom) -> gummyOffer(5, "bubblegum"),
-                    (pTrader, pRandom) -> gummyOffer(6, "purple_haze"),
-                    (pTrader, pRandom) -> gummyOffer(3, "og_kush"),
-                    (pTrader, pRandom) -> gummyOffer(4, "jack_herer"),
-                    (pTrader, pRandom) -> gummyOffer(5, "gary_peyton"),
-                    (pTrader, pRandom) -> gummyOffer(6, "amnesia_haze"),
-                    (pTrader, pRandom) -> gummyOffer(5, "ak47"),
-                    (pTrader, pRandom) -> gummyOffer(4, "ghost_train"),
-                    (pTrader, pRandom) -> gummyOffer(6, "grape_ape"),
-                    (pTrader, pRandom) -> gummyOffer(6, "cotton_candy"),
-                    (pTrader, pRandom) -> gummyOffer(5, "banana_kush"),
-                    (pTrader, pRandom) -> gummyOffer(4, "carbon_fiber"),
-                    (pTrader, pRandom) -> gummyOffer(6, "birthday_cake"),
-                    (pTrader, pRandom) -> gummyOffer(5, "blue_cookies"),
-                    (pTrader, pRandom) -> gummyOffer(6, "afghani"),
-                    (pTrader, pRandom) -> gummyOffer(4, "moonbow"),
-                    (pTrader, pRandom) -> gummyOffer(6, "lava_cake"),
-                    (pTrader, pRandom) -> gummyOffer(5, "jelly_rancher"),
-                    (pTrader, pRandom) -> gummyOffer(6, "strawberry_shortcake"),
-                    (pTrader, pRandom) -> gummyOffer(5, "pink_kush")
-            );
-
-            addRandomTrades(trades, 3, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BASE_EXTRACT.get(), 1), 8, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 8), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 7), new ItemStack(ModFluids.HASH_OIL_BUCKET.get(), 1), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.BUTTER.get(), 1), 6, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 14), new ItemStack(ModItems.DNA_STRAND.get(), 1), 6, 10, 0.01f)
-            );
-
-            addRandomTrades(trades, 4, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(ModItems.BIO_COMPOSITE.get(), 1), 10, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 10), new ItemStack(ModItems.DUAL_ARC_LAMP.get(), 1), 2, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 8), new ItemStack(ModItems.HEMP_PLASTIC.get(), 1), 6, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 7), new ItemStack(ModItems.UNFINISHED_HEMP_CORE.get(), 1), 2, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 4), new ItemStack(ModItems.INFUSED_BUTTER.get(), 1), 4, 10, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 14), new ItemStack(ModItems.CAT_URINE_BOTTLE.get(), 1), 2, 10, 0.01f)
-            );
-
-            addRandomTrades(trades, 5, 2,
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 10), new ItemStack(ModItems.DNA_STRAND.get(), 1), 4, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 14), new ItemStack(ModItems.HEMP_CORE.get(), 1), 2, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 13), new ItemStack(ModItems.MANUAL_GRINDER.get(), 1), 1, 20, 0.01f),
-                    (pTrader, pRandom) -> new MerchantOffer(new ItemCost(Items.EMERALD, 16), new ItemStack(ModItems.HEMP_HAMMER.get(), 1), 1, 20, 0.01f)
-            );
-        }
-    }
-
-    private static ItemStack strainedStack(Item item, String strainId) {
-        ItemStack stack = new ItemStack(item);
-        StrainRegistry.get(strainId).ifPresent(data -> {
-            stack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
-            stack.set(ModDataComponentTypes.STRAIN_ID.get(), strainId);
-        });
-        return stack;
-    }
-
-    private static MerchantOffer weedOffer(int emeraldCost, String strainId) {
-        return new MerchantOffer(new ItemCost(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_WEED.get(), strainId), 6, 5, 0.01f);
-    }
-
-    private static MerchantOffer gummyOffer(int emeraldCost, String strainId) {
-        return new MerchantOffer(new ItemCost(Items.EMERALD, emeraldCost), strainedStack(ModItems.GENERIC_GUMMY.get(), strainId), 4, 5, 0.01f);
-    }
-
-    private static void addRandomTrades(Int2ObjectMap<List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing>> trades, int level, int pick, net.minecraft.world.entity.npc.VillagerTrades.ItemListing... candidates) {
-        List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing> pool = new ArrayList<>(List.of(candidates));
-        Collections.shuffle(pool);
-        List<net.minecraft.world.entity.npc.VillagerTrades.ItemListing> levelList = trades.get(level);
-        levelList.addAll(pool.subList(0, Math.min(pick, pool.size())));
-    }
+    // Villager trades are data-driven since 26.1 — see ModTrades (generated by datagen).
 
     // -----------------------------------------------------------------------
     // Mixed-strain naming via Anvil
@@ -690,7 +505,7 @@ public class CommonEvents {
      * dedicated Strain Modifier machine instead.
      */
     @SubscribeEvent
-    public static void onAnvilRepair(AnvilRepairEvent event) {
+    public static void onAnvilRepair(AnvilCraftEvent.Post event) {
         // intentionally disabled
     }
 
@@ -699,7 +514,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onItemPickup(ItemEntityPickupEvent.Post event) {
         Player player = event.getPlayer();
-        if (player.level().isClientSide) return;
+        if (player.level().isClientSide()) return;
         recordStrainDiscovery(player, event.getOriginalStack());
     }
 
@@ -724,6 +539,6 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer sp)) return;
-        StrainRegistrySavedData.get(sp.server).syncPlayerInventory(sp);
+        StrainRegistrySavedData.get(sp.level().getServer()).syncPlayerInventory(sp);
     }
 }

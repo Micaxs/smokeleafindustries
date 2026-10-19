@@ -1,0 +1,10 @@
+{
+  "amount": 2.0,
+  "random_sequence": "smokeleafindustries:trade_set/stoner/level_4",
+  "trades": [
+    "smokeleafindustries:stoner/4/weed_cookie_emerald",
+    "smokeleafindustries:stoner/4/hash_brownie_emerald",
+    "smokeleafindustries:stoner/4/dab_rig_emerald",
+    "smokeleafindustries:stoner/4/bong_emerald"
+  ]
+}

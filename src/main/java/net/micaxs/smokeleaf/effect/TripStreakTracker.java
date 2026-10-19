@@ -38,8 +38,8 @@ public final class TripStreakTracker {
     /** Registers one use of {@code key} and returns the new consecutive-use streak (1 if it broke a different streak). */
     public static int registerUseAndGetStreak(Player player, String key) {
         CompoundTag data = player.getPersistentData();
-        String lastKey = data.getString(TAG_LAST_KEY);
-        int streak = key.equals(lastKey) ? data.getInt(TAG_STREAK) + 1 : 1;
+        String lastKey = data.getStringOr(TAG_LAST_KEY, "");
+        int streak = key.equals(lastKey) ? data.getIntOr(TAG_STREAK, 0) + 1 : 1;
         data.putString(TAG_LAST_KEY, key);
         data.putInt(TAG_STREAK, streak);
         return streak;

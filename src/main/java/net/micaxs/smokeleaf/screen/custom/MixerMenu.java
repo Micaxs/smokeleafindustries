@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.screen.custom;
 
+import net.micaxs.smokeleaf.transfer.FluidAction;
 import net.micaxs.smokeleaf.block.entity.MixerBlockEntity;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.ModFluids;
@@ -19,8 +20,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidActionResult;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.micaxs.smokeleaf.transfer.ModFluidUtil;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class MixerMenu extends AbstractContainerMenu {
@@ -103,7 +105,7 @@ public class MixerMenu extends AbstractContainerMenu {
         };
     }
 
-    private boolean tryEmptyContainerInto(Player player, IFluidHandler tank) {
+    private boolean tryEmptyContainerInto(Player player, ResourceHandler<FluidResource> tank) {
         // Carried (mouse cursor)
         ItemStack carried = getCarried();
         if (!carried.isEmpty()) {
@@ -116,7 +118,7 @@ public class MixerMenu extends AbstractContainerMenu {
                 }
                 return false; // bucket present but tank rejected it — don't fall through
             }
-            FluidActionResult res = FluidUtil.tryEmptyContainer(carried, tank, 1000, player, true);
+            FluidActionResult res = ModFluidUtil.tryEmptyContainer(carried, tank, 1000, player, true);
             if (res.isSuccess()) {
                 setCarried(res.getResult());
                 blockEntity.setChanged();
@@ -130,7 +132,7 @@ public class MixerMenu extends AbstractContainerMenu {
         return false;
     }
 
-    private boolean tryFillContainerFrom(Player player, IFluidHandler tank) {
+    private boolean tryFillContainerFrom(Player player, ResourceHandler<FluidResource> tank) {
         // Carried (mouse cursor)
         ItemStack carried = getCarried();
         if (!carried.isEmpty()) {
@@ -145,7 +147,7 @@ public class MixerMenu extends AbstractContainerMenu {
                 }
             }
 
-            FluidActionResult res = FluidUtil.tryFillContainer(carried, tank, 1000, player, true);
+            FluidActionResult res = ModFluidUtil.tryFillContainer(carried, tank, 1000, player, true);
             if (res.isSuccess()) {
                 setCarried(res.getResult());
                 blockEntity.setChanged();
@@ -159,7 +161,7 @@ public class MixerMenu extends AbstractContainerMenu {
         return false;
     }
 
-    private boolean tryEmptyHandInto(Player player, InteractionHand hand, IFluidHandler handler) {
+    private boolean tryEmptyHandInto(Player player, InteractionHand hand, ResourceHandler<FluidResource> handler) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty()) return false;
         if (held.getItem() instanceof UnidentifiedMixtureBucketItem) {
@@ -171,7 +173,7 @@ public class MixerMenu extends AbstractContainerMenu {
             }
             return false;
         }
-        FluidActionResult res = FluidUtil.tryEmptyContainer(held, handler, 1000, player, true);
+        FluidActionResult res = ModFluidUtil.tryEmptyContainer(held, handler, 1000, player, true);
         if (res.isSuccess()) {
             player.setItemInHand(hand, res.getResult());
             blockEntity.setChanged();
@@ -185,7 +187,7 @@ public class MixerMenu extends AbstractContainerMenu {
      * Drains a {@link UnidentifiedMixtureBucketItem} into the given tank, preserving {@code STRAIN_DATA}
      * (which {@link net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper} would strip).
      */
-    private boolean emptyCustomOilBucket(ItemStack bucket, IFluidHandler tank) {
+    private boolean emptyCustomOilBucket(ItemStack bucket, ResourceHandler<FluidResource> tank) {
         FluidStack fluid = new FluidStack(ModFluids.SOURCE_UNIDENTIFIED_MIXTURE_FLUID.get(), 1000);
         StrainData strain = StrainUtil.getStrain(bucket);
         if (strain != StrainData.EMPTY) {
@@ -195,15 +197,15 @@ public class MixerMenu extends AbstractContainerMenu {
         if (mixKey != null) {
             fluid.set(ModDataComponentTypes.MIX_KEY.get(), mixKey);
         }
-        int filled = tank.fill(fluid, IFluidHandler.FluidAction.SIMULATE);
+        int filled = ModFluidUtil.fill(tank, fluid, FluidAction.SIMULATE);
         if (filled == 1000) {
-            tank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
+            ModFluidUtil.fill(tank, fluid, FluidAction.EXECUTE);
             return true;
         }
         return false;
     }
 
-    private boolean tryFillHandFrom(Player player, InteractionHand hand, IFluidHandler handler) {
+    private boolean tryFillHandFrom(Player player, InteractionHand hand, ResourceHandler<FluidResource> handler) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty()) return false;
 
@@ -218,7 +220,7 @@ public class MixerMenu extends AbstractContainerMenu {
             }
         }
 
-        FluidActionResult res = FluidUtil.tryFillContainer(held, handler, 1000, player, true);
+        FluidActionResult res = ModFluidUtil.tryFillContainer(held, handler, 1000, player, true);
         if (res.isSuccess()) {
             player.setItemInHand(hand, res.getResult());
             blockEntity.setChanged();
@@ -232,16 +234,16 @@ public class MixerMenu extends AbstractContainerMenu {
      * Fills exactly one empty bucket from the given handler and returns the new stack.
      * Returns {@link ItemStack#EMPTY} if not possible.
      */
-    private ItemStack tryFillSingleBucketFromTank(Player player, IFluidHandler handler, ItemStack bucketStack) {
+    private ItemStack tryFillSingleBucketFromTank(Player player, ResourceHandler<FluidResource> handler, ItemStack bucketStack) {
         if (!bucketStack.is(Items.BUCKET) || bucketStack.isEmpty()) return ItemStack.EMPTY;
 
-        FluidStack simulated = handler.drain(1000, IFluidHandler.FluidAction.SIMULATE);
+        FluidStack simulated = ModFluidUtil.drain(handler, 1000, FluidAction.SIMULATE);
         if (simulated.isEmpty() || simulated.getAmount() < 1000) return ItemStack.EMPTY;
 
         ItemStack filledBucket = filledBucketForFluid(simulated);
         if (filledBucket.isEmpty()) return ItemStack.EMPTY;
 
-        FluidStack drained = handler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+        FluidStack drained = ModFluidUtil.drain(handler, 1000, FluidAction.EXECUTE);
         if (drained.isEmpty() || drained.getAmount() < 1000) return ItemStack.EMPTY;
 
         if (bucketStack.getCount() == 1) {
@@ -264,7 +266,7 @@ public class MixerMenu extends AbstractContainerMenu {
     private static ItemStack filledBucketForFluid(FluidStack drained) {
         // Use FluidUtil.getFilledBucket so FluidType.getBucket(FluidStack) is called,
         // which copies STRAIN_DATA / MIX_KEY / STRAIN_ID / STRAIN_CREATOR onto the bucket item.
-        return FluidUtil.getFilledBucket(drained);
+        return ModFluidUtil.getFilledBucket(drained);
     }
 
     private void addPlayerInventory(Inventory playerInventory) {

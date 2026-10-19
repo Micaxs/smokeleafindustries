@@ -4,7 +4,7 @@ import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Client → Server: sent when the player adjusts sliders or types a name in the Strain Modifier UI.
@@ -18,7 +18,7 @@ public record StrainModifierUpdatePayload(
 ) implements CustomPacketPayload {
 
     public static final Type<StrainModifierUpdatePayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "strain_modifier_update"));
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "strain_modifier_update"));
 
     public static final StreamCodec<FriendlyByteBuf, StrainModifierUpdatePayload> STREAM_CODEC = new StreamCodec<>() {
         @Override

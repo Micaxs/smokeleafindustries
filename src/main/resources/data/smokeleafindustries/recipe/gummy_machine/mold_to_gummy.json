@@ -1,9 +1,8 @@
 {
   "type": "smokeleafindustries:gummy_machine",
-  "mold": { "item": "smokeleafindustries:gummy_mold" },
+  "mold": "smokeleafindustries:gummy_mold",
   "catalyst": {
-    "item": "minecraft:sugar",
-    "count": 1
+    "ingredient": "minecraft:sugar"
   },
   "oil": {
     "fluid": "smokeleafindustries:hash_oil_fluid",

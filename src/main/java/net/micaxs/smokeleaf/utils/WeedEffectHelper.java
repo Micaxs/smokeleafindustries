@@ -13,7 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
@@ -75,7 +75,7 @@ public class WeedEffectHelper {
             }
             if (id == null) continue;
 
-            ResourceLocation rl = ResourceLocation.tryParse(id);
+            Identifier rl = Identifier.tryParse(id);
             if (rl == null) continue;
 
             var item = BuiltInRegistries.ITEM.getOptional(rl).orElse(null);
@@ -118,9 +118,9 @@ public class WeedEffectHelper {
     public static @Nullable BaseWeedItem getActiveWeedIngredient(ItemStack itemStack) {
         String activeIngredient = itemStack.get(ModDataComponentTypes.ACTIVE_INGREDIENT);
         if (activeIngredient != null) {
-            ResourceLocation id = ResourceLocation.tryParse(activeIngredient);
+            Identifier id = Identifier.tryParse(activeIngredient);
             if (id != null) {
-                Item item = BuiltInRegistries.ITEM.get(id);
+                Item item = BuiltInRegistries.ITEM.getValue(id);
                 if (item instanceof BaseWeedItem weed) {
                     return weed;
                 }

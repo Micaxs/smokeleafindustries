@@ -1,6 +1,11 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.StrainBookItem;
@@ -33,9 +38,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +62,7 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
         }
     };
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(3) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(3) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -173,9 +176,9 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
         super(ModBlockEntities.STRAIN_MODIFIER_BE.get(), pos, blockState);
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction dir) { return this.energyStorage; }
+    public EnergyHandler getEnergyStorage(@Nullable Direction dir) { return this.energyStorage; }
 
-    public IItemHandler getItemHandler(@Nullable Direction dir) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable Direction dir) {
         // SLOT_SEED and SLOT_LEAF are consumed by the identification process itself — a pipe should
         // only ever be able to pull the finished, identified seed back out of SLOT_OUTPUT.
         return ExtractRestrictedItemHandler.outputOnly(this.itemHandler, SLOT_OUTPUT);
@@ -417,54 +420,54 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
 
     // NBT Data
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("strain_modifier.inventory", itemHandler.serializeNBT(registries));
-        tag.putInt("strain_modifier.leafMeter", leafMeter);
-        tag.putInt("strain_modifier.energy", energyStorage.getEnergyStored());
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("strain_modifier.inventory"));
+        output.putInt("strain_modifier.leafMeter", leafMeter);
+        output.putInt("strain_modifier.energy", energyStorage.getEnergyStored());
 
-        tag.putInt("strain_modifier.previewThc", previewThc);
-        tag.putInt("strain_modifier.previewCbd", previewCbd);
-        tag.putInt("strain_modifier.previewLeafColor", previewLeafColor);
-        tag.putInt("strain_modifier.previewStrainColor", previewStrainColor);
+        output.putInt("strain_modifier.previewThc", previewThc);
+        output.putInt("strain_modifier.previewCbd", previewCbd);
+        output.putInt("strain_modifier.previewLeafColor", previewLeafColor);
+        output.putInt("strain_modifier.previewStrainColor", previewStrainColor);
 
-        tag.putInt("strain_modifier.origThc", origThc);
-        tag.putInt("strain_modifier.origCbd", origCbd);
-        tag.putInt("strain_modifier.origLeafR", origLeafR);
-        tag.putInt("strain_modifier.origLeafG", origLeafG);
-        tag.putInt("strain_modifier.origLeafB", origLeafB);
-        tag.putInt("strain_modifier.origStrainR", origStrainR);
-        tag.putInt("strain_modifier.origStrainG", origStrainG);
-        tag.putInt("strain_modifier.origStrainB", origStrainB);
+        output.putInt("strain_modifier.origThc", origThc);
+        output.putInt("strain_modifier.origCbd", origCbd);
+        output.putInt("strain_modifier.origLeafR", origLeafR);
+        output.putInt("strain_modifier.origLeafG", origLeafG);
+        output.putInt("strain_modifier.origLeafB", origLeafB);
+        output.putInt("strain_modifier.origStrainR", origStrainR);
+        output.putInt("strain_modifier.origStrainG", origStrainG);
+        output.putInt("strain_modifier.origStrainB", origStrainB);
 
-        tag.putString("strain_modifier.strainName", strainName);
-        tag.putString("strain_modifier.previewName", previewName);
+        output.putString("strain_modifier.strainName", strainName);
+        output.putString("strain_modifier.previewName", previewName);
 
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("strain_modifier.inventory"));
-        energyStorage.setEnergy(tag.getInt("strain_modifier.energy"));
-        leafMeter   = tag.getInt("strain_modifier.leafMeter");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("strain_modifier.inventory"));
+        energyStorage.setEnergy(input.getIntOr("strain_modifier.energy", 0));
+        leafMeter   = input.getIntOr("strain_modifier.leafMeter", 0);
 
-        previewThc         = tag.getInt("strain_modifier.previewThc");
-        previewCbd          = tag.getInt("strain_modifier.previewCbd");
-        previewLeafColor    = tag.contains("strain_modifier.previewLeafColor") ? tag.getInt("strain_modifier.previewLeafColor") : previewLeafColor;
-        previewStrainColor  = tag.contains("strain_modifier.previewStrainColor") ? tag.getInt("strain_modifier.previewStrainColor") : previewStrainColor;
+        previewThc         = input.getIntOr("strain_modifier.previewThc", 0);
+        previewCbd          = input.getIntOr("strain_modifier.previewCbd", 0);
+        previewLeafColor    = input.getIntOr("strain_modifier.previewLeafColor", previewLeafColor);
+        previewStrainColor  = input.getIntOr("strain_modifier.previewStrainColor", previewStrainColor);
 
-        origThc    = tag.getInt("strain_modifier.origThc");
-        origCbd    = tag.getInt("strain_modifier.origCbd");
-        origLeafR  = tag.contains("strain_modifier.origLeafR") ? tag.getInt("strain_modifier.origLeafR") : origLeafR;
-        origLeafG  = tag.contains("strain_modifier.origLeafG") ? tag.getInt("strain_modifier.origLeafG") : origLeafG;
-        origLeafB  = tag.contains("strain_modifier.origLeafB") ? tag.getInt("strain_modifier.origLeafB") : origLeafB;
-        origStrainR = tag.contains("strain_modifier.origStrainR") ? tag.getInt("strain_modifier.origStrainR") : origStrainR;
-        origStrainG = tag.contains("strain_modifier.origStrainG") ? tag.getInt("strain_modifier.origStrainG") : origStrainG;
-        origStrainB = tag.contains("strain_modifier.origStrainB") ? tag.getInt("strain_modifier.origStrainB") : origStrainB;
+        origThc    = input.getIntOr("strain_modifier.origThc", 0);
+        origCbd    = input.getIntOr("strain_modifier.origCbd", 0);
+        origLeafR  = input.getIntOr("strain_modifier.origLeafR", origLeafR);
+        origLeafG  = input.getIntOr("strain_modifier.origLeafG", origLeafG);
+        origLeafB  = input.getIntOr("strain_modifier.origLeafB", origLeafB);
+        origStrainR = input.getIntOr("strain_modifier.origStrainR", origStrainR);
+        origStrainG = input.getIntOr("strain_modifier.origStrainG", origStrainG);
+        origStrainB = input.getIntOr("strain_modifier.origStrainB", origStrainB);
 
-        strainName  = tag.getString("strain_modifier.strainName");
-        previewName = tag.getString("strain_modifier.previewName");
+        strainName  = input.getStringOr("strain_modifier.strainName", "");
+        previewName = input.getStringOr("strain_modifier.previewName", "");
     }
 
     // Server / Client Syncing
@@ -479,7 +482,13 @@ public class StrainModifierBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

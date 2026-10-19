@@ -1,5 +1,11 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeConnection;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeEndpointEnergyStorage;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeEndpointFluidHandler;
@@ -20,17 +26,16 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.ItemStack;
+import net.micaxs.smokeleaf.block.custom.LogisticsPipeBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -246,9 +251,9 @@ public class PipeBlockEntity extends BlockEntity {
     /** Whether the block at {@code pos}, approached from {@code dir}, exposes the given pipe type's capability. */
     public static boolean neighborHasCapability(PipeType type, ServerLevel level, BlockPos pos, Direction dir) {
         return switch (type) {
-            case ITEM -> level.getCapability(Capabilities.ItemHandler.BLOCK, pos, dir) != null;
-            case FLUID -> level.getCapability(Capabilities.FluidHandler.BLOCK, pos, dir) != null;
-            case ENERGY -> level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, dir) != null;
+            case ITEM -> level.getCapability(Capabilities.Item.BLOCK, pos, dir) != null;
+            case FLUID -> level.getCapability(Capabilities.Fluid.BLOCK, pos, dir) != null;
+            case ENERGY -> level.getCapability(Capabilities.Energy.BLOCK, pos, dir) != null;
         };
     }
 
@@ -277,19 +282,19 @@ public class PipeBlockEntity extends BlockEntity {
     // -----------------------------------------------------------------------
 
     @Nullable
-    public IItemHandler getItemHandler(@Nullable Direction dir) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable Direction dir) {
         if (dir == null || !getConnection(PipeType.ITEM, dir).isEndpoint()) return null;
         return new PipeEndpointItemHandler(this, dir);
     }
 
     @Nullable
-    public IFluidHandler getFluidHandler(@Nullable Direction dir) {
+    public ResourceHandler<FluidResource> getFluidHandler(@Nullable Direction dir) {
         if (dir == null || !getConnection(PipeType.FLUID, dir).isEndpoint()) return null;
         return new PipeEndpointFluidHandler(this, dir);
     }
 
     @Nullable
-    public IEnergyStorage getEnergyStorage(@Nullable Direction dir) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction dir) {
         if (dir == null || !getConnection(PipeType.ENERGY, dir).isEndpoint()) return null;
         return new PipeEndpointEnergyStorage(this, dir);
     }
@@ -334,23 +339,23 @@ public class PipeBlockEntity extends BlockEntity {
     // -----------------------------------------------------------------------
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         byte typeMask = 0;
         for (PipeType type : PipeType.VALUES) {
             if (present[type.ordinal()]) typeMask |= (1 << type.ordinal());
-            tag.putInt("Conn" + type.ordinal(), packConnections(type));
+            output.putInt("Conn" + type.ordinal(), packConnections(type));
         }
-        tag.putByte("Types", typeMask);
+        output.putByte("Types", typeMask);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        byte typeMask = tag.getByte("Types");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        byte typeMask = input.getByteOr("Types", (byte) 0);
         for (PipeType type : PipeType.VALUES) {
             present[type.ordinal()] = (typeMask & (1 << type.ordinal())) != 0;
-            unpackConnections(type, tag.getInt("Conn" + type.ordinal()));
+            unpackConnections(type, input.getIntOr("Conn" + type.ordinal(), 0));
         }
         recomputeCaches();
     }
@@ -382,12 +387,24 @@ public class PipeBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
         recomputeCaches();
         requestModelDataUpdate();
         if (level != null && level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (level != null) {
+            for (PipeType type : PipeType.VALUES) {
+                if (hasType(type)) {
+                    Block.popResource(level, pos, new ItemStack(LogisticsPipeBlock.itemFor(type)));
+                }
+            }
+        }
+        super.preRemoveSideEffects(pos, state);
     }
 }

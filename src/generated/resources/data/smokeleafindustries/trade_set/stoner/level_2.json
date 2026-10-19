@@ -1,0 +1,33 @@
+{
+  "amount": 2.0,
+  "random_sequence": "smokeleafindustries:trade_set/stoner/level_2",
+  "trades": [
+    "smokeleafindustries:stoner/2/emerald_white_widow_weed",
+    "smokeleafindustries:stoner/2/emerald_bubble_kush_weed",
+    "smokeleafindustries:stoner/2/emerald_lemon_haze_weed",
+    "smokeleafindustries:stoner/2/emerald_sour_diesel_weed",
+    "smokeleafindustries:stoner/2/emerald_blue_ice_weed",
+    "smokeleafindustries:stoner/2/emerald_bubblegum_weed",
+    "smokeleafindustries:stoner/2/emerald_purple_haze_weed",
+    "smokeleafindustries:stoner/2/emerald_og_kush_weed",
+    "smokeleafindustries:stoner/2/emerald_jack_herer_weed",
+    "smokeleafindustries:stoner/2/emerald_gary_peyton_weed",
+    "smokeleafindustries:stoner/2/emerald_amnesia_haze_weed",
+    "smokeleafindustries:stoner/2/emerald_ak47_weed",
+    "smokeleafindustries:stoner/2/emerald_ghost_train_weed",
+    "smokeleafindustries:stoner/2/emerald_grape_ape_weed",
+    "smokeleafindustries:stoner/2/emerald_cotton_candy_weed",
+    "smokeleafindustries:stoner/2/emerald_banana_kush_weed",
+    "smokeleafindustries:stoner/2/emerald_carbon_fiber_weed",
+    "smokeleafindustries:stoner/2/emerald_birthday_cake_weed",
+    "smokeleafindustries:stoner/2/emerald_blue_cookies_weed",
+    "smokeleafindustries:stoner/2/emerald_afghani_weed",
+    "smokeleafindustries:stoner/2/emerald_moonbow_weed",
+    "smokeleafindustries:stoner/2/emerald_lava_cake_weed",
+    "smokeleafindustries:stoner/2/emerald_jelly_rancher_weed",
+    "smokeleafindustries:stoner/2/emerald_strawberry_shortcake_weed",
+    "smokeleafindustries:stoner/2/emerald_pink_kush_weed",
+    "smokeleafindustries:stoner/2/tobacco_emerald",
+    "smokeleafindustries:stoner/2/bio_composite_emerald"
+  ]
+}

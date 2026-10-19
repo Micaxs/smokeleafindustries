@@ -3,7 +3,7 @@ package net.micaxs.smokeleaf.client.guide;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -24,8 +24,8 @@ public final class GuideIcons {
     /** Flagship preset used to color any icon that isn't tied to one specific strain. */
     public static final String DEFAULT_STRAIN = "og_kush";
 
-    public static ItemStack stack(ResourceLocation itemId, String strainId) {
-        Item item = BuiltInRegistries.ITEM.get(itemId);
+    public static ItemStack stack(Identifier itemId, String strainId) {
+        Item item = BuiltInRegistries.ITEM.getValue(itemId);
         ItemStack stack = new ItemStack(item);
         String effective = (strainId != null && !strainId.isBlank()) ? strainId : DEFAULT_STRAIN;
         StrainRegistry.get(effective).ifPresent(data -> {

@@ -134,7 +134,7 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
             return above.getBlock() == this && super.canSurvive(state, level, pos);
         }
 
-        return pos.getY() < level.getMaxBuildHeight() &&
+        return pos.getY() < level.getMaxY() &&
                 super.canSurvive(state, level, pos) &&
                 level.isEmptyBlock(pos.above());
     }
@@ -185,7 +185,7 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable net.minecraft.world.entity.LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (isTop(state)) return;
 
         StrainData d = StrainUtil.getStrain(stack);
@@ -290,7 +290,7 @@ public class UnidentifiedWeedCropBlock extends CropBlock implements EntityBlock 
     }
 
     @Override
-    public @NotNull ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+    protected @NotNull ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
         ItemStack stack = new ItemStack(ModItems.GENERIC_SEEDS.get());
         StrainData d = getStrainAt(level, isTop(state) ? pos.below() : pos);
         if (d != StrainData.EMPTY) {

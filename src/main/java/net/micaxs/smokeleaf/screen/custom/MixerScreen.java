@@ -1,15 +1,17 @@
 package net.micaxs.smokeleaf.screen.custom;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.screen.renderer.EnergyDisplayTooltipArea;
 import net.micaxs.smokeleaf.screen.renderer.FluidTankRenderer;
 import net.micaxs.smokeleaf.utils.MouseUtil;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.TooltipFlag;
@@ -20,8 +22,8 @@ import java.util.Optional;
 
 public class MixerScreen extends AbstractContainerScreen<MixerMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/mixer/mixer_gui.png");
-    private static final ResourceLocation INFO_ICON = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/icons/info.png");
+    public static final Identifier GUI_TEXTURE = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/mixer/mixer_gui.png");
+    private static final Identifier INFO_ICON = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/icons/info.png");
     private static final int ICON_SIZE = 8;
 
     private EnergyDisplayTooltipArea energyInfoArea;
@@ -48,14 +50,12 @@ public class MixerScreen extends AbstractContainerScreen<MixerMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics g, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+    public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(g, mouseX, mouseY, partialTick);
 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-        g.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+        g.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight, 256, 256);
 
         energyInfoArea.render(g);
 
@@ -64,33 +64,33 @@ public class MixerScreen extends AbstractContainerScreen<MixerMenu> {
         outRenderer.render(g, x + 134, y + 11, menu.blockEntity.getFluidOut());
 
         if (menu.isCrafting()) {
-            g.blit(GUI_TEXTURE, x + 76, y + 39, 0, 166, menu.getScaledProgress(), 7);
+            g.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, x + 76, y + 39, 0, 166, menu.getScaledProgress(), 7, 256, 256);
         }
 
         renderInfoIcon(g, x, y);
     }
 
-    private void renderInfoIcon(GuiGraphics g, int baseX, int baseY) {
+    private void renderInfoIcon(GuiGraphicsExtractor g, int baseX, int baseY) {
         int ix = baseX + ICON_SIZE;
         int iy = baseY + ICON_SIZE;
-        g.blit(INFO_ICON, ix, iy, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+        g.blit(RenderPipelines.GUI_TEXTURED, INFO_ICON, ix, iy, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
     }
 
-    private void renderInfoIconTooltip(GuiGraphics g, int mouseX, int mouseY, int baseX, int baseY) {
+    private void renderInfoIconTooltip(GuiGraphicsExtractor g, int mouseX, int mouseY, int baseX, int baseY) {
         if (MouseUtil.isMouseOver(mouseX, mouseY, baseX + ICON_SIZE, baseY + ICON_SIZE, ICON_SIZE, ICON_SIZE)) {
             Component info = Component.translatable("gui.tooltip.mixer.info");
             List<FormattedCharSequence> wrapped = this.font.split(info, 300);
-            g.renderTooltip(this.font, wrapped, mouseX, mouseY);
+            g.setTooltipForNextFrame(this.font, wrapped, mouseX, mouseY);
         }
     }
 
     @Override
-    protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
         if (MouseUtil.isMouseOver(mouseX, mouseY, x + 156, y + 11, 8, 64)) {
-            g.renderTooltip(this.font, energyInfoArea.getTooltips(), Optional.empty(), mouseX - x, mouseY - y);
+            g.setTooltipForNextFrame(this.font, energyInfoArea.getTooltips(), Optional.empty(), mouseX, mouseY);
         }
 
         renderFluidTooltip(g, mouseX, mouseY, x, y, 8, 11, aRenderer, menu.blockEntity.getFluidA());
@@ -98,25 +98,26 @@ public class MixerScreen extends AbstractContainerScreen<MixerMenu> {
         renderFluidTooltip(g, mouseX, mouseY, x, y, 134, 11, outRenderer, menu.blockEntity.getFluidOut());
     }
 
-    private void renderFluidTooltip(GuiGraphics g, int mouseX, int mouseY, int baseX, int baseY, int offX, int offY, FluidTankRenderer r, FluidStack stack) {
+    private void renderFluidTooltip(GuiGraphicsExtractor g, int mouseX, int mouseY, int baseX, int baseY, int offX, int offY, FluidTankRenderer r, FluidStack stack) {
         if (MouseUtil.isMouseOver(mouseX, mouseY, baseX + offX, baseY + offY, r.getWidth(), r.getHeight())) {
-            g.renderTooltip(this.font, r.getTooltip(stack, TooltipFlag.Default.NORMAL), Optional.empty(), mouseX - baseX, mouseY - baseY);
+            g.setTooltipForNextFrame(this.font, r.getTooltip(stack, TooltipFlag.Default.NORMAL), Optional.empty(), mouseX, mouseY);
         }
     }
 
     @Override
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.render(g, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(g, mouseX, mouseY, partialTick);
 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
         renderInfoIconTooltip(g, mouseX, mouseY, x, y);
-
-        renderTooltip(g, mouseX, mouseY);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
@@ -147,6 +148,6 @@ public class MixerScreen extends AbstractContainerScreen<MixerMenu> {
             }
         }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 }

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:empty_vial"
-    },
-    {
-      "item": "smokeleafindustries:wood_ash"
-    },
-    {
-      "item": "minecraft:bone_meal"
-    }
+    "smokeleafindustries:empty_vial",
+    "smokeleafindustries:wood_ash",
+    "minecraft:bone_meal"
   ],
   "result": {
     "count": 2,

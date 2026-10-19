@@ -1,6 +1,5 @@
 {
   "parent": "minecraft:block/door_bottom_left_open",
-  "render_type": "minecraft:cutout",
   "textures": {
     "bottom": "smokeleafindustries:block/hemp_plank_door_bottom",
     "top": "smokeleafindustries:block/hemp_plank_door_top"

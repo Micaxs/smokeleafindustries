@@ -1,6 +1,8 @@
 // java
 package net.micaxs.smokeleaf.compat.jei;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -15,7 +17,7 @@ import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.JointItem;
 import net.micaxs.smokeleaf.recipe.JointRecipe;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -26,8 +28,8 @@ public class JointRecipeCategory implements IRecipeCategory<JointRecipe> {
     public static final RecipeType<JointRecipe> JOINT_RECIPE_TYPE =
             RecipeType.create(SmokeleafIndustries.MODID, "joint", JointRecipe.class);
 
-    private static final ResourceLocation VANILLA_BG =
-            ResourceLocation.withDefaultNamespace("textures/gui/container/crafting_table.png");
+    private static final Identifier VANILLA_BG =
+            Identifier.withDefaultNamespace("textures/gui/container/crafting_table.png");
 
     private final IDrawableStatic background;
     private final IDrawable icon;
@@ -45,9 +47,20 @@ public class JointRecipeCategory implements IRecipeCategory<JointRecipe> {
     @Override
     public Component getTitle() { return title; }
 
-    @SuppressWarnings("removal")
     @Override
-    public IDrawable getBackground() { return background; }
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
+    }
+
+    @Override
+    public void draw(JointRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
+        background.draw(guiGraphics);
+    }
 
     @Override
     public IDrawable getIcon() { return icon; }
@@ -58,14 +71,14 @@ public class JointRecipeCategory implements IRecipeCategory<JointRecipe> {
         builder.addSlot(RecipeIngredientRole.INPUT, 19, 37).addItemStack(new ItemStack(Items.PAPER));
 
         var weeds = JeiStrainHelper.coloredStacks(ModItems.GENERIC_WEED.get(), focuses);
-        var weedIngredient = Ingredient.of(weeds.stream());
-        builder.addSlot(RecipeIngredientRole.INPUT, 1, 19).addIngredients(weedIngredient);
-        builder.addSlot(RecipeIngredientRole.INPUT, 37, 19).addIngredients(weedIngredient);
+        var weedIngredient = weeds;
+        builder.addSlot(RecipeIngredientRole.INPUT, 1, 19).addItemStacks(weedIngredient);
+        builder.addSlot(RecipeIngredientRole.INPUT, 37, 19).addItemStacks(weedIngredient);
 
         builder.addSlot(RecipeIngredientRole.INPUT, 19, 19).addItemStack(new ItemStack(recipe.getTobaccoItem()));
 
         List<ItemStack> outputs = JeiStrainHelper.coloredBlendOutputs(
                 recipe.getResultItem(null).getItem(), 2, JointItem::storeWeeds, focuses);
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19).addIngredients(Ingredient.of(outputs.stream()));
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19).addItemStacks(outputs);
     }
 }

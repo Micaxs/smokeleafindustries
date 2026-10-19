@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.micaxs.smokeleaf.Config;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
@@ -11,7 +13,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -71,29 +73,29 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
 
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("thc", this.thc);
-        tag.putInt("cbd", this.cbd);
-        tag.putInt("ph", this.ph);
-        tag.putInt("nitrogen", this.nitrogen);
-        tag.putInt("phosphorus", this.phosphorus);
-        tag.putInt("potassium", this.potassium);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("thc", this.thc);
+        output.putInt("cbd", this.cbd);
+        output.putInt("ph", this.ph);
+        output.putInt("nitrogen", this.nitrogen);
+        output.putInt("phosphorus", this.phosphorus);
+        output.putInt("potassium", this.potassium);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.thc = tag.getInt("thc");
-        this.cbd = tag.getInt("cbd");
-        this.ph = tag.getInt("ph");
-        this.nitrogen = tag.getInt("nitrogen");
-        this.phosphorus = tag.getInt("phosphorus");
-        this.potassium = tag.getInt("potassium");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.thc = input.getIntOr("thc", 0);
+        this.cbd = input.getIntOr("cbd", 0);
+        this.ph = input.getIntOr("ph", 0);
+        this.nitrogen = input.getIntOr("nitrogen", 0);
+        this.phosphorus = input.getIntOr("phosphorus", 0);
+        this.potassium = input.getIntOr("potassium", 0);
     }
 
 
-    private ResourceLocation getCropId() {
+    private Identifier getCropId() {
         if (level == null) return null;
         return BuiltInRegistries.BLOCK.getKey(getBlockState().getBlock());
     }
@@ -203,8 +205,8 @@ public class BaseWeedCropBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
     }
 
     public void sync() {

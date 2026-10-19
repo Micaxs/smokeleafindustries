@@ -13,12 +13,11 @@
   },
   "display": {
     "announce_to_chat": false,
-    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
+    "background": "minecraft:gui/advancements/backgrounds/stone",
     "description": {
       "translate": "advancement.smokeleafindustries.root.desc"
     },
     "icon": {
-      "count": 1,
       "id": "minecraft:book"
     },
     "show_toast": false,

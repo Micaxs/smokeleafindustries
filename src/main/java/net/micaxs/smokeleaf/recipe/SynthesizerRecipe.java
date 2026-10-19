@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.item.custom.DNAStrandItem;
@@ -16,7 +17,13 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 public record SynthesizerRecipe(Ingredient dnaIngredient,
-                                ItemStack result) implements Recipe<SynthesizerRecipeInput> {
+                                ItemStackTemplate resultTemplate) implements ModMachineRecipe<SynthesizerRecipeInput> {
+
+    /** Fresh copy of the result (stored as a template: stacks can't be created while recipes load). */
+    public ItemStack result() {
+        return resultTemplate.create();
+    }
+
 
     @Override
     public boolean matches(SynthesizerRecipeInput input, Level level) {
@@ -29,10 +36,10 @@ public record SynthesizerRecipe(Ingredient dnaIngredient,
     }
 
     @Override
-    public ItemStack assemble(SynthesizerRecipeInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(SynthesizerRecipeInput input) {
         ItemStack dna = input.dna();
         if (!(dna.getItem() instanceof DNAStrandItem)) {
-            return result.copy();
+            return result().copy();
         }
         ItemStack filled = dna.copyWithCount(1);
 
@@ -47,64 +54,55 @@ public record SynthesizerRecipe(Ingredient dnaIngredient,
         return filled;
     }
 
-    @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return true;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return result.copy();
+        return result().copy();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<SynthesizerRecipe> getSerializer() {
         return ModRecipes.SYNTHESIZER_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<SynthesizerRecipe> getType() {
         return ModRecipes.SYNTHESIZER_TYPE.get();
     }
 
-    @Override
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> list = NonNullList.create();
         list.add(dnaIngredient);
         return list;
     }
 
-    public static class Serializer implements RecipeSerializer<SynthesizerRecipe> {
+    public static class Serializer {
 
-        private static final MapCodec<SynthesizerRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+        public static final MapCodec<SynthesizerRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(SynthesizerRecipe::dnaIngredient),
-                        ItemStack.CODEC.fieldOf("result").forGetter(SynthesizerRecipe::result)
+                        Ingredient.CODEC.fieldOf("ingredient").forGetter(SynthesizerRecipe::dnaIngredient),
+                        ItemStackTemplate.CODEC.fieldOf("result").forGetter(SynthesizerRecipe::resultTemplate)
                 ).apply(instance, SynthesizerRecipe::new)
         );
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, SynthesizerRecipe> STREAM_CODEC =
+        public static final StreamCodec<RegistryFriendlyByteBuf, SynthesizerRecipe> STREAM_CODEC =
                 new StreamCodec<>() {
                     @Override
                     public SynthesizerRecipe decode(RegistryFriendlyByteBuf buf) {
                         Ingredient dna = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
-                        ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
+                        ItemStackTemplate result = ItemStackTemplate.STREAM_CODEC.decode(buf);
                         return new SynthesizerRecipe(dna, result);
                     }
 
                     @Override
                     public void encode(RegistryFriendlyByteBuf buf, SynthesizerRecipe value) {
                         Ingredient.CONTENTS_STREAM_CODEC.encode(buf, value.dnaIngredient);
-                        ItemStack.STREAM_CODEC.encode(buf, value.result);
+                        ItemStackTemplate.STREAM_CODEC.encode(buf, value.resultTemplate);
                     }
                 };
 
-        @Override
         public MapCodec<SynthesizerRecipe> codec() {
             return CODEC;
         }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, SynthesizerRecipe> streamCodec() {
             return STREAM_CODEC;
         }

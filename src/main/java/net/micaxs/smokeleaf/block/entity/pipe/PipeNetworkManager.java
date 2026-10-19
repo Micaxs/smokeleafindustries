@@ -148,11 +148,11 @@ public final class PipeNetworkManager {
     private static BlockCapabilityCache<?, Direction> createCache(PipeType type, ServerLevel level, BlockPos neighborPos, Direction context) {
         switch (type) {
             case ITEM:
-                return BlockCapabilityCache.create(Capabilities.ItemHandler.BLOCK, level, neighborPos, context);
+                return BlockCapabilityCache.create(Capabilities.Item.BLOCK, level, neighborPos, context);
             case FLUID:
-                return BlockCapabilityCache.create(Capabilities.FluidHandler.BLOCK, level, neighborPos, context);
+                return BlockCapabilityCache.create(Capabilities.Fluid.BLOCK, level, neighborPos, context);
             case ENERGY:
-                return BlockCapabilityCache.create(Capabilities.EnergyStorage.BLOCK, level, neighborPos, context);
+                return BlockCapabilityCache.create(Capabilities.Energy.BLOCK, level, neighborPos, context);
             default:
                 throw new IllegalStateException("Unknown pipe type: " + type);
         }

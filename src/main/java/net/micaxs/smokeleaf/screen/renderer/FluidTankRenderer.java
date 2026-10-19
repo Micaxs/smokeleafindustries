@@ -1,25 +1,22 @@
 package net.micaxs.smokeleaf.screen.renderer;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.neoforged.neoforge.client.fluid.FluidTintSource;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import org.joml.Matrix4f;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -56,19 +53,16 @@ public class FluidTankRenderer {
         this.height = height;
     }
 
-    public void render(GuiGraphics guiGraphics, int x, int y, FluidStack fluidStack) {
-        RenderSystem.enableBlend();
-        guiGraphics.pose().pushPose();
+    public void render(GuiGraphicsExtractor guiGraphics, int x, int y, FluidStack fluidStack) {
+        guiGraphics.pose().pushMatrix();
         {
-            guiGraphics.pose().translate(x, y, 0);
+            guiGraphics.pose().translate(x, y);
             drawFluid(guiGraphics, width, height, fluidStack);
         }
-        guiGraphics.pose().popPose();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.disableBlend();
+        guiGraphics.pose().popMatrix();
     }
 
-    private void drawFluid(GuiGraphics guiGraphics, final int width, final int height, FluidStack fluidStack) {
+    private void drawFluid(GuiGraphicsExtractor guiGraphics, final int width, final int height, FluidStack fluidStack) {
         Fluid fluid = fluidStack.getFluid();
         if (fluid.isSame(Fluids.EMPTY)) {
             return;
@@ -90,79 +84,30 @@ public class FluidTankRenderer {
         drawTiledSprite(guiGraphics, width, height, fluidColor, scaledAmount, fluidStillSprite);
     }
 
-    private TextureAtlasSprite getStillFluidSprite(FluidStack fluidStack) {
-        Fluid fluid = fluidStack.getFluid();
-        IClientFluidTypeExtensions renderProperties = IClientFluidTypeExtensions.of(fluid);
-        ResourceLocation fluidStill = renderProperties.getStillTexture(fluidStack);
+    private static FluidModel fluidModel(FluidStack fluidStack) {
+        return Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidStack.getFluid().defaultFluidState());
+    }
 
-        Minecraft minecraft = Minecraft.getInstance();
-        return minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidStill);
+    private TextureAtlasSprite getStillFluidSprite(FluidStack fluidStack) {
+        return fluidModel(fluidStack).stillMaterial().sprite();
     }
 
     private int getColorTint(FluidStack ingredient) {
-        Fluid fluid = ingredient.getFluid();
-
-        // Use the FluidType-based properties when possible (some fluids compute tint from the FluidStack).
-        // NeoForge exposes this via IClientFluidTypeExtensions.
-        FluidType type = fluid.getFluidType();
-        IClientFluidTypeExtensions renderProperties = IClientFluidTypeExtensions.of(type);
-        return renderProperties.getTintColor(ingredient);
+        // The fluid model's tint source can compute the tint from the FluidStack (e.g. strain color).
+        FluidTintSource tint = fluidModel(ingredient).fluidTintSource();
+        return tint != null ? tint.colorAsStack(ingredient) : 0xFFFFFFFF;
     }
 
-    private static void drawTiledSprite(GuiGraphics guiGraphics, final int tiledWidth, final int tiledHeight, int color, long scaledAmount, TextureAtlasSprite sprite) {
-        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
-        Matrix4f matrix = guiGraphics.pose().last().pose();
-        setGLColorFromInt(color);
-
-        final int xTileCount = tiledWidth / TEXTURE_SIZE;
-        final int xRemainder = tiledWidth - (xTileCount * TEXTURE_SIZE);
-        final long yTileCount = scaledAmount / TEXTURE_SIZE;
-        final long yRemainder = scaledAmount - (yTileCount * TEXTURE_SIZE);
-
-        final int yStart = tiledHeight;
-
-        for (int xTile = 0; xTile <= xTileCount; xTile++) {
-            for (int yTile = 0; yTile <= yTileCount; yTile++) {
-                int width = (xTile == xTileCount) ? xRemainder : TEXTURE_SIZE;
-                long height = (yTile == yTileCount) ? yRemainder : TEXTURE_SIZE;
-                int x = (xTile * TEXTURE_SIZE);
-                int y = yStart - ((yTile + 1) * TEXTURE_SIZE);
-                if (width > 0 && height > 0) {
-                    long maskTop = TEXTURE_SIZE - height;
-                    int maskRight = TEXTURE_SIZE - width;
-
-                    drawTextureWithMasking(matrix, x, y, sprite, maskTop, maskRight, 100);
-                }
+    /** Fills the bottom {@code scaledAmount} px of the tank with 16x16 tiles of the fluid sprite. */
+    private static void drawTiledSprite(GuiGraphicsExtractor guiGraphics, final int tiledWidth, final int tiledHeight, int color, long scaledAmount, TextureAtlasSprite sprite) {
+        int top = tiledHeight - (int) scaledAmount;
+        guiGraphics.enableScissor(0, top, tiledWidth, tiledHeight);
+        for (int x = 0; x < tiledWidth; x += TEXTURE_SIZE) {
+            for (int y = tiledHeight - TEXTURE_SIZE; y > top - TEXTURE_SIZE; y -= TEXTURE_SIZE) {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, TEXTURE_SIZE, TEXTURE_SIZE, color);
             }
         }
-    }
-
-    private static void setGLColorFromInt(int color) {
-        float red = (color >> 16 & 0xFF) / 255.0F;
-        float green = (color >> 8 & 0xFF) / 255.0F;
-        float blue = (color & 0xFF) / 255.0F;
-        float alpha = ((color >> 24) & 0xFF) / 255F;
-
-        RenderSystem.setShaderColor(red, green, blue, alpha);
-    }
-
-    private static void drawTextureWithMasking(Matrix4f matrix, float xCoord, float yCoord, TextureAtlasSprite textureSprite, long maskTop, long maskRight, float zLevel) {
-        float uMin = textureSprite.getU0();
-        float uMax = textureSprite.getU1();
-        float vMin = textureSprite.getV0();
-        float vMax = textureSprite.getV1();
-        uMax = uMax - (maskRight / 16F * (uMax - uMin));
-        vMax = vMax - (maskTop / 16F * (vMax - vMin));
-
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix, xCoord, yCoord + 16, zLevel).setUv(uMin, vMax);
-        bufferBuilder.addVertex(matrix, xCoord + 16 - maskRight, yCoord + 16, zLevel).setUv(uMax, vMax);
-        bufferBuilder.addVertex(matrix, xCoord + 16 - maskRight, yCoord + maskTop, zLevel).setUv(uMax, vMin);
-        bufferBuilder.addVertex(matrix, xCoord, yCoord + maskTop, zLevel).setUv(uMin, vMin);
-        BufferUploader.drawWithShader(bufferBuilder.build());
+        guiGraphics.disableScissor();
     }
 
     public List<Component> getTooltip(FluidStack fluidStack, TooltipFlag tooltipFlag) {

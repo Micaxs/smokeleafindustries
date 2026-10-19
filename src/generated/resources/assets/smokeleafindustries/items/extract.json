@@ -1,0 +1,16 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "smokeleafindustries:item/extract",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": -1
+      },
+      {
+        "type": "smokeleafindustries:strain",
+        "role": "extract_color"
+      }
+    ]
+  }
+}

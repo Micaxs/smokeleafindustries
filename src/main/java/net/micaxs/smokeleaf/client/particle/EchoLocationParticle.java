@@ -4,20 +4,20 @@ package net.micaxs.smokeleaf.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Mth;
 import net.minecraft.core.particles.SimpleParticleType;
 
-public class EchoLocationParticle extends TextureSheetParticle {
+public class EchoLocationParticle extends SingleQuadParticle {
 
     private final SpriteSet sprites;
     private final float baseSize;
 
     protected EchoLocationParticle(ClientLevel level, double x, double y, double z,
                                    double vx, double vy, double vz, SpriteSet sprites) {
-        super(level, x, y, z, vx, vy, vz);
+        super(level, x, y, z, vx, vy, vz, sprites.first());
         this.sprites = sprites;
         this.gravity = 0.0f;
         this.friction = 0.86f;
@@ -60,8 +60,8 @@ public class EchoLocationParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    protected SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.TRANSLUCENT;
     }
 
     // Factory
@@ -74,7 +74,7 @@ public class EchoLocationParticle extends TextureSheetParticle {
 
         @Override
         public Particle createParticle(SimpleParticleType type, ClientLevel level,
-                                       double x, double y, double z, double vx, double vy, double vz) {
+                                       double x, double y, double z, double vx, double vy, double vz, RandomSource random) {
             return new EchoLocationParticle(level, x, y, z, vx, vy, vz, sprites);
         }
     }

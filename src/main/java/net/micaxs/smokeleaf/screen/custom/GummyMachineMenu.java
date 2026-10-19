@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.screen.custom;
 
+import net.micaxs.smokeleaf.transfer.FluidAction;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.block.entity.GummyMachineBlockEntity;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
@@ -14,9 +15,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.micaxs.smokeleaf.transfer.ModFluidUtil;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class GummyMachineMenu extends AbstractContainerMenu {
     public final GummyMachineBlockEntity blockEntity;
@@ -46,9 +48,9 @@ public class GummyMachineMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 0, 44, 17));
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 1, 44, 53));
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 2, 124, 35));
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 0, 44, 17));
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 1, 44, 53));
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 2, 124, 35));
 
         addDataSlots(data);
     }
@@ -75,7 +77,7 @@ public class GummyMachineMenu extends AbstractContainerMenu {
     }
 
     private boolean tryEmptyContainerIntoTank(Player player) {
-        IFluidHandler tank = blockEntity.getTank(null);
+        ResourceHandler<FluidResource> tank = blockEntity.getTank(null);
 
         ItemStack carried = getCarried();
         if (!carried.isEmpty()) {
@@ -95,18 +97,18 @@ public class GummyMachineMenu extends AbstractContainerMenu {
     }
 
     private boolean tryFillContainerFromTank(Player player) {
-        IFluidHandler tank = blockEntity.getTank(null);
+        ResourceHandler<FluidResource> tank = blockEntity.getTank(null);
 
         ItemStack carried = getCarried();
         if (!carried.isEmpty()) {
             if (carried.getCount() > 1 && carried.is(Items.BUCKET)) {
-                FluidStack simulated = tank.drain(1000, IFluidHandler.FluidAction.SIMULATE);
+                FluidStack simulated = ModFluidUtil.drain(tank, 1000, FluidAction.SIMULATE);
                 if (simulated.isEmpty() || simulated.getAmount() < 1000) return false;
 
                 ItemStack filledBucket = filledBucketForFluid(simulated);
                 if (filledBucket.isEmpty()) return false;
 
-                FluidStack drained = tank.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+                FluidStack drained = ModFluidUtil.drain(tank, 1000, FluidAction.EXECUTE);
                 if (drained.isEmpty() || drained.getAmount() < 1000) return false;
 
                 ItemStack remainder = carried.copy();
@@ -125,7 +127,7 @@ public class GummyMachineMenu extends AbstractContainerMenu {
                 return true;
             }
 
-            FluidActionResult res = FluidUtil.tryFillContainer(carried, tank, 1000, player, true);
+            FluidActionResult res = ModFluidUtil.tryFillContainer(carried, tank, 1000, player, true);
             if (res.isSuccess()) {
                 setCarried(res.getResult());
                 blockEntity.setChanged();
@@ -140,7 +142,7 @@ public class GummyMachineMenu extends AbstractContainerMenu {
         return false;
     }
 
-    private boolean tryEmptyHandIntoTank(Player player, InteractionHand hand, IFluidHandler tank) {
+    private boolean tryEmptyHandIntoTank(Player player, InteractionHand hand, ResourceHandler<FluidResource> tank) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty()) return false;
         FluidActionResult res = net.micaxs.smokeleaf.fluid.StrainFluidContainerUtil.tryEmptyContainerIntoTank(held, tank, 1000, player, true);
@@ -153,33 +155,33 @@ public class GummyMachineMenu extends AbstractContainerMenu {
         return false;
     }
 
-    private boolean tryFillHandFromTank(Player player, InteractionHand hand, IFluidHandler tank) {
+    private boolean tryFillHandFromTank(Player player, InteractionHand hand, ResourceHandler<FluidResource> tank) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty()) return false;
 
         if (held.getCount() > 1 && held.is(Items.BUCKET)) {
             Inventory inv = player.getInventory();
 
-            FluidStack simulated = tank.drain(1000, IFluidHandler.FluidAction.SIMULATE);
+            FluidStack simulated = ModFluidUtil.drain(tank, 1000, FluidAction.SIMULATE);
             if (simulated.isEmpty() || simulated.getAmount() < 1000) return false;
 
             ItemStack filledBucket = filledBucketForFluid(simulated);
             if (filledBucket.isEmpty()) return false;
 
-            FluidStack drained = tank.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+            FluidStack drained = ModFluidUtil.drain(tank, 1000, FluidAction.EXECUTE);
             if (drained.isEmpty() || drained.getAmount() < 1000) return false;
 
             if (hand == InteractionHand.MAIN_HAND) {
-                int selected = inv.selected;
+                int selected = inv.getSelectedSlot();
                 ItemStack inSlot = inv.getItem(selected);
                 if (!inSlot.is(Items.BUCKET) || inSlot.getCount() <= 1) return false;
                 inSlot.shrink(1);
                 inv.setItem(selected, inSlot);
             } else {
-                ItemStack inSlot = inv.offhand.get(0);
+                ItemStack inSlot = inv.getItem(Inventory.SLOT_OFFHAND);
                 if (!inSlot.is(Items.BUCKET) || inSlot.getCount() <= 1) return false;
                 inSlot.shrink(1);
-                inv.offhand.set(0, inSlot);
+                inv.setItem(Inventory.SLOT_OFFHAND, inSlot);
             }
 
             if (!inv.add(filledBucket)) {
@@ -193,7 +195,7 @@ public class GummyMachineMenu extends AbstractContainerMenu {
             return true;
         }
 
-        FluidActionResult res = FluidUtil.tryFillContainer(held, tank, 1000, player, true);
+        FluidActionResult res = ModFluidUtil.tryFillContainer(held, tank, 1000, player, true);
         if (res.isSuccess()) {
             player.setItemInHand(hand, res.getResult());
             blockEntity.setChanged();
@@ -204,7 +206,7 @@ public class GummyMachineMenu extends AbstractContainerMenu {
     }
 
     private static ItemStack filledBucketForFluid(FluidStack drained) {
-        return FluidUtil.getFilledBucket(drained);
+        return ModFluidUtil.getFilledBucket(drained);
     }
 
     private static final int HOTBAR_SLOT_COUNT = 9;

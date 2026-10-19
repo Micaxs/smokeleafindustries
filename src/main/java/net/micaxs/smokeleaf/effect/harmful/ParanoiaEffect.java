@@ -1,9 +1,10 @@
 // Java
 package net.micaxs.smokeleaf.effect.harmful;
 
+import net.minecraft.server.level.ServerLevel;
 import net.micaxs.smokeleaf.network.ParanoiaHallucinationPayload;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
@@ -22,14 +23,14 @@ public class ParanoiaEffect extends MobEffect {
             EntityType.CREEPER, EntityType.ZOMBIE, EntityType.BLAZE, EntityType.CAT,
             EntityType.SKELETON, EntityType.SPIDER, EntityType.ENDERMAN
     );
-    private static final List<ResourceLocation> SOUNDS = List.of(
-            ResourceLocation.withDefaultNamespace("entity.creeper.primed"),
-            ResourceLocation.withDefaultNamespace("entity.phantom.ambient"),
-            ResourceLocation.withDefaultNamespace("entity.spider.ambient"),
-            ResourceLocation.withDefaultNamespace("entity.enderman.stare"),
-            ResourceLocation.withDefaultNamespace("entity.cat.ambient"),
-            ResourceLocation.withDefaultNamespace("entity.blaze.ambient"),
-            ResourceLocation.withDefaultNamespace("entity.cow.ambient")
+    private static final List<Identifier> SOUNDS = List.of(
+            Identifier.withDefaultNamespace("entity.creeper.primed"),
+            Identifier.withDefaultNamespace("entity.phantom.ambient"),
+            Identifier.withDefaultNamespace("entity.spider.ambient"),
+            Identifier.withDefaultNamespace("entity.enderman.stare"),
+            Identifier.withDefaultNamespace("entity.cat.ambient"),
+            Identifier.withDefaultNamespace("entity.blaze.ambient"),
+            Identifier.withDefaultNamespace("entity.cow.ambient")
     );
 
     public ParanoiaEffect(MobEffectCategory category, int color) {
@@ -37,7 +38,7 @@ public class ParanoiaEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity living, int amplifier) {
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity living, int amplifier) {
         if (!living.level().isClientSide() && living instanceof ServerPlayer sp) {
             // Try roughly every 3s reduced by amplifier, with variability
             int base = Math.max(40, 100 - amplifier * 20); // ticks between tries
@@ -56,7 +57,7 @@ public class ParanoiaEffect extends MobEffect {
                 int life = 40 + RNG.nextInt(60); // 2-5s
 
                 // 2/3 chance to include a sound cue
-                ResourceLocation sound = RNG.nextInt(3) != 0 ? SOUNDS.get(RNG.nextInt(SOUNDS.size())) : null;
+                Identifier sound = RNG.nextInt(3) != 0 ? SOUNDS.get(RNG.nextInt(SOUNDS.size())) : null;
 
                 ParanoiaHallucinationPayload payload = new ParanoiaHallucinationPayload(
                         BuiltInRegistries.ENTITY_TYPE.getKey(type),
@@ -68,7 +69,7 @@ public class ParanoiaEffect extends MobEffect {
                 PacketDistributor.sendToPlayer(sp, payload);
             }
         }
-        return super.applyEffectTick(living, amplifier);
+        return super.applyEffectTick(serverLevel, living, amplifier);
     }
 
     @Override

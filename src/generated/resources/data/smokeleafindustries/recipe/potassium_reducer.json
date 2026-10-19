@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:empty_vial"
-    },
-    {
-      "item": "minecraft:chorus_fruit"
-    },
-    {
-      "item": "minecraft:glow_berries"
-    }
+    "smokeleafindustries:empty_vial",
+    "minecraft:chorus_fruit",
+    "minecraft:glow_berries"
   ],
   "result": {
     "count": 2,

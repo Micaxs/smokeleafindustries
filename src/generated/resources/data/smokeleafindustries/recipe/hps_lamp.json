@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "G": {
-      "item": "minecraft:glowstone"
-    },
-    "P": {
-      "item": "minecraft:glass_pane"
-    },
-    "R": {
-      "item": "minecraft:redstone"
-    }
+    "G": "minecraft:glowstone",
+    "P": "minecraft:glass_pane",
+    "R": "minecraft:redstone"
   },
   "pattern": [
     "PPP",
@@ -18,7 +12,6 @@
     "PPP"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:hps_lamp"
   }
 }

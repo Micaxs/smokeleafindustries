@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.compat.jei;
 
+import net.micaxs.smokeleaf.recipe.IngredientUtil;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -17,9 +18,9 @@ import net.micaxs.smokeleaf.component.DNAContents;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems; // Adjust if your package differs
 import net.micaxs.smokeleaf.recipe.SequencerRecipe;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
@@ -29,10 +30,10 @@ import java.util.List;
 
 public class SequencerRecipeCategory implements IRecipeCategory<SequencerRecipe> {
 
-    public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "sequencer");
-    public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/sequencer/sequencer_gui.png");
+    public static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "sequencer");
+    public static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/sequencer/sequencer_gui.png");
 
     public static final RecipeType<SequencerRecipe> SEQUENCER_RECIPE_TYPE =
             new RecipeType<>(UID, SequencerRecipe.class);
@@ -65,7 +66,7 @@ public class SequencerRecipeCategory implements IRecipeCategory<SequencerRecipe>
     }
 
     @Override
-    public void draw(SequencerRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(SequencerRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         background.draw(guiGraphics);
         arrow.draw(guiGraphics, 57, 28);
     }
@@ -103,9 +104,9 @@ public class SequencerRecipeCategory implements IRecipeCategory<SequencerRecipe>
         List<ItemStack> out = new ArrayList<>();
         if (reagents.length != 3) return out;
 
-        ItemStack[] aSet = reagents[0].getItems();
-        ItemStack[] bSet = reagents[1].getItems();
-        ItemStack[] cSet = reagents[2].getItems();
+        ItemStack[] aSet = IngredientUtil.stacks(reagents[0]);
+        ItemStack[] bSet = IngredientUtil.stacks(reagents[1]);
+        ItemStack[] cSet = IngredientUtil.stacks(reagents[2]);
 
         int limit = 128;
         int produced = 0;

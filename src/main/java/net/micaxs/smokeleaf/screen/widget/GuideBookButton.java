@@ -1,7 +1,8 @@
 package net.micaxs.smokeleaf.screen.widget;
 
+import net.micaxs.smokeleaf.client.GuiColors;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 
 /**
@@ -28,7 +29,7 @@ public class GuideBookButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
         boolean hovered = this.active && this.isHoveredOrFocused();
         int border = hovered ? BORDER_HOVER : BORDER;
         int fill = !this.active ? FILL_DISABLED : (hovered ? FILL_HOVER : FILL);
@@ -37,6 +38,6 @@ public class GuideBookButton extends Button {
 
         int color = this.active ? TEXT : TEXT_DISABLED;
         Minecraft mc = Minecraft.getInstance();
-        g.drawCenteredString(mc.font, getMessage(), getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, color);
+        g.centeredText(mc.font, getMessage(), getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, GuiColors.text(color));
     }
 }

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:glowstone_dust"
-    },
-    {
-      "item": "smokeleafindustries:bio_composite"
-    },
-    {
-      "item": "minecraft:bone_meal"
-    }
+    "minecraft:glowstone_dust",
+    "smokeleafindustries:bio_composite",
+    "minecraft:bone_meal"
   ],
   "result": {
     "count": 2,

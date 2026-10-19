@@ -7,6 +7,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.HolderLookup;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +28,11 @@ import java.util.Map;
 public class StrainRegistrySavedData extends SavedData {
 
     private static final String SAVE_KEY = "smokeleaf_strain_registry";
+
+    // Stored as plain NBT (same layout as before 26.1), wrapped in a codec for SavedDataType.
+    private static final SavedDataType<StrainRegistrySavedData> TYPE = new SavedDataType<>(
+            Identifier.withDefaultNamespace(SAVE_KEY), StrainRegistrySavedData::new,
+            CompoundTag.CODEC.xmap(StrainRegistrySavedData::load, data -> data.save(new CompoundTag())));
 
     private final Map<String, StrainEntry> entries = new HashMap<>();
 
@@ -54,8 +61,7 @@ public class StrainRegistrySavedData extends SavedData {
     // -----------------------------------------------------------------------
 
     public static StrainRegistrySavedData get(MinecraftServer server) {
-        return server.overworld().getDataStorage()
-                .computeIfAbsent(new Factory<>(StrainRegistrySavedData::new, StrainRegistrySavedData::load), SAVE_KEY);
+        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
     }
 
     // -----------------------------------------------------------------------
@@ -124,9 +130,8 @@ public class StrainRegistrySavedData extends SavedData {
      * offhand / armor to match the registry. Call on login.
      */
     public void syncPlayerInventory(ServerPlayer player) {
-        for (ItemStack stack : player.getInventory().items) syncItem(stack);
-        for (ItemStack stack : player.getInventory().armor) syncItem(stack);
-        for (ItemStack stack : player.getInventory().offhand) syncItem(stack);
+        var inv = player.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) syncItem(inv.getItem(i));
     }
 
     // -----------------------------------------------------------------------
@@ -134,9 +139,8 @@ public class StrainRegistrySavedData extends SavedData {
     // -----------------------------------------------------------------------
 
     private void updateInventory(ServerPlayer player, String strainId, StrainEntry entry) {
-        for (ItemStack stack : player.getInventory().items) applyUpdate(stack, strainId, entry);
-        for (ItemStack stack : player.getInventory().armor) applyUpdate(stack, strainId, entry);
-        for (ItemStack stack : player.getInventory().offhand) applyUpdate(stack, strainId, entry);
+        var inv = player.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) applyUpdate(inv.getItem(i), strainId, entry);
         applyUpdate(player.containerMenu.getCarried(), strainId, entry);
 
         // Patching every matching stack in place (above) makes them component-identical, but
@@ -144,7 +148,7 @@ public class StrainRegistrySavedData extends SavedData {
         // component mutation — only explicit pickup/transfer does that. Without this, a freshly
         // identified seed sitting in one slot and older already-updated copies elsewhere just stay
         // as separate, needlessly-split stacks instead of combining.
-        consolidateStacks(player.getInventory().items);
+        consolidateStacks(player.getInventory().getNonEquipmentItems());
     }
 
     /** Merges any now-identical adjacent stacks in {@code slots} (see {@link #updateInventory}). */
@@ -250,23 +254,23 @@ public class StrainRegistrySavedData extends SavedData {
     // Serialization
     // -----------------------------------------------------------------------
 
-    public static StrainRegistrySavedData load(CompoundTag tag, HolderLookup.Provider registries) {
+    public static StrainRegistrySavedData load(CompoundTag tag) {
         StrainRegistrySavedData data = new StrainRegistrySavedData();
         if (tag.contains("entries")) {
-            CompoundTag entriesTag = tag.getCompound("entries");
-            for (String key : entriesTag.getAllKeys()) {
-                CompoundTag entry = entriesTag.getCompound(key);
-                String displayName = entry.getString("name");
-                String creatorName = entry.getString("creator");
-                Integer colorArgb = entry.contains("colorArgb") ? entry.getInt("colorArgb") : null;
-                Integer leafColor = entry.contains("leafColor") ? entry.getInt("leafColor") : null;
-                Integer thc = entry.contains("thc") ? entry.getInt("thc") : null;
-                Integer cbd = entry.contains("cbd") ? entry.getInt("cbd") : null;
-                Integer nitrogen = entry.contains("nitrogen") ? entry.getInt("nitrogen") : null;
-                Integer phosphorus = entry.contains("phosphorus") ? entry.getInt("phosphorus") : null;
-                Integer potassium = entry.contains("potassium") ? entry.getInt("potassium") : null;
-                String baseStrain1 = entry.getString("baseStrain1");
-                String baseStrain2 = entry.getString("baseStrain2");
+            CompoundTag entriesTag = tag.getCompoundOrEmpty("entries");
+            for (String key : entriesTag.keySet()) {
+                CompoundTag entry = entriesTag.getCompoundOrEmpty(key);
+                String displayName = entry.getStringOr("name", "");
+                String creatorName = entry.getStringOr("creator", "");
+                Integer colorArgb = entry.getInt("colorArgb").orElse(null);
+                Integer leafColor = entry.getInt("leafColor").orElse(null);
+                Integer thc = entry.getInt("thc").orElse(null);
+                Integer cbd = entry.getInt("cbd").orElse(null);
+                Integer nitrogen = entry.getInt("nitrogen").orElse(null);
+                Integer phosphorus = entry.getInt("phosphorus").orElse(null);
+                Integer potassium = entry.getInt("potassium").orElse(null);
+                String baseStrain1 = entry.getStringOr("baseStrain1", "");
+                String baseStrain2 = entry.getStringOr("baseStrain2", "");
                 data.entries.put(key, new StrainEntry(key, displayName, creatorName, colorArgb, leafColor, thc, cbd,
                         nitrogen, phosphorus, potassium, baseStrain1, baseStrain2));
             }
@@ -274,13 +278,7 @@ public class StrainRegistrySavedData extends SavedData {
         return data;
     }
 
-    // Overload without registries (called by Factory::new for a blank instance)
-    public static StrainRegistrySavedData load(CompoundTag tag) {
-        return load(tag, null);
-    }
-
-    @Override
-    public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+    public CompoundTag save(CompoundTag tag) {
         CompoundTag entriesTag = new CompoundTag();
         for (Map.Entry<String, StrainEntry> e : entries.entrySet()) {
             CompoundTag entry = new CompoundTag();

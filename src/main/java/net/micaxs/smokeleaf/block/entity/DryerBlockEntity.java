@@ -1,6 +1,11 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.recipe.DryingRecipe;
 import net.micaxs.smokeleaf.recipe.DryingRecipeInput;
@@ -29,10 +34,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +43,7 @@ import java.util.Optional;
 
 public class DryerBlockEntity extends BlockEntity implements MenuProvider {
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(2) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(2) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -54,14 +57,13 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
             if (slot != INPUT_SLOT) return false;
             if (stack.isEmpty() || level == null) return false;
 
-            return level.getRecipeManager()
-                    .getRecipeFor(ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(stack), level)
+            return ModRecipes.find(level, ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(stack))
                     .filter(r -> acceptsForMachine(r.value()))
                     .isPresent();
         }
     };
 
-    public IItemHandler getItemHandler(@Nullable Direction direction) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable Direction direction) {
         return ExtractRestrictedItemHandler.outputOnly(this.itemHandler, OUTPUT_SLOT);
     }
 
@@ -122,7 +124,7 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return this.ENERGY_STORAGE;
     }
 
@@ -159,7 +161,7 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
             increaseCraftingProgress();
             this.ENERGY_STORAGE.extractEnergy(20, false);
 
-            if (level.random.nextInt(2) == 0) {
+            if (level.getRandom().nextInt(2) == 0) {
                 double x = blockPos.getX() + 0.5;
                 double y = blockPos.getY() + 1.0;
                 double z = blockPos.getZ() + 0.5;
@@ -193,8 +195,7 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
         ItemStack in = itemHandler.getStackInSlot(INPUT_SLOT);
         if (in.isEmpty()) return Optional.empty();
 
-        return this.level.getRecipeManager()
-                .getRecipeFor(ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(in), level)
+        return ModRecipes.find(level, ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(in))
                 .filter(r -> acceptsForMachine(r.value()));
     }
 
@@ -259,21 +260,21 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
 
     // NBT Data
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("dryer.inventory", itemHandler.serializeNBT(registries));
-        tag.putInt("dryer.progress", progress);
-        tag.putInt("dryer.maxProgress", maxProgress);
-        tag.putInt("dryer.energy", ENERGY_STORAGE.getEnergyStored());
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("dryer.inventory"));
+        output.putInt("dryer.progress", progress);
+        output.putInt("dryer.maxProgress", maxProgress);
+        output.putInt("dryer.energy", ENERGY_STORAGE.getEnergyStored());
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("dryer.inventory"));
-        ENERGY_STORAGE.setEnergy(tag.getInt("dryer.energy"));
-        progress = tag.getInt("dryer.progress");
-        maxProgress = tag.getInt("dryer.maxProgress");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("dryer.inventory"));
+        ENERGY_STORAGE.setEnergy(input.getIntOr("dryer.energy", 0));
+        progress = input.getIntOr("dryer.progress", 0);
+        maxProgress = input.getIntOr("dryer.maxProgress", 0);
     }
 
     // Server / Client Syncing
@@ -288,7 +289,13 @@ public class DryerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

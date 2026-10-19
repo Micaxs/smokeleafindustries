@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "H": {
-      "item": "smokeleafindustries:hemp_fibers"
-    },
-    "I": {
-      "item": "minecraft:iron_ingot"
-    },
-    "S": {
-      "item": "minecraft:stone"
-    }
+    "H": "smokeleafindustries:hemp_fibers",
+    "I": "minecraft:iron_ingot",
+    "S": "minecraft:stone"
   },
   "pattern": [
     "SHS",
@@ -18,7 +12,6 @@
     "SHS"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:manual_grinder"
   }
 }

@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.effect.harmful;
 
+import net.minecraft.server.level.ServerLevel;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -13,15 +14,15 @@ public class HeadSpinEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity livingEntity, int amplifier) {
         if (!livingEntity.level().isClientSide()) {
             MobEffectInstance self = livingEntity.getEffect(ModEffects.DIZZY);
             if (self != null) {
                 int duration = self.getDuration();
-                livingEntity.addEffect(new MobEffectInstance(MobEffects.CONFUSION, duration, amplifier, true, false, false));
+                livingEntity.addEffect(new MobEffectInstance(MobEffects.NAUSEA, duration, amplifier, true, false, false));
             }
         }
-        return super.applyEffectTick(livingEntity, amplifier);
+        return super.applyEffectTick(serverLevel, livingEntity, amplifier);
     }
 
     @Override

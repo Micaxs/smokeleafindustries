@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.block.custom.ReflectorBlock;
 import net.micaxs.smokeleaf.sound.ModSounds;
@@ -43,7 +45,7 @@ public class ReflectorBlockEntity extends BlockEntity {
     public void setLamp(ItemStack stack) {
         this.lamp = stack.copy();
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState st = getBlockState();
             if (!st.getValue(ReflectorBlock.HAS_LAMP)) {
                 level.setBlock(worldPosition, st.setValue(ReflectorBlock.HAS_LAMP, true), Block.UPDATE_CLIENTS);
@@ -68,7 +70,7 @@ public class ReflectorBlockEntity extends BlockEntity {
             be.lamp.setDamageValue(newDamage);
             if (newDamage >= be.lamp.getMaxDamage()) {
                 // Play break sound
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     level.playSound(null, pos, ModSounds.LAMP_BREAK.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
                 be.lamp = ItemStack.EMPTY;
@@ -104,7 +106,7 @@ public class ReflectorBlockEntity extends BlockEntity {
         ItemStack out = lamp.copy();
         lamp = ItemStack.EMPTY;
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState st = getBlockState();
             if (st.getValue(ReflectorBlock.HAS_LAMP)) {
                 level.setBlock(worldPosition, st.setValue(ReflectorBlock.HAS_LAMP, false), Block.UPDATE_ALL);
@@ -133,7 +135,7 @@ public class ReflectorBlockEntity extends BlockEntity {
 
         if (candidates.isEmpty()) return;
 
-        RandomSource rand = level.random;
+        RandomSource rand = level.getRandom();
         int attempts = Math.min(ATTEMPTS_PER_CYCLE, candidates.size());
         for (int i = 0; i < attempts; i++) {
             BlockPos targetPos = candidates.get(rand.nextInt(candidates.size()));
@@ -194,7 +196,7 @@ public class ReflectorBlockEntity extends BlockEntity {
     @Override
     public void onLoad() {
         super.onLoad();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState st = getBlockState();
             boolean hasLamp = !lamp.isEmpty();
             if (st.getValue(ReflectorBlock.HAS_LAMP) != hasLamp) {
@@ -204,19 +206,19 @@ public class ReflectorBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         if (!lamp.isEmpty()) {
-            tag.put("Lamp", lamp.save(provider));
+            output.store("Lamp", ItemStack.CODEC, lamp);
         }
-        tag.putInt("TickCounter", tickCounter);
+        output.putInt("TickCounter", tickCounter);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        lamp = tag.contains("Lamp") ? ItemStack.parseOptional(provider, tag.getCompound("Lamp")) : ItemStack.EMPTY;
-        tickCounter = tag.getInt("TickCounter");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        lamp = input.read("Lamp", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        tickCounter = input.getIntOr("TickCounter", 0);
     }
 
     @Override
@@ -230,7 +232,13 @@ public class ReflectorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        dropContents();
+        super.preRemoveSideEffects(pos, state);
     }
 }

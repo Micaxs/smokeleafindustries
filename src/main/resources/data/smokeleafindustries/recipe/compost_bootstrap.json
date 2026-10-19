@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {"item": "minecraft:oak_leaves"},
-    {"item": "minecraft:oak_leaves"},
-    {"item": "smokeleafindustries:hemp_seeds"},
-    {"item": "minecraft:dirt"}
+    "minecraft:oak_leaves",
+    "minecraft:oak_leaves",
+    "smokeleafindustries:hemp_seeds",
+    "minecraft:dirt"
   ],
   "result": {
     "count": 1,

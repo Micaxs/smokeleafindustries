@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:hash_oil_bucket"
-    },
-    {
-      "item": "smokeleafindustries:bio_composite"
-    }
+    "smokeleafindustries:hash_oil_bucket",
+    "smokeleafindustries:bio_composite"
   ],
   "result": {
     "count": 4,

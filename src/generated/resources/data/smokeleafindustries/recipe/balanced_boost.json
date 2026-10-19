@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:empty_vial"
-    },
-    {
-      "item": "minecraft:crimson_fungus"
-    },
-    {
-      "item": "minecraft:vine"
-    }
+    "smokeleafindustries:empty_vial",
+    "minecraft:crimson_fungus",
+    "minecraft:vine"
   ],
   "result": {
     "count": 2,

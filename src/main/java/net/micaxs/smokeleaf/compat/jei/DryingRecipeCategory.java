@@ -16,9 +16,9 @@ import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.recipe.DryingRecipe;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
@@ -27,10 +27,10 @@ import java.util.List;
 
 public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
 
-    public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "drying");
-    public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
+    public static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "drying");
+    public static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/jei_bg.png");
 
     public static final RecipeType<DryingRecipe> DRYING_RECIPE_TYPE =
             new RecipeType<>(UID, DryingRecipe.class);
@@ -64,7 +64,7 @@ public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
         var inputIngredient = recipe.getIngredients().getFirst();
         if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
             builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
-                    .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
+                    .addItemStacks(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
         } else {
             builder.addSlot(RecipeIngredientRole.INPUT, 10, 16)
                     .addIngredients(inputIngredient);
@@ -74,8 +74,7 @@ public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
         if (!result.isEmpty()) {
             if (JeiStrainHelper.isStrainItem(result.getItem())) {
                 builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
-                        .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(
-                                JeiStrainHelper.coloredStacks(result.getItem(), focuses).stream()));
+                        .addItemStacks(JeiStrainHelper.coloredStacks(result.getItem(), focuses));
             } else {
                 builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
                         .addItemStack(result.copy());
@@ -113,22 +112,20 @@ public class DryingRecipeCategory implements IRecipeCategory<DryingRecipe> {
         } else {
             var driedVariants = JeiStrainHelper.coloredDriedBudStacks(ModItems.GENERIC_BUD.get(), focuses);
             builder.addSlot(RecipeIngredientRole.OUTPUT, 80, 16)
-                    .addIngredients(Ingredient.of(driedVariants.stream()));
+                    .addItemStacks(driedVariants);
         }
     }
 
     @Override
     public void draw(DryingRecipe recipe, IRecipeSlotsView recipeSlotsView,
-                     GuiGraphics guiGraphics, double mouseX, double mouseY) {
+                     GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         background.draw(guiGraphics);
 
         int ticks = recipe.time();
         String timeStr = ticks + " ticks";
 
         Minecraft mc = Minecraft.getInstance();
-        guiGraphics.drawString(mc.font,
-                Component.translatable("jei.smokeleafindustries.drying.time", timeStr),
-                30, 20, 0xb8b8b8, false);
+        guiGraphics.text(mc.font, Component.translatable("jei.smokeleafindustries.drying.time", timeStr), 30, 20, 0xFFB8B8B8, false);
     }
 
     @Override

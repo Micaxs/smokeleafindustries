@@ -1,18 +1,17 @@
 package net.micaxs.smokeleaf.client.paranoia;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.ClipContext;
@@ -34,7 +33,6 @@ public final class HallucinationManager {
     private static final AtomicInteger NEXT_FAKE_ID = new AtomicInteger(-1);
 
     // Alpha for ghost rendering (0.0f..1.0f)
-    private static final float GHOST_ALPHA = 0.3f;
 
     private HallucinationManager() {}
 
@@ -47,13 +45,13 @@ public final class HallucinationManager {
         ClientLevel level = mc.level;
         if (level == null) return;
 
-        Entity e = type.create(level);
+        Entity e = type.create(level, EntitySpawnReason.LOAD);
         if (e == null) return;
 
         // Find ground Y at \[x,z] by raycasting downward (works in caves as well)
         double groundY = findGroundY(level, x, y, z);
         // Basic placement/orientation
-        e.moveTo(x, groundY, z, yaw, 0.0F);
+        e.snapTo(x, groundY, z, yaw, 0.0F);
         e.setNoGravity(true);
 
         if (e instanceof Mob mob) {
@@ -79,25 +77,8 @@ public final class HallucinationManager {
         return e != null && LIFETIMES.containsKey(e);
     }
 
-    // Render ghosts with translucency
-    @SubscribeEvent
-    public static void onRenderLivingPre(RenderLivingEvent.Pre<?, ?> evt) {
-        if (!isHallucination(evt.getEntity())) return;
-
-        // Enable blending and set global shader alpha
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1f, 1f, 1f, GHOST_ALPHA);
-    }
-
-    @SubscribeEvent
-    public static void onRenderLivingPost(RenderLivingEvent.Post<?, ?> evt) {
-        if (!isHallucination(evt.getEntity())) return;
-
-        // Restore default state
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.disableBlend();
-    }
+    // Ghosts used to be drawn translucent by tinting the global shader color around their render;
+    // that global state no longer exists (rendering is deferred and batched), so they draw opaque.
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post evt) {
@@ -127,8 +108,8 @@ public final class HallucinationManager {
     }
 
     private static double findGroundY(ClientLevel level, double x, double startY, double z) {
-        double fromY = Math.min(level.getMaxBuildHeight() - 1, startY + 32.0);
-        double toY = Math.max(level.getMinBuildHeight(), startY - 64.0);
+        double fromY = Math.min(level.getMaxY() - 1, startY + 32.0);
+        double toY = Math.max(level.getMinY(), startY - 64.0);
         Vec3 from = new Vec3(x, fromY, z);
         Vec3 to = new Vec3(x, toY, z);
 

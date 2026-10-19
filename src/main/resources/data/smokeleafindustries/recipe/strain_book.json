@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    { "item": "minecraft:book" },
-    { "item": "smokeleafindustries:hemp_fibers" },
-    { "item": "smokeleafindustries:hemp_fibers" }
+    "minecraft:book",
+    "smokeleafindustries:hemp_fibers",
+    "smokeleafindustries:hemp_fibers"
   ],
   "result": {
     "count": 1,

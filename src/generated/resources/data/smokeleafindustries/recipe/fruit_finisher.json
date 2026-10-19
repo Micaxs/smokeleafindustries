@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:empty_vial"
-    },
-    {
-      "item": "minecraft:apple"
-    },
-    {
-      "item": "minecraft:melon_slice"
-    },
-    {
-      "item": "minecraft:sweet_berries"
-    }
+    "smokeleafindustries:empty_vial",
+    "minecraft:apple",
+    "minecraft:melon_slice",
+    "minecraft:sweet_berries"
   ],
   "result": {
     "count": 2,

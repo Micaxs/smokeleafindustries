@@ -1,18 +1,20 @@
 package net.micaxs.smokeleaf.utils;
 
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.function.IntPredicate;
 
 /**
- * Wraps a machine's real {@link IItemHandler} for the capability it exposes to outside neighbors
- * (pipes, hoppers, other automation), restricting {@link #extractItem} to a caller-supplied set of
+ * Wraps a machine's real item {@link ResourceHandler} for the capability it exposes to outside neighbors
+ * (pipes, hoppers, other automation), restricting extraction to a caller-supplied set of
  * slots while leaving insertion (and therefore each slot's own {@code isItemValid} gating) untouched.
  *
- * <p>Every machine's internal {@code ItemStackHandler} already stops the wrong item from being
+ * <p>Every machine's internal handler already stops the wrong item from being
  * inserted into the wrong slot (e.g. only the input slot accepts a valid recipe ingredient), but
- * {@code ItemStackHandler#extractItem} has no equivalent per-slot restriction — a pipe's IMPORT
+ * extraction has no equivalent per-slot restriction — a pipe's IMPORT
  * connection (pulling items out) could just as easily pull straight out of an input slot as an
  * output one, stealing an unprocessed ingredient before the machine ever runs. Wrapping the exposed
  * capability with this class (instead of returning the raw handler directly from
@@ -20,48 +22,31 @@ import java.util.function.IntPredicate;
  * can ever be pulled from externally, while the machine's own internal crafting code keeps using the
  * unwrapped handler directly and is unaffected.
  */
-public class ExtractRestrictedItemHandler implements IItemHandler {
-    private final IItemHandler delegate;
+public class ExtractRestrictedItemHandler extends DelegatingResourceHandler<ItemResource> {
     private final IntPredicate extractable;
 
-    public ExtractRestrictedItemHandler(IItemHandler delegate, IntPredicate extractable) {
-        this.delegate = delegate;
+    public ExtractRestrictedItemHandler(ResourceHandler<ItemResource> delegate, IntPredicate extractable) {
+        super(delegate);
         this.extractable = extractable;
     }
 
     /** Convenience for the common case of a single dedicated output slot. */
-    public static ExtractRestrictedItemHandler outputOnly(IItemHandler delegate, int outputSlot) {
+    public static ExtractRestrictedItemHandler outputOnly(ResourceHandler<ItemResource> delegate, int outputSlot) {
         return new ExtractRestrictedItemHandler(delegate, slot -> slot == outputSlot);
     }
 
     @Override
-    public int getSlots() {
-        return delegate.getSlots();
+    public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        if (!extractable.test(index)) return 0;
+        return super.extract(index, resource, amount, transaction);
     }
 
     @Override
-    public ItemStack getStackInSlot(int slot) {
-        return delegate.getStackInSlot(slot);
-    }
-
-    @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        return delegate.insertItem(slot, stack, simulate);
-    }
-
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (!extractable.test(slot)) return ItemStack.EMPTY;
-        return delegate.extractItem(slot, amount, simulate);
-    }
-
-    @Override
-    public int getSlotLimit(int slot) {
-        return delegate.getSlotLimit(slot);
-    }
-
-    @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
-        return delegate.isItemValid(slot, stack);
+    public int extract(ItemResource resource, int amount, TransactionContext transaction) {
+        int extracted = 0;
+        for (int index = 0; index < size() && extracted < amount; index++) {
+            extracted += extract(index, resource, amount - extracted, transaction);
+        }
+        return extracted;
     }
 }

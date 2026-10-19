@@ -1,12 +1,8 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "item": "minecraft:book"
-    },
-    {
-      "item": "smokeleafindustries:hemp_leaf"
-    }
+    "minecraft:book",
+    "smokeleafindustries:hemp_leaf"
   ],
   "result": {
     "count": 1,

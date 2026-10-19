@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:empty_vial"
-    },
-    {
-      "item": "minecraft:blue_orchid"
-    },
-    {
-      "item": "minecraft:sugar"
-    }
+    "smokeleafindustries:empty_vial",
+    "minecraft:blue_orchid",
+    "minecraft:sugar"
   ],
   "result": {
     "count": 2,

@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import java.util.function.Consumer;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.micaxs.smokeleaf.component.ManualGrinderContents;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.recipe.ManualGrinderInput;
@@ -10,13 +12,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -29,8 +31,8 @@ public class ManualGrinderItem extends Item {
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.BOW;
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.BOW;
     }
 
     @Override
@@ -39,13 +41,13 @@ public class ManualGrinderItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack grinder = player.getItemInHand(hand);
         ItemStack stored = getStored(grinder);
-        if (stored.isEmpty()) return InteractionResultHolder.pass(grinder);
-        if (!isValidIngredient(level, stored)) return InteractionResultHolder.fail(grinder);
+        if (stored.isEmpty()) return InteractionResult.PASS;
+        if (!isValidIngredient(level, stored)) return InteractionResult.FAIL;
         player.startUsingItem(hand);
-        return InteractionResultHolder.consume(grinder);
+        return InteractionResult.CONSUME;
     }
 
     @Override
@@ -67,19 +69,18 @@ public class ManualGrinderItem extends Item {
         int used = getUseDuration(stack, entity) - remainingUseTicks;
         int needed = match.get().grindTime();
 
-        if (used % 10 == 0 && level.isClientSide) {
+        if (used % 10 == 0 && level.isClientSide()) {
             level.playLocalSound(player.getX(), player.getY(), player.getZ(),
                     ModSounds.MANUAL_GRINDER.get(), SoundSource.PLAYERS, 0.25F, 1.0F, false);
         }
 
         if (used >= needed) {
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 ManualGrinderRecipe recipe = match.get();
 
                 // Assemble with the real stored bud so THC/CBD are copied to the result
                 ItemStack result = recipe.assemble(
-                        new ManualGrinderInput(stored.copyWithCount(1)),
-                        level.registryAccess()
+                        new ManualGrinderInput(stored.copyWithCount(1))
                 );
 
                 // Propagate strain lineage from bud to weed
@@ -119,8 +120,7 @@ public class ManualGrinderItem extends Item {
     private Optional<ManualGrinderRecipe> getRecipe(Level level, ItemStack ingredient) {
         if (level == null || ingredient.isEmpty()) return Optional.empty();
         ManualGrinderInput input = new ManualGrinderInput(ingredient.copyWithCount(1));
-        return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.MANUAL_GRINDER_TYPE.get(), input, level)
+        return ModRecipes.find(level, ModRecipes.MANUAL_GRINDER_TYPE.get(), input)
                 .map(holder -> holder.value());
     }
 
@@ -134,24 +134,24 @@ public class ManualGrinderItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         ItemStack stored = getStored(stack);
         if (stored.isEmpty()) {
-            tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.empty").withStyle(ChatFormatting.GRAY));
-            tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.usage_empty")
+            tooltip.accept(Component.translatable("tooltip.smokeleafindustries.manual_grinder.empty").withStyle(ChatFormatting.GRAY));
+            tooltip.accept(Component.translatable("tooltip.smokeleafindustries.manual_grinder.usage_empty")
                     .withStyle(ChatFormatting.DARK_GRAY));
         } else {
             Component contentsLabel = stored.getCount() > 1
                     ? Component.literal(stored.getCount() + "x ").append(stored.getHoverName())
                     : stored.getHoverName();
-            tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.contains",
+            tooltip.accept(Component.translatable("tooltip.smokeleafindustries.manual_grinder.contains",
                     contentsLabel).withStyle(ChatFormatting.GREEN));
             boolean valid = context.level() != null && isValidIngredient(context.level(), stored);
             if (!valid) {
-                tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.invalid")
+                tooltip.accept(Component.translatable("tooltip.smokeleafindustries.manual_grinder.invalid")
                         .withStyle(ChatFormatting.RED));
             }
-            tooltip.add(Component.translatable("tooltip.smokeleafindustries.manual_grinder.usage_full")
+            tooltip.accept(Component.translatable("tooltip.smokeleafindustries.manual_grinder.usage_full")
                     .withStyle(ChatFormatting.DARK_GRAY));
         }
     }

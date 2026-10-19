@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import java.util.function.Consumer;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
@@ -32,12 +34,12 @@ public class UnidentifiedMixtureBucketItem extends BucketItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
         StrainData d = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
         if (d == null) return;
 
-        tooltip.add(Component.literal("Levels: ")
+        tooltip.accept(Component.literal("Levels: ")
                 .append(Component.literal(d.thc() + "%").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(" THC").withStyle(ChatFormatting.DARK_GRAY))
                 .append(Component.literal(" & ").withStyle(ChatFormatting.GRAY))
@@ -45,7 +47,7 @@ public class UnidentifiedMixtureBucketItem extends BucketItem {
                 .append(Component.literal(" CBD").withStyle(ChatFormatting.DARK_GRAY)));
 
         if (!d.effects().isEmpty()) {
-            tooltip.add(Component.literal("Effects: " + d.effects().size()).withStyle(ChatFormatting.GRAY));
+            tooltip.accept(Component.literal("Effects: " + d.effects().size()).withStyle(ChatFormatting.GRAY));
         }
         StrainUtil.appendCreatorTooltip(stack, tooltip);
     }

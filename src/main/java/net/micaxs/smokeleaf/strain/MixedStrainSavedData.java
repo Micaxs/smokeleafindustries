@@ -4,6 +4,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +22,11 @@ public class MixedStrainSavedData extends SavedData {
 
     public static final String DATA_NAME = "smokeleaf_mixed_strains";
 
+    // Stored as plain NBT (same layout as before 26.1), wrapped in a codec for SavedDataType.
+    private static final SavedDataType<MixedStrainSavedData> TYPE = new SavedDataType<>(
+            Identifier.withDefaultNamespace(DATA_NAME), MixedStrainSavedData::new,
+            CompoundTag.CODEC.xmap(MixedStrainSavedData::load, data -> data.save(new CompoundTag())));
+
     private final Map<String, String> mixToName = new HashMap<>();
 
     // -----------------------------------------------------------------------
@@ -27,10 +34,7 @@ public class MixedStrainSavedData extends SavedData {
     // -----------------------------------------------------------------------
 
     public static MixedStrainSavedData get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(
-                new SavedData.Factory<>(MixedStrainSavedData::new, MixedStrainSavedData::load),
-                DATA_NAME
-        );
+        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
     }
 
     // -----------------------------------------------------------------------
@@ -70,19 +74,18 @@ public class MixedStrainSavedData extends SavedData {
     // Serialization
     // -----------------------------------------------------------------------
 
-    @Override
-    public CompoundTag save(CompoundTag tag, HolderLookup.Provider regs) {
+    public CompoundTag save(CompoundTag tag) {
         CompoundTag map = new CompoundTag();
         mixToName.forEach(map::putString);
         tag.put("mixes", map);
         return tag;
     }
 
-    public static MixedStrainSavedData load(CompoundTag tag, HolderLookup.Provider regs) {
+    public static MixedStrainSavedData load(CompoundTag tag) {
         MixedStrainSavedData data = new MixedStrainSavedData();
-        CompoundTag map = tag.getCompound("mixes");
-        for (String key : map.getAllKeys()) {
-            data.mixToName.put(key, map.getString(key));
+        CompoundTag map = tag.getCompoundOrEmpty("mixes");
+        for (String key : map.keySet()) {
+            data.mixToName.put(key, map.getStringOr(key, ""));
         }
         return data;
     }

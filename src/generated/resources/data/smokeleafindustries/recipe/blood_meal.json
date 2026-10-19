@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "item": "smokeleafindustries:cat_urine_bottle"
-    },
-    {
-      "item": "minecraft:bone_meal"
-    }
+    "minecraft:rotten_flesh",
+    "smokeleafindustries:cat_urine_bottle",
+    "minecraft:bone_meal"
   ],
   "result": {
     "count": 2,

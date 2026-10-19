@@ -3,9 +3,7 @@
   "category": "building",
   "group": "hemp_planks",
   "key": {
-    "#": {
-      "item": "smokeleafindustries:hemp_planks"
-    }
+    "#": "smokeleafindustries:hemp_planks"
   },
   "pattern": [
     "#  ",

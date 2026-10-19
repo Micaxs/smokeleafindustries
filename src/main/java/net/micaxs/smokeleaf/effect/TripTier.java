@@ -1,7 +1,7 @@
 package net.micaxs.smokeleaf.effect;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * The 12 "trip" visual tiers layered on top of {@link ModEffects#STONED}, selected by the THC
@@ -37,15 +37,15 @@ public enum TripTier {
     public final String displayName;
     /** True for the 3 most intense tiers (THC 26+), where the shader makes the screen basically unplayable. */
     public final boolean unplayable;
-    public final ResourceLocation shaderChain;
-    public final ResourceLocation icon;
+    public final Identifier shaderChain;
+    public final Identifier icon;
 
     TripTier(String id, String displayName, boolean unplayable) {
         this.id = id;
         this.displayName = displayName;
         this.unplayable = unplayable;
-        this.shaderChain = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "shaders/post/" + id + ".json");
-        this.icon = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/trip/" + id + ".png");
+        this.shaderChain = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, id); // assets/<ns>/post_effect/<id>.json
+        this.icon = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/trip/" + id + ".png");
     }
 
     public static TripTier byAmplifier(int amplifier) {

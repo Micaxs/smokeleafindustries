@@ -1,9 +1,10 @@
 package net.micaxs.smokeleaf.screen.custom;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import net.micaxs.smokeleaf.client.guide.GuideEntry;
 import net.micaxs.smokeleaf.client.guide.GuideIcons;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.world.item.ItemStack;
@@ -45,17 +46,17 @@ public class GuideEntryList extends AbstractSelectionList<GuideEntryList.Row> {
     }
 
     @Override
-    protected int getScrollbarPosition() {
+    protected int scrollBarX() {
         return this.getRight() - SCROLLBAR_WIDTH;
     }
 
     @Override
-    protected void renderListBackground(GuiGraphics guiGraphics) {
+    protected void extractListBackground(GuiGraphicsExtractor guiGraphics) {
         // The book page texture already provides the background; nothing extra to draw.
     }
 
     @Override
-    protected void renderListSeparators(GuiGraphics guiGraphics) {
+    protected void extractListSeparators(GuiGraphicsExtractor guiGraphics) {
     }
 
     @Override
@@ -74,21 +75,27 @@ public class GuideEntryList extends AbstractSelectionList<GuideEntryList.Row> {
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height,
-                            int mouseX, int mouseY, boolean hovering, float partialTick) {
+        public void extractContent(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
+            int top = getY();
+            int left = getX();
+            int width = getWidth();
+            int height = getContentHeight();
             // AbstractSelectionList hands us `height = itemHeight - 4` (16, not the real 20px
             // row band), so sizing the highlight to it clips off the bottom of the 16px icon
             // drawn at a fixed `top + 2`. Use the real row height instead so the highlight
             // fully contains the icon.
             int bg = hovering ? 0x33000000 : 0x00000000;
             guiGraphics.fill(left, top, left + width, top + ROW_HEIGHT - 1, bg);
-            guiGraphics.renderItem(icon, left + 2, top + 2);
+            guiGraphics.item(icon, left + 2, top + 2);
             int textY = top + (ROW_HEIGHT - 1 - 8) / 2;
-            guiGraphics.drawString(minecraft.font, entry.name(), left + 22, textY, 0xFF3F2E1E, false);
+            guiGraphics.text(minecraft.font, entry.name(), left + 22, textY, 0xFF3F2E1E, false);
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            double mouseX = event.x();
+            double mouseY = event.y();
+            int button = event.button();
             if (button == 0) {
                 onSelect.accept(entry);
                 return true;

@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.util.ExtraCodecs;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -18,14 +20,20 @@ import net.minecraft.core.HolderLookup;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraft.world.level.material.Fluid;
 
-public record LiquifierRecipe(Ingredient ingredient, FluidStack output, boolean inheritInputEffects) implements Recipe<LiquifierRecipeInput> {
+public record LiquifierRecipe(Ingredient ingredient, FluidStackTemplate outputTemplate, boolean inheritInputEffects) implements ModMachineRecipe<LiquifierRecipeInput> {
 
-    public LiquifierRecipe(Ingredient ingredient, FluidStack output) {
+    /** Fresh copy of the output (stored as a template: stacks can't be created while recipes load). */
+    public FluidStack output() {
+        return outputTemplate.create();
+    }
+
+
+    public LiquifierRecipe(Ingredient ingredient, FluidStackTemplate output) {
         this(ingredient, output, false);
     }
 
     public FluidStack outputCopy() {
-        return output.copy();
+        return output();
     }
 
     public boolean shouldInheritInputEffects() {
@@ -38,21 +46,14 @@ public record LiquifierRecipe(Ingredient ingredient, FluidStack output, boolean 
     }
 
     @Override
-    public ItemStack assemble(LiquifierRecipeInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(LiquifierRecipeInput input) {
         return ItemStack.EMPTY;
     }
 
-    @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return true;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
         return ItemStack.EMPTY;
     }
 
-    @Override
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> list = NonNullList.create();
         list.add(ingredient);
@@ -60,57 +61,44 @@ public record LiquifierRecipe(Ingredient ingredient, FluidStack output, boolean 
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<LiquifierRecipe> getSerializer() {
         return ModRecipes.LIQUIFIER_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<LiquifierRecipe> getType() {
         return ModRecipes.LIQUIFIER_TYPE.get();
     }
 
-    public static class Serializer implements RecipeSerializer<LiquifierRecipe> {
+    public static class Serializer {
 
         // Nested codec for the "output" object
-        private static final MapCodec<FluidStack> FLUID_STACK_OBJECT = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(FluidStack::getFluid),
-                Codec.INT.fieldOf("amount").forGetter(FluidStack::getAmount)
-        ).apply(inst, (Fluid fluid, Integer amt) -> new FluidStack(fluid, amt)));
+        public static final MapCodec<FluidStackTemplate> FLUID_STACK_OBJECT = RecordCodecBuilder.mapCodec(inst -> inst.group(
+                BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(t -> t.fluid().value()),
+                ExtraCodecs.POSITIVE_INT.fieldOf("amount").forGetter(FluidStackTemplate::amount)
+        ).apply(inst, (Fluid fluid, Integer amt) -> new FluidStackTemplate(fluid, amt)));
 
         public static final MapCodec<LiquifierRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(LiquifierRecipe::ingredient),
-                FLUID_STACK_OBJECT.fieldOf("output").forGetter(LiquifierRecipe::output),
+                Ingredient.CODEC.fieldOf("ingredient").forGetter(LiquifierRecipe::ingredient),
+                FLUID_STACK_OBJECT.fieldOf("output").forGetter(LiquifierRecipe::outputTemplate),
                 Codec.BOOL.optionalFieldOf("inherit_input_effects", false).forGetter(LiquifierRecipe::inheritInputEffects)
         ).apply(inst, LiquifierRecipe::new));
 
         // Stream codec for FluidStack (fluid id + varint amount)
-        private static final StreamCodec<RegistryFriendlyByteBuf, FluidStack> FLUID_STACK_STREAM_CODEC =
-                StreamCodec.of(
-                        (buf, stack) -> {
-                            ByteBufCodecs.idMapper(BuiltInRegistries.FLUID).encode(buf, stack.getFluid());
-                            buf.writeVarInt(stack.getAmount());
-                        },
-                        buf -> {
-                            Fluid f = ByteBufCodecs.idMapper(BuiltInRegistries.FLUID).decode(buf);
-                            int amt = buf.readVarInt();
-                            return new FluidStack(f, amt);
-                        }
-                );
+        private static final StreamCodec<RegistryFriendlyByteBuf, FluidStackTemplate> FLUID_STACK_STREAM_CODEC = FluidStackTemplate.STREAM_CODEC;
 
         public static final StreamCodec<RegistryFriendlyByteBuf, LiquifierRecipe> STREAM_CODEC =
                 StreamCodec.composite(
                         Ingredient.CONTENTS_STREAM_CODEC, LiquifierRecipe::ingredient,
-                        FLUID_STACK_STREAM_CODEC, LiquifierRecipe::output,
+                        FLUID_STACK_STREAM_CODEC, LiquifierRecipe::outputTemplate,
                         ByteBufCodecs.BOOL, LiquifierRecipe::inheritInputEffects,
                         LiquifierRecipe::new
                 );
 
-        @Override
         public MapCodec<LiquifierRecipe> codec() {
             return CODEC;
         }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, LiquifierRecipe> streamCodec() {
             return STREAM_CODEC;
         }

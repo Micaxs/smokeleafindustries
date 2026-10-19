@@ -5,13 +5,14 @@ import net.micaxs.smokeleaf.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,8 +22,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,15 +30,11 @@ import java.util.function.Supplier;
 /**
  * Rolls real loot tables many times to check that our global loot modifiers only fire where intended.
  */
-@GameTestHolder(SmokeleafIndustries.MODID)
-@PrefixGameTestTemplate(false)
 public class LootModifierGameTests {
 
-    private static final String TEMPLATE = "empty_3x3x3";
     private static final int ROLLS = 5000;
     private static final double TOLERANCE = 0.03;
 
-    @GameTest(template = TEMPLATE)
     public static void shortGrassDropsOnlySeeds(GameTestHelper helper) {
         BlockPos pos = new BlockPos(0, 1, 0);
         helper.setBlock(pos.below(), Blocks.GRASS_BLOCK);
@@ -49,7 +44,6 @@ public class LootModifierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE)
     public static void tallGrassDropsOnlySeeds(GameTestHelper helper) {
         BlockPos lower = new BlockPos(2, 1, 2);
         BlockPos upper = lower.above();
@@ -62,14 +56,17 @@ public class LootModifierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE)
     public static void dualArcLampStillInIntendedLoot(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         Vec3 origin = Vec3.atCenterOf(helper.absolutePos(BlockPos.ZERO));
 
         // Both modifiers use a 20% / 30% chance; anything above zero proves the loot_table_id condition matches.
+        // Archaeology loot now requires the brushing entity and tool as well.
+        var brusher = helper.makeMockPlayer(GameType.SURVIVAL);
         Supplier<LootParams> archaeology = () -> new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, origin)
+                .withParameter(LootContextParams.THIS_ENTITY, brusher)
+                .withParameter(LootContextParams.TOOL, new ItemStack(Items.BRUSH))
                 .create(LootContextParamSets.ARCHAEOLOGY);
         Supplier<LootParams> chest = () -> new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, origin)
@@ -100,7 +97,7 @@ public class LootModifierGameTests {
         SmokeleafIndustries.LOGGER.info("[LootModifierGameTests] {} drops over {} rolls: {}", name, ROLLS, tally);
 
         for (Item item : tally.keySet()) {
-            ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+            Identifier id = BuiltInRegistries.ITEM.getKey(item);
             boolean ours = id.getNamespace().equals(SmokeleafIndustries.MODID);
             helper.assertTrue(!ours || item == hempSeeds || item == tobaccoSeeds,
                     name + " dropped unexpected item " + id + " x" + tally.get(item));
@@ -113,7 +110,7 @@ public class LootModifierGameTests {
 
     private static void assertTableCanDropLamp(GameTestHelper helper, String path, Supplier<LootParams> params, double expected) {
         LootTable table = helper.getLevel().getServer().reloadableRegistries()
-                .getLootTable(ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.withDefaultNamespace(path)));
+                .getLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.withDefaultNamespace(path)));
         Item lamp = ModItems.DUAL_ARC_LAMP.get();
 
         int lamps = 0;

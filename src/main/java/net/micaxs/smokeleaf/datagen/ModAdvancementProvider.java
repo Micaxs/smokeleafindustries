@@ -4,16 +4,18 @@ package net.micaxs.smokeleaf.datagen;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.minecraft.advancements.*;
-import net.minecraft.advancements.critereon.ImpossibleTrigger;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.RecipeCraftedTrigger;
+import net.minecraft.advancements.criterion.ImpossibleTrigger;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.RecipeCraftedTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.common.data.AdvancementProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraft.data.advancements.AdvancementProvider;
+import net.minecraft.data.advancements.AdvancementSubProvider;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -22,25 +24,23 @@ import java.util.function.Consumer;
 public class ModAdvancementProvider extends AdvancementProvider {
 
     public ModAdvancementProvider(PackOutput output,
-                                  CompletableFuture<HolderLookup.Provider> registries,
-                                  ExistingFileHelper existingFileHelper) {
-        super(output, registries, existingFileHelper,
+                                  CompletableFuture<HolderLookup.Provider> registries) {
+        super(output, registries,
                 List.of(new SmokeleafIndustriesAdvancements()));
     }
 
-    public static class SmokeleafIndustriesAdvancements implements AdvancementGenerator {
+    public static class SmokeleafIndustriesAdvancements implements AdvancementSubProvider {
 
         @Override
         public void generate(HolderLookup.Provider provider,
-                             Consumer<AdvancementHolder> consumer,
-                             ExistingFileHelper existingFileHelper) {
+                             Consumer<AdvancementHolder> consumer) {
 
             AdvancementHolder root = Advancement.Builder.advancement()
                     .display(
                             Items.BOOK,
                             Component.translatable("advancement.smokeleafindustries.root.title"),
                             Component.translatable("advancement.smokeleafindustries.root.desc"),
-                            ResourceLocation.parse("textures/gui/advancements/backgrounds/stone.png"),
+                            Identifier.withDefaultNamespace("gui/advancements/backgrounds/stone"),
                             AdvancementType.TASK,
                             false,
                             false,
@@ -48,9 +48,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                     )
                     .addCriterion("has_book",
                             InventoryChangeTrigger.TriggerInstance.hasItems(Items.BOOK))
-                    .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "root"),
-                            existingFileHelper);
+                    .save(consumer, SmokeleafIndustries.MODID + ":root");
 
             Advancement.Builder.advancement()
                     .parent(root)
@@ -68,9 +66,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                     .addCriterion("has_cat_urine_bottle",
                             InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.CAT_URINE_BOTTLE.get()))
                     .rewards(AdvancementRewards.Builder.experience(25))
-                    .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "cat_urine_bottle"),
-                            existingFileHelper);
+                    .save(consumer, SmokeleafIndustries.MODID + ":cat_urine_bottle");
 
 
             Advancement.Builder.advancement()
@@ -89,9 +85,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                     .addCriterion("has_hemp_seeds",
                             InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.HEMP_SEEDS.get()))
                     .rewards(AdvancementRewards.Builder.experience(5))
-                    .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_seeds"),
-                            existingFileHelper);
+                    .save(consumer, SmokeleafIndustries.MODID + ":hemp_seeds");
 
 
             Advancement.Builder.advancement()
@@ -110,9 +104,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                     .addCriterion("has_joint",
                             InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.JOINT.get()))
                     .rewards(AdvancementRewards.Builder.experience(5))
-                    .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "joint"),
-                            existingFileHelper);
+                    .save(consumer, SmokeleafIndustries.MODID + ":joint");
 
 
             Advancement.Builder.advancement()
@@ -129,13 +121,9 @@ public class ModAdvancementProvider extends AdvancementProvider {
                     )
                     // Unlocks when Hemp Plastic is smelted in a furnace (bio composite -> hemp plastic)
                     .addCriterion("smelted_hemp_plastic",
-                            RecipeCraftedTrigger.TriggerInstance.craftedItem(
-                                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID,
-                                            "hemp_plastic_from_bio_composite")))
+                            RecipeCraftedTrigger.TriggerInstance.craftedItem(ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_plastic_from_bio_composite"))))
                     .rewards(AdvancementRewards.Builder.experience(10))
-                    .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hemp_plastic"),
-                            existingFileHelper);
+                    .save(consumer, SmokeleafIndustries.MODID + ":hemp_plastic");
 
         }
     }

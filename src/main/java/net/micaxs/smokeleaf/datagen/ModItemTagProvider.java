@@ -5,21 +5,21 @@ import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.utils.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.ItemTagsProvider;
+import net.neoforged.neoforge.common.data.ItemTagsProvider;
+import net.micaxs.smokeleaf.block.ModBlocks;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
 public class ModItemTagProvider extends ItemTagsProvider {
 
-    public ModItemTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagLookup<Block>> blockTags, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, blockTags, SmokeleafIndustries.MODID, existingFileHelper);
+    public ModItemTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, SmokeleafIndustries.MODID);
     }
 
     @Override
@@ -56,8 +56,14 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 Items.MANGROVE_LEAVES
         );
 
-        this.copy(ModTags.HEMP_WOOL_BLOCKS, ModTags.HEMP_WOOL);
-        this.copy(BlockTags.WOOL, ItemTags.WOOL);
+        // Item tags can no longer copy block tags, so the hemp wool items are listed directly
+        // (mirroring the block tags in ModBlockTagProvider).
+        for (DeferredBlock<Block> wool : ModBlocks.HEMP_WOOL.values()) {
+            this.tag(ModTags.HEMP_WOOL).add(wool.get().asItem());
+            this.tag(ItemTags.WOOL).add(wool.get().asItem());
+        }
+
+        this.tag(ModTags.REPAIRS_BAJA_HOODIE).add(ModItems.HEMP_FABRIC.get());
 
         // Pipe Wrench — grants Unbreaking (and Mending) eligibility, same as any vanilla tool.
         this.tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.PIPE_WRENCH.get());

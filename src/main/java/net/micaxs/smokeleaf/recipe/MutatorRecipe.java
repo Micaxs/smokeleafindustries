@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.world.item.ItemStackTemplate;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
@@ -12,7 +14,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -24,18 +26,23 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.stream.Stream;
 
-public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidStack fluid, ItemStack output)
-        implements Recipe<MutatorRecipeInput> {
+public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidStackTemplate fluidTemplate, ItemStackTemplate outputTemplate)
+        implements ModMachineRecipe<MutatorRecipeInput> {
 
+    /** Fresh copy of the required fluid (stored as a template: stacks can't be created while recipes load). */
     public FluidStack getFluid() {
-        return fluid;
+        return fluidTemplate.create();
     }
 
-    @Override
+    /** Fresh copy of the output. */
+    public ItemStack output() {
+        return outputTemplate.create();
+    }
+
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> list = NonNullList.create();
         for (IngredientWithCount iwc : inputItems) {
-            list.add(iwc.asDisplayIngredient());
+            list.add(iwc.ingredient());
         }
         return list;
     }
@@ -60,49 +67,43 @@ public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidSt
     }
 
     @Override
-    public ItemStack assemble(MutatorRecipeInput input, HolderLookup.Provider provider) {
-        return output.copy();
+    public ItemStack assemble(MutatorRecipeInput input) {
+        return output();
     }
 
-    @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return true;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return output.copy();
+        return output();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<MutatorRecipe> getSerializer() {
         return ModRecipes.MUTATOR_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<MutatorRecipe> getType() {
         return ModRecipes.MUTATOR_TYPE.get();
     }
 
     // JSON: {"FluidName":"<id>", "Amount": N}
-    private static final MapCodec<FluidStack> FLUID_STACK_JSON = new MapCodec<>() {
+    public static final MapCodec<FluidStackTemplate> FLUID_STACK_JSON = new MapCodec<>() {
         @Override
-        public <T> DataResult<FluidStack> decode(DynamicOps<T> ops, MapLike<T> input) {
+        public <T> DataResult<FluidStackTemplate> decode(DynamicOps<T> ops, MapLike<T> input) {
             T idElem = input.get("FluidName");
             T amtElem = input.get("Amount");
             if (idElem == null || amtElem == null) {
                 return DataResult.error(() -> "Missing fluid keys \"FluidName\" and/or \"Amount\"");
             }
-            DataResult<ResourceLocation> id = ResourceLocation.CODEC.parse(ops, idElem);
+            DataResult<Identifier> id = Identifier.CODEC.parse(ops, idElem);
             DataResult<Integer> amt = Codec.INT.parse(ops, amtElem);
-            return id.apply2((rl, a) -> new FluidStack(BuiltInRegistries.FLUID.get(rl), Math.max(0, a)), amt);
+            return id.apply2((rl, a) -> new FluidStackTemplate(BuiltInRegistries.FLUID.getValue(rl), Math.max(1, a)), amt);
         }
 
         @Override
-        public <T> RecordBuilder<T> encode(FluidStack value, DynamicOps<T> ops, RecordBuilder<T> builder) {
-            ResourceLocation rl = BuiltInRegistries.FLUID.getKey(value.getFluid());
-            builder.add(ops.createString("FluidName"), ResourceLocation.CODEC.encodeStart(ops, rl));
-            builder.add(ops.createString("Amount"), Codec.INT.encodeStart(ops, value.getAmount()));
+        public <T> RecordBuilder<T> encode(FluidStackTemplate value, DynamicOps<T> ops, RecordBuilder<T> builder) {
+            Identifier rl = BuiltInRegistries.FLUID.getKey(value.fluid().value());
+            builder.add(ops.createString("FluidName"), Identifier.CODEC.encodeStart(ops, rl));
+            builder.add(ops.createString("Amount"), Codec.INT.encodeStart(ops, value.amount()));
             return builder;
         }
 
@@ -113,12 +114,12 @@ public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidSt
     };
 
     // JSON: {"item":"<id>", "count": N?}
-    private static final MapCodec<ItemStack> OUTPUT_STACK_JSON = new MapCodec<>() {
+    public static final MapCodec<ItemStackTemplate> OUTPUT_STACK_JSON = new MapCodec<>() {
         @Override
-        public <T> DataResult<ItemStack> decode(DynamicOps<T> ops, MapLike<T> input) {
+        public <T> DataResult<ItemStackTemplate> decode(DynamicOps<T> ops, MapLike<T> input) {
             T itemElem = input.get("item");
             if (itemElem == null) return DataResult.error(() -> "Missing output key \"item\"");
-            DataResult<ResourceLocation> id = ResourceLocation.CODEC.parse(ops, itemElem);
+            DataResult<Identifier> id = Identifier.CODEC.parse(ops, itemElem);
             int count;
             T countElem = input.get("count");
             if (countElem != null) {
@@ -130,18 +131,15 @@ public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidSt
             } else {
                 count = 1;
             }
-            return id.map(rl -> {
-                Item it = BuiltInRegistries.ITEM.get(rl);
-                return new ItemStack(it, Math.max(1, count));
-            });
+            return id.map(rl -> new ItemStackTemplate(BuiltInRegistries.ITEM.getValue(rl), Math.max(1, count)));
         }
 
         @Override
-        public <T> RecordBuilder<T> encode(ItemStack value, DynamicOps<T> ops, RecordBuilder<T> builder) {
-            ResourceLocation rl = BuiltInRegistries.ITEM.getKey(value.getItem());
-            builder.add(ops.createString("item"), ResourceLocation.CODEC.encodeStart(ops, rl));
-            if (value.getCount() > 1) {
-                builder.add(ops.createString("count"), Codec.INT.encodeStart(ops, value.getCount()));
+        public <T> RecordBuilder<T> encode(ItemStackTemplate value, DynamicOps<T> ops, RecordBuilder<T> builder) {
+            Identifier rl = BuiltInRegistries.ITEM.getKey(value.item().value());
+            builder.add(ops.createString("item"), Identifier.CODEC.encodeStart(ops, rl));
+            if (value.count() > 1) {
+                builder.add(ops.createString("count"), Codec.INT.encodeStart(ops, value.count()));
             }
             return builder;
         }
@@ -152,11 +150,11 @@ public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidSt
         }
     };
 
-    public static class Serializer implements RecipeSerializer<MutatorRecipe> {
+    public static class Serializer {
         public static final MapCodec<MutatorRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 IngredientWithCount.CODEC.listOf().fieldOf("ingredients").forGetter(r -> r.inputItems),
-                FLUID_STACK_JSON.fieldOf("fluid").forGetter(r -> r.fluid),
-                OUTPUT_STACK_JSON.fieldOf("output").forGetter(r -> r.output)
+                FLUID_STACK_JSON.fieldOf("fluid").forGetter(r -> r.fluidTemplate),
+                OUTPUT_STACK_JSON.fieldOf("output").forGetter(r -> r.outputTemplate)
         ).apply(instance, (ingredients, fluid, output) -> {
             NonNullList<IngredientWithCount> list = NonNullList.create();
             list.addAll(ingredients);
@@ -172,8 +170,8 @@ public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidSt
                         for (int i = 0; i < size; i++) {
                             ings.add(IngredientWithCount.STREAM_CODEC.decode(buf));
                         }
-                        FluidStack fluid = FluidStack.STREAM_CODEC.decode(buf);
-                        ItemStack out = ItemStack.STREAM_CODEC.decode(buf);
+                        FluidStackTemplate fluid = FluidStackTemplate.STREAM_CODEC.decode(buf);
+                        ItemStackTemplate out = ItemStackTemplate.STREAM_CODEC.decode(buf);
                         return new MutatorRecipe(ings, fluid, out);
                     }
 
@@ -183,17 +181,15 @@ public record MutatorRecipe(NonNullList<IngredientWithCount> inputItems, FluidSt
                         for (IngredientWithCount iwc : value.inputItems) {
                             IngredientWithCount.STREAM_CODEC.encode(buf, iwc);
                         }
-                        FluidStack.STREAM_CODEC.encode(buf, value.fluid);
-                        ItemStack.STREAM_CODEC.encode(buf, value.output);
+                        FluidStackTemplate.STREAM_CODEC.encode(buf, value.fluidTemplate);
+                        ItemStackTemplate.STREAM_CODEC.encode(buf, value.outputTemplate);
                     }
                 };
 
-        @Override
         public MapCodec<MutatorRecipe> codec() {
             return CODEC;
         }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, MutatorRecipe> streamCodec() {
             return STREAM_CODEC;
         }

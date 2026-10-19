@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "minecraft:water_bucket"
-    },
-    "C": {
-      "item": "smokeleafindustries:hemp_core"
-    },
-    "H": {
-      "item": "smokeleafindustries:hemp_plastic"
-    }
+    "B": "minecraft:water_bucket",
+    "C": "smokeleafindustries:hemp_core",
+    "H": "smokeleafindustries:hemp_plastic"
   },
   "pattern": [
     "H H",
@@ -18,7 +12,6 @@
     "HBH"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:grow_pot"
   }
 }

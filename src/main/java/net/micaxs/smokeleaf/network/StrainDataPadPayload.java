@@ -7,7 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public record StrainDataPadPayload(
     public record Entry(String strainId, StrainData data, String creatorName) {}
 
     public static final Type<StrainDataPadPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "strain_data_pad"));
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "strain_data_pad"));
 
     private static final StreamCodec<ByteBuf, StrainData> STRAIN_DATA_STREAM_CODEC =
             ByteBufCodecs.fromCodec(StrainData.CODEC);

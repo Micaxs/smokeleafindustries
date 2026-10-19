@@ -1,0 +1,12 @@
+{
+  "gives": {
+    "id": "smokeleafindustries:unfinished_hemp_core"
+  },
+  "max_uses": 2.0,
+  "reputation_discount": 0.01,
+  "wants": {
+    "count": 7.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 10.0
+}

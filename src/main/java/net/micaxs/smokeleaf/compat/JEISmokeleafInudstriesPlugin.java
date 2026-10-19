@@ -18,11 +18,12 @@ import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.recipe.*;
 import net.micaxs.smokeleaf.screen.custom.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeMap;
+import net.micaxs.smokeleaf.recipe.ClientRecipes;
 import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.List;
@@ -31,8 +32,8 @@ import java.util.List;
 public class JEISmokeleafInudstriesPlugin implements IModPlugin {
 
     @Override
-    public ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "jei_plugin");
+    public Identifier getPluginUid() {
+        return Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "jei_plugin");
     }
 
     @Override
@@ -57,49 +58,49 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
-        RecipeManager recipeManager = mc.level.getRecipeManager();
+        // Recipes reach the client through our recipe sync (see ModBusEvents#onDatapackSync and
+        // ClientRecipes); crafting recipes are synced too, for the guide book and these categories.
+        RecipeMap recipeManager = ClientRecipes.map();
 
         List<ExtractorRecipe> extractorRecipes =
-                recipeManager.getAllRecipesFor(ModRecipes.EXTRACTOR_TYPE.get())
+                recipeManager.byType(ModRecipes.EXTRACTOR_TYPE.get())
                         .stream().map(RecipeHolder::value).toList();
         registration.addRecipes(ExtractorRecipeCategory.EXTRACTOR_RECIPE_RECIPE_TYPE, extractorRecipes);
 
         List<GeneratorRecipe> generatorRecipes =
-                recipeManager.getAllRecipesFor(ModRecipes.GENERATOR_TYPE.get())
+                recipeManager.byType(ModRecipes.GENERATOR_TYPE.get())
                         .stream().map(RecipeHolder::value).toList();
         registration.addRecipes(GeneratorRecipeCategory.GENERATOR_RECIPE_TYPE, generatorRecipes);
 
         List<LiquifierRecipeCategory.Display> liquifierDisplays =
-                recipeManager.getAllRecipesFor(ModRecipes.LIQUIFIER_TYPE.get())
+                recipeManager.byType(ModRecipes.LIQUIFIER_TYPE.get())
                         .stream().map(RecipeHolder::value)
                         .flatMap(r -> LiquifierRecipeCategory.buildStrainDisplays(r).stream())
                         .collect(java.util.stream.Collectors.toList());
         registration.addRecipes(LiquifierRecipeCategory.LIQUIFIER_RECIPE_TYPE, liquifierDisplays);
 
         List<GrinderRecipe> grinderRecipes =
-                recipeManager.getAllRecipesFor(ModRecipes.GRINDER_TYPE.get())
+                recipeManager.byType(ModRecipes.GRINDER_TYPE.get())
                         .stream().map(RecipeHolder::value).toList();
         registration.addRecipes(GrinderRecipeCategory.GRINDER_RECIPE_TYPE, grinderRecipes);
 
         List<DryingRecipe> dryingRecipes =
-                recipeManager.getAllRecipesFor(ModRecipes.DRYING_TYPE.get())
+                recipeManager.byType(ModRecipes.DRYING_TYPE.get())
                         .stream().map(RecipeHolder::value).toList();
         registration.addRecipes(DryingRecipeCategory.DRYING_RECIPE_TYPE, dryingRecipes);
 
         List<MutatorRecipe> mutatorRecipes =
-                recipeManager.getAllRecipesFor(ModRecipes.MUTATOR_TYPE.get())
+                recipeManager.byType(ModRecipes.MUTATOR_TYPE.get())
                         .stream().map(RecipeHolder::value).toList();
         registration.addRecipes(MutatorRecipeCategory.MUTATOR_RECIPE_TYPE, mutatorRecipes);
 
         List<SequencerRecipe> sequencerRecipes =
-                recipeManager.getAllRecipesFor(ModRecipes.SEQUENCER_TYPE.get())
+                recipeManager.byType(ModRecipes.SEQUENCER_TYPE.get())
                         .stream().map(RecipeHolder::value).toList();
         registration.addRecipes(SequencerRecipeCategory.SEQUENCER_RECIPE_TYPE, sequencerRecipes);
 
         List<SynthesizerRecipe> synthesizer =
-                recipeManager.getAllRecipesFor(ModRecipes.SYNTHESIZER_TYPE.get())
+                recipeManager.byType(ModRecipes.SYNTHESIZER_TYPE.get())
                         .stream().map(RecipeHolder::value).toList();
         var synthDisplays = synthesizer.stream()
                 .flatMap(r -> SynthesizerRecipeCategory.buildValidStrainDisplays(r, sequencerRecipes).stream())
@@ -107,12 +108,12 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
         registration.addRecipes(SynthesizerRecipeCategory.SYNTHESIZER_RECIPE_TYPE, synthDisplays);
 
         List<ManualGrinderRecipe> manualGrinderRecipes =
-                recipeManager.getAllRecipesFor(ModRecipes.MANUAL_GRINDER_TYPE.get())
+                recipeManager.byType(ModRecipes.MANUAL_GRINDER_TYPE.get())
                         .stream().map(RecipeHolder::value).toList();
         registration.addRecipes(ManualGrinderRecipeCategory.RECIPE_TYPE, manualGrinderRecipes);
 
         List<JointRecipe> jointRecipes =
-                recipeManager.getAllRecipesFor(RecipeType.CRAFTING).stream()
+                recipeManager.byType(RecipeType.CRAFTING).stream()
                         .map(RecipeHolder::value)
                         .filter(r -> r.getSerializer() == ModRecipes.JOINT_SERIALIZER.get())
                         .map(r -> (JointRecipe) r)
@@ -121,7 +122,7 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
 
         // Robust: pick all loaded BluntRecipe instances
         List<BluntRecipe> bluntRecipes =
-                recipeManager.getAllRecipesFor(RecipeType.CRAFTING).stream()
+                recipeManager.byType(RecipeType.CRAFTING).stream()
                         .map(RecipeHolder::value)
                         .filter(BluntRecipe.class::isInstance)
                         .map(BluntRecipe.class::cast)
@@ -133,7 +134,7 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
                 StrainCraftingRecipeCategory.buildDisplays());
 
         List<GummyRecipe> gummyRecipes =
-                recipeManager.getAllRecipesFor(ModRecipes.GUMMY_TYPE.get())
+                recipeManager.byType(ModRecipes.GUMMY_TYPE.get())
                         .stream().map(RecipeHolder::value).toList();
         registration.addRecipes(GummyMachineRecipeCategory.GUMMY_MACHINE_RECIPE_TYPE, gummyRecipes);
     }
@@ -197,13 +198,6 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
                         String strainId = stack.get(ModDataComponentTypes.STRAIN_ID.get());
                         return (strainId != null && !strainId.isBlank()) ? strainId : null;
                     }
-
-                    @Override
-                    public String getLegacyStringSubtypeInfo(net.minecraft.world.item.ItemStack stack,
-                                                              mezz.jei.api.ingredients.subtypes.UidContext context) {
-                        Object data = getSubtypeData(stack, context);
-                        return data != null ? data.toString() : "";
-                    }
                 };
 
         registration.registerSubtypeInterpreter(ModItems.GENERIC_SEEDS.get(), strainInterpreter);
@@ -232,21 +226,19 @@ public class JEISmokeleafInudstriesPlugin implements IModPlugin {
         // JointRecipeCategory, and BluntRecipeCategory show proper coloured variants.
         // Also hide the StrainCopyShapeless bag↔weed recipes from the vanilla crafting
         // category (they are displayed via StrainCraftingRecipeCategory with colours).
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
-        var recipeManager = mc.level.getRecipeManager();
-        java.util.Set<ResourceLocation> idsToHide = java.util.Set.of(
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "infused_butter"),
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hash_brownie"),
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "herb_cake"),
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "weed_cookie"),
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "joint"),
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "blunt"),
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "generic_weed_to_bag"),
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "generic_bag_to_weed")
+        var recipeManager = ClientRecipes.map();
+        java.util.Set<Identifier> idsToHide = java.util.Set.of(
+                Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "infused_butter"),
+                Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "hash_brownie"),
+                Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "herb_cake"),
+                Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "weed_cookie"),
+                Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "joint"),
+                Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "blunt"),
+                Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "generic_weed_to_bag"),
+                Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "generic_bag_to_weed")
         );
-        var craftingToHide = recipeManager.getAllRecipesFor(RecipeType.CRAFTING).stream()
-                .filter(h -> idsToHide.contains(h.id()))
+        var craftingToHide = recipeManager.byType(RecipeType.CRAFTING).stream()
+                .filter(h -> idsToHide.contains(h.id().identifier()))
                 .toList();
         if (!craftingToHide.isEmpty()) {
             jeiRuntime.getRecipeManager().hideRecipes(

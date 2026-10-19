@@ -1,6 +1,11 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.item.custom.DNAStrandItem;
 import net.micaxs.smokeleaf.recipe.ModRecipes;
@@ -30,10 +35,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +57,7 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
 
     protected final ContainerData data;
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(5) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(5) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -116,10 +119,10 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
         return new SynthesizerMenu(id, inv, this, this.data);
     }
 
-    public IItemHandler getItemHandler(@Nullable net.minecraft.core.Direction dir) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable net.minecraft.core.Direction dir) {
         return ExtractRestrictedItemHandler.outputOnly(itemHandler, OUTPUT_SLOT);
     }
-    public IEnergyStorage getEnergyStorage(@Nullable net.minecraft.core.Direction dir) {
+    public EnergyHandler getEnergyStorage(@Nullable net.minecraft.core.Direction dir) {
         return ENERGY_STORAGE;
     }
 
@@ -130,7 +133,7 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
             progress++;
             ENERGY_STORAGE.extractEnergy(20, false);
 
-            if (level.random.nextInt(2) == 0) {
+            if (level.getRandom().nextInt(2) == 0) {
                 level.addParticle(ParticleTypes.SMOKE, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0, 0);
             }
 
@@ -156,8 +159,7 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
                 itemHandler.getStackInSlot(REAGENT_SLOT_2),
                 itemHandler.getStackInSlot(REAGENT_SLOT_3)
         );
-        return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.SYNTHESIZER_TYPE.get(), input, level);
+        return ModRecipes.find(level, ModRecipes.SYNTHESIZER_TYPE.get(), input);
     }
 
     private boolean hasRecipe() {
@@ -176,7 +178,7 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
                 itemHandler.getStackInSlot(REAGENT_SLOT_1),
                 itemHandler.getStackInSlot(REAGENT_SLOT_2),
                 itemHandler.getStackInSlot(REAGENT_SLOT_3)
-        ), level.registryAccess());
+        ));
 
         return canInsertItemIntoOutputSlot(simulated)
                 && canInsertAmountIntoOutputSlot(simulated.getCount());
@@ -194,7 +196,7 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
                 itemHandler.getStackInSlot(REAGENT_SLOT_3)
         );
 
-        ItemStack output = recipe.assemble(input, level.registryAccess());
+        ItemStack output = recipe.assemble(input);
         if (output.isEmpty()) return;
 
         // Consume base DNA
@@ -232,21 +234,21 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("synthesizer.inventory", itemHandler.serializeNBT(registries));
-        tag.putInt("synthesizer.progress", progress);
-        tag.putInt("synthesizer.maxProgress", maxProgress);
-        tag.putInt("synthesizer.energy", ENERGY_STORAGE.getEnergyStored());
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("synthesizer.inventory"));
+        output.putInt("synthesizer.progress", progress);
+        output.putInt("synthesizer.maxProgress", maxProgress);
+        output.putInt("synthesizer.energy", ENERGY_STORAGE.getEnergyStored());
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("synthesizer.inventory"));
-        ENERGY_STORAGE.setEnergy(tag.getInt("synthesizer.energy"));
-        progress = tag.getInt("synthesizer.progress");
-        maxProgress = tag.getInt("synthesizer.maxProgress");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("synthesizer.inventory"));
+        ENERGY_STORAGE.setEnergy(input.getIntOr("synthesizer.energy", 0));
+        progress = input.getIntOr("synthesizer.progress", 0);
+        maxProgress = input.getIntOr("synthesizer.maxProgress", 0);
     }
 
     @Override
@@ -260,7 +262,13 @@ public class SynthesizerBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookup) {
-        super.onDataPacket(net, pkt, lookup);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

@@ -2,7 +2,7 @@ package net.micaxs.smokeleaf.sound;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -22,7 +22,7 @@ public class ModSounds {
 
 
     private static Supplier<SoundEvent> registerSoundEvents(String name) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, name);
+        Identifier id = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, name);
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(id));
     }
 

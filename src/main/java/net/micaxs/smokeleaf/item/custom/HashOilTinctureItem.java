@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import java.util.function.Consumer;
+import net.minecraft.world.item.component.TooltipDisplay;
 import com.google.gson.JsonArray;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 //import net.micaxs.smokeleaf.utils.HashOilHelper;
@@ -20,8 +22,8 @@ public class HashOilTinctureItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, display, tooltipComponents, tooltipFlag);
 
 
         JsonArray activeIngredients = stack.get(ModDataComponentTypes.ACTIVE_INGREDIENTS);
@@ -29,7 +31,7 @@ public class HashOilTinctureItem extends Item {
 
         var weedItems = WeedEffectHelper.jsonArrayToWeedList(activeIngredients);
         if (!weedItems.isEmpty()) {
-            tooltipComponents.add(Component.empty().append(
+            tooltipComponents.accept(Component.empty().append(
                     WeedEffectHelper.getEffectTooltip(weedItems, true)
             ));
         }

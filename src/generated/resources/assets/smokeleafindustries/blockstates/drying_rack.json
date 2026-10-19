@@ -2,18 +2,18 @@
   "variants": {
     "facing=east": {
       "model": "smokeleafindustries:block/drying_rack",
-      "y": 90
+      "y": 270
     },
     "facing=north": {
-      "model": "smokeleafindustries:block/drying_rack"
-    },
-    "facing=south": {
       "model": "smokeleafindustries:block/drying_rack",
       "y": 180
     },
+    "facing=south": {
+      "model": "smokeleafindustries:block/drying_rack"
+    },
     "facing=west": {
       "model": "smokeleafindustries:block/drying_rack",
-      "y": 270
+      "y": 90
     }
   }
 }

@@ -1,12 +1,15 @@
 {
   "type": "smokeleafindustries:sequencer",
-  "dna": { "item": "smokeleafindustries:dna_strand" },
-  "base_extract": { "item": "smokeleafindustries:base_extract" },
+  "dna": "smokeleafindustries:dna_strand",
+  "base_extract": "smokeleafindustries:base_extract",
   "required_reagents": [
-    { "item": "minecraft:coal" },
-    { "item": "minecraft:ink_sac" },
-    { "item": "minecraft:black_dye" }
+    "minecraft:coal",
+    "minecraft:ink_sac",
+    "minecraft:black_dye"
   ],
-  "result": { "id": "smokeleafindustries:extract", "count": 1 },
+  "result": {
+    "id": "smokeleafindustries:extract",
+    "count": 1
+  },
   "strain_id": "carbon_fiber"
 }

@@ -10,7 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -30,8 +30,8 @@ public class DabRigItem extends Item {
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.DRINK;
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.DRINK;
     }
 
     @Override
@@ -67,22 +67,22 @@ public class DabRigItem extends Item {
                 .getResourceKey(effect)
                 .flatMap(key -> entity.level()
                         .registryAccess()
-                        .registryOrThrow(Registries.MOB_EFFECT)
-                        .getHolder(key))
+                        .lookupOrThrow(Registries.MOB_EFFECT)
+                        .get(key))
                 .orElseThrow(() -> new IllegalStateException("Unregistered MobEffect: " + effect));
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack rigStack = player.getItemInHand(hand);
         ItemStack offhandExtract = getOffhandExtract(player);
 
         if (offhandExtract.isEmpty()) {
-            return InteractionResultHolder.fail(rigStack);
+            return InteractionResult.FAIL;
         }
 
         player.startUsingItem(hand);
-        return InteractionResultHolder.consume(rigStack);
+        return InteractionResult.CONSUME;
     }
 
     private ItemStack findExtract(Player player) {
@@ -116,7 +116,7 @@ public class DabRigItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        if (!level.isClientSide && entity instanceof Player player) {
+        if (!level.isClientSide() && entity instanceof Player player) {
             ItemStack offhandExtract = getOffhandExtract(player);
 
             if (!offhandExtract.isEmpty() && offhandExtract.getItem() instanceof BaseWeedItem weedItem) {
@@ -159,14 +159,14 @@ public class DabRigItem extends Item {
     private void spawnSmokeParticles(Level level, LivingEntity entity) {
         // Adjust particle spawning based on your preferences
         for (int i = 0; i < 10; i++) {
-            double xOffset = level.random.nextGaussian() * 0.02D;
-            double yOffset = level.random.nextGaussian() * 0.02D;
-            double zOffset = level.random.nextGaussian() * 0.02D;
+            double xOffset = level.getRandom().nextGaussian() * 0.02D;
+            double yOffset = level.getRandom().nextGaussian() * 0.02D;
+            double zOffset = level.getRandom().nextGaussian() * 0.02D;
 
             level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                    entity.getX() + entity.getBbWidth() * (level.random.nextDouble() - 0.5D),
+                    entity.getX() + entity.getBbWidth() * (level.getRandom().nextDouble() - 0.5D),
                     entity.getEyeY(),
-                    entity.getZ() + entity.getBbWidth() * (level.random.nextDouble() - 0.5D),
+                    entity.getZ() + entity.getBbWidth() * (level.getRandom().nextDouble() - 0.5D),
                     xOffset, yOffset, zOffset);
         }
     }
@@ -180,9 +180,14 @@ public class DabRigItem extends Item {
     }
 
 
+    // Items no longer have a drinking-sound hook (sounds come from the Consumable component, which
+    // these items don't use), so play the hit sound while in use the way the drink animation used to.
     @Override
-    public SoundEvent getDrinkingSound() {
-        return ModSounds.BONG_HIT.get();
+    public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int ticksRemaining) {
+        if (!level.isClientSide() && ticksRemaining % 4 == 0) {
+            level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), ModSounds.BONG_HIT.get(),
+                    entity.getSoundSource(), 0.5f, level.getRandom().nextFloat() * 0.1f + 0.9f);
+        }
     }
 
 }

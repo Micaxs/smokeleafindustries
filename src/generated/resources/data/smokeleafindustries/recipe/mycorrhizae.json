@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:red_mushroom"
-    },
-    {
-      "item": "minecraft:brown_mushroom"
-    },
-    {
-      "item": "minecraft:bone_meal"
-    },
-    {
-      "item": "smokeleafindustries:bio_composite"
-    }
+    "minecraft:red_mushroom",
+    "minecraft:brown_mushroom",
+    "minecraft:bone_meal",
+    "smokeleafindustries:bio_composite"
   ],
   "result": {
     "count": 2,

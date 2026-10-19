@@ -1,0 +1,12 @@
+{
+  "gives": {
+    "id": "smokeleafindustries:bio_composite"
+  },
+  "max_uses": 10.0,
+  "reputation_discount": 0.01,
+  "wants": {
+    "count": 5.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 10.0
+}

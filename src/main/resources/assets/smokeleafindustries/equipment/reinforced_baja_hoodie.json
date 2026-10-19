@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "smokeleafindustries:reinforced_baja_hoodie"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "smokeleafindustries:reinforced_baja_hoodie"
+      }
+    ]
+  }
+}

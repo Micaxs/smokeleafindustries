@@ -4,7 +4,7 @@ import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import net.micaxs.smokeleaf.Config;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluid;
 
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public final class ExtractFluidStats {
 
     // ---- Defaults (code) ----
     // Keep this minimal and easy to extend. Users can override via config.
-    private static final Map<ResourceLocation, Stats> DEFAULTS = new HashMap<>();
+    private static final Map<Identifier, Stats> DEFAULTS = new HashMap<>();
 
     static {
         // These mimic the crop nutrient targets (feel free to tune).
@@ -69,12 +69,12 @@ public final class ExtractFluidStats {
     }
 
     private static void putDefault(String path, int n, int p, int k) {
-        DEFAULTS.put(ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, path), new Stats(n, p, k, 0, 0));
+        DEFAULTS.put(Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, path), new Stats(n, p, k, 0, 0));
     }
 
     public static Stats get(Fluid fluid) {
         if (fluid == null) return Stats.EMPTY;
-        ResourceLocation id = BuiltInRegistries.FLUID.getKey(fluid);
+        Identifier id = BuiltInRegistries.FLUID.getKey(fluid);
         if (id == null) return Stats.EMPTY;
 
         // 1) Config overrides: map fluid path -> stats.
@@ -86,7 +86,7 @@ public final class ExtractFluidStats {
         return def != null ? def : Stats.EMPTY;
     }
 
-    private static Optional<Stats> lookupFromConfig(ResourceLocation fluidId) {
+    private static Optional<Stats> lookupFromConfig(Identifier fluidId) {
         // Reuse existing config structure pattern: a list of single-entry tables.
         // We'll extend Config with FLUID_EXTRACT_STATS; if it's not present (older config), return empty.
         List<? extends UnmodifiableConfig> list;

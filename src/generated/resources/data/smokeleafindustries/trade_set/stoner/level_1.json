@@ -1,0 +1,10 @@
+{
+  "amount": 2.0,
+  "random_sequence": "smokeleafindustries:trade_set/stoner/level_1",
+  "trades": [
+    "smokeleafindustries:stoner/1/hemp_fibers_emerald",
+    "smokeleafindustries:stoner/1/hemp_coal_emerald",
+    "smokeleafindustries:stoner/1/dried_tobacco_leaves_emerald",
+    "smokeleafindustries:stoner/1/hemp_leaf_emerald"
+  ]
+}

@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
@@ -36,13 +35,13 @@ public class ApplyUnidentifiedStrain extends LootItemConditionalFunction {
     }
 
     @Override
-    public LootItemFunctionType<ApplyUnidentifiedStrain> getType() {
-        return ModLootItemFunctions.APPLY_UNIDENTIFIED_STRAIN.get();
+    public MapCodec<ApplyUnidentifiedStrain> codec() {
+        return CODEC;
     }
 
     @Override
     protected ItemStack run(ItemStack stack, LootContext ctx) {
-        BlockEntity be = ctx.getParamOrNull(LootContextParams.BLOCK_ENTITY);
+        BlockEntity be = ctx.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (be instanceof UnidentifiedWeedCropBlockEntity crop) {
             StrainData d = crop.getStrain();
             if (d != null && d != StrainData.EMPTY) {

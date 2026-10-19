@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.compat.jei;
 
+import net.micaxs.smokeleaf.recipe.IngredientUtil;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
@@ -18,9 +19,9 @@ import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.recipe.LiquifierRecipe;
 import net.micaxs.smokeleaf.strain.StrainRegistry;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -30,10 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LiquifierRecipeCategory implements IRecipeCategory<LiquifierRecipeCategory.Display> {
-    public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "liquifier");
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/liquifier/liquifier_gui.png");
+    public static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "liquifier");
+    private static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/liquifier/liquifier_gui.png");
     public static final RecipeType<Display> LIQUIFIER_RECIPE_TYPE =
             new RecipeType<>(UID, Display.class);
 
@@ -90,7 +91,7 @@ public class LiquifierRecipeCategory implements IRecipeCategory<LiquifierRecipeC
 
     @Override
     public void draw(Display display, IRecipeSlotsView recipeSlotsView,
-                     GuiGraphics guiGraphics, double mouseX, double mouseY) {
+                     GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         background.draw(guiGraphics);
     }
 
@@ -113,7 +114,7 @@ public class LiquifierRecipeCategory implements IRecipeCategory<LiquifierRecipeC
 
         // If the recipe's ingredient matches one of the generic strain items,
         // produce per‑strain displays. Otherwise, return a single display.
-        for (ItemStack candidate : recipe.ingredient().getItems()) {
+        for (ItemStack candidate : IngredientUtil.stacks(recipe.ingredient())) {
             if (JeiStrainHelper.isStrainItem(candidate.getItem())) {
                 // Generate one display per preset strain
                 for (String strainId : StrainRegistry.ids()) {
@@ -142,7 +143,7 @@ public class LiquifierRecipeCategory implements IRecipeCategory<LiquifierRecipeC
         }
 
         // Not a strain ingredient — single display as defined by the recipe.
-        ItemStack input = recipe.ingredient().getItems().length > 0 ? recipe.ingredient().getItems()[0] : ItemStack.EMPTY;
+        ItemStack input = IngredientUtil.stacks(recipe.ingredient()).length > 0 ? IngredientUtil.stacks(recipe.ingredient())[0] : ItemStack.EMPTY;
         displays.add(new Display(input, recipe.outputCopy(), ItemStack.EMPTY));
         return displays;
     }

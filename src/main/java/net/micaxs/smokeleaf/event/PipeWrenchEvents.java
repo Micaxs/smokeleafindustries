@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.util.TriState;
+import net.minecraft.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
@@ -65,7 +65,7 @@ public class PipeWrenchEvents {
         }
 
         event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide()));
+        event.setCancellationResult(InteractionResult.SUCCESS);
     }
 
     private static void useWrench(PipeBlockEntity pipe, Player player, ItemStack wrench, InteractionHand hand,
@@ -95,7 +95,7 @@ public class PipeWrenchEvents {
     }
 
     private static void damageWrench(ItemStack wrench, Player player, InteractionHand hand) {
-        wrench.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+        wrench.hurtAndBreak(1, player, hand.asEquipmentSlot());
     }
 
     private static boolean growConnection(PipeBlockEntity pipe, ServerLevel level, BlockPos pos, PipeType type, Direction dir) {
@@ -117,7 +117,7 @@ public class PipeWrenchEvents {
             // Nothing to connect to on that face — a distinct, quiet "no-op" cue so a click that
             // registered but changed nothing doesn't look identical to a click that missed the
             // pipe block entirely. No durability lost, since nothing was actually wrenched.
-            level.playSound(null, pos, SoundEvents.ITEM_BREAK, SoundSource.BLOCKS, 0.25f, 0.6f);
+            level.playSound(null, pos, SoundEvents.ITEM_BREAK.value(), SoundSource.BLOCKS, 0.25f, 0.6f);
             return false;
         }
     }
@@ -156,6 +156,6 @@ public class PipeWrenchEvents {
     }
 
     private static void playBreakSound(Level level, BlockPos pos) {
-        level.playSound(null, pos, SoundEvents.ITEM_BREAK, SoundSource.BLOCKS, 0.5f, 1.0f);
+        level.playSound(null, pos, SoundEvents.ITEM_BREAK.value(), SoundSource.BLOCKS, 0.5f, 1.0f);
     }
 }

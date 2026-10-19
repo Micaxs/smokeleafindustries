@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.compat.jei;
 
+import net.micaxs.smokeleaf.recipe.IngredientUtil;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
@@ -95,7 +96,7 @@ public final class JeiStrainHelper {
 
     /** Checks if an ingredient matches any generic strain item. */
     public static boolean isStrainIngredient(Ingredient ingredient) {
-        for (ItemStack stack : ingredient.getItems()) {
+        for (ItemStack stack : IngredientUtil.stacks(ingredient)) {
             if (isStrainItem(stack.getItem())) return true;
         }
         return false;
@@ -103,7 +104,7 @@ public final class JeiStrainHelper {
 
     /** Returns colored stacks for the strain item type used in this ingredient, or empty list if not a strain ingredient. */
     public static List<ItemStack> coloredStacksForIngredient(Ingredient ingredient) {
-        for (ItemStack stack : ingredient.getItems()) {
+        for (ItemStack stack : IngredientUtil.stacks(ingredient)) {
             Item item = stack.getItem();
             if (isStrainItem(item)) {
                 return coloredStacks(item);
@@ -300,10 +301,10 @@ public final class JeiStrainHelper {
      * directly from the focus's {@link StrainData} so the correct colour and
      * tooltip appear in the slot.
      */
-    public static Ingredient coloredIngredient(Ingredient original, IFocusGroup focuses) {
+    public static List<ItemStack> coloredIngredient(Ingredient original, IFocusGroup focuses) {
         List<ItemStack> stacks = coloredStacksForIngredient(original, focuses);
         if (!stacks.isEmpty()) {
-            return Ingredient.of(stacks.stream());
+            return stacks;
         }
 
         // Empty after filtering — the focus is likely a custom (non‑preset) strain
@@ -314,11 +315,11 @@ public final class JeiStrainHelper {
             if (data != null) {
                 ItemStack customStack = new ItemStack(focus.getItem());
                 customStack.set(ModDataComponentTypes.STRAIN_DATA.get(), data);
-                return Ingredient.of(customStack);
+                return List.of(customStack);
             }
         }
 
         // No useful focus — show all 25 preset colours
-        return original;
+        return List.of(IngredientUtil.stacks(original));
     }
 }

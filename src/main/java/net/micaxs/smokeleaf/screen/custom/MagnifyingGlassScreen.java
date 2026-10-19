@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.screen.custom;
 
+import net.micaxs.smokeleaf.client.GuiColors;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
@@ -8,12 +10,12 @@ import net.micaxs.smokeleaf.utils.MouseUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class MagnifyingGlassScreen extends Screen {
-    private static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/analyzer/analyzer_gui.png"); // 256x256
+    private static final Identifier BG_TEXTURE = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/analyzer/analyzer_gui.png"); // 256x256
     private static final int TEX_W = 256, TEX_H = 256;
     private static final int GUI_W = 176, GUI_H = 142;
 
@@ -64,16 +66,15 @@ public class MagnifyingGlassScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
 
         // Centered GUI placement
         int left = (this.width - GUI_W) / 2;
         int top = (this.height - GUI_H) / 2;
 
         // Draw the 176x142 GUI region from the top-left of the 256x256 texture
-        guiGraphics.blit(BG_TEXTURE, left, top, 0, 0, GUI_W, GUI_H, TEX_W, TEX_H);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, left, top, 0, 0, GUI_W, GUI_H, TEX_W, TEX_H);
 
 
         // Draw "Nutrients" Title Text
@@ -83,22 +84,22 @@ public class MagnifyingGlassScreen extends Screen {
         int nitrogen_x = left + 8, nitrogen_y = top + 26;
         int phosphorus_x = left + 8, phosphorus_y = top + 51;
         int potassium_x = left + 8, potassium_y = top + 76;
-        guiGraphics.blit(BG_TEXTURE, nitrogen_x, nitrogen_y, NITROGEN_ICON_U, NITROGEN_ICON_V, ICON_SIZE, ICON_SIZE, TEX_W, TEX_H);
-        guiGraphics.blit(BG_TEXTURE, phosphorus_x, phosphorus_y, PHOSPHORUS_ICON_U, PHOSPHORUS_ICON_V, ICON_SIZE, ICON_SIZE, TEX_W, TEX_H);
-        guiGraphics.blit(BG_TEXTURE, potassium_x, potassium_y, POTASSIUM_ICON_U, POTASSIUM_ICON_V, ICON_SIZE, ICON_SIZE, TEX_W, TEX_H);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, nitrogen_x, nitrogen_y, NITROGEN_ICON_U, NITROGEN_ICON_V, ICON_SIZE, ICON_SIZE, TEX_W, TEX_H);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, phosphorus_x, phosphorus_y, PHOSPHORUS_ICON_U, PHOSPHORUS_ICON_V, ICON_SIZE, ICON_SIZE, TEX_W, TEX_H);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, potassium_x, potassium_y, POTASSIUM_ICON_U, POTASSIUM_ICON_V, ICON_SIZE, ICON_SIZE, TEX_W, TEX_H);
 
         // Draw Bars Background
         int nitrogen_bar_x = left + 26, nitrogen_bar_y = top + 36;
         int phosphorus_bar_x = left + 26, phosphorus_bar_y = top + 61;
         int potassium_bar_x = left + 26, potassium_bar_y = top + 86;
-        guiGraphics.blit(BG_TEXTURE, nitrogen_bar_x, nitrogen_bar_y, BAR_U, NITROGEN_BAR_BG_TEXTURE_Y, BAR_W, BAR_H, TEX_W, TEX_H);
-        guiGraphics.blit(BG_TEXTURE, phosphorus_bar_x, phosphorus_bar_y, BAR_U, PHOSPHORUS_BAR_BG_TEXTURE_Y, BAR_W, BAR_H, TEX_W, TEX_H);
-        guiGraphics.blit(BG_TEXTURE, potassium_bar_x, potassium_bar_y, BAR_U, POTASSIUM_BAR_BG_TEXTURE_Y, BAR_W, BAR_H, TEX_W, TEX_H);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, nitrogen_bar_x, nitrogen_bar_y, BAR_U, NITROGEN_BAR_BG_TEXTURE_Y, BAR_W, BAR_H, TEX_W, TEX_H);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, phosphorus_bar_x, phosphorus_bar_y, BAR_U, PHOSPHORUS_BAR_BG_TEXTURE_Y, BAR_W, BAR_H, TEX_W, TEX_H);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, potassium_bar_x, potassium_bar_y, BAR_U, POTASSIUM_BAR_BG_TEXTURE_Y, BAR_W, BAR_H, TEX_W, TEX_H);
 
         // Draw Text Labels
-        guiGraphics.drawString(this.font, Component.literal("Nitrogen"), nitrogen_bar_x + 1, nitrogen_bar_y - 10, 0xBBBBBB, true);
-        guiGraphics.drawString(this.font, Component.literal("Phosphorus"), phosphorus_bar_x + 1, phosphorus_bar_y - 10, 0xBBBBBB, true);
-        guiGraphics.drawString(this.font, Component.literal("Potassium"), potassium_bar_x + 1, potassium_bar_y - 9, 0xBBBBBB, true);
+        guiGraphics.text(this.font, Component.literal("Nitrogen"), nitrogen_bar_x + 1, nitrogen_bar_y - 10, 0xFFBBBBBB, true);
+        guiGraphics.text(this.font, Component.literal("Phosphorus"), phosphorus_bar_x + 1, phosphorus_bar_y - 10, 0xFFBBBBBB, true);
+        guiGraphics.text(this.font, Component.literal("Potassium"), potassium_bar_x + 1, potassium_bar_y - 9, 0xFFBBBBBB, true);
 
 
         Level level = Minecraft.getInstance().level;
@@ -130,9 +131,9 @@ public class MagnifyingGlassScreen extends Screen {
             int potassium_fill_w = (int) Math.round(BAR_W * (Mth.clamp(potassium_val, 0, MAX_NUTRIENT) / (double) MAX_NUTRIENT));
 
             // Draw Bars Foreground (example values, replace with actual data)
-            guiGraphics.blit(BG_TEXTURE, nitrogen_bar_x, nitrogen_bar_y, BAR_U, NITROGEN_BAR_FG_TEXTURE_Y, nitrogen_fill_w, BAR_H, TEX_W, TEX_H);
-            guiGraphics.blit(BG_TEXTURE, phosphorus_bar_x, phosphorus_bar_y, BAR_U, PHOSPHORUS_BAR_FG_TEXTURE_Y, phosphorus_fill_w, BAR_H, TEX_W, TEX_H);
-            guiGraphics.blit(BG_TEXTURE, potassium_bar_x, potassium_bar_y, BAR_U, POTASSIUM_BAR_FG_TEXTURE_Y, potassium_fill_w, BAR_H, TEX_W, TEX_H);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, nitrogen_bar_x, nitrogen_bar_y, BAR_U, NITROGEN_BAR_FG_TEXTURE_Y, nitrogen_fill_w, BAR_H, TEX_W, TEX_H);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, phosphorus_bar_x, phosphorus_bar_y, BAR_U, PHOSPHORUS_BAR_FG_TEXTURE_Y, phosphorus_fill_w, BAR_H, TEX_W, TEX_H);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, potassium_bar_x, potassium_bar_y, BAR_U, POTASSIUM_BAR_FG_TEXTURE_Y, potassium_fill_w, BAR_H, TEX_W, TEX_H);
 
             int nDiff = Math.abs(nitrogen_val - nitrogen_perfect_val);
             int pDiff = Math.abs(phosphorus_val - phosphorus_perfect_val);
@@ -176,9 +177,9 @@ public class MagnifyingGlassScreen extends Screen {
             int pTextLeft = phosphorus_text_right - this.font.width(phosphorus_value);
             int kTextLeft = potassium_text_right - this.font.width(potassium_value);
 
-            guiGraphics.drawString(this.font, nitrogen_value, nTextLeft, nitrogen_text_top, 0xFFFFFF, true);
-            guiGraphics.drawString(this.font, phosphorus_value, pTextLeft, phosphorus_text_top, 0xFFFFFF, true);
-            guiGraphics.drawString(this.font, potassium_value, kTextLeft, potassium_text_top, 0xFFFFFF, true);
+            guiGraphics.text(this.font, nitrogen_value, nTextLeft, nitrogen_text_top, 0xFFFFFFFF, true);
+            guiGraphics.text(this.font, phosphorus_value, pTextLeft, phosphorus_text_top, 0xFFFFFFFF, true);
+            guiGraphics.text(this.font, potassium_value, kTextLeft, potassium_text_top, 0xFFFFFFFF, true);
 
 
             // Draw "Produces" Text
@@ -223,9 +224,9 @@ public class MagnifyingGlassScreen extends Screen {
             int potassium_fill_w = (int) Math.round(BAR_W * (Mth.clamp(potassium_val, 0, MAX_NUTRIENT) / (double) MAX_NUTRIENT));
 
             // Draw Bars Foreground (example values, replace with actual data)
-            guiGraphics.blit(BG_TEXTURE, nitrogen_bar_x, nitrogen_bar_y, BAR_U, NITROGEN_BAR_FG_TEXTURE_Y, nitrogen_fill_w, BAR_H, TEX_W, TEX_H);
-            guiGraphics.blit(BG_TEXTURE, phosphorus_bar_x, phosphorus_bar_y, BAR_U, PHOSPHORUS_BAR_FG_TEXTURE_Y, phosphorus_fill_w, BAR_H, TEX_W, TEX_H);
-            guiGraphics.blit(BG_TEXTURE, potassium_bar_x, potassium_bar_y, BAR_U, POTASSIUM_BAR_FG_TEXTURE_Y, potassium_fill_w, BAR_H, TEX_W, TEX_H);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, nitrogen_bar_x, nitrogen_bar_y, BAR_U, NITROGEN_BAR_FG_TEXTURE_Y, nitrogen_fill_w, BAR_H, TEX_W, TEX_H);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, phosphorus_bar_x, phosphorus_bar_y, BAR_U, PHOSPHORUS_BAR_FG_TEXTURE_Y, phosphorus_fill_w, BAR_H, TEX_W, TEX_H);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BG_TEXTURE, potassium_bar_x, potassium_bar_y, BAR_U, POTASSIUM_BAR_FG_TEXTURE_Y, potassium_fill_w, BAR_H, TEX_W, TEX_H);
 
             int nDiff = Math.abs(nitrogen_val - nitrogen_perfect_val);
             int pDiff = Math.abs(phosphorus_val - phosphorus_perfect_val);
@@ -269,9 +270,9 @@ public class MagnifyingGlassScreen extends Screen {
             int pTextLeft = phosphorus_text_right - this.font.width(phosphorus_value);
             int kTextLeft = potassium_text_right - this.font.width(potassium_value);
 
-            guiGraphics.drawString(this.font, nitrogen_value, nTextLeft, nitrogen_text_top, 0xFFFFFF, true);
-            guiGraphics.drawString(this.font, phosphorus_value, pTextLeft, phosphorus_text_top, 0xFFFFFF, true);
-            guiGraphics.drawString(this.font, potassium_value, kTextLeft, potassium_text_top, 0xFFFFFF, true);
+            guiGraphics.text(this.font, nitrogen_value, nTextLeft, nitrogen_text_top, 0xFFFFFFFF, true);
+            guiGraphics.text(this.font, phosphorus_value, pTextLeft, phosphorus_text_top, 0xFFFFFFFF, true);
+            guiGraphics.text(this.font, potassium_value, kTextLeft, potassium_text_top, 0xFFFFFFFF, true);
 
 
             // Draw "Produces" Text
@@ -311,21 +312,21 @@ public class MagnifyingGlassScreen extends Screen {
 
 
 
-    private void drawScaled(GuiGraphics g, Component text, int x, int y, int color, float scale) {
-        g.pose().pushPose();
-        g.pose().translate(x, y, 0);
-        g.pose().scale(scale, scale, 1.0f);
-        g.drawString(this.font, text, 0, 0, color, false);
-        g.pose().popPose();
+    private void drawScaled(GuiGraphicsExtractor g, Component text, int x, int y, int color, float scale) {
+        g.pose().pushMatrix();
+        g.pose().translate(x, y);
+        g.pose().scale(scale, scale);
+        g.text(this.font, text, 0, 0, GuiColors.text(color), false);
+        g.pose().popMatrix();
     }
 
-    private void drawScaledCentered(GuiGraphics g, Component text, int centerX, int y, int color, float scale, boolean shadow) {
+    private void drawScaledCentered(GuiGraphicsExtractor g, Component text, int centerX, int y, int color, float scale, boolean shadow) {
         int w = this.font.width(text);
         int left = (int) (centerX - (w * scale) / 2.0f);
-        g.pose().pushPose();
-        g.pose().translate(left, y, 0);
-        g.pose().scale(scale, scale, 1.0f);
-        g.drawString(this.font, text, 0, 0, color, shadow);
-        g.pose().popPose();
+        g.pose().pushMatrix();
+        g.pose().translate(left, y);
+        g.pose().scale(scale, scale);
+        g.text(this.font, text, 0, 0, GuiColors.text(color), shadow);
+        g.pose().popMatrix();
     }
 }

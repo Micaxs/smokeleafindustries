@@ -1,0 +1,24 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "smokeleafindustries:item/bag",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": -1
+      },
+      {
+        "type": "smokeleafindustries:strain",
+        "role": "leaf_color"
+      },
+      {
+        "type": "smokeleafindustries:strain",
+        "role": "strain_color"
+      },
+      {
+        "type": "minecraft:constant",
+        "value": -1
+      }
+    ]
+  }
+}

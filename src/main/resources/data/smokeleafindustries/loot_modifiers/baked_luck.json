@@ -1,9 +1,0 @@
-{
-  "type": "smokeleafindustries:baked_luck",
-  "conditions": [
-    {
-      "condition": "neoforge:match_block_tag",
-      "tag": "c:ores"
-    }
-  ]
-}

@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.effect.neutral;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -10,8 +11,8 @@ public class ScrambledMouthEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
-        return super.applyEffectTick(livingEntity, amplifier);
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity livingEntity, int amplifier) {
+        return super.applyEffectTick(serverLevel, livingEntity, amplifier);
     }
 
     @Override

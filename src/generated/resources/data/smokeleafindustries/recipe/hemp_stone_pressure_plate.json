@@ -2,15 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "#": {
-      "item": "smokeleafindustries:hemp_stone"
-    }
+    "#": "smokeleafindustries:hemp_stone"
   },
   "pattern": [
     "##"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:hemp_stone_pressure_plate"
   }
 }

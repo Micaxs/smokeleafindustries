@@ -1,6 +1,12 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.micaxs.smokeleaf.recipe.ModRecipes;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.recipe.*;
 import net.micaxs.smokeleaf.screen.custom.SequencerMenu;
@@ -25,10 +31,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,7 +51,7 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
 
     protected final ContainerData data;
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(5) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(5) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -109,10 +113,10 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
         return new SequencerMenu(id, inv, this, this.data);
     }
 
-    public IItemHandler getItemHandler(@Nullable net.minecraft.core.Direction dir) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable net.minecraft.core.Direction dir) {
         return ExtractRestrictedItemHandler.outputOnly(itemHandler, OUTPUT_SLOT);
     }
-    public IEnergyStorage getEnergyStorage(@Nullable net.minecraft.core.Direction dir) {
+    public EnergyHandler getEnergyStorage(@Nullable net.minecraft.core.Direction dir) {
         return ENERGY_STORAGE;
     }
 
@@ -143,8 +147,7 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
                 itemHandler.getStackInSlot(DNA_SLOT),
                 itemHandler.getStackInSlot(BASE_EXTRACT)
         );
-        return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.SEQUENCER_TYPE.get(), input, level);
+        return ModRecipes.find(level, ModRecipes.SEQUENCER_TYPE.get(), input);
     }
 
     private boolean hasRecipe() {
@@ -158,7 +161,7 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
         }
 
         ItemStack outputSimulated = opt.get().value().assemble(
-                new SequencerRecipeInput(itemHandler.getStackInSlot(DNA_SLOT), itemHandler.getStackInSlot(BASE_EXTRACT)), level.registryAccess()
+                new SequencerRecipeInput(itemHandler.getStackInSlot(DNA_SLOT), itemHandler.getStackInSlot(BASE_EXTRACT))
         );
 
         return canInsertItemIntoOutputSlot(outputSimulated)  && canInsertAmountIntoOutputSlot(outputSimulated.getCount());
@@ -170,8 +173,7 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
         SequencerRecipe recipe = opt.get().value();
         ItemStack output = recipe.assemble(
                 new SequencerRecipeInput(itemHandler.getStackInSlot(DNA_SLOT),
-                        itemHandler.getStackInSlot(BASE_EXTRACT)),
-                level.registryAccess());
+                        itemHandler.getStackInSlot(BASE_EXTRACT)));
         if (output.isEmpty()) return;
 
         // Consume Inputs
@@ -206,21 +208,21 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("sequencer.inventory", itemHandler.serializeNBT(registries));
-        tag.putInt("sequencer.progress", progress);
-        tag.putInt("sequencer.maxProgress", maxProgress);
-        tag.putInt("sequencer.energy", ENERGY_STORAGE.getEnergyStored());
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("sequencer.inventory"));
+        output.putInt("sequencer.progress", progress);
+        output.putInt("sequencer.maxProgress", maxProgress);
+        output.putInt("sequencer.energy", ENERGY_STORAGE.getEnergyStored());
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("sequencer.inventory"));
-        ENERGY_STORAGE.setEnergy(tag.getInt("sequencer.energy"));
-        progress = tag.getInt("sequencer.progress");
-        maxProgress = tag.getInt("sequencer.maxProgress");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("sequencer.inventory"));
+        ENERGY_STORAGE.setEnergy(input.getIntOr("sequencer.energy", 0));
+        progress = input.getIntOr("sequencer.progress", 0);
+        maxProgress = input.getIntOr("sequencer.maxProgress", 0);
     }
 
     @Override
@@ -234,7 +236,13 @@ public class SequencerBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookup) {
-        super.onDataPacket(net, pkt, lookup);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

@@ -1,0 +1,12 @@
+{
+  "gives": {
+    "id": "smokeleafindustries:manual_grinder"
+  },
+  "max_uses": 1.0,
+  "reputation_discount": 0.01,
+  "wants": {
+    "count": 13.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 20.0
+}

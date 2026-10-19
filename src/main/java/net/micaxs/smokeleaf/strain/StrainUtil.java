@@ -4,7 +4,7 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
@@ -108,7 +108,7 @@ public final class StrainUtil {
         int mixedLeafColor = mixColors(leafA, amtA, leafB, amtB);
 
         // Effects union: read from WeedFluidStackUtil AND STRAIN_DATA (generic extract fluids store effects in STRAIN_DATA)
-        var effects = new LinkedHashSet<ResourceLocation>();
+        var effects = new LinkedHashSet<Identifier>();
         var wa = (a != null) ? WeedFluidStackUtil.getWeedData(a) : null;
         var wb = (b != null) ? WeedFluidStackUtil.getWeedData(b) : null;
         if (wa != null) effects.addAll(wa.effects());
@@ -118,7 +118,7 @@ public final class StrainUtil {
         if (b != null && hasStrain(b)) effects.addAll(getStrain(b).effects());
 
         // Hard cap at MAX_EFFECTS
-        List<ResourceLocation> effList = effects.stream().limit(MAX_EFFECTS).collect(java.util.stream.Collectors.toList());
+        List<Identifier> effList = effects.stream().limit(MAX_EFFECTS).collect(java.util.stream.Collectors.toList());
 
         int amp = 0;
         if (wa != null) amp = Math.max(amp, wa.amplifier());
@@ -261,10 +261,10 @@ public final class StrainUtil {
      * Appends a "Discovered by: {player}" tooltip line if the item stack carries a
      * {@code STRAIN_CREATOR} component. Preset/builtin strains never have this set.
      */
-    public static void appendCreatorTooltip(ItemStack stack, List<Component> tooltip) {
+    public static void appendCreatorTooltip(ItemStack stack, java.util.function.Consumer<Component> tooltip) {
         String creator = stack.get(ModDataComponentTypes.STRAIN_CREATOR.get());
         if (creator != null && !creator.isBlank()) {
-            tooltip.add(Component.literal("Discovered by: " + creator)
+            tooltip.accept(Component.literal("Discovered by: " + creator)
                     .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
         }
     }

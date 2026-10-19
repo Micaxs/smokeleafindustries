@@ -2,7 +2,7 @@ package net.micaxs.smokeleaf.strain;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -66,11 +66,11 @@ public final class StrainEffectsUtil {
      * strain always yields the same side-effect set.
      */
     public static List<MobEffect> getDeterministicExtras(
-            MobEffect baseEffect, int thc, int cbd, int count, List<ResourceLocation> pool) {
+            MobEffect baseEffect, int thc, int cbd, int count, List<Identifier> pool) {
 
         if (count <= 0 || pool.isEmpty()) return List.of();
 
-        ResourceLocation baseId = baseEffect != null ? BuiltInRegistries.MOB_EFFECT.getKey(baseEffect) : null;
+        Identifier baseId = baseEffect != null ? BuiltInRegistries.MOB_EFFECT.getKey(baseEffect) : null;
 
         long seed = 1469598103934665603L;
         seed ^= (baseId != null ? baseId.toString().hashCode() : 0);
@@ -78,10 +78,10 @@ public final class StrainEffectsUtil {
         seed = (seed * 1099511628211L) ^ cbd;
 
         List<MobEffect> candidates = new ArrayList<>();
-        for (ResourceLocation rl : pool) {
+        for (Identifier rl : pool) {
             if (rl == null) continue;
             if (baseId != null && rl.equals(baseId)) continue;
-            MobEffect eff = BuiltInRegistries.MOB_EFFECT.get(rl);
+            MobEffect eff = BuiltInRegistries.MOB_EFFECT.getValue(rl);
             if (eff != null) candidates.add(eff);
         }
         if (candidates.isEmpty()) return List.of();
@@ -109,7 +109,7 @@ public final class StrainEffectsUtil {
             int thc, int cbd, int amplifier,
             MobEffect baseEffect,
             float durationMult,
-            List<ResourceLocation> additionalPool) {
+            List<Identifier> additionalPool) {
 
         int durationTicks = computeDurationTicks(cbd, durationMult);
         List<MobEffectInstance> out = new ArrayList<>();
@@ -139,14 +139,14 @@ public final class StrainEffectsUtil {
      */
     public static List<MobEffectInstance> buildEffectInstancesFromList(
             int cbd, int amplifier,
-            List<ResourceLocation> effectIds,
+            List<Identifier> effectIds,
             float durationMult) {
 
         int durationTicks = computeDurationTicks(cbd, durationMult);
         List<MobEffectInstance> out = new ArrayList<>();
-        for (ResourceLocation rl : effectIds) {
+        for (Identifier rl : effectIds) {
             if (rl == null) continue;
-            MobEffect eff = BuiltInRegistries.MOB_EFFECT.get(rl);
+            MobEffect eff = BuiltInRegistries.MOB_EFFECT.getValue(rl);
             if (eff == null) continue;
             Holder<MobEffect> holder = toHolder(eff);
             if (holder != null) {
@@ -163,7 +163,7 @@ public final class StrainEffectsUtil {
     private static Holder<MobEffect> toHolder(MobEffect effect) {
         if (effect == null) return null;
         var keyOpt = BuiltInRegistries.MOB_EFFECT.getResourceKey(effect);
-        return keyOpt.map(k -> (Holder<MobEffect>) BuiltInRegistries.MOB_EFFECT.getHolderOrThrow(k))
+        return keyOpt.map(k -> (Holder<MobEffect>) BuiltInRegistries.MOB_EFFECT.getOrThrow(k))
                      .orElseGet(() -> Holder.direct(effect));
     }
 }

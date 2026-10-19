@@ -2,7 +2,6 @@ package net.micaxs.smokeleaf.loot;
 
 import com.mojang.serialization.MapCodec;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;

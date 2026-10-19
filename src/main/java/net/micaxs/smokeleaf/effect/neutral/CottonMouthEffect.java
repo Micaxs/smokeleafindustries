@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.effect.neutral;
 
+import net.minecraft.server.level.ServerLevel;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -13,7 +14,7 @@ public class CottonMouthEffect extends MobEffect {
     }
 
 //    @Override
-//    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+//    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity livingEntity, int amplifier) {
 //        if (!livingEntity.level().isClientSide()) {
 //            MobEffectInstance self = livingEntity.getEffect(ModEffects.COTTON_MOUTH);
 //            if (self != null) {
@@ -22,7 +23,7 @@ public class CottonMouthEffect extends MobEffect {
 //                livingEntity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, duration, amplifier, true, false, false));
 //            }
 //        }
-//        return super.applyEffectTick(livingEntity, amplifier);
+//        return super.applyEffectTick(serverLevel, livingEntity, amplifier);
 //    }
 
     @Override

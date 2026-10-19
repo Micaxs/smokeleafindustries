@@ -1,0 +1,10 @@
+{
+  "amount": 2.0,
+  "random_sequence": "smokeleafindustries:trade_set/dealer/level_5",
+  "trades": [
+    "smokeleafindustries:dealer/5/emerald_dna_strand",
+    "smokeleafindustries:dealer/5/emerald_hemp_core",
+    "smokeleafindustries:dealer/5/emerald_manual_grinder",
+    "smokeleafindustries:dealer/5/emerald_hemp_hammer"
+  ]
+}

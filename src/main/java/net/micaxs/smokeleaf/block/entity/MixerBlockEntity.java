@@ -1,6 +1,15 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import net.micaxs.smokeleaf.transfer.FluidAction;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
@@ -34,15 +43,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.micaxs.smokeleaf.fluid.TintedFluidType;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModFluidUtil;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.micaxs.smokeleaf.transfer.ModFluidTank;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,7 +69,7 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
     private static final int SLOT_A = 0;
     private static final int SLOT_B = 1;
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(2) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(2) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -77,12 +85,12 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
         }
     };
 
-    public IItemHandler getItemHandler(@Nullable Direction dir) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable Direction dir) {
         return itemHandler;
     }
 
-    private FluidTank createInputTank() {
-        return new FluidTank(4000) {
+    private ModFluidTank createInputTank() {
+        return new ModFluidTank(4000) {
             @Override
             protected void onContentsChanged() {
                 setChanged();
@@ -99,8 +107,8 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
         };
     }
 
-    private FluidTank createOutputTank() {
-        return new FluidTank(8000) {
+    private ModFluidTank createOutputTank() {
+        return new ModFluidTank(8000) {
             @Override
             protected void onContentsChanged() {
                 setChanged();
@@ -112,53 +120,39 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
         };
     }
 
-    private final FluidTank TANK_A = createInputTank();
-    private final FluidTank TANK_B = createInputTank();
-    private final FluidTank TANK_OUT = createOutputTank();
+    private final ModFluidTank TANK_A = createInputTank();
+    private final ModFluidTank TANK_B = createInputTank();
+    private final ModFluidTank TANK_OUT = createOutputTank();
 
     /**
      * GUI helper: allow draining from input tanks as well (player can remove mistakes).
      * The *capability* still only drains from output (see EXPOSED_FLUID_HANDLER).
      */
-    private final IFluidHandler TANK_A_IO = TANK_A;
-    private final IFluidHandler TANK_B_IO = TANK_B;
+    private final ResourceHandler<FluidResource> TANK_A_IO = TANK_A;
+    private final ResourceHandler<FluidResource> TANK_B_IO = TANK_B;
 
     /** Output tank should never accept inserts via pipes/GUI. */
-    private final IFluidHandler TANK_OUT_DRAIN_ONLY = new IFluidHandler() {
+    private final ResourceHandler<FluidResource> TANK_OUT_DRAIN_ONLY = new DelegatingResourceHandler<>(TANK_OUT) {
         @Override
-        public int getTanks() { return 1; }
-
-        @Override
-        public FluidStack getFluidInTank(int tank) { return TANK_OUT.getFluid(); }
-
-        @Override
-        public int getTankCapacity(int tank) { return TANK_OUT.getCapacity(); }
-
-        @Override
-        public boolean isFluidValid(int tank, FluidStack stack) {
+        public boolean isValid(int index, FluidResource resource) {
             // No filling via this handler.
-            return false;
+            return resource.isEmpty();
         }
 
         @Override
-        public int fill(FluidStack resource, FluidAction action) {
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
             return 0;
         }
 
         @Override
-        public FluidStack drain(FluidStack resource, FluidAction action) {
-            return TANK_OUT.drain(resource, action);
-        }
-
-        @Override
-        public FluidStack drain(int maxDrain, FluidAction action) {
-            return TANK_OUT.drain(maxDrain, action);
+        public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+            return 0;
         }
     };
 
-    public IFluidHandler getTankA(@Nullable Direction dir) { return TANK_A_IO; }
-    public IFluidHandler getTankB(@Nullable Direction dir) { return TANK_B_IO; }
-    public IFluidHandler getTankOut(@Nullable Direction dir) { return TANK_OUT_DRAIN_ONLY; }
+    public ResourceHandler<FluidResource> getTankA(@Nullable Direction dir) { return TANK_A_IO; }
+    public ResourceHandler<FluidResource> getTankB(@Nullable Direction dir) { return TANK_B_IO; }
+    public ResourceHandler<FluidResource> getTankOut(@Nullable Direction dir) { return TANK_OUT_DRAIN_ONLY; }
 
     public FluidStack getFluidA() { return TANK_A.getFluid(); }
     public FluidStack getFluidB() { return TANK_B.getFluid(); }
@@ -169,80 +163,83 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
      * - tanks 0-1: inputs (extract fluids only, insert only)
      * - tank 2: output (unidentified mixture, extract only)
      */
-    private final IFluidHandler EXPOSED_FLUID_HANDLER = new IFluidHandler() {
+    private final ResourceHandler<FluidResource> EXPOSED_FLUID_HANDLER = new ResourceHandler<>() {
+        private ModFluidTank tank(int index) {
+            return switch (index) {
+                case 0 -> TANK_A;
+                case 1 -> TANK_B;
+                default -> TANK_OUT;
+            };
+        }
+
         @Override
-        public int getTanks() {
+        public int size() {
             return 3;
         }
 
         @Override
-        public FluidStack getFluidInTank(int tank) {
-            return switch (tank) {
-                case 0 -> TANK_A.getFluid();
-                case 1 -> TANK_B.getFluid();
-                case 2 -> TANK_OUT.getFluid();
-                default -> FluidStack.EMPTY;
-            };
+        public FluidResource getResource(int index) {
+            return tank(index).getResource(0);
         }
 
         @Override
-        public int getTankCapacity(int tank) {
-            return switch (tank) {
-                case 0 -> TANK_A.getCapacity();
-                case 1 -> TANK_B.getCapacity();
-                case 2 -> TANK_OUT.getCapacity();
-                default -> 0;
-            };
+        public long getAmountAsLong(int index) {
+            return tank(index).getAmountAsLong(0);
         }
 
         @Override
-        public boolean isFluidValid(int tank, FluidStack stack) {
-            return switch (tank) {
-                case 0 -> TANK_A.isFluidValid(stack);
-                case 1 -> TANK_B.isFluidValid(stack);
-                case 2 -> false; // output is never fillable via capability
-                default -> false;
-            };
+        public long getCapacityAsLong(int index, FluidResource resource) {
+            return tank(index).getCapacityAsLong(0, resource);
         }
 
         @Override
-        public int fill(FluidStack resource, FluidAction action) {
+        public boolean isValid(int index, FluidResource resource) {
+            // output is never fillable via capability
+            return index != 2 && tank(index).isValid(0, resource);
+        }
+
+        @Override
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
             // Only allow insertion into input tanks A/B. Output is extract-only.
-            if (resource.isEmpty()) return 0;
+            if (index == 2) return 0;
+            return tank(index).insert(0, resource, amount, transaction);
+        }
 
+        @Override
+        public int insert(FluidResource resource, int amount, TransactionContext transaction) {
             // Keep tanks separate: fill at most ONE tank per call.
             // Prefer filling a tank that already contains this fluid; otherwise the first empty one.
             if (!TANK_A.isEmpty() && TANK_A.getFluid().is(resource.getFluid())) {
-                return TANK_A.fill(resource, action);
+                return TANK_A.insert(0, resource, amount, transaction);
             }
             if (!TANK_B.isEmpty() && TANK_B.getFluid().is(resource.getFluid())) {
-                return TANK_B.fill(resource, action);
+                return TANK_B.insert(0, resource, amount, transaction);
             }
 
             if (TANK_A.isEmpty()) {
-                return TANK_A.fill(resource, action);
+                return TANK_A.insert(0, resource, amount, transaction);
             }
             if (TANK_B.isEmpty()) {
-                return TANK_B.fill(resource, action);
+                return TANK_B.insert(0, resource, amount, transaction);
             }
 
             return 0;
         }
 
         @Override
-        public FluidStack drain(FluidStack resource, FluidAction action) {
+        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
             // Only allow extraction from output tank.
-            return TANK_OUT.drain(resource, action);
+            if (index != 2) return 0;
+            return TANK_OUT.extract(0, resource, amount, transaction);
         }
 
         @Override
-        public FluidStack drain(int maxDrain, FluidAction action) {
-            // Only allow extraction from output tank.
-            return TANK_OUT.drain(maxDrain, action);
+        public int extract(FluidResource resource, int amount, TransactionContext transaction) {
+            return TANK_OUT.extract(0, resource, amount, transaction);
         }
     };
 
-    public IFluidHandler getFluidHandler(@Nullable Direction dir) {
+    public ResourceHandler<FluidResource> getFluidHandler(@Nullable Direction dir) {
         return EXPOSED_FLUID_HANDLER;
     }
 
@@ -286,7 +283,7 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
         return new MixerMenu(id, inv, this, data);
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction dir) { return ENERGY_STORAGE; }
+    public EnergyHandler getEnergyStorage(@Nullable Direction dir) { return ENERGY_STORAGE; }
 
     public void drops() {
         SimpleContainer inv = new SimpleContainer(itemHandler.getSlots());
@@ -297,13 +294,13 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
     public void tick(Level level, BlockPos pos, BlockState state) {
         // Move fluid from containers into the input tanks.
         if (!itemHandler.getStackInSlot(SLOT_A).isEmpty()) {
-            FluidActionResult res = FluidUtil.tryEmptyContainer(itemHandler.getStackInSlot(SLOT_A), TANK_A, 1000, null, true);
+            FluidActionResult res = ModFluidUtil.tryEmptyContainer(itemHandler.getStackInSlot(SLOT_A), TANK_A, 1000, null, true);
             if (res.isSuccess()) {
                 itemHandler.setStackInSlot(SLOT_A, res.getResult());
             }
         }
         if (!itemHandler.getStackInSlot(SLOT_B).isEmpty()) {
-            FluidActionResult res = FluidUtil.tryEmptyContainer(itemHandler.getStackInSlot(SLOT_B), TANK_B, 1000, null, true);
+            FluidActionResult res = ModFluidUtil.tryEmptyContainer(itemHandler.getStackInSlot(SLOT_B), TANK_B, 1000, null, true);
             if (res.isSuccess()) {
                 itemHandler.setStackInSlot(SLOT_B, res.getResult());
             }
@@ -316,7 +313,7 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
             progress++;
             ENERGY_STORAGE.extractEnergy(20, false);
 
-            if (level.random.nextInt(2) == 0) {
+            if (level.getRandom().nextInt(2) == 0) {
                 level.addParticle(ParticleTypes.SMOKE, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 0, 0, 0);
             }
 
@@ -363,12 +360,12 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
             preview = StrainUtil.getStrain(a) != StrainData.EMPTY ? StrainUtil.getStrain(a) : StrainUtil.getStrain(b);
         } else {
             // Block mix if the combined effect count would exceed the per-strain maximum.
-            int aTint = IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
-            int bTint = IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
+            int aTint = TintedFluidType.tintOf(a);
+            int bTint = TintedFluidType.tintOf(b);
             preview = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
             // mixFromExtracts already caps at MAX_EFFECTS; but if input oils each have MAX_EFFECTS and
             // they are different, the total union would exceed the cap before truncation. We enforce it here.
-            var combinedEffects = new java.util.LinkedHashSet<net.minecraft.resources.ResourceLocation>();
+            var combinedEffects = new java.util.LinkedHashSet<net.minecraft.resources.Identifier>();
             net.micaxs.smokeleaf.fluid.WeedFluidData wa = WeedFluidStackUtil.getWeedData(a);
             net.micaxs.smokeleaf.fluid.WeedFluidData wb = WeedFluidStackUtil.getWeedData(b);
             if (wa != null) combinedEffects.addAll(wa.effects());
@@ -404,8 +401,8 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
     private void doMix() {
         int drainEach = 250;
 
-        FluidStack a = TANK_A.drain(drainEach, IFluidHandler.FluidAction.EXECUTE);
-        FluidStack b = TANK_B.drain(drainEach, IFluidHandler.FluidAction.EXECUTE);
+        FluidStack a = TANK_A.drain(drainEach, FluidAction.EXECUTE);
+        FluidStack b = TANK_B.drain(drainEach, FluidAction.EXECUTE);
         if (a.isEmpty() || b.isEmpty()) return;
 
         if (isSameStrain(a, b)) {
@@ -423,12 +420,12 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
             if (!same.effects().isEmpty()) {
                 WeedFluidStackUtil.withWeedData(passthrough, same.effects(), same.amplifier(), same.durationTicks());
             }
-            TANK_OUT.fill(passthrough, IFluidHandler.FluidAction.EXECUTE);
+            TANK_OUT.fill(passthrough, FluidAction.EXECUTE);
             return;
         }
 
-        int aTint = net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions.of(a.getFluid()).getTintColor(a);
-        int bTint = net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions.of(b.getFluid()).getTintColor(b);
+        int aTint = TintedFluidType.tintOf(a);
+        int bTint = TintedFluidType.tintOf(b);
 
         StrainData mixed = StrainUtil.mixFromExtracts(a, aTint, b, bTint);
 
@@ -503,7 +500,7 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
             WeedFluidStackUtil.withWeedData(out, mixed.effects(), mixed.amplifier(), mixed.durationTicks());
         }
 
-        TANK_OUT.fill(out, IFluidHandler.FluidAction.EXECUTE);
+        TANK_OUT.fill(out, FluidAction.EXECUTE);
     }
 
     /** Compare strain data ignoring identity fields (identified, displayName, typeColors). */
@@ -522,30 +519,30 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
 
     // NBT
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        tag.put("mixer.inventory", itemHandler.serializeNBT(regs));
-        tag.putInt("mixer.progress", progress);
-        tag.putInt("mixer.maxProgress", maxProgress);
-        tag.putInt("mixer.energy", ENERGY_STORAGE.getEnergyStored());
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("mixer.inventory"));
+        output.putInt("mixer.progress", progress);
+        output.putInt("mixer.maxProgress", maxProgress);
+        output.putInt("mixer.energy", ENERGY_STORAGE.getEnergyStored());
 
-        tag.put("mixer.tank_a", TANK_A.writeToNBT(regs, new CompoundTag()));
-        tag.put("mixer.tank_b", TANK_B.writeToNBT(regs, new CompoundTag()));
-        tag.put("mixer.tank_out", TANK_OUT.writeToNBT(regs, new CompoundTag()));
+        TANK_A.serialize(output.child("mixer.tank_a"));
+        TANK_B.serialize(output.child("mixer.tank_b"));
+        TANK_OUT.serialize(output.child("mixer.tank_out"));
 
-        super.saveAdditional(tag, regs);
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        itemHandler.deserializeNBT(regs, tag.getCompound("mixer.inventory"));
-        ENERGY_STORAGE.setEnergy(tag.getInt("mixer.energy"));
-        progress = tag.getInt("mixer.progress");
-        maxProgress = tag.getInt("mixer.maxProgress");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("mixer.inventory"));
+        ENERGY_STORAGE.setEnergy(input.getIntOr("mixer.energy", 0));
+        progress = input.getIntOr("mixer.progress", 0);
+        maxProgress = input.getIntOr("mixer.maxProgress", 0);
 
-        if (tag.contains("mixer.tank_a")) TANK_A.readFromNBT(regs, tag.getCompound("mixer.tank_a"));
-        if (tag.contains("mixer.tank_b")) TANK_B.readFromNBT(regs, tag.getCompound("mixer.tank_b"));
-        if (tag.contains("mixer.tank_out")) TANK_OUT.readFromNBT(regs, tag.getCompound("mixer.tank_out"));
+        TANK_A.deserialize(input.childOrEmpty("mixer.tank_a"));
+        TANK_B.deserialize(input.childOrEmpty("mixer.tank_b"));
+        TANK_OUT.deserialize(input.childOrEmpty("mixer.tank_out"));
     }
 
     @Override
@@ -559,8 +556,8 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
     }
 
     @Override
@@ -580,7 +577,7 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
         boolean changed = patchTank(TANK_A, strainId, entry);
         changed |= patchTank(TANK_B, strainId, entry);
         changed |= patchTank(TANK_OUT, strainId, entry);
-        // FluidTank#setFluid (used by patchTank below) just overwrites the field directly — unlike
+        // ModFluidTank#setFluid (used by patchTank below) just overwrites the field directly — unlike
         // fill()/drain(), it never calls onContentsChanged(), so without this the server-side data
         // is correct (which is why a relog picks it up) but no update packet ever goes out, leaving
         // the client's already-open GUI/tooltip showing the stale pre-identification fluid.
@@ -590,7 +587,7 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
         }
     }
 
-    private boolean patchTank(FluidTank tank, String strainId, StrainRegistrySavedData.StrainEntry entry) {
+    private boolean patchTank(ModFluidTank tank, String strainId, StrainRegistrySavedData.StrainEntry entry) {
         FluidStack fluid = tank.getFluid();
         if (fluid.isEmpty()) return false;
         String fluidStrainId = fluid.get(ModDataComponentTypes.STRAIN_ID.get());
@@ -604,5 +601,10 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
         tank.setFluid(updated);
         return true;
     }
-}
 
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "amount": 2.0,
+  "random_sequence": "smokeleafindustries:trade_set/dealer/level_4",
+  "trades": [
+    "smokeleafindustries:dealer/4/emerald_bio_composite",
+    "smokeleafindustries:dealer/4/emerald_dual_arc_lamp",
+    "smokeleafindustries:dealer/4/emerald_hemp_plastic",
+    "smokeleafindustries:dealer/4/emerald_unfinished_hemp_core",
+    "smokeleafindustries:dealer/4/emerald_infused_butter",
+    "smokeleafindustries:dealer/4/emerald_cat_urine_bottle"
+  ]
+}

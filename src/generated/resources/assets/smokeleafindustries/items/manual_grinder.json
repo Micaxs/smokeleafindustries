@@ -1,0 +1,15 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "component": "smokeleafindustries:manual_grinder_contents",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "smokeleafindustries:item/manual_grinder"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "smokeleafindustries:item/manual_grinder_full"
+    },
+    "property": "minecraft:has_component"
+  }
+}

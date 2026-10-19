@@ -15,7 +15,6 @@ public final class DNADebugCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("dnadebug")
-                        .requires(src -> src.hasPermission(0)) // adjust permission level if wanted
                         .executes(ctx -> {
                             var player = ctx.getSource().getPlayer();
                             if (player == null) return 0;

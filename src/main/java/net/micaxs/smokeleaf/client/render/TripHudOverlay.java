@@ -1,10 +1,12 @@
 package net.micaxs.smokeleaf.client.render;
 
+import net.micaxs.smokeleaf.client.GuiColors;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.effect.TripTier;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -29,13 +31,13 @@ public final class TripHudOverlay {
         if (stoned == null || !stoned.isVisible()) return;
 
         TripTier tier = TripTier.byAmplifier(stoned.getAmplifier());
-        GuiGraphics g = event.getGuiGraphics();
+        GuiGraphicsExtractor g = event.getGuiGraphics();
 
-        g.blit(tier.icon, X, Y, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+        g.blit(RenderPipelines.GUI_TEXTURED, tier.icon, X, Y, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
 
         int textX = X + ICON_SIZE + 5;
         int textY = Y + (ICON_SIZE / 2) - 4;
         int color = tier.unplayable ? 0xFFFF5555 : 0xFFAAFFAA;
-        g.drawString(mc.font, tier.displayName, textX, textY, color, true);
+        g.text(mc.font, tier.displayName, textX, textY, GuiColors.text(color), true);
     }
 }

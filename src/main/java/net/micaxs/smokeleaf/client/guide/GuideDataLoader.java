@@ -3,9 +3,12 @@ package net.micaxs.smokeleaf.client.guide;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.slf4j.Logger;
@@ -29,18 +32,18 @@ public class GuideDataLoader extends SimplePreparableReloadListener<GuideDataLoa
 
     private static Loaded current = Loaded.EMPTY;
 
-    public record Loaded(Map<ResourceLocation, GuideCategory> categories, Map<ResourceLocation, GuideEntry> entries) {
+    public record Loaded(Map<Identifier, GuideCategory> categories, Map<Identifier, GuideEntry> entries) {
         static final Loaded EMPTY = new Loaded(Map.of(), Map.of());
     }
 
     @Override
     protected Loaded prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
-        Map<ResourceLocation, JsonElement> categoryJson = new HashMap<>();
-        SimpleJsonResourceReloadListener.scanDirectory(resourceManager, "guide/categories", GSON, categoryJson);
-        Map<ResourceLocation, JsonElement> entryJson = new HashMap<>();
-        SimpleJsonResourceReloadListener.scanDirectory(resourceManager, "guide/entries", GSON, entryJson);
+        Map<Identifier, JsonElement> categoryJson = new HashMap<>();
+        SimpleJsonResourceReloadListener.scanDirectory(resourceManager, FileToIdConverter.json("guide/categories"), JsonOps.INSTANCE, ExtraCodecs.JSON, categoryJson);
+        Map<Identifier, JsonElement> entryJson = new HashMap<>();
+        SimpleJsonResourceReloadListener.scanDirectory(resourceManager, FileToIdConverter.json("guide/entries"), JsonOps.INSTANCE, ExtraCodecs.JSON, entryJson);
 
-        Map<ResourceLocation, GuideCategory> categories = new LinkedHashMap<>();
+        Map<Identifier, GuideCategory> categories = new LinkedHashMap<>();
         categoryJson.forEach((id, element) -> {
             try {
                 categories.put(id, GuideCategory.parse(id, element.getAsJsonObject()));
@@ -49,7 +52,7 @@ public class GuideDataLoader extends SimplePreparableReloadListener<GuideDataLoa
             }
         });
 
-        Map<ResourceLocation, GuideEntry> entries = new LinkedHashMap<>();
+        Map<Identifier, GuideEntry> entries = new LinkedHashMap<>();
         entryJson.forEach((id, element) -> {
             try {
                 entries.put(id, GuideEntry.parse(id, element.getAsJsonObject()));
@@ -73,7 +76,7 @@ public class GuideDataLoader extends SimplePreparableReloadListener<GuideDataLoa
                 .toList();
     }
 
-    public static List<GuideEntry> entriesFor(ResourceLocation categoryId) {
+    public static List<GuideEntry> entriesFor(Identifier categoryId) {
         return current.entries().values().stream()
                 .filter(e -> e.category().equals(categoryId))
                 .sorted(Comparator.comparingInt(GuideEntry::sortnum))

@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "#": {
-      "item": "smokeleafindustries:hemp_chiseled_stone"
-    }
+    "#": "smokeleafindustries:hemp_chiseled_stone"
   },
   "pattern": [
     "###"

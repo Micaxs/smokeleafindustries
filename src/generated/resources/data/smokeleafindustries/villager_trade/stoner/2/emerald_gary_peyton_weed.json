@@ -1,0 +1,18 @@
+{
+  "given_item_modifiers": [
+    {
+      "function": "smokeleafindustries:set_preset_strain",
+      "strain": "gary_peyton"
+    }
+  ],
+  "gives": {
+    "id": "smokeleafindustries:weed"
+  },
+  "max_uses": 6.0,
+  "reputation_discount": 0.01,
+  "wants": {
+    "count": 5.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 5.0
+}

@@ -1,0 +1,8 @@
+{
+  "amount": 2.0,
+  "random_sequence": "smokeleafindustries:trade_set/dealer/level_1",
+  "trades": [
+    "smokeleafindustries:dealer/1/emerald_hemp_seeds",
+    "smokeleafindustries:dealer/1/emerald_tobacco_seeds"
+  ]
+}

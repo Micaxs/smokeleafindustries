@@ -1,6 +1,11 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.recipe.GrinderRecipe;
@@ -30,10 +35,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +44,7 @@ import java.util.Optional;
 
 public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(2) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(2) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -55,13 +58,12 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
             if (slot != INPUT_SLOT) return false;
             if (stack.isEmpty() || level == null) return false;
 
-            return level.getRecipeManager()
-                    .getRecipeFor(ModRecipes.GRINDER_TYPE.get(), new GrinderRecipeInput(stack), level)
+            return ModRecipes.find(level, ModRecipes.GRINDER_TYPE.get(), new GrinderRecipeInput(stack))
                     .isPresent();
         }
     };
 
-    public IItemHandler getItemHandler(@Nullable Direction direction) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable Direction direction) {
         return ExtractRestrictedItemHandler.outputOnly(this.itemHandler, OUTPUT_SLOT);
     }
 
@@ -121,7 +123,7 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return this.ENERGY_STORAGE;
     }
 
@@ -151,7 +153,7 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
 
             this.ENERGY_STORAGE.extractEnergy(20, false);
 
-            if (level.random.nextInt(2) == 0) {
+            if (level.getRandom().nextInt(2) == 0) {
                 double x = blockPos.getX() + 0.5;
                 double y = blockPos.getY() + 1.0;
                 double z = blockPos.getZ() + 0.5;
@@ -182,8 +184,7 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
 
         ItemStack input = itemHandler.getStackInSlot(INPUT_SLOT);
         ItemStack assembled = recipe.get().value().assemble(
-                new GrinderRecipeInput(input.copyWithCount(1)),
-                level.registryAccess()
+                new GrinderRecipeInput(input.copyWithCount(1))
         );
 
         // Apply strain lineage so the component-equality check in canInsertItemIntoOutputSlot
@@ -220,8 +221,7 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private Optional<RecipeHolder<GrinderRecipe>> getCurrentRecipe() {
-        return this.level.getRecipeManager()
-                .getRecipeFor(ModRecipes.GRINDER_TYPE.get(), new GrinderRecipeInput(itemHandler.getStackInSlot(INPUT_SLOT)), level);
+        return ModRecipes.find(level, ModRecipes.GRINDER_TYPE.get(), new GrinderRecipeInput(itemHandler.getStackInSlot(INPUT_SLOT)));
     }
 
     private void craftItem() {
@@ -230,8 +230,7 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
 
         ItemStack inputStack = itemHandler.getStackInSlot(INPUT_SLOT);
         ItemStack result = recipeOpt.get().value().assemble(
-                new GrinderRecipeInput(inputStack.copyWithCount(1)),
-                level.registryAccess()
+                new GrinderRecipeInput(inputStack.copyWithCount(1))
         );
 
         // Propagate strain lineage from bud to weed
@@ -286,22 +285,22 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
 
     // NBT Data
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("grinder.inventory", itemHandler.serializeNBT(registries));
-        tag.putInt("grinder.progress", progress);
-        tag.putInt("grinder.maxProgress", maxProgress);
-        tag.putInt("grinder.energy", ENERGY_STORAGE.getEnergyStored());
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("grinder.inventory"));
+        output.putInt("grinder.progress", progress);
+        output.putInt("grinder.maxProgress", maxProgress);
+        output.putInt("grinder.energy", ENERGY_STORAGE.getEnergyStored());
 
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("grinder.inventory"));
-        ENERGY_STORAGE.setEnergy(tag.getInt("grinder.energy"));
-        progress = tag.getInt("grinder.progress");
-        maxProgress = tag.getInt("grinder.maxProgress");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("grinder.inventory"));
+        ENERGY_STORAGE.setEnergy(input.getIntOr("grinder.energy", 0));
+        progress = input.getIntOr("grinder.progress", 0);
+        maxProgress = input.getIntOr("grinder.maxProgress", 0);
     }
 
     // Server / Client Syncing
@@ -316,7 +315,13 @@ public class GrinderBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

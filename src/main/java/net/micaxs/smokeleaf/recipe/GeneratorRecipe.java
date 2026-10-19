@@ -14,7 +14,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public record GeneratorRecipe(Ingredient ingredient, int totalEnergy) implements Recipe<GeneratorRecipeInput> {
+public record GeneratorRecipe(Ingredient ingredient, int totalEnergy) implements ModMachineRecipe<GeneratorRecipeInput> {
 
     public static final int ENERGY_PER_TICK = 40;
 
@@ -29,21 +29,14 @@ public record GeneratorRecipe(Ingredient ingredient, int totalEnergy) implements
     }
 
     @Override
-    public ItemStack assemble(GeneratorRecipeInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(GeneratorRecipeInput input) {
         return ItemStack.EMPTY;
     }
 
-    @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return true;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
         return ItemStack.EMPTY;
     }
 
-    @Override
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> list = NonNullList.create();
         list.add(ingredient);
@@ -51,18 +44,18 @@ public record GeneratorRecipe(Ingredient ingredient, int totalEnergy) implements
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<GeneratorRecipe> getSerializer() {
         return ModRecipes.GENERATOR_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<GeneratorRecipe> getType() {
         return ModRecipes.GENERATOR_TYPE.get();
     }
 
-    public static class Serializer implements RecipeSerializer<GeneratorRecipe> {
+    public static class Serializer {
         public static final MapCodec<GeneratorRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(GeneratorRecipe::ingredient),
+                Ingredient.CODEC.fieldOf("ingredient").forGetter(GeneratorRecipe::ingredient),
                 com.mojang.serialization.Codec.INT.fieldOf("total_energy").forGetter(GeneratorRecipe::totalEnergy)
         ).apply(inst, GeneratorRecipe::new));
 
@@ -73,12 +66,10 @@ public record GeneratorRecipe(Ingredient ingredient, int totalEnergy) implements
                         GeneratorRecipe::new
                 );
 
-        @Override
         public MapCodec<GeneratorRecipe> codec() {
             return CODEC;
         }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, GeneratorRecipe> streamCodec() {
             return STREAM_CODEC;
         }

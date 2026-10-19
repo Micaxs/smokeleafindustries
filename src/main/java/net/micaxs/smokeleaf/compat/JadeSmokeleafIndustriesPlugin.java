@@ -20,11 +20,11 @@ public class JadeSmokeleafIndustriesPlugin implements IWailaPlugin {
 
     @Override
     public void register(IWailaCommonRegistration registration) {
-        registration.registerBlockDataProvider(WeedCropProvider.INSTANCE, BaseWeedCropBlock.class);
-        registration.registerBlockDataProvider(WeedCropProvider.INSTANCE, UnidentifiedWeedCropBlock.class);
-        registration.registerBlockDataProvider(GrowPotProvider.INSTANCE, GrowPotBlock.class);
-        registration.registerBlockDataProvider(DryingRackProvider.INSTANCE, DryingRackBlock.class);
-        registration.registerBlockDataProvider(ReflectorProvider.INSTANCE, ReflectorBlock.class);
+        registration.registerBlockDataProvider(WeedCropProvider.Data.INSTANCE, BaseWeedCropBlock.class);
+        registration.registerBlockDataProvider(WeedCropProvider.Data.INSTANCE, UnidentifiedWeedCropBlock.class);
+        registration.registerBlockDataProvider(GrowPotProvider.Data.INSTANCE, GrowPotBlock.class);
+        registration.registerBlockDataProvider(DryingRackProvider.Data.INSTANCE, DryingRackBlock.class);
+        registration.registerBlockDataProvider(ReflectorProvider.Data.INSTANCE, ReflectorBlock.class);
 
     }
 

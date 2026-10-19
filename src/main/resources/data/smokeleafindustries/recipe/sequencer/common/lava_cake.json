@@ -1,12 +1,15 @@
 {
   "type": "smokeleafindustries:sequencer",
-  "dna": { "item": "smokeleafindustries:dna_strand" },
-  "base_extract": { "item": "smokeleafindustries:base_extract" },
+  "dna": "smokeleafindustries:dna_strand",
+  "base_extract": "smokeleafindustries:base_extract",
   "required_reagents": [
-    { "item": "minecraft:magma_cream" },
-    { "item": "minecraft:cactus" },
-    { "item": "minecraft:red_dye" }
+    "minecraft:magma_cream",
+    "minecraft:cactus",
+    "minecraft:red_dye"
   ],
-  "result": { "id": "smokeleafindustries:extract", "count": 1 },
+  "result": {
+    "id": "smokeleafindustries:extract",
+    "count": 1
+  },
   "strain_id": "lava_cake"
 }

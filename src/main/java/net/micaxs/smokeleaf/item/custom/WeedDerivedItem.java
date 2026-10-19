@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import java.util.function.Consumer;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainEffectsUtil;
@@ -10,9 +12,9 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,7 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 
 import java.util.Collections;
@@ -29,21 +31,21 @@ import java.util.List;
 public class WeedDerivedItem extends Item {
     private final float effectDurationMultiplier;
     private final float stonedChance;
-    private final UseAnim useAnimation;
+    private final ItemUseAnimation useAnimation;
     private final int useDuration;
     private final int requiredStreak;
-    private static final List<ResourceLocation> ADDITIONAL_EFFECT_POOL = Collections.emptyList();
+    private static final List<Identifier> ADDITIONAL_EFFECT_POOL = Collections.emptyList();
 
-    public WeedDerivedItem(Properties pProperties, float effectDurationMultiplier, float stonedChance, UseAnim useAnimation) {
+    public WeedDerivedItem(Properties pProperties, float effectDurationMultiplier, float stonedChance, ItemUseAnimation useAnimation) {
         this(pProperties, effectDurationMultiplier, stonedChance, useAnimation, 20);
     }
 
-    public WeedDerivedItem(Properties pProperties, float effectDurationMultiplier, float stonedChance, UseAnim useAnimation, int useDuration) {
+    public WeedDerivedItem(Properties pProperties, float effectDurationMultiplier, float stonedChance, ItemUseAnimation useAnimation, int useDuration) {
         this(pProperties, effectDurationMultiplier, stonedChance, useAnimation, useDuration,
                 net.micaxs.smokeleaf.effect.TripStreakTracker.REQUIRED_STREAK);
     }
 
-    public WeedDerivedItem(Properties pProperties, float effectDurationMultiplier, float stonedChance, UseAnim useAnimation, int useDuration, int requiredStreak) {
+    public WeedDerivedItem(Properties pProperties, float effectDurationMultiplier, float stonedChance, ItemUseAnimation useAnimation, int useDuration, int requiredStreak) {
         super(pProperties);
         this.effectDurationMultiplier = effectDurationMultiplier;
         this.stonedChance = stonedChance;
@@ -53,7 +55,7 @@ public class WeedDerivedItem extends Item {
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return this.useAnimation;
     }
 
@@ -63,13 +65,13 @@ public class WeedDerivedItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         if (usedHand == InteractionHand.MAIN_HAND) {
             ItemStack itemstack = player.getItemInHand(usedHand);
             player.startUsingItem(usedHand);
-            return InteractionResultHolder.consume(itemstack);
+            return InteractionResult.CONSUME;
         } else {
-            return InteractionResultHolder.pass(player.getItemInHand(usedHand));
+            return InteractionResult.PASS;
         }
     }
 
@@ -77,7 +79,7 @@ public class WeedDerivedItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
         spawnSmokeParticles(level, livingEntity);
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             StrainData strain = StrainUtil.getStrain(stack);
             if (strain != StrainData.EMPTY) {
                 List<MobEffectInstance> effects = StrainEffectsUtil.buildEffectInstances(
@@ -93,7 +95,7 @@ public class WeedDerivedItem extends Item {
                 }
             }
 
-            if (level.random.nextDouble() <= this.stonedChance) {
+            if (level.getRandom().nextDouble() <= this.stonedChance) {
                 Holder<MobEffect> stonedHolder = resolveModEffectHolder(level);
                 int previousStonedDuration = 0;
                 if (livingEntity.hasEffect(stonedHolder)) {
@@ -123,8 +125,8 @@ public class WeedDerivedItem extends Item {
 
     private MobEffect getBaseEffect(StrainData strain) {
         if (!strain.effects().isEmpty()) {
-            ResourceLocation id = strain.effects().get(0);
-            MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(id);
+            Identifier id = strain.effects().get(0);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.getValue(id);
             if (effect != null) return effect;
         }
         return null;
@@ -145,32 +147,32 @@ public class WeedDerivedItem extends Item {
         return BuiltInRegistries.MOB_EFFECT
                 .getResourceKey(effect)
                 .flatMap(key -> level.registryAccess()
-                        .registryOrThrow(Registries.MOB_EFFECT)
-                        .getHolder(key))
+                        .lookupOrThrow(Registries.MOB_EFFECT)
+                        .get(key))
                 .orElseThrow(() -> new IllegalStateException("Unregistered MobEffect: " + effect));
     }
 
     private void spawnSmokeParticles(Level level, LivingEntity entity) {
         for (int i = 0; i < 10; i++) {
-            double xOffset = level.random.nextGaussian() * 0.02D;
-            double yOffset = level.random.nextGaussian() * 0.02D;
-            double zOffset = level.random.nextGaussian() * 0.02D;
+            double xOffset = level.getRandom().nextGaussian() * 0.02D;
+            double yOffset = level.getRandom().nextGaussian() * 0.02D;
+            double zOffset = level.getRandom().nextGaussian() * 0.02D;
             level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                    entity.getX() + entity.getBbWidth() * (level.random.nextDouble() - 0.5D),
+                    entity.getX() + entity.getBbWidth() * (level.getRandom().nextDouble() - 0.5D),
                     entity.getEyeY(),
-                    entity.getZ() + entity.getBbWidth() * (level.random.nextDouble() - 0.5D),
+                    entity.getZ() + entity.getBbWidth() * (level.getRandom().nextDouble() - 0.5D),
                     xOffset, yOffset, zOffset);
         }
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, display, tooltipComponents, tooltipFlag);
 
         StrainData strain = StrainUtil.getStrain(stack);
         if (strain == StrainData.EMPTY) return;
 
-        tooltipComponents.add(
+        tooltipComponents.accept(
                 Component.literal("Levels: ")
                         .append(Component.literal(strain.thc() + "%").withStyle(ChatFormatting.GREEN))
                         .append(Component.literal(" THC").withStyle(ChatFormatting.DARK_GRAY))

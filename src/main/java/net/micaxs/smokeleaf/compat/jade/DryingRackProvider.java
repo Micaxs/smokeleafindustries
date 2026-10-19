@@ -10,7 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import snownee.jade.api.BlockAccessor;
@@ -18,24 +18,46 @@ import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.ui.IElement;
-import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.api.ui.Element;
+import snownee.jade.api.ui.JadeUI;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.RegistryOps;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public enum DryingRackProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum DryingRackProvider implements IBlockComponentProvider {
     INSTANCE;
 
-    private static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "drying_rack");
+    /**
+     * Server half of this provider. Since 1.21.6 Jade requires the server data provider and the
+     * client tooltip provider to be separate objects; this one just forwards to the shared logic.
+     */
+    public enum Data implements IServerDataProvider<BlockAccessor> {
+        INSTANCE;
+
+        @Override
+        public Identifier getUid() {
+            return DryingRackProvider.INSTANCE.getUid();
+        }
+
+        @Override
+        public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
+            DryingRackProvider.INSTANCE.appendServerData(tag, accessor);
+        }
+    }
+
+    private static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "drying_rack");
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return UID;
     }
 
-    @Override
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
         if (!(accessor.getBlockEntity() instanceof DryingRackBlockEntity rack)) return;
 
@@ -69,7 +91,7 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
             // Keep payload small (Jade has size limits) — send only what's needed for icon tint + label.
             CompoundTag slot = new CompoundTag();
             slot.putString("id", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
-            slot.putString("displayName", Component.Serializer.toJson(stack.getHoverName(), registries));
+            slot.putString("displayName", toJson(stack.getHoverName(), registries));
 
             // Tint colors for the icon — just two ints instead of a full ItemStack serialization.
             StrainData sd = StrainUtil.getStrain(stack);
@@ -92,7 +114,6 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        IElementHelper elements = IElementHelper.get();
         net.minecraft.core.HolderLookup.Provider registries = accessor.getLevel().registryAccess();
 
         LinkedHashMap<String, GroupEntry> groups = new LinkedHashMap<>();
@@ -101,16 +122,16 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
             String key = "S" + i;
             if (!accessor.getServerData().contains(key)) continue;
 
-            CompoundTag s = accessor.getServerData().getCompound(key);
+            CompoundTag s = accessor.getServerData().getCompoundOrEmpty(key);
 
-            ResourceLocation id = ResourceLocation.tryParse(s.getString("id"));
+            Identifier id = Identifier.tryParse(s.getStringOr("id", ""));
             if (id == null) continue;
 
             // Reconstruct a tinted icon using only the color ints — lightweight, no full stack parse.
-            ItemStack iconStack = new ItemStack(BuiltInRegistries.ITEM.get(id));
+            ItemStack iconStack = new ItemStack(BuiltInRegistries.ITEM.getValue(id));
             if (s.contains("colorArgb")) {
-                int colorArgb = s.getInt("colorArgb");
-                int leafColor = s.contains("leafColor") ? s.getInt("leafColor") : 0xFF4A7A2E;
+                int colorArgb = s.getIntOr("colorArgb", 0);
+                int leafColor = s.getIntOr("leafColor", 0xFF4A7A2E);
                 // Build a minimal StrainData carrying only the tint colors for the icon renderer.
                 iconStack.set(ModDataComponentTypes.STRAIN_DATA.get(), new StrainData(
                         colorArgb, leafColor,
@@ -119,26 +140,26 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
                         false, "",
                         StrainData.TypeColors.NONE, "", ""));
             }
-            if (s.getBoolean("dry")) {
+            if (s.getBooleanOr("dry", false)) {
                 iconStack.set(ModDataComponentTypes.DRY, true);
             }
 
-            boolean isBud = s.getBoolean("bud");
-            boolean isDryBud = s.getBoolean("dry");
-            boolean active = s.getBoolean("active");
-            int seconds = s.getInt("sec");
+            boolean isBud = s.getBooleanOr("bud", false);
+            boolean isDryBud = s.getBooleanOr("dry", false);
+            boolean active = s.getBooleanOr("active", false);
+            int seconds = s.getIntOr("sec", 0);
 
-            String displayNameJson = s.getString("displayName");
+            String displayNameJson = s.getStringOr("displayName", "");
             Component name;
             if (!displayNameJson.isBlank()) {
-                Component parsed = Component.Serializer.fromJson(displayNameJson, registries);
+                Component parsed = fromJson(displayNameJson, registries);
                 name = (parsed != null ? parsed : iconStack.getHoverName()).copy().withStyle(ChatFormatting.WHITE);
             } else {
                 name = iconStack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
             }
 
             // Group by item id + display name + dry state
-            String groupKey = s.getString("id") + "|" + displayNameJson + "|" + isDryBud;
+            String groupKey = s.getStringOr("id", "") + "|" + displayNameJson + "|" + isDryBud;
             GroupEntry existing = groups.get(groupKey);
             if (existing == null) {
                 groups.put(groupKey, new GroupEntry(iconStack, name, isBud, isDryBud, active, seconds, 1));
@@ -155,7 +176,7 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
         for (Map.Entry<String, GroupEntry> entry : groups.entrySet()) {
             GroupEntry g = entry.getValue();
 
-            IElement icon = elements.item(g.icon(), 0.5f).size(new Vec2(10, 10)).translate(new Vec2(-2, -1));
+            Element icon = JadeUI.item(g.icon(), 0.5f).size(10, 10).offset(-2, -1);
 
             Component nameWithCount = g.count() > 1
                     ? Component.empty().append(g.name())
@@ -181,7 +202,22 @@ public enum DryingRackProvider implements IBlockComponentProvider, IServerDataPr
             }
 
             tooltip.add(icon);
-            tooltip.append(elements.text(line));
+            tooltip.append(JadeUI.text(line));
+        }
+    }
+
+    private static String toJson(Component component, net.minecraft.core.HolderLookup.Provider registries) {
+        return ComponentSerialization.CODEC.encodeStart(RegistryOps.create(JsonOps.INSTANCE, registries), component)
+                .result().map(JsonElement::toString).orElse("");
+    }
+
+    @org.jetbrains.annotations.Nullable
+    private static Component fromJson(String json, net.minecraft.core.HolderLookup.Provider registries) {
+        try {
+            return ComponentSerialization.CODEC.parse(RegistryOps.create(JsonOps.INSTANCE, registries), JsonParser.parseString(json))
+                    .result().orElse(null);
+        } catch (RuntimeException e) {
+            return null;
         }
     }
 

@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": {
-      "item": "smokeleafindustries:hemp_core"
-    },
-    "I": {
-      "item": "minecraft:iron_ingot"
-    },
-    "P": {
-      "item": "smokeleafindustries:hemp_plastic"
-    },
-    "W": {
-      "item": "smokeleafindustries:hemp_leaf"
-    }
+    "C": "smokeleafindustries:hemp_core",
+    "I": "minecraft:iron_ingot",
+    "P": "smokeleafindustries:hemp_plastic",
+    "W": "smokeleafindustries:hemp_leaf"
   },
   "pattern": [
     " C ",
@@ -21,7 +13,6 @@
     "PPP"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:plant_analyzer"
   }
 }

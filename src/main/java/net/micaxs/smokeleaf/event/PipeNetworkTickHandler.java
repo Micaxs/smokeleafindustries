@@ -7,18 +7,18 @@ import net.micaxs.smokeleaf.block.entity.pipe.PipeNetworkManager;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.resource.Resource;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -103,39 +103,17 @@ public final class PipeNetworkTickHandler {
         PipeEndpoint export = exports.get(network.roundRobinCursor);
         network.roundRobinCursor = (network.roundRobinCursor + 1) % exports.size();
 
-        if (!(export.cache.getCapability() instanceof IItemHandler source)) return;
+        ResourceHandler<ItemResource> source = handlerOf(export);
+        if (source == null) return;
 
         int remaining = ITEM_TRANSFER_CAP;
         for (PipeEndpoint imp : imports) {
             if (sameFace(export, imp)) continue;
-            if (!(imp.cache.getCapability() instanceof IItemHandler dest)) continue;
-            remaining -= moveItems(source, dest, remaining);
+            ResourceHandler<ItemResource> dest = handlerOf(imp);
+            if (dest == null) continue;
+            remaining -= ResourceHandlerUtil.moveStacking(source, dest, resource -> true, remaining, null);
             if (remaining <= 0) break;
         }
-    }
-
-    private static int moveItems(IItemHandler source, IItemHandler dest, int maxAmount) {
-        int moved = 0;
-        for (int slot = 0; slot < source.getSlots() && moved < maxAmount; slot++) {
-            ItemStack peek = source.extractItem(slot, maxAmount - moved, true);
-            if (peek.isEmpty()) continue;
-
-            ItemStack simulatedLeftover = ItemHandlerHelper.insertItemStacked(dest, peek, true);
-            int insertable = peek.getCount() - simulatedLeftover.getCount();
-            if (insertable <= 0) continue;
-
-            ItemStack extracted = source.extractItem(slot, insertable, false);
-            if (extracted.isEmpty()) continue;
-
-            ItemStack notInserted = ItemHandlerHelper.insertItemStacked(dest, extracted, false);
-            int actuallyMoved = extracted.getCount() - notInserted.getCount();
-            if (!notInserted.isEmpty()) {
-                // Insert didn't fully take (shouldn't normally happen given the simulate above) — put it back rather than lose it.
-                ItemHandlerHelper.insertItemStacked(source, notInserted, false);
-            }
-            moved += actuallyMoved;
-        }
-        return moved;
     }
 
     // -----------------------------------------------------------------------
@@ -151,14 +129,15 @@ public final class PipeNetworkTickHandler {
         PipeEndpoint export = exports.get(network.roundRobinCursor);
         network.roundRobinCursor = (network.roundRobinCursor + 1) % exports.size();
 
-        if (!(export.cache.getCapability() instanceof IFluidHandler source)) return;
-        if (source.getFluidInTank(0).getFluid() == Fluids.EMPTY) return;
+        ResourceHandler<FluidResource> source = handlerOf(export);
+        if (source == null || ResourceHandlerUtil.isEmpty(source)) return;
 
         for (PipeEndpoint imp : imports) {
             if (sameFace(export, imp)) continue;
-            if (!(imp.cache.getCapability() instanceof IFluidHandler dest)) continue;
-            FluidStack moved = FluidUtil.tryFluidTransfer(dest, source, FLUID_TRANSFER_CAP, true);
-            if (!moved.isEmpty()) break;
+            ResourceHandler<FluidResource> dest = handlerOf(imp);
+            if (dest == null) continue;
+            int moved = ResourceHandlerUtil.move(source, dest, resource -> true, FLUID_TRANSFER_CAP, null);
+            if (moved > 0) break;
         }
     }
 
@@ -172,22 +151,21 @@ public final class PipeNetworkTickHandler {
         if (exports.isEmpty() || imports.isEmpty()) return;
 
         for (PipeEndpoint export : exports) {
-            if (!(export.cache.getCapability() instanceof IEnergyStorage source) || !source.canExtract()) continue;
-            int available = source.extractEnergy(Integer.MAX_VALUE, true);
-            if (available <= 0) continue;
+            if (!(export.cache.getCapability() instanceof EnergyHandler source)) continue;
 
-            int remaining = available;
             for (PipeEndpoint imp : imports) {
                 if (sameFace(export, imp)) continue;
-                if (!(imp.cache.getCapability() instanceof IEnergyStorage dest) || !dest.canReceive()) continue;
-                int accepted = dest.receiveEnergy(remaining, false);
-                if (accepted > 0) {
-                    source.extractEnergy(accepted, false);
-                    remaining -= accepted;
-                }
-                if (remaining <= 0) break;
+                if (!(imp.cache.getCapability() instanceof EnergyHandler dest)) continue;
+                EnergyHandlerUtil.move(source, dest, Integer.MAX_VALUE, null);
+                if (source.getAmountAsLong() <= 0) break;
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    private static <T extends Resource> ResourceHandler<T> handlerOf(PipeEndpoint endpoint) {
+        return endpoint.cache.getCapability() instanceof ResourceHandler<?> handler ? (ResourceHandler<T>) handler : null;
     }
 
     private static boolean sameFace(PipeEndpoint a, PipeEndpoint b) {

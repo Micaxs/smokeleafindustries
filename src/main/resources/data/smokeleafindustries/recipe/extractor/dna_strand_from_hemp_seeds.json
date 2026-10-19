@@ -1,8 +1,6 @@
 {
   "type": "smokeleafindustries:extractor",
-  "ingredient": {
-    "item": "smokeleafindustries:hemp_seeds"
-  },
+  "ingredient": "smokeleafindustries:hemp_seeds",
   "result": {
     "id": "smokeleafindustries:dna_strand",
     "count": 1

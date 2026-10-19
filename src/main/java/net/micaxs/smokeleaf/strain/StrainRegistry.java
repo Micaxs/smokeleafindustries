@@ -2,7 +2,7 @@ package net.micaxs.smokeleaf.strain;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -315,7 +315,7 @@ public final class StrainRegistry {
         PRESETS.clear();
         PRESETS.putAll(BUILTIN_PRESETS);
         registry.entrySet().forEach(entry -> {
-            String id = entry.getKey().location().getPath();
+            String id = entry.getKey().identifier().getPath();
             PRESETS.put(normalize(id), entry.getValue());
         });
         SmokeleafIndustries.LOGGER.info("StrainRegistry reloaded: {} strains available", PRESETS.size());
@@ -350,7 +350,7 @@ public final class StrainRegistry {
                                      int nitrogen,
                                      int phosphorus,
                                      int potassium,
-                                     List<ResourceLocation> effects,
+                                     List<Identifier> effects,
                                      int amplifier,
                                      int durationTicks,
                                      String displayName) {
@@ -370,7 +370,7 @@ public final class StrainRegistry {
         return strainId == null ? "" : strainId.trim().toLowerCase();
     }
 
-    private static ResourceLocation rl(String namespace, String path) {
-        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+    private static Identifier rl(String namespace, String path) {
+        return Identifier.fromNamespaceAndPath(namespace, path);
     }
 }

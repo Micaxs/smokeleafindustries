@@ -2,7 +2,7 @@ package net.micaxs.smokeleaf.effect.beneficial;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.effect.ModEffects;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -21,7 +21,7 @@ public class HighFlyerEffect extends MobEffect {
 
         this.addAttributeModifier(
                 NeoForgeMod.CREATIVE_FLIGHT,
-                ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "high_flyer_effect"),
+                Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "high_flyer_effect"),
                 1.0D,
                 AttributeModifier.Operation.ADD_VALUE
         );

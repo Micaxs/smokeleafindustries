@@ -1,21 +1,13 @@
 {
   "type": "smokeleafindustries:armor_upgrade_shapeless",
-  "base": {
-    "item": "smokeleafindustries:baja_hoodie_chestplate"
-  },
+  "base": "smokeleafindustries:baja_hoodie_chestplate",
+  "category": "equipment",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:baja_hoodie_chestplate"
-    },
-    {
-      "item": "smokeleafindustries:hemp_plastic"
-    },
-    {
-      "item": "minecraft:netherite_ingot"
-    }
+    "smokeleafindustries:baja_hoodie_chestplate",
+    "smokeleafindustries:hemp_plastic",
+    "minecraft:netherite_ingot"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:reinforced_baja_hoodie_chestplate"
   }
 }

@@ -1,0 +1,12 @@
+{
+  "gives": {
+    "id": "minecraft:emerald"
+  },
+  "max_uses": 10.0,
+  "reputation_discount": 0.01,
+  "wants": {
+    "count": 5.0,
+    "id": "smokeleafindustries:hemp_leaf"
+  },
+  "xp": 2.0
+}

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:empty_vial"
-    },
-    {
-      "item": "smokeleafindustries:cat_urine_bottle"
-    },
-    {
-      "item": "minecraft:torchflower"
-    }
+    "smokeleafindustries:empty_vial",
+    "smokeleafindustries:cat_urine_bottle",
+    "minecraft:torchflower"
   ],
   "result": {
     "count": 2,

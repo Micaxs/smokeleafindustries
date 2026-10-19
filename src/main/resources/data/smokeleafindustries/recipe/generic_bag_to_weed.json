@@ -2,7 +2,7 @@
   "type": "smokeleafindustries:strain_copy_shapeless",
   "category": "misc",
   "ingredients": [
-    { "item": "smokeleafindustries:bag" }
+    "smokeleafindustries:bag"
   ],
   "result": {
     "count": 8,

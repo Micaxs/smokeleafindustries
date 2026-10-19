@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:calcite"
-    },
-    {
-      "item": "minecraft:bone_meal"
-    },
-    {
-      "item": "minecraft:sand"
-    }
+    "minecraft:calcite",
+    "minecraft:bone_meal",
+    "minecraft:sand"
   ],
   "result": {
     "count": 2,

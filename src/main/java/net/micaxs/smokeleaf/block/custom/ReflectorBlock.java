@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -23,14 +22,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class ReflectorBlock extends BaseEntityBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty HAS_LAMP = BooleanProperty.create("has_lamp");
 
     public ReflectorBlock(Properties properties) {
@@ -88,9 +87,9 @@ public class ReflectorBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (!state.getValue(HAS_LAMP) && ( stack.is(ModItems.HPS_LAMP.get()) || stack.is(ModItems.DUAL_ARC_LAMP.get()))) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof ReflectorBlockEntity reflector) {
@@ -98,15 +97,15 @@ public class ReflectorBlock extends BaseEntityBlock {
                 level.setBlock(pos, state.setValue(HAS_LAMP, true), Block.UPDATE_ALL);
                 if (!player.isCreative()) stack.shrink(1);
                 reflector.setChanged();
-                return ItemInteractionResult.CONSUME;
+                return InteractionResult.CONSUME;
             }
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return state.getValue(HAS_LAMP) && player.getMainHandItem().isEmpty()
                     ? InteractionResult.SUCCESS
                     : InteractionResult.PASS;
@@ -137,17 +136,6 @@ public class ReflectorBlock extends BaseEntityBlock {
         return InteractionResult.CONSUME;
     }
 
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos,
-                         BlockState newState, boolean isMoving) {
-        if (state.getBlock() != newState.getBlock()) {
-            BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof ReflectorBlockEntity reflector) {
-                reflector.dropContents();
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
-    }
 
     @Nullable
     @Override
@@ -159,7 +147,7 @@ public class ReflectorBlock extends BaseEntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
                                                                   BlockEntityType<T> type) {
-        return level.isClientSide ? null :
+        return level.isClientSide() ? null :
                 createTickerHelper(type, ModBlockEntities.REFLECTOR.get(), ReflectorBlockEntity::serverTick);
     }
 }

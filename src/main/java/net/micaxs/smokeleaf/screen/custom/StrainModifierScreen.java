@@ -1,24 +1,27 @@
 package net.micaxs.smokeleaf.screen.custom;
 
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.entity.StrainModifierBlockEntity;
 import net.micaxs.smokeleaf.network.StrainModifierUpdatePayload;
 import net.micaxs.smokeleaf.utils.MouseUtil;
 import net.micaxs.smokeleaf.utils.StrainModifierCostUtil;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 public class StrainModifierScreen extends AbstractContainerScreen<StrainModifierMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/strain_modifier/strain_modifier_gui.png");
+    public static final Identifier GUI_TEXTURE = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/strain_modifier/strain_modifier_gui.png");
 
     // ── Naming Input Box
     private static final int NAME_BOX_X = 31, NAME_BOX_Y = 9, NAME_BOX_W = 117, NAME_BOX_H = 9;
@@ -98,19 +101,16 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        renderTooltip(guiGraphics, mouseX, mouseY);
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int i, int i1, float v) {
+        super.extractBackground(guiGraphics, i, i1, v);
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-        guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight, 256, 256);
 
         ensureInitialised();
 
@@ -122,7 +122,7 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
     }
 
     @Override
-    protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int ox = (width - imageWidth) / 2, oy = (height - imageHeight) / 2;
         int cost = calculatePreviewCost();
         int meter = menu.getLeafMeter();
@@ -130,8 +130,8 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
         // Render THC & CBD Values to the right of the sliders
         String thcStr = sliderThc + "%";
         String cbdStr = sliderCbd + "%";
-        g.drawString(font, thcStr, STAT_FILL_X + STAT_FILL_W + 3, THC_Y - 1, 0xFFC5C5C5, false);
-        g.drawString(font, cbdStr, STAT_FILL_X + STAT_FILL_W + 3, CBD_Y - 1, 0xFFC5C5C5, false);
+        g.text(font, thcStr, STAT_FILL_X + STAT_FILL_W + 3, THC_Y - 1, 0xFFC5C5C5, false);
+        g.text(font, cbdStr, STAT_FILL_X + STAT_FILL_W + 3, CBD_Y - 1, 0xFFC5C5C5, false);
 
         // Tooltip: Save Button
         if (MouseUtil.isMouseOver(mouseX, mouseY, ox + BTN_SAVE_X, oy + BTN_Y, BTN_SAVE_W, BTN_H)) {
@@ -140,14 +140,14 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
             else if (cost > meter)  msg = "Not enough leaves (need " + cost + ", have " + meter + ")";
             else if (cost == 0)     msg = "No changes to save";
             else                    msg = "Save  (cost: " + cost + " leaves)";
-            g.renderTooltip(font, Component.literal(msg), mouseX - ox, mouseY - oy);
+            g.setTooltipForNextFrame(font, Component.literal(msg), mouseX, mouseY);
         }
 
         // Tooltip: Leaf Bar Meter
         if (MouseUtil.isMouseOver(mouseX, mouseY, ox + METER_X, oy + METER_Y, METER_W, METER_H)) {
             String meterText = "Leaves: " + meter + " / " + StrainModifierBlockEntity.MAX_LEAF_CAPACITY;
             String costText = "Current Cost: " + cost + " leaves";
-            g.renderTooltip(font, java.util.List.of(
+            g.setTooltipForNextFrame(font, java.util.List.of(
                     Component.literal(meterText),
                     Component.literal(costText)
             ), java.util.Optional.empty(), mouseX - ox, mouseY - oy);
@@ -155,7 +155,10 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0) {
             int ox = (width - imageWidth) / 2, oy = (height - imageHeight) / 2;
             int mx = (int) mouseX, my = (int) mouseY;
@@ -198,11 +201,14 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
                 }
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0 && draggingSlider >= 0) {
             if (!menu.hasSeed()) {
                 draggingSlider = -1;
@@ -211,29 +217,35 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
             updateSliderFromMouse((int) mouseX, (width - imageWidth) / 2);
             return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0 && draggingSlider >= 0) {
             draggingSlider = -1;
             sendSliderUpdate();
             return true;
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
         // While the name box is focused, swallow every key except Escape so global keybinds
         // (e.g. "E" for inventory) don't fire mid-typing. Escape still falls through to close
         // the screen normally, which also drops the box's focus.
         if (this.nameInput != null && this.nameInput.isFocused() && keyCode != GLFW.GLFW_KEY_ESCAPE) {
-            this.nameInput.keyPressed(keyCode, scanCode, modifiers);
+            this.nameInput.keyPressed(event);
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     private void ensureInitialised() {
@@ -282,7 +294,7 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
         initialised = true;
     }
 
-    private void renderLeafMeter(GuiGraphics guiGraphics, int x, int y) {
+    private void renderLeafMeter(GuiGraphicsExtractor guiGraphics, int x, int y) {
         int leafMeter = menu.getLeafMeter();
         int cost      = calculatePreviewCost();
         boolean canAfford = cost <= leafMeter;
@@ -304,7 +316,7 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
         }
     }
 
-    private void renderTabIndicator(GuiGraphics guiGraphics, int x, int y) {
+    private void renderTabIndicator(GuiGraphicsExtractor guiGraphics, int x, int y) {
         int uly = y + TAB_UNDERLINE_Y;
         if (activeTab == 0) {
             guiGraphics.fill(x+1 + BTN_LEAF_X - 1, uly, x+1 + BTN_LEAF_X + BTN_LEAF_W - 1, uly + 1, 0xFFd2c28f);
@@ -313,7 +325,7 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
         }
     }
 
-    private void renderColorDots(GuiGraphics guiGraphics, int x, int y) {
+    private void renderColorDots(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if (!menu.hasSeed()) return;
 
         int leafArgb   = argb(sliderLeafR,   sliderLeafG,   sliderLeafB);
@@ -326,14 +338,14 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
         drawDotBorder(guiGraphics, x + DOT2_X, y + DOT2_Y);
     }
 
-    private void drawDotBorder(GuiGraphics guiGraphics, int dx, int dy) {
-        guiGraphics.hLine(dx - 1,     dx + DOT_W, dy - 1,      0xFF232323);
-        guiGraphics.hLine(dx - 1,     dx + DOT_W, dy + DOT_H,  0xFF7c7c7c);
-        guiGraphics.vLine(dx - 1,     dy - 1,     dy + DOT_H,  0xFF444444);
-        guiGraphics.vLine(dx + DOT_W, dy - 1,     dy + DOT_H,  0xFF7c7c7c);
+    private void drawDotBorder(GuiGraphicsExtractor guiGraphics, int dx, int dy) {
+        guiGraphics.horizontalLine(dx - 1,     dx + DOT_W, dy - 1,      0xFF232323);
+        guiGraphics.horizontalLine(dx - 1,     dx + DOT_W, dy + DOT_H,  0xFF7c7c7c);
+        guiGraphics.verticalLine(dx - 1,     dy - 1,     dy + DOT_H,  0xFF444444);
+        guiGraphics.verticalLine(dx + DOT_W, dy - 1,     dy + DOT_H,  0xFF7c7c7c);
     }
 
-    private void renderRgbSliders(GuiGraphics g, int ox, int oy) {
+    private void renderRgbSliders(GuiGraphicsExtractor g, int ox, int oy) {
         boolean enabled = menu.hasSeed();
         int r, gr, b;
         if (activeTab == 0) { r = sliderLeafR;   gr = sliderLeafG;   b = sliderLeafB;   }
@@ -343,13 +355,13 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
         drawSlider(g, ox, oy, SLIDER_FILL_X, SLIDER_B_Y, SLIDER_FILL_W, b,  COLOR_MIN, COLOR_MAX, enabled ? 0xFF3333CC : SLIDER_DISABLED_COLOR);
     }
 
-    private void renderStatSliders(GuiGraphics g, int ox, int oy) {
+    private void renderStatSliders(GuiGraphicsExtractor g, int ox, int oy) {
         boolean enabled = menu.hasSeed();
         drawSlider(g, ox, oy, STAT_FILL_X, THC_Y, STAT_FILL_W, sliderThc, 0, 35, enabled ? 0xFF886600 : SLIDER_DISABLED_COLOR);
         drawSlider(g, ox, oy, STAT_FILL_X, CBD_Y, STAT_FILL_W, sliderCbd, 0, 30, enabled ? 0xFF336688 : SLIDER_DISABLED_COLOR);
     }
 
-    private void drawSlider(GuiGraphics g, int ox, int oy,
+    private void drawSlider(GuiGraphicsExtractor g, int ox, int oy,
                             int fillX, int fillY, int fillW,
                             int value, int min, int max, int fillColor) {
         int ax = ox + fillX, ay = oy + fillY;
@@ -408,7 +420,7 @@ public class StrainModifierScreen extends AbstractContainerScreen<StrainModifier
 
     private void sendSliderUpdate() {
         String inputName = this.nameInput != null ? this.nameInput.getValue() : "";
-        PacketDistributor.sendToServer(new StrainModifierUpdatePayload(
+        ClientPacketDistributor.sendToServer(new StrainModifierUpdatePayload(
                 sliderThc, sliderCbd,
                 sliderLeafR, sliderLeafG, sliderLeafB,
                 sliderStrainR, sliderStrainG, sliderStrainB,

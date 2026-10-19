@@ -1,6 +1,6 @@
 {
   "type": "smokeleafindustries:liquifier",
-  "ingredient": { "item": "smokeleafindustries:weed" },
+  "ingredient": "smokeleafindustries:weed",
   "output": {
     "fluid": "smokeleafindustries:hash_oil_fluid",
     "amount": 250

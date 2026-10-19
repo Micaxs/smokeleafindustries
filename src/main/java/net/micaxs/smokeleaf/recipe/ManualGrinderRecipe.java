@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -18,7 +19,13 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public record ManualGrinderRecipe(Ingredient ingredient, ItemStack result, int grindTime) implements Recipe<ManualGrinderInput> {
+public record ManualGrinderRecipe(Ingredient ingredient, ItemStackTemplate resultTemplate, int grindTime) implements ModMachineRecipe<ManualGrinderInput> {
+
+    /** Fresh copy of the result (stored as a template: stacks can't be created while recipes load). */
+    public ItemStack result() {
+        return resultTemplate.create();
+    }
+
 
     @Override
     public boolean matches(ManualGrinderInput input, Level level) {
@@ -26,8 +33,8 @@ public record ManualGrinderRecipe(Ingredient ingredient, ItemStack result, int g
     }
 
     @Override
-    public ItemStack assemble(ManualGrinderInput input, HolderLookup.Provider provider) {
-        ItemStack out = result.copy();
+    public ItemStack assemble(ManualGrinderInput input) {
+        ItemStack out = result().copy();
         ItemStack in = input.getItem(0);
 
         if (!in.isEmpty()) {
@@ -56,54 +63,45 @@ public record ManualGrinderRecipe(Ingredient ingredient, ItemStack result, int g
         return out;
     }
 
-    @Override
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> list = NonNullList.create();
         list.add(ingredient);
         return list;
     }
 
-    @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return true;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return result.copy();
+        return result().copy();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<ManualGrinderRecipe> getSerializer() {
         return ModRecipes.MANUAL_GRINDER_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<ManualGrinderRecipe> getType() {
         return ModRecipes.MANUAL_GRINDER_TYPE.get();
     }
 
-    public static class Serializer implements RecipeSerializer<ManualGrinderRecipe> {
+    public static class Serializer {
         public static final MapCodec<ManualGrinderRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(ManualGrinderRecipe::ingredient),
-                ItemStack.CODEC.fieldOf("result").forGetter(ManualGrinderRecipe::result),
+                Ingredient.CODEC.fieldOf("ingredient").forGetter(ManualGrinderRecipe::ingredient),
+                ItemStackTemplate.CODEC.fieldOf("result").forGetter(ManualGrinderRecipe::resultTemplate),
                 Codec.INT.optionalFieldOf("grind_time", 40).forGetter(ManualGrinderRecipe::grindTime)
         ).apply(inst, ManualGrinderRecipe::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, ManualGrinderRecipe> STREAM_CODEC =
                 StreamCodec.composite(
                         Ingredient.CONTENTS_STREAM_CODEC, ManualGrinderRecipe::ingredient,
-                        ItemStack.STREAM_CODEC, ManualGrinderRecipe::result,
+                        ItemStackTemplate.STREAM_CODEC, ManualGrinderRecipe::resultTemplate,
                         ByteBufCodecs.VAR_INT, ManualGrinderRecipe::grindTime,
                         ManualGrinderRecipe::new
                 );
 
-        @Override
         public MapCodec<ManualGrinderRecipe> codec() {
             return CODEC;
         }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, ManualGrinderRecipe> streamCodec() {
             return STREAM_CODEC;
         }

@@ -20,9 +20,13 @@ public class AddItemModifier extends LootModifier {
     private final Item item;
 
 
-    public AddItemModifier(LootItemCondition[] conditionsIn, Item item) {
-        super(conditionsIn);
+    public AddItemModifier(LootItemCondition[] conditionsIn, int priority, Item item) {
+        super(conditionsIn, priority);
         this.item = item;
+    }
+
+    public AddItemModifier(LootItemCondition[] conditionsIn, Item item) {
+        this(conditionsIn, DEFAULT_PRIORITY, item);
     }
 
     // Conditions are already checked by LootModifier.apply(); testing them again here would roll random chances twice.

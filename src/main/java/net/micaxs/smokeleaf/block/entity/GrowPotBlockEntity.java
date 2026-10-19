@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.Config;
@@ -22,7 +24,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
@@ -32,15 +34,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,11 +117,11 @@ public class GrowPotBlockEntity extends BlockEntity {
     public int getPhosphorus() { return phosphorus; }
     public int getPotassium() { return potassium; }
 
-    private record PotData(Optional<ResourceLocation> soil, Optional<ResourceLocation> crop, int age, int prog,
+    private record PotData(Optional<Identifier> soil, Optional<Identifier> crop, int age, int prog,
                            int thc, int cbd, int ph, int n, int p, int k) {
         static final Codec<PotData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-                ResourceLocation.CODEC.optionalFieldOf("soil").forGetter(PotData::soil),
-                ResourceLocation.CODEC.optionalFieldOf("crop").forGetter(PotData::crop),
+                Identifier.CODEC.optionalFieldOf("soil").forGetter(PotData::soil),
+                Identifier.CODEC.optionalFieldOf("crop").forGetter(PotData::crop),
                 Codec.INT.fieldOf("age").forGetter(PotData::age),
                 Codec.INT.fieldOf("prog").forGetter(PotData::prog),
                 Codec.INT.fieldOf("thc").forGetter(PotData::thc),
@@ -173,7 +176,7 @@ public class GrowPotBlockEntity extends BlockEntity {
 
     private void tryAutoHarvestAndExport(ServerLevel serverLevel) {
         // Defensive: only server side
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         if (!canHarvest()) return;
 
         if (autoExportCooldown > 0) {
@@ -182,7 +185,7 @@ public class GrowPotBlockEntity extends BlockEntity {
         }
         autoExportCooldown = AUTO_EXPORT_INTERVAL_TICKS;
 
-        IItemHandler below = getBelowItemHandler();
+        ResourceHandler<ItemResource> below = getBelowItemHandler();
         if (below == null) return; // no valid target below, do nothing (no lag)
 
         // Simulate harvest drops and attempt to insert everything.
@@ -199,7 +202,7 @@ public class GrowPotBlockEntity extends BlockEntity {
         List<ItemStack> leftovers = new ArrayList<>();
         for (ItemStack stack : drops) {
             if (stack.isEmpty()) continue;
-            ItemStack remaining = ItemHandlerHelper.insertItemStacked(below, stack, false);
+            ItemStack remaining = ItemUtil.insertItemReturnRemaining(below, stack, false, null);
             if (!remaining.isEmpty()) leftovers.add(remaining);
         }
 
@@ -220,12 +223,12 @@ public class GrowPotBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    private IItemHandler getBelowItemHandler() {
+    private ResourceHandler<ItemResource> getBelowItemHandler() {
         if (level == null) return null;
         BlockPos belowPos = worldPosition.below();
 
         // Try to find an item handler below, exposed on its UP face.
-        return level.getCapability(Capabilities.ItemHandler.BLOCK, belowPos, Direction.UP);
+        return level.getCapability(Capabilities.Item.BLOCK, belowPos, Direction.UP);
     }
 
     private List<ItemStack> getHarvestDrops(ServerLevel serverLevel) {
@@ -299,7 +302,7 @@ public class GrowPotBlockEntity extends BlockEntity {
     }
 
     private int getFullGrowthTicksForSoil() {
-        boolean fast = soilState != null && soilState.getBlock() instanceof FarmBlock;
+        boolean fast = soilState != null && soilState.getBlock() instanceof FarmlandBlock;
         int seconds = fast ? FULL_GROWTH_SECONDS_FAST : FULL_GROWTH_SECONDS_SLOW;
         return Math.max(1, seconds * 20);
     }
@@ -378,7 +381,7 @@ public class GrowPotBlockEntity extends BlockEntity {
         int maxAge = cropBlock.getMaxAge();
         if (cropAge >= maxAge) return false;
 
-        int inc = Mth.nextInt(level.random, 2, 5);
+        int inc = Mth.nextInt(level.getRandom(), 2, 5);
         int newAge = Math.min(maxAge, cropAge + inc);
         if (newAge != cropAge) {
             cropAge = newAge;
@@ -507,7 +510,7 @@ public class GrowPotBlockEntity extends BlockEntity {
 
     public void setChangedAndSync() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
@@ -637,35 +640,33 @@ public class GrowPotBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        Optional<ResourceLocation> soilId = soilState != null
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        Optional<Identifier> soilId = soilState != null
                 ? Optional.ofNullable(BuiltInRegistries.BLOCK.getKey(soilState.getBlock()))
                 : Optional.empty();
-        Optional<ResourceLocation> cropId = cropBlock != null
+        Optional<Identifier> cropId = cropBlock != null
                 ? Optional.ofNullable(BuiltInRegistries.BLOCK.getKey(cropBlock))
                 : Optional.empty();
 
         PotData data = new PotData(soilId, cropId, cropAge, growthProgressTicks,
                 thc, cbd, ph, nitrogen, phosphorus, potassium);
-        PotData.CODEC.encodeStart(NbtOps.INSTANCE, data)
-                .resultOrPartial(err -> {})
-                .ifPresent(encoded -> tag.put("Pot", encoded));
+        output.store("Pot", PotData.CODEC, data);
 
         if (customStrain != null && customStrain != StrainData.EMPTY) {
-            tag.put("custom_strain", (CompoundTag) StrainData.CODEC.encodeStart(NbtOps.INSTANCE, customStrain).result().orElse(new CompoundTag()));
+            output.store("custom_strain", StrainData.CODEC, customStrain);
         }
         if (customStrainId != null) {
-            tag.putString("custom_strain_id", customStrainId);
+            output.putString("custom_strain_id", customStrainId);
         }
         if (customStrainCreator != null && !customStrainCreator.isBlank()) {
-            tag.putString("custom_strain_creator", customStrainCreator);
+            output.putString("custom_strain_creator", customStrainCreator);
         }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         this.soilState = null;
         this.cropBlock = null;
         this.cropAge = 0;
@@ -676,16 +677,15 @@ public class GrowPotBlockEntity extends BlockEntity {
         this.customStrainId = null;
         this.customStrainCreator = null;
 
-        if (tag.contains("Pot")) {
-            PotData.CODEC.parse(NbtOps.INSTANCE, tag.get("Pot"))
-                    .result()
+        {
+            input.read("Pot", PotData.CODEC)
                     .ifPresent(data -> {
                         data.soil().ifPresent(rl -> {
-                            Block b = BuiltInRegistries.BLOCK.get(rl);
+                            Block b = BuiltInRegistries.BLOCK.getValue(rl);
                             if (b != null) this.soilState = b.defaultBlockState();
                         });
                         data.crop().ifPresent(rl -> {
-                            Block b = BuiltInRegistries.BLOCK.get(rl);
+                            Block b = BuiltInRegistries.BLOCK.getValue(rl);
                             if (b instanceof BaseWeedCropBlock crop) this.cropBlock = crop;
                         });
                         this.cropAge = Math.max(0, data.age());
@@ -698,17 +698,9 @@ public class GrowPotBlockEntity extends BlockEntity {
                         this.potassium = Math.max(0, data.k());
                     });
         }
-        if (tag.contains("custom_strain")) {
-            StrainData.CODEC.parse(NbtOps.INSTANCE, tag.get("custom_strain"))
-                    .result()
-                    .ifPresent(d -> this.customStrain = d);
-        }
-        if (tag.contains("custom_strain_id")) {
-            this.customStrainId = tag.getString("custom_strain_id");
-        }
-        if (tag.contains("custom_strain_creator")) {
-            this.customStrainCreator = tag.getString("custom_strain_creator");
-        }
+        input.read("custom_strain", StrainData.CODEC).ifPresent(d -> this.customStrain = d);
+        this.customStrainId = input.getString("custom_strain_id").orElse(null);
+        this.customStrainCreator = input.getString("custom_strain_creator").orElse(null);
     }
 
     public void drops() {
@@ -751,7 +743,13 @@ public class GrowPotBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

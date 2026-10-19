@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.api.distmarker.Dist;
@@ -31,16 +31,12 @@ public final class RedEyesOverlay {
         int a = ((int)(alpha * 255.0f)) << 24;
         int colorARGB = a | 0x00a83232;
 
-        GuiGraphics g = event.getGuiGraphics();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
+        GuiGraphicsExtractor g = event.getGuiGraphics();
 
         // Push high Z to ensure on top of everything (screens, tooltips, chat, etc.)
-        g.pose().pushPose();
-        g.pose().translate(0, 0, 1000); // large Z to guarantee top layer
+        g.pose().pushMatrix();
+        g.pose().translate(0, 0); // large Z to guarantee top layer
         g.fill(0, 0, w, h, colorARGB);
-        g.pose().popPose();
-
-        RenderSystem.disableBlend();
+        g.pose().popMatrix();
     }
 }

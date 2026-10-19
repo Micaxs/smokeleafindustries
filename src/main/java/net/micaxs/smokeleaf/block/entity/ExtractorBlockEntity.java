@@ -1,6 +1,11 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
@@ -32,10 +37,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +47,7 @@ import java.util.Optional;
 
 public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(2) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(2) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -62,13 +65,12 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
                 return false;
             }
 
-            return level.getRecipeManager()
-                    .getRecipeFor(ModRecipes.EXTRACTOR_TYPE.get(), new ExtractorRecipeInput(stack), level)
+            return ModRecipes.find(level, ModRecipes.EXTRACTOR_TYPE.get(), new ExtractorRecipeInput(stack))
                     .isPresent();
         }
     };
 
-    public IItemHandler getItemHandler(@Nullable Direction direction) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable Direction direction) {
         return ExtractRestrictedItemHandler.outputOnly(this.itemHandler, OUTPUT_SLOT);
     }
 
@@ -131,7 +133,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
 
 
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return this.ENERGY_STORAGE;
     }
 
@@ -210,7 +212,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
 
             this.ENERGY_STORAGE.extractEnergy(20, false);
 
-            if (level.random.nextInt(2) == 0) {
+            if (level.getRandom().nextInt(2) == 0) {
                 double x = blockPos.getX() + 0.5;
                 double y = blockPos.getY() + 1.0;
                 double z = blockPos.getZ() + 0.5;
@@ -265,7 +267,7 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private Optional<RecipeHolder<ExtractorRecipe>> getCurrentRecipe() {
-        return this.level.getRecipeManager().getRecipeFor(ModRecipes.EXTRACTOR_TYPE.get(), new ExtractorRecipeInput(itemHandler.getStackInSlot(INPUT_SLOT)), level);
+        return ModRecipes.find(level, ModRecipes.EXTRACTOR_TYPE.get(), new ExtractorRecipeInput(itemHandler.getStackInSlot(INPUT_SLOT)));
     }
 
     private void craftItem() {
@@ -309,22 +311,22 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
 
     // NBT Data
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("extractor.inventory", itemHandler.serializeNBT(registries));
-        tag.putInt("extractor.progress", progress);
-        tag.putInt("extractor.maxProgress", maxProgress);
-        tag.putInt("extractor.energy", ENERGY_STORAGE.getEnergyStored());
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("extractor.inventory"));
+        output.putInt("extractor.progress", progress);
+        output.putInt("extractor.maxProgress", maxProgress);
+        output.putInt("extractor.energy", ENERGY_STORAGE.getEnergyStored());
 
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        itemHandler.deserializeNBT(registries, tag.getCompound("extractor.inventory"));
-        ENERGY_STORAGE.setEnergy(tag.getInt("extractor.energy"));
-        progress = tag.getInt("extractor.progress");
-        maxProgress = tag.getInt("extractor.maxProgress");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("extractor.inventory"));
+        ENERGY_STORAGE.setEnergy(input.getIntOr("extractor.energy", 0));
+        progress = input.getIntOr("extractor.progress", 0);
+        maxProgress = input.getIntOr("extractor.maxProgress", 0);
     }
 
 
@@ -340,7 +342,13 @@ public class ExtractorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

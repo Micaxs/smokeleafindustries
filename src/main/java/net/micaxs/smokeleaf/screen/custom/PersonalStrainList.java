@@ -4,7 +4,7 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.network.StrainDataPadPayload;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -47,17 +47,17 @@ public class PersonalStrainList extends AbstractSelectionList<PersonalStrainList
     }
 
     @Override
-    protected int getScrollbarPosition() {
+    protected int scrollBarX() {
         return this.getRight() - SCROLLBAR_WIDTH;
     }
 
     @Override
-    protected void renderListBackground(GuiGraphics guiGraphics) {
+    protected void extractListBackground(GuiGraphicsExtractor guiGraphics) {
         // Panel texture already draws the recessed list frame; nothing to do here.
     }
 
     @Override
-    protected void renderListSeparators(GuiGraphics guiGraphics) {
+    protected void extractListSeparators(GuiGraphicsExtractor guiGraphics) {
         // No vanilla header/footer separator sprites — they don't match this UI's theme.
     }
 
@@ -76,9 +76,12 @@ public class PersonalStrainList extends AbstractSelectionList<PersonalStrainList
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height,
-                            int mouseX, int mouseY, boolean hovering, float partialTick) {
-            int bg = hovering ? 0x33FFFFFF : (index % 2 == 0 ? 0x22000000 : 0x11000000);
+        public void extractContent(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
+            int top = getY();
+            int left = getX();
+            int width = getWidth();
+            int height = getContentHeight();
+            int bg = hovering ? 0x33FFFFFF : (PersonalStrainList.this.children().indexOf(this) % 2 == 0 ? 0x22000000 : 0x11000000);
             guiGraphics.fill(left, top, left + width, top + height - 2, bg);
 
             int rowContentHeight = LINE_HEIGHT * 2
@@ -87,27 +90,27 @@ public class PersonalStrainList extends AbstractSelectionList<PersonalStrainList
             int iconY = top + Math.max(2, (height - 2 - 16) / 2);
             int textY = top + Math.max(3, (height - 2 - rowContentHeight) / 2);
 
-            guiGraphics.renderItem(preview, left + 4, iconY);
+            guiGraphics.item(preview, left + 4, iconY);
 
             int textX = left + 26;
 
-            guiGraphics.drawString(minecraft.font, entry.data().displayName(), textX, textY, 0xFFE8E8E8, false);
+            guiGraphics.text(minecraft.font, entry.data().displayName(), textX, textY, 0xFFE8E8E8, false);
             textY += LINE_HEIGHT;
 
             String stats = "THC " + entry.data().thc() + "%   CBD " + entry.data().cbd() + "%";
-            guiGraphics.drawString(minecraft.font, stats, textX, textY, 0xFFA0AAA0, false);
+            guiGraphics.text(minecraft.font, stats, textX, textY, 0xFFA0AAA0, false);
             textY += LINE_HEIGHT;
 
             if (hasCross()) {
                 Component cross = Component.translatable("gui.smokeleafindustries.strain_book.cross",
                         entry.data().baseStrain1(), entry.data().baseStrain2());
-                guiGraphics.drawString(minecraft.font, cross, textX, textY, 0xFF9FB086, false);
+                guiGraphics.text(minecraft.font, cross, textX, textY, 0xFF9FB086, false);
                 textY += LINE_HEIGHT;
             }
 
             if (hasDiscoveredNote()) {
                 Component note = Component.translatable("gui.smokeleafindustries.strain_book.originally_by", entry.creatorName());
-                guiGraphics.drawString(minecraft.font, note, textX, textY, 0xFF8A8A70, false);
+                guiGraphics.text(minecraft.font, note, textX, textY, 0xFF8A8A70, false);
             }
         }
 

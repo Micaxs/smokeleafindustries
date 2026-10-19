@@ -1,7 +1,8 @@
 package net.micaxs.smokeleaf.effect.beneficial;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,14 +38,14 @@ public class SleepyEffect extends MobEffect {
         super(category, color);
         this.addAttributeModifier(
                 Attributes.MOVEMENT_SPEED,
-                ResourceLocation.parse(UUID.randomUUID().toString()),
+                Identifier.parse(UUID.randomUUID().toString()),
                 -0.1D,
                 AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
         );
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity entity, int amplifier) {
         if (entity instanceof Player player) {
             CompoundTag tag = player.getPersistentData();
 
@@ -63,8 +64,8 @@ public class SleepyEffect extends MobEffect {
                 Vec3 v = player.getDeltaMovement();
                 double forwardSpeed = v.x * fwdX + v.z * fwdZ;
 
-                double anchorX = tag.contains(KEY_AX) ? tag.getDouble(KEY_AX) : player.getX();
-                double anchorZ = tag.contains(KEY_AZ) ? tag.getDouble(KEY_AZ) : player.getZ();
+                double anchorX = tag.getDoubleOr(KEY_AX, player.getX());
+                double anchorZ = tag.getDoubleOr(KEY_AZ, player.getZ());
                 anchorX += fwdX * forwardSpeed * dt;
                 anchorZ += fwdZ * forwardSpeed * dt;
                 tag.putDouble(KEY_AX, anchorX);
@@ -79,12 +80,10 @@ public class SleepyEffect extends MobEffect {
                 double s = Math.sin(omega * player.tickCount + phase);
                 int sign = s >= 0.0 ? 1 : -1;
 
-                int lastSign = tag.contains(KEY_LS) ? tag.getInt(KEY_LS) : sign;
+                int lastSign = tag.getIntOr(KEY_LS, sign);
                 double ampScale = 1.0 + AMP_PER_LEVEL * Math.max(0, amplifier);
 
-                double amp = tag.contains(KEY_AMP)
-                        ? tag.getDouble(KEY_AMP)
-                        : pickAmplitude(player, sign >= 0, ampScale);
+                double amp = tag.contains(KEY_AMP) ? tag.getDoubleOr(KEY_AMP, 0d) : pickAmplitude(player, sign >= 0, ampScale);
 
                 if (sign != lastSign) {
                     // New half-cycle -> pick a fresh amplitude within the side's range

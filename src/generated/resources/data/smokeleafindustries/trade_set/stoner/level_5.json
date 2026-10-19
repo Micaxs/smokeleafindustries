@@ -1,0 +1,9 @@
+{
+  "amount": 2.0,
+  "random_sequence": "smokeleafindustries:trade_set/stoner/level_5",
+  "trades": [
+    "smokeleafindustries:stoner/5/herb_cake_emerald",
+    "smokeleafindustries:stoner/5/blunt_emerald",
+    "smokeleafindustries:stoner/5/joint_emerald"
+  ]
+}

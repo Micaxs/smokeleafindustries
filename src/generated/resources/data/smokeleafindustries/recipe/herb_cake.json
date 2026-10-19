@@ -1,21 +1,12 @@
 {
   "type": "smokeleafindustries:strain_copy_shaped",
+  "category": "misc",
   "key": {
-    "B": {
-      "item": "smokeleafindustries:infused_butter"
-    },
-    "E": {
-      "item": "minecraft:egg"
-    },
-    "M": {
-      "item": "minecraft:milk_bucket"
-    },
-    "S": {
-      "item": "minecraft:sugar"
-    },
-    "W": {
-      "tag": "smokeleafindustries:weeds"
-    }
+    "B": "smokeleafindustries:infused_butter",
+    "E": "minecraft:egg",
+    "M": "minecraft:milk_bucket",
+    "S": "minecraft:sugar",
+    "W": "#smokeleafindustries:weeds"
   },
   "pattern": [
     "BSB",
@@ -23,7 +14,6 @@
     "MMM"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:herb_cake"
   },
   "show_notification": false

@@ -13,18 +13,18 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.recipe.MutatorRecipe;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
-    public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "mutator");
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/mutator/mutator_gui.png");
+    public static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "mutator");
+    private static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/mutator/mutator_gui.png");
     public static final RecipeType<MutatorRecipe> MUTATOR_RECIPE_TYPE =
             new RecipeType<>(UID, MutatorRecipe.class);
 
@@ -74,7 +74,7 @@ public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
             var seedIngredient = ingredients.get(0);
             if (JeiStrainHelper.isStrainIngredient(seedIngredient)) {
                 builder.addSlot(RecipeIngredientRole.INPUT, SEED_X, SEED_Y)
-                        .addIngredients(JeiStrainHelper.coloredIngredient(seedIngredient, focuses));
+                        .addItemStacks(JeiStrainHelper.coloredIngredient(seedIngredient, focuses));
             } else {
                 builder.addSlot(RecipeIngredientRole.INPUT, SEED_X, SEED_Y)
                         .addIngredients(seedIngredient);
@@ -84,7 +84,7 @@ public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
             var extractIngredient = ingredients.get(1);
             if (JeiStrainHelper.isStrainIngredient(extractIngredient)) {
                 builder.addSlot(RecipeIngredientRole.INPUT, EXTRACT_X, EXTRACT_Y)
-                        .addIngredients(JeiStrainHelper.coloredIngredient(extractIngredient, focuses));
+                        .addItemStacks(JeiStrainHelper.coloredIngredient(extractIngredient, focuses));
             } else {
                 builder.addSlot(RecipeIngredientRole.INPUT, EXTRACT_X, EXTRACT_Y)
                         .addIngredients(extractIngredient);
@@ -108,8 +108,7 @@ public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
         if (!out.isEmpty()) {
             if (JeiStrainHelper.isStrainItem(out.getItem())) {
                 builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
-                        .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(
-                                JeiStrainHelper.coloredStacks(out.getItem(), focuses).stream()));
+                        .addItemStacks(JeiStrainHelper.coloredStacks(out.getItem(), focuses));
             } else {
                 builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
                         .addItemStack(out.copy());
@@ -119,7 +118,7 @@ public class MutatorRecipeCategory implements IRecipeCategory<MutatorRecipe> {
 
     @Override
     public void draw(MutatorRecipe recipe, IRecipeSlotsView recipeSlotsView,
-                     GuiGraphics guiGraphics, double mouseX, double mouseY) {
+                     GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         background.draw(guiGraphics);
     }
 

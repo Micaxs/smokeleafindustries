@@ -1,7 +1,5 @@
 {
   "type": "smokeleafindustries:generator",
-  "ingredient": {
-    "item": "smokeleafindustries:hemp_coal"
-  },
+  "ingredient": "smokeleafindustries:hemp_coal",
   "total_energy": 32000
 }

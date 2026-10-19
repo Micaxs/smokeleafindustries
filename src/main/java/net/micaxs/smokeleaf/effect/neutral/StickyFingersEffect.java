@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.effect.neutral;
 
+import net.minecraft.server.level.ServerLevel;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -20,7 +21,7 @@ public class StickyFingersEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity entity, int amplifier) {
         if (!entity.level().isClientSide() && (entity instanceof Player player)) {
 
             Level level = entity.level();

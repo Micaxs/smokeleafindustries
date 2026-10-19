@@ -15,12 +15,20 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.context.ContextKey;
+import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
+import net.micaxs.smokeleaf.recipe.ClientRecipes;
 import net.neoforged.neoforge.client.event.ClientChatEvent;
 import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.neoforged.neoforge.client.event.RenderNameTagEvent;
@@ -35,6 +43,12 @@ import java.util.WeakHashMap;
 
 @EventBusSubscriber(modid = SmokeleafIndustries.MODID, value = Dist.CLIENT)
 public class ClientEvents {
+
+    @SubscribeEvent
+    public static void onRecipesReceived(RecipesReceivedEvent event) {
+        ClientRecipes.set(event.getRecipeMap());
+    }
+
 
 
     // -------- Echo Location particles on sound --------
@@ -51,7 +65,7 @@ public class ClientEvents {
 
         double sx, sy, sz;
         if (snd.isRelative()) {
-            var cam = mc.gameRenderer.getMainCamera().getPosition();
+            var cam = mc.gameRenderer.getMainCamera().position();
             sx = cam.x + snd.getX();
             sy = cam.y + snd.getY();
             sz = cam.z + snd.getZ();
@@ -66,7 +80,7 @@ public class ClientEvents {
         double base = 0.14 + (snd.getVolume() * 0.06);
         for (int i = 0; i < count; i++) {
             double ang = (Math.PI * 2.0) * i / count;
-            double jitter = level.random.nextDouble() * 0.02;
+            double jitter = level.getRandom().nextDouble() * 0.02;
             double vx = Math.cos(ang) * (base + jitter);
             double vz = Math.sin(ang) * (base + jitter);
             level.addParticle(ModParticles.ECHO_LOCATION_PARTICLE.get(), sx, sy, sz, vx, 0.0, vz);
@@ -78,7 +92,7 @@ public class ClientEvents {
 
     // -------- Friend or Foe spoofed name tags --------
     @SubscribeEvent
-    public static void onRenderName(RenderNameTagEvent event) {
+    public static void onRenderName(RenderNameTagEvent.CanRender event) {
         LocalPlayer viewer = Minecraft.getInstance().player;
         if (viewer == null || !viewer.hasEffect(ModEffects.FRIEND_OR_FOE)) return;
 
@@ -96,7 +110,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onClientInteractEntity(PlayerInteractEvent.EntityInteract evt) {
-        if (evt.getEntity().level().isClientSide
+        if (evt.getEntity().level().isClientSide()
                 && evt.getTarget() instanceof Villager
                 && evt.getEntity().hasEffect(ModEffects.LINGUISTS_HIGH)) {
             showLinguistSubtitle();
@@ -210,18 +224,19 @@ public class ClientEvents {
     // -------- Zombified: render player as a zombie --------
     private static final Map<UUID, Zombie> CACHE = new WeakHashMap<>();
 
+    /** Set on a player's render state (see SmokeleafIndustriesClient) while they're Zombified. */
+    public static final ContextKey<Player> ZOMBIFIED_PLAYER =
+            new ContextKey<>(Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "zombified_player"));
+
     @SubscribeEvent
-    public static void onRenderLivingPre(RenderLivingEvent.Pre event) {
-        LivingEntity le = event.getEntity();
-        if (!(le instanceof Player player)) return;
-        if (!player.hasEffect(ModEffects.ZOMBIFIED)) return;
+    public static void onRenderLivingPre(RenderLivingEvent.Pre<?, ?, ?> event) {
+        Player player = event.getRenderState().getRenderData(ZOMBIFIED_PLAYER);
+        if (player == null || !player.hasEffect(ModEffects.ZOMBIFIED)) return;
 
         event.setCanceled(true);
 
         float pt = event.getPartialTick();
         PoseStack pose = event.getPoseStack();
-        MultiBufferSource buf = event.getMultiBufferSource();
-        int light = event.getPackedLight();
 
         Zombie fake = CACHE.computeIfAbsent(player.getUUID(), id -> new Zombie(player.level()));
         fake.xo = player.xo;
@@ -254,10 +269,14 @@ public class ClientEvents {
 
         Minecraft mc = Minecraft.getInstance();
         EntityRenderDispatcher disp = mc.getEntityRenderDispatcher();
-        @SuppressWarnings("unchecked")
-        LivingEntityRenderer<Zombie, ?> renderer =
-                (LivingEntityRenderer<Zombie, ?>) disp.getRenderer(fake);
+        submitAs(disp.getRenderer(fake), fake, pt, pose, event.getSubmitNodeCollector(), event.getRenderState().lightCoords);
+    }
 
-        renderer.render(fake, entityYaw, pt, pose, buf, light);
+    private static <T extends Entity, S extends EntityRenderState> void submitAs(EntityRenderer<T, S> renderer, T entity, float partialTick,
+                                                                                    PoseStack pose, SubmitNodeCollector collector, int light) {
+        S state = renderer.createRenderState(entity, partialTick);
+        state.lightCoords = light;
+        // A fresh camera state is enough here: the zombie has no name tag, which is all it's used for.
+        renderer.submit(state, pose, collector, new CameraRenderState());
     }
 }

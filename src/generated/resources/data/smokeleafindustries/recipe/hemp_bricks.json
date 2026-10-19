@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "P": {
-      "item": "smokeleafindustries:hemp_stone"
-    }
+    "P": "smokeleafindustries:hemp_stone"
   },
   "pattern": [
     "PP",

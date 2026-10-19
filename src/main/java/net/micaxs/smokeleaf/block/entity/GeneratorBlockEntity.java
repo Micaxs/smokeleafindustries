@@ -1,6 +1,11 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.block.entity.energy.ModEnergyUtil;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
@@ -28,9 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +51,7 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
     private int maxBurnTime = 0;
     private int remainingEnergy = 0; // energy left in current burn
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(1) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -99,11 +102,11 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
         };
     }
 
-    public IItemHandler getItemHandler(@Nullable Direction side) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable Direction side) {
         return itemHandler;
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction side) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction side) {
         return ENERGY_STORAGE;
     }
 
@@ -144,8 +147,8 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
                     itemHandler.extractItem(INPUT_SLOT, 1, false);
 
                     // If the item has a crafting remaining item, give it back to the input slot.
-                    if (stack.getItem().getCraftingRemainingItem() != null) {
-                        ItemStack remaining = stack.getItem().getCraftingRemainingItem().getDefaultInstance();
+                    if (stack.getItem().getCraftingRemainder() != null) {
+                        ItemStack remaining = stack.getItem().getCraftingRemainder().create();
                         if (!remaining.isEmpty()) {
                             itemHandler.insertItem(INPUT_SLOT, remaining, false);
                         }
@@ -185,8 +188,7 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
     private Optional<GeneratorRecipe> getRecipe(ItemStack stack) {
         if (level == null || stack.isEmpty()) return Optional.empty();
         GeneratorRecipeInput input = new GeneratorRecipeInput(stack);
-        return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.GENERATOR_TYPE.get(), input, level)
+        return ModRecipes.find(level, ModRecipes.GENERATOR_TYPE.get(), input)
                 .map(RecipeHolder::value);
     }
 
@@ -209,25 +211,25 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        tag.put("generator.inventory", itemHandler.serializeNBT(provider));
-        tag.putInt("generator.burnTime", burnTime);
-        tag.putInt("generator.maxBurnTime", maxBurnTime);
-        tag.putInt("generator.remainingEnergy", remainingEnergy);
-        tag.putInt("generator.genPerTick", generationPerTick);
-        tag.putInt("generator.energy", ENERGY_STORAGE.getEnergyStored());
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("generator.inventory"));
+        output.putInt("generator.burnTime", burnTime);
+        output.putInt("generator.maxBurnTime", maxBurnTime);
+        output.putInt("generator.remainingEnergy", remainingEnergy);
+        output.putInt("generator.genPerTick", generationPerTick);
+        output.putInt("generator.energy", ENERGY_STORAGE.getEnergyStored());
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        itemHandler.deserializeNBT(provider, tag.getCompound("generator.inventory"));
-        ENERGY_STORAGE.setEnergy(tag.getInt("generator.energy"));
-        burnTime = tag.getInt("generator.burnTime");
-        maxBurnTime = tag.getInt("generator.maxBurnTime");
-        remainingEnergy = tag.getInt("generator.remainingEnergy");
-        generationPerTick = tag.getInt("generator.genPerTick");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("generator.inventory"));
+        ENERGY_STORAGE.setEnergy(input.getIntOr("generator.energy", 0));
+        burnTime = input.getIntOr("generator.burnTime", 0);
+        maxBurnTime = input.getIntOr("generator.maxBurnTime", 0);
+        remainingEnergy = input.getIntOr("generator.remainingEnergy", 0);
+        generationPerTick = input.getIntOr("generator.genPerTick", 0);
     }
 
     @Override
@@ -241,7 +243,13 @@ public class GeneratorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

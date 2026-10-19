@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.effect.beneficial;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -13,7 +14,7 @@ public class ChillEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity livingEntity, int amplifier) {
         if (!livingEntity.level().isClientSide()) {
             if (livingEntity instanceof Player player) {
                 player.fallDistance = 0.0F;
@@ -21,7 +22,7 @@ public class ChillEffect extends MobEffect {
                         player.getX(), player.getY() + 1, player.getZ(), 0, 0.1, 0);
             }
         }
-        return super.applyEffectTick(livingEntity, amplifier);
+        return super.applyEffectTick(serverLevel, livingEntity, amplifier);
     }
 
     @Override

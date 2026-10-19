@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:gray_concrete_powder"
-    },
-    {
-      "item": "minecraft:charcoal"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    }
+    "minecraft:gray_concrete_powder",
+    "minecraft:charcoal",
+    "minecraft:gunpowder"
   ],
   "result": {
     "count": 2,

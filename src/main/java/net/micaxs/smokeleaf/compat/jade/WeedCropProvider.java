@@ -11,7 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import snownee.jade.api.BlockAccessor;
@@ -21,18 +21,35 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.theme.IThemeHelper;
 
-public enum WeedCropProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum WeedCropProvider implements IBlockComponentProvider {
     INSTANCE;
 
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "weed_crop_jade");
+    /**
+     * Server half of this provider. Since 1.21.6 Jade requires the server data provider and the
+     * client tooltip provider to be separate objects; this one just forwards to the shared logic.
+     */
+    public enum Data implements IServerDataProvider<BlockAccessor> {
+        INSTANCE;
+
+        @Override
+        public Identifier getUid() {
+            return WeedCropProvider.INSTANCE.getUid();
+        }
+
+        @Override
+        public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
+            WeedCropProvider.INSTANCE.appendServerData(tag, accessor);
+        }
+    }
+
+    private static final Identifier UID = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "weed_crop_jade");
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return UID;
     }
 
     // Server -> client data
-    @Override
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
         BlockState state = accessor.getBlockState();
         BlockPos pos = accessor.getPosition();
@@ -75,12 +92,12 @@ public enum WeedCropProvider implements IBlockComponentProvider, IServerDataProv
 
         if (!hasAll(data, "n", "p", "k", "tn", "tp", "tk")) return;
 
-        int n = data.getInt("n");
-        int p = data.getInt("p");
-        int k = data.getInt("k");
-        int tn = data.getInt("tn");
-        int tp = data.getInt("tp");
-        int tk = data.getInt("tk");
+        int n = data.getIntOr("n", 0);
+        int p = data.getIntOr("p", 0);
+        int k = data.getIntOr("k", 0);
+        int tn = data.getIntOr("tn", 0);
+        int tp = data.getIntOr("tp", 0);
+        int tk = data.getIntOr("tk", 0);
 
         // Don't add the NPK if the plant doesn't have a target (e.g. non-weed crops)
         if (tn == 0 && tp == 0 && tk == 0) return;

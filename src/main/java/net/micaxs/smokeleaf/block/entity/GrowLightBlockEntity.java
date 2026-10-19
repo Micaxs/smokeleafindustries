@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.block.custom.GrowLightBlock;
 import net.minecraft.core.BlockPos;
@@ -67,7 +69,7 @@ public class GrowLightBlockEntity extends BlockEntity {
 
         if (candidates.isEmpty()) return;
 
-        RandomSource rand = level.random;
+        RandomSource rand = level.getRandom();
         int attempts = Math.min(ATTEMPTS_PER_CYCLE, candidates.size());
         for (int i = 0; i < attempts; i++) {
             BlockPos targetPos = candidates.get(rand.nextInt(candidates.size()));
@@ -116,15 +118,15 @@ public class GrowLightBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putInt("TickCounter", tickCounter);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("TickCounter", tickCounter);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        tickCounter = tag.getInt("TickCounter");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        tickCounter = input.getIntOr("TickCounter", 0);
     }
 
 
@@ -139,7 +141,7 @@ public class GrowLightBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
     }
 }

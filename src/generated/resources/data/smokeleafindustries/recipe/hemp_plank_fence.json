@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hemp_planks",
   "key": {
-    "#": {
-      "item": "minecraft:stick"
-    },
-    "W": {
-      "item": "smokeleafindustries:hemp_planks"
-    }
+    "#": "minecraft:stick",
+    "W": "smokeleafindustries:hemp_planks"
   },
   "pattern": [
     "W#W",

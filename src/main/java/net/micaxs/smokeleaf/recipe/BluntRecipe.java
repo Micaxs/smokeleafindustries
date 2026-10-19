@@ -9,7 +9,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,10 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BluntRecipe extends CustomRecipe {
+
+    private final CraftingBookCategory category;
     private final Item bluntResult;
 
     public BluntRecipe(CraftingBookCategory category, Item bluntResult) {
-        super(category);
+        super();
+        this.category = category;
         this.bluntResult = bluntResult;
     }
 
@@ -75,7 +78,7 @@ public class BluntRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(CraftingInput input) {
         if (!hasPattern(input)) return ItemStack.EMPTY;
 
         ItemStack w3 = input.getItem(3);
@@ -92,57 +95,53 @@ public class BluntRecipe extends CustomRecipe {
         return blunt;
     }
 
-    @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return w >= 3 && h >= 3;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
         return new ItemStack(bluntResult);
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<BluntRecipe> getSerializer() {
         return ModRecipes.BLUNT_SERIALIZER.get();
     }
 
-    public static class Serializer implements RecipeSerializer<BluntRecipe> {
-        public static final Serializer INSTANCE = new Serializer();
+    @Override
+    public CraftingBookCategory category() {
+        return category;
+    }
 
-        private static final MapCodec<BluntRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+    public static class Serializer {
+
+        public static final MapCodec<BluntRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        ResourceLocation.CODEC.fieldOf("result")
+                        Identifier.CODEC.fieldOf("result")
                                 .forGetter(r -> BuiltInRegistries.ITEM.getKey(r.bluntResult)),
                         CraftingBookCategory.CODEC.optionalFieldOf("category", CraftingBookCategory.MISC)
                                 .forGetter(BluntRecipe::category)
                 ).apply(instance, (resultRL, cat) ->
                         new BluntRecipe(
                                 cat,
-                                BuiltInRegistries.ITEM.get(resultRL)
+                                BuiltInRegistries.ITEM.getValue(resultRL)
                         ))
         );
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, BluntRecipe> STREAM_CODEC =
+        public static final StreamCodec<RegistryFriendlyByteBuf, BluntRecipe> STREAM_CODEC =
                 StreamCodec.of(
                         (buf, recipe) -> {
-                            buf.writeResourceLocation(BuiltInRegistries.ITEM.getKey(recipe.bluntResult));
+                            buf.writeIdentifier(BuiltInRegistries.ITEM.getKey(recipe.bluntResult));
                             buf.writeEnum(recipe.category());
                         },
                         buf -> {
-                            ResourceLocation res = buf.readResourceLocation();
+                            Identifier res = buf.readIdentifier();
                             CraftingBookCategory cat = buf.readEnum(CraftingBookCategory.class);
                             return new BluntRecipe(
                                     cat,
-                                    BuiltInRegistries.ITEM.get(res)
+                                    BuiltInRegistries.ITEM.getValue(res)
                             );
                         }
                 );
 
-        @Override
         public MapCodec<BluntRecipe> codec() { return CODEC; }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, BluntRecipe> streamCodec() { return STREAM_CODEC; }
     }
 }

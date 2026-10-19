@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.effect.beneficial;
 
+import net.minecraft.server.level.ServerLevel;
 import net.micaxs.smokeleaf.effect.ModEffects;
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
@@ -17,7 +18,7 @@ public class StonerGliderEffect extends MobEffect {
     }
 
 //    @Override
-//    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+//    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity livingEntity, int amplifier) {
 //            if (!livingEntity.level().isClientSide()) {
 //                MobEffectInstance self = livingEntity.getEffect(ModEffects.STONER_GLIDE);
 //                if (self != null) {

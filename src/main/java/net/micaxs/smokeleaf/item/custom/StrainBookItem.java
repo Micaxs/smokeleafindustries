@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import java.util.function.Consumer;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.micaxs.smokeleaf.network.StrainDataPadPayload;
 import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainRegistry;
@@ -11,7 +13,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -38,13 +40,13 @@ public class StrainBookItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (hand != InteractionHand.MAIN_HAND) return InteractionResultHolder.pass(stack);
-        if (level.isClientSide) return InteractionResultHolder.success(stack);
+        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
 
         ServerPlayer sp = (ServerPlayer) player;
-        StrainRegistrySavedData registry = StrainRegistrySavedData.get(sp.server);
+        StrainRegistrySavedData registry = StrainRegistrySavedData.get(sp.level().getServer());
         String selfName = sp.getName().getString();
 
         java.util.Set<String> seen = new java.util.HashSet<>();
@@ -80,7 +82,7 @@ public class StrainBookItem extends Item {
         serverStrains.sort(Comparator.comparing(e -> e.data().displayName(), String.CASE_INSENSITIVE_ORDER));
 
         sp.connection.send(new StrainDataPadPayload(personal, serverStrains));
-        return InteractionResultHolder.success(stack);
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable
@@ -112,9 +114,9 @@ public class StrainBookItem extends Item {
 
     public static void addDiscovery(Player player, String strainId) {
         if (player == null || strainId == null || strainId.isBlank()) return;
-        var tag = player.getPersistentData().getList(TAG_DISCOVERIES, Tag.TAG_STRING);
+        var tag = player.getPersistentData().getListOrEmpty(TAG_DISCOVERIES);
         for (Tag t : tag) {
-            if (t.getAsString().equals(strainId)) return;
+            if (t.asString().orElse("").equals(strainId)) return;
         }
         tag.add(StringTag.valueOf(strainId));
         player.getPersistentData().put(TAG_DISCOVERIES, tag);
@@ -122,15 +124,15 @@ public class StrainBookItem extends Item {
 
     public static List<String> loadDiscoveries(Player player) {
         List<String> result = new ArrayList<>();
-        var tag = player.getPersistentData().getList(TAG_DISCOVERIES, Tag.TAG_STRING);
+        var tag = player.getPersistentData().getListOrEmpty(TAG_DISCOVERIES);
         for (Tag t : tag) {
-            result.add(t.getAsString());
+            result.add(t.asString().orElse(""));
         }
         return result;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.translatable("tooltip.smokeleafindustries.strain_book").withStyle(ChatFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        tooltipComponents.accept(Component.translatable("tooltip.smokeleafindustries.strain_book").withStyle(ChatFormatting.GRAY));
     }
 }

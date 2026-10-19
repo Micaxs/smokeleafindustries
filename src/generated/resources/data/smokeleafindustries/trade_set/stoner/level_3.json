@@ -1,0 +1,8 @@
+{
+  "amount": 2.0,
+  "random_sequence": "smokeleafindustries:trade_set/stoner/level_3",
+  "trades": [
+    "smokeleafindustries:stoner/3/hash_oil_bucket_emerald",
+    "smokeleafindustries:stoner/3/infused_butter_emerald"
+  ]
+}

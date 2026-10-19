@@ -1,8 +1,6 @@
 {
   "type": "smokeleafindustries:drying",
-  "ingredient": {
-    "item": "smokeleafindustries:tobacco_leaves"
-  },
+  "ingredient": "smokeleafindustries:tobacco_leaves",
   "result": {
     "id": "smokeleafindustries:dried_tobacco_leaves",
     "count": 1

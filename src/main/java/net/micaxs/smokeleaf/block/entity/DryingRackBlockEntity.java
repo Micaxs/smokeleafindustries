@@ -1,6 +1,8 @@
 // Java
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.recipe.DryingRecipe;
@@ -28,7 +30,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class DryingRackBlockEntity extends BlockEntity {
     private final int[] progress = new int[SLOT_COUNT];
 
     private static final DustParticleOptions DRYING_PARTICLE =
-            new DustParticleOptions(new Vector3f(0.4f, 0.4f, 0.4f), 0.5f);
+            new DustParticleOptions(0x666666, 0.5f);
 
     private static final float[] LAYER_Y = {3 / 16f, 9 / 16f, 15 / 16f};
     private static final float[][] QUAD_OFFSETS = {
@@ -71,8 +72,7 @@ public class DryingRackBlockEntity extends BlockEntity {
                 continue;
             }
 
-            Optional<RecipeHolder<DryingRecipe>> recipeHolderOpt = level.getRecipeManager()
-                    .getRecipeFor(ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(stack), level);
+            Optional<RecipeHolder<DryingRecipe>> recipeHolderOpt = ModRecipes.find(level, ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(stack));
 
             if (recipeHolderOpt.isEmpty()) {
                 be.progress[i] = 0;
@@ -86,7 +86,7 @@ public class DryingRackBlockEntity extends BlockEntity {
                 if (be.isDry(stack)) continue;
 
                 // Emit particle only while still drying
-                if (server.random.nextFloat() < 0.10f) {
+                if (server.getRandom().nextFloat() < 0.10f) {
                     float[] off = be.getSlotRenderPosition(i, facing);
                     server.sendParticles(
                             DRYING_PARTICLE,
@@ -106,7 +106,7 @@ public class DryingRackBlockEntity extends BlockEntity {
                 }
             } else {
                 // Non\-bud drying recipes still emit particles normally
-                if (server.random.nextFloat() < 0.10f) {
+                if (server.getRandom().nextFloat() < 0.10f) {
                     float[] off = be.getSlotRenderPosition(i, facing);
                     server.sendParticles(
                             DRYING_PARTICLE,
@@ -144,7 +144,7 @@ public class DryingRackBlockEntity extends BlockEntity {
         if (stack.isEmpty()) return 0;
 
         Optional<RecipeHolder<DryingRecipe>> recipeHolderOpt =
-                level.getRecipeManager().getRecipeFor(ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(stack), level);
+                ModRecipes.find(level, ModRecipes.DRYING_TYPE.get(), new DryingRecipeInput(stack));
         if (recipeHolderOpt.isEmpty()) return 0;
 
         DryingRecipe recipe = recipeHolderOpt.get().value();
@@ -224,13 +224,13 @@ public class DryingRackBlockEntity extends BlockEntity {
 
     private void setChangedAndSync() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 
     public void drops() {
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         for (ItemStack stack : items) {
             if (!stack.isEmpty()) {
                 Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), stack);
@@ -240,27 +240,22 @@ public class DryingRackBlockEntity extends BlockEntity {
 
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         for (int i = 0; i < SLOT_COUNT; i++) {
-            CompoundTag slotTag = new CompoundTag();
-            if (!items[i].isEmpty()) slotTag.put("stack", items[i].save(registries));
+            ValueOutput slotTag = output.child("S" + i);
+            if (!items[i].isEmpty()) slotTag.store("stack", ItemStack.CODEC, items[i]);
             slotTag.putInt("prog", progress[i]);
-            tag.put("S" + i, slotTag);
         }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         for (int i = 0; i < SLOT_COUNT; i++) {
-            CompoundTag slotTag = tag.getCompound("S" + i);
-            if (slotTag.contains("stack")) {
-                items[i] = ItemStack.parse(registries, slotTag.getCompound("stack")).orElse(ItemStack.EMPTY);
-            } else {
-                items[i] = ItemStack.EMPTY;
-            }
-            progress[i] = slotTag.getInt("prog");
+            ValueInput slotTag = input.childOrEmpty("S" + i);
+            items[i] = slotTag.read("stack", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+            progress[i] = slotTag.getIntOr("prog", 0);
         }
     }
 
@@ -275,7 +270,13 @@ public class DryingRackBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

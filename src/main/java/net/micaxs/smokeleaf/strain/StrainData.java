@@ -3,7 +3,7 @@ package net.micaxs.smokeleaf.strain;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public record StrainData(
         int nitrogen,
         int phosphorus,
         int potassium,
-        List<ResourceLocation> effects,
+        List<Identifier> effects,
         int amplifier,
         int durationTicks,
         boolean identified,
@@ -85,7 +85,7 @@ public record StrainData(
             Codec.INT.fieldOf("n").forGetter(StrainData::nitrogen),
             Codec.INT.fieldOf("p").forGetter(StrainData::phosphorus),
             Codec.INT.fieldOf("k").forGetter(StrainData::potassium),
-            ResourceLocation.CODEC.listOf().fieldOf("effects").forGetter(StrainData::effects),
+            Identifier.CODEC.listOf().fieldOf("effects").forGetter(StrainData::effects),
             Codec.INT.fieldOf("amp").forGetter(StrainData::amplifier),
             Codec.INT.fieldOf("dur").forGetter(StrainData::durationTicks),
             Codec.BOOL.fieldOf("identified").forGetter(StrainData::identified),

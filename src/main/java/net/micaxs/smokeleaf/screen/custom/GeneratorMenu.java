@@ -12,7 +12,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class GeneratorMenu extends AbstractContainerMenu {
 
@@ -34,7 +34,7 @@ public class GeneratorMenu extends AbstractContainerMenu {
        addPlayerInventory(inv);
        addPlayerHotbar(inv);
 
-       this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 0, 37, 34));
+       this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 0, 37, 34));
 
        addDataSlots(data);
     }

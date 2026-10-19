@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import java.util.function.Consumer;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.BlockPos;
@@ -16,7 +18,9 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.CommonHooks;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.ItemStackTemplate;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -28,37 +32,24 @@ public class HempHammer extends Item {
     }
 
     @Override
-    public boolean hasCraftingRemainingItem() {
-        return true;
-    }
-
-
-
-    @Override
-    public @NotNull ItemStack getCraftingRemainingItem(ItemStack itemStack) {
-        ItemStack copy = itemStack.copy();
+    public @Nullable ItemStackTemplate getCraftingRemainder(ItemInstance instance) {
+        ItemStack copy = switch (instance) {
+            case ItemStack stack -> stack.copyWithCount(1);
+            case ItemStackTemplate template -> template.create().copyWithCount(1);
+            default -> new ItemStack(this);
+        };
         if (shouldConsumeDurability(copy)) {
             copy.setDamageValue(copy.getDamageValue() + 1);
         }
         if (copy.getDamageValue() >= copy.getMaxDamage()) {
-            return ItemStack.EMPTY;
+            return null;
         }
-        return copy;
+        return ItemStackTemplate.fromNonEmptyStack(copy);
     }
 
     private static boolean shouldConsumeDurability(ItemStack stack) {
         int unbreakingLevel = getUnbreakingLevel(stack);
         return unbreakingLevel <= 0 || RANDOM.nextInt(unbreakingLevel + 1) == 0;
-    }
-
-    @Override
-    public boolean isEnchantable(ItemStack stack) {
-        return stack.isDamageableItem();
-    }
-
-    @Override
-    public int getEnchantmentValue(ItemStack stack) {
-        return 12;
     }
 
     @Override
@@ -68,15 +59,14 @@ public class HempHammer extends Item {
 
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miningEntity) {
-        if (!level.isClientSide && state.getDestroySpeed(level, pos) > 0) {
+        if (!level.isClientSide() && state.getDestroySpeed(level, pos) > 0) {
             stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
         }
         return true;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context,
-                                List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         int unbreakingLevel = getUnbreakingLevel(stack);
         int useMultiplier = unbreakingLevel + 1;
         int max = stack.getMaxDamage();
@@ -94,12 +84,12 @@ public class HempHammer extends Item {
             color = ChatFormatting.RED;
         }
 
-        tooltipComponents.add(
+        tooltipComponents.accept(
                 Component.translatable("tooltip.smokeleafindustries.hemp_hammer.uses", remaining, total)
                         .withStyle(color)
         );
 
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        super.appendHoverText(stack, context, display, tooltipComponents, tooltipFlag);
     }
 
     @Override

@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "X": {
-      "item": "smokeleafindustries:hemp_fabric"
-    }
+    "X": "smokeleafindustries:hemp_fabric"
   },
   "pattern": [
     "XXX",
@@ -12,7 +10,6 @@
     "X X"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:baja_hoodie_leggings"
   }
 }

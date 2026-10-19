@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "minecraft:bucket"
-    },
-    "C": {
-      "item": "smokeleafindustries:hemp_core"
-    },
-    "H": {
-      "item": "smokeleafindustries:hemp_plastic"
-    },
-    "I": {
-      "item": "minecraft:gold_ingot"
-    }
+    "B": "minecraft:bucket",
+    "C": "smokeleafindustries:hemp_core",
+    "H": "smokeleafindustries:hemp_plastic",
+    "I": "minecraft:gold_ingot"
   },
   "pattern": [
     "HCH",
@@ -21,7 +13,6 @@
     "HCH"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:liquifier"
   }
 }

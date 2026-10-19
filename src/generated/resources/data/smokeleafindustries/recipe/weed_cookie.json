@@ -1,15 +1,11 @@
 {
   "type": "smokeleafindustries:strain_copy_shapeless",
+  "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:cookie"
-    },
-    {
-      "item": "smokeleafindustries:infused_butter"
-    }
+    "minecraft:cookie",
+    "smokeleafindustries:infused_butter"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:weed_cookie"
   }
 }

@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import java.util.function.Consumer;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
@@ -10,7 +12,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -35,11 +37,11 @@ import java.util.Objects;
 public class BaseWeedItem extends Item {
 
     // Configurable pool of possible extra effects (exclude the base effect automatically).
-    private static final List<ResourceLocation> ADDITIONAL_EFFECT_POOL = new ArrayList<>();
+    private static final List<Identifier> ADDITIONAL_EFFECT_POOL = new ArrayList<>();
 
-    public static void setAdditionalEffectPool(Collection<ResourceLocation> effectIds) {
+    public static void setAdditionalEffectPool(Collection<Identifier> effectIds) {
         ADDITIONAL_EFFECT_POOL.clear();
-        for (ResourceLocation rl : effectIds) {
+        for (Identifier rl : effectIds) {
             // Only keep effect ids that actually exist
             if (rl != null && BuiltInRegistries.MOB_EFFECT.containsKey(rl)) {
                 ADDITIONAL_EFFECT_POOL.add(rl);
@@ -47,7 +49,7 @@ public class BaseWeedItem extends Item {
         }
     }
 
-    public static void addToAdditionalEffectPool(ResourceLocation effectId) {
+    public static void addToAdditionalEffectPool(Identifier effectId) {
         if (effectId != null && BuiltInRegistries.MOB_EFFECT.containsKey(effectId)) {
             ADDITIONAL_EFFECT_POOL.add(effectId);
         }
@@ -108,20 +110,20 @@ public class BaseWeedItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, display, tooltipComponents, tooltipFlag);
 
         StrainData d = StrainUtil.getStrain(stack);
         if (d == StrainData.EMPTY) return;
 
-        tooltipComponents.add(getLevelsText(stack));
+        tooltipComponents.accept(getLevelsText(stack));
 
         List<MobEffectInstance> previews = buildEffectInstances(stack);
         if (!previews.isEmpty()) {
             MobEffectInstance first = previews.get(0);
             MobEffect baseEff = first.getEffect().value();
             int seconds = first.getDuration() / 20;
-            tooltipComponents.add(
+            tooltipComponents.accept(
                     Component.literal("Effect: ").withStyle(ChatFormatting.GRAY)
                             .append(Component.translatable(baseEff.getDescriptionId())
                                     .append(Component.literal(" (" + seconds + "s)").withStyle(ChatFormatting.GRAY))
@@ -139,7 +141,7 @@ public class BaseWeedItem extends Item {
                 }
                 joined = joined.append(name);
             }
-            tooltipComponents.add(
+            tooltipComponents.accept(
                     Component.translatable("tooltip.smokeleafindustries.extra_effects", joined)
                             .withStyle(ChatFormatting.GRAY)
             );
@@ -168,7 +170,7 @@ public class BaseWeedItem extends Item {
     public MobEffect getEffect(ItemStack stack) {
         StrainData d = StrainUtil.getStrain(stack);
         if (d != StrainData.EMPTY && !d.effects().isEmpty()) {
-            MobEffect strainEffect = BuiltInRegistries.MOB_EFFECT.get(d.effects().get(0));
+            MobEffect strainEffect = BuiltInRegistries.MOB_EFFECT.getValue(d.effects().get(0));
             if (strainEffect != null) {
                 return strainEffect;
             }
@@ -178,9 +180,9 @@ public class BaseWeedItem extends Item {
         if (effectId == null) {
             effectId = BuiltInRegistries.MOB_EFFECT.getKey(this.effect).toString();
         }
-        ResourceLocation effectRL = ResourceLocation.tryParse(effectId);
+        Identifier effectRL = Identifier.tryParse(effectId);
         if (effectRL != null) {
-            MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(effectRL);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.getValue(effectRL);
             if (effect != null) return effect;
         }
         return null;
@@ -226,7 +228,7 @@ public class BaseWeedItem extends Item {
         List<MobEffectInstance> filtered = new ArrayList<>();
         for (MobEffectInstance inst : effects) {
             if (inst == null || inst.getEffect() == null) continue;
-            if (inst.getEffect().value() == MobEffects.CONFUSION) continue;
+            if (inst.getEffect().value() == MobEffects.NAUSEA) continue;
             filtered.add(inst);
         }
         return filtered;
@@ -235,7 +237,7 @@ public class BaseWeedItem extends Item {
     // Apply effects on consume/use
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             for (MobEffectInstance inst : buildEffectInstances(stack)) {
                 if (inst != null && inst.getEffect() != null) {
                     entity.addEffect(inst);

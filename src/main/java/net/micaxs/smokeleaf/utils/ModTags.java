@@ -1,7 +1,7 @@
 package net.micaxs.smokeleaf.utils;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -24,6 +24,8 @@ public class ModTags {
 
     public static final TagKey<Item> LEAVES = tag("leaves");
 
+    public static final TagKey<Item> REPAIRS_BAJA_HOODIE = tag("repairs_baja_hoodie");
+
     public static final TagKey<Block> POT_SOILS = blockTag("pot_soils");
 
     public static final TagKey<Item> HEMP_WOOL = tag("hemp_wool");
@@ -33,10 +35,10 @@ public class ModTags {
     public static final TagKey<Item> UNIDENTIFIED_SEEDS = tag("unidentified_seeds");
 
     private static TagKey<Item> tag(String name) {
-        return ItemTags.create(ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, name));
+        return ItemTags.create(Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, name));
     }
 
     private static TagKey<Block> blockTag(String name) {
-        return BlockTags.create(ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, name));
+        return BlockTags.create(Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, name));
     }
 }

@@ -3,9 +3,7 @@
   "category": "building",
   "group": "hemp_chiseled_stone",
   "key": {
-    "#": {
-      "item": "smokeleafindustries:hemp_chiseled_stone"
-    }
+    "#": "smokeleafindustries:hemp_chiseled_stone"
   },
   "pattern": [
     "#  ",

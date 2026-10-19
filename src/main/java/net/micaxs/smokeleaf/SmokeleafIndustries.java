@@ -18,7 +18,7 @@ import net.micaxs.smokeleaf.sound.ModSounds;
 import net.micaxs.smokeleaf.strain.ModStrainRegistry;
 import net.micaxs.smokeleaf.strain.StrainRegistry;
 import net.micaxs.smokeleaf.villager.ModVillagers;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.ComposterBlock;
 import org.slf4j.Logger;
 
@@ -57,7 +57,6 @@ public class SmokeleafIndustries {
 
         ModCreativeModeTabs.register(modEventBus);
 
-        net.micaxs.smokeleaf.item.ModArmorMaterials.register(modEventBus);
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
@@ -77,6 +76,7 @@ public class SmokeleafIndustries {
 
         ModFluidTypes.register(modEventBus);
         ModFluids.register(modEventBus);
+        net.micaxs.smokeleaf.gametest.ModGameTests.register(modEventBus);
 
         modEventBus.register(ModPayloads.class);
 
@@ -90,16 +90,16 @@ public class SmokeleafIndustries {
 
         event.enqueueWork(() -> {
             BaseWeedItem.setAdditionalEffectPool(List.of(
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "stoned"),
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "sleepy"),
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "rainbow"),
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "breathing"),
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "bubbled"),
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "melted"),
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "dizzy"),
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "paranoia"),
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "dry_eyes"),
-                    ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "brain_melt")
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "stoned"),
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "sleepy"),
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "rainbow"),
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "breathing"),
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "bubbled"),
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "melted"),
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "dizzy"),
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "paranoia"),
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "dry_eyes"),
+                    Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "brain_melt")
             ));
         });
 
@@ -110,7 +110,7 @@ public class SmokeleafIndustries {
         LOGGER.info("Smokeleaf Industries server starting...");
         try {
             var registry = event.getServer().registryAccess()
-                    .registryOrThrow(ModStrainRegistry.STRAIN_REGISTRY_KEY);
+                    .lookupOrThrow(ModStrainRegistry.STRAIN_REGISTRY_KEY);
             StrainRegistry.reload(registry);
         } catch (Exception e) {
             LOGGER.error("Failed to reload StrainRegistry from datapack registry", e);

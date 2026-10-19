@@ -2,18 +2,11 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:hemp_hammer"
-    },
-    {
-      "item": "smokeleafindustries:hemp_plastic"
-    },
-    {
-      "item": "smokeleafindustries:unfinished_hemp_core"
-    }
+    "smokeleafindustries:hemp_hammer",
+    "smokeleafindustries:hemp_plastic",
+    "smokeleafindustries:unfinished_hemp_core"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:hemp_core"
   }
 }

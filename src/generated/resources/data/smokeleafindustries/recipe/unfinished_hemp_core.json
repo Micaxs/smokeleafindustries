@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "smokeleafindustries:bio_composite"
-    },
-    {
-      "item": "minecraft:diamond"
-    }
+    "smokeleafindustries:bio_composite",
+    "minecraft:diamond"
   ],
   "result": {
     "count": 2,

@@ -4,7 +4,7 @@ import java.util.*;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -159,7 +159,7 @@ public class Config {
 
             // If the key is a full RL, also index by its path for convenience
             try {
-                ResourceLocation rl = ResourceLocation.parse(key);
+                Identifier rl = Identifier.parse(key);
                 PLANT_NUTRIENTS_CACHE.putIfAbsent(rl.getPath(), target);
             } catch (Exception ignored) {
                 // If the key is just a path, that's fine.
@@ -167,7 +167,7 @@ public class Config {
         }
     }
 
-    public static Optional<NutrientTarget> getNutrientTargetFor(ResourceLocation id) {
+    public static Optional<NutrientTarget> getNutrientTargetFor(Identifier id) {
         if (id == null) return Optional.empty();
         NutrientTarget t = PLANT_NUTRIENTS_CACHE.get(id.toString());
         if (t != null) return Optional.of(t);

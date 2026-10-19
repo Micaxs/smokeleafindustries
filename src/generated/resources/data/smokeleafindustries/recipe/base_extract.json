@@ -2,18 +2,11 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:milk_bucket"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:glass_bottle"
-    }
+    "minecraft:milk_bucket",
+    "minecraft:sugar",
+    "minecraft:glass_bottle"
   ],
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:base_extract"
   }
 }

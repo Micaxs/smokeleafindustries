@@ -1,12 +1,15 @@
 {
   "type": "smokeleafindustries:sequencer",
-  "dna": { "item": "smokeleafindustries:dna_strand" },
-  "base_extract": { "item": "smokeleafindustries:base_extract" },
+  "dna": "smokeleafindustries:dna_strand",
+  "base_extract": "smokeleafindustries:base_extract",
   "required_reagents": [
-    { "item": "minecraft:phantom_membrane" },
-    { "item": "minecraft:sugar" },
-    { "item": "minecraft:nether_wart" }
+    "minecraft:phantom_membrane",
+    "minecraft:sugar",
+    "minecraft:nether_wart"
   ],
-  "result": { "id": "smokeleafindustries:extract", "count": 1 },
+  "result": {
+    "id": "smokeleafindustries:extract",
+    "count": 1
+  },
   "strain_id": "ghost_train"
 }

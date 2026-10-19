@@ -1,11 +1,11 @@
 package net.micaxs.smokeleaf.gametest;
 
+import net.micaxs.smokeleaf.recipe.IngredientUtil;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.recipe.StrainCopyShapedRecipe;
 import net.minecraft.core.NonNullList;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -15,13 +15,12 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,8 +28,6 @@ import java.util.stream.Collectors;
  * Checks that none of our crafting recipes can be matched by the same grid as a vanilla crafting recipe
  * or another one of our own.
  */
-@GameTestHolder(SmokeleafIndustries.MODID)
-@PrefixGameTestTemplate(false)
 public class RecipeConflictGameTests {
 
     private static final int SPECIAL = 0;
@@ -42,20 +39,19 @@ public class RecipeConflictGameTests {
      * width == SHAPELESS: cells holds one entry per ingredient.
      * width == SPECIAL: custom matches() logic with no ingredient list, only checked by sampling.
      */
-    private record Info(ResourceLocation id, CraftingRecipe recipe, int width, int height,
-                        List<Set<Item>> cells, List<Ingredient> ingredients) {
+    private record Info(Identifier id, CraftingRecipe recipe, int width, int height,
+                        List<Set<Item>> cells, List<Optional<Ingredient>> ingredients) {
         boolean special() {
             return width == SPECIAL;
         }
     }
 
-    @GameTest(template = "empty_3x3x3")
     public static void noConflictsWithVanillaCrafting(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         List<Info> ours = new ArrayList<>();
         List<Info> vanilla = new ArrayList<>();
-        for (RecipeHolder<CraftingRecipe> holder : level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
-            String ns = holder.id().getNamespace();
+        for (RecipeHolder<CraftingRecipe> holder : level.recipeAccess().recipeMap().byType(RecipeType.CRAFTING)) {
+            String ns = holder.id().identifier().getNamespace();
             if (ns.equals(SmokeleafIndustries.MODID)) ours.add(describe(holder));
             else if (ns.equals("minecraft")) vanilla.add(describe(holder));
         }
@@ -87,22 +83,25 @@ public class RecipeConflictGameTests {
 
     private static Info describe(RecipeHolder<CraftingRecipe> holder) {
         CraftingRecipe recipe = holder.value();
-        NonNullList<Ingredient> ingredients = recipe.getIngredients();
+        List<Optional<Ingredient>> ingredients;
         int width = SPECIAL;
         int height = 0;
         if (recipe instanceof ShapedRecipe shaped) {
+            // also covers StrainCopyShapedRecipe
+            ingredients = shaped.getIngredients();
             width = shaped.getWidth();
             height = shaped.getHeight();
-        } else if (recipe instanceof StrainCopyShapedRecipe shaped) {
-            width = shaped.pattern().width();
-            height = shaped.pattern().height();
-        } else if (!ingredients.isEmpty()) {
-            width = SHAPELESS;
+        } else if (!recipe.placementInfo().isImpossibleToPlace()) {
+            ingredients = recipe.placementInfo().ingredients().stream().map(Optional::of).toList();
+            if (!ingredients.isEmpty()) width = SHAPELESS;
+        } else {
+            ingredients = List.of();
         }
         List<Set<Item>> cells = ingredients.stream()
-                .map(ing -> Arrays.stream(ing.getItems()).map(ItemStack::getItem).collect(Collectors.toSet()))
+                .map(ing -> ing.map(i -> Arrays.stream(IngredientUtil.stacks(i)).map(ItemStack::getItem).collect(Collectors.toSet()))
+                        .orElse(Set.of()))
                 .toList();
-        return new Info(holder.id(), recipe, width, height, cells, ingredients);
+        return new Info(holder.id().identifier(), recipe, width, height, cells, ingredients);
     }
 
     private static boolean conflicts(Info a, Info b, ServerLevel level) {
@@ -172,8 +171,8 @@ public class RecipeConflictGameTests {
     /** Concrete grids that the given shaped/shapeless recipe accepts, cycling through each ingredient's items. */
     private static List<CraftingInput> samples(Info info) {
         int variants = 1;
-        for (Ingredient ing : info.ingredients()) {
-            variants = Math.max(variants, ing.getItems().length);
+        for (Optional<Ingredient> ing : info.ingredients()) {
+            variants = Math.max(variants, ing.map(i -> IngredientUtil.stacks(i).length).orElse(0));
         }
         variants = Math.min(variants, MAX_SAMPLES);
 
@@ -181,8 +180,8 @@ public class RecipeConflictGameTests {
         Set<List<Item>> seen = new HashSet<>();
         for (int k = 0; k < variants; k++) {
             List<ItemStack> grid = new ArrayList<>();
-            for (Ingredient ing : info.ingredients()) {
-                ItemStack[] items = ing.getItems();
+            for (Optional<Ingredient> ing : info.ingredients()) {
+                ItemStack[] items = ing.map(IngredientUtil::stacks).orElse(new ItemStack[0]);
                 grid.add(items.length == 0 ? ItemStack.EMPTY : items[k % items.length].copy());
             }
             if (!seen.add(grid.stream().map(ItemStack::getItem).toList())) continue;

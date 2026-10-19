@@ -12,9 +12,9 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.item.ModItems;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -25,10 +25,10 @@ import java.util.List;
 
 public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraftingRecipeCategory.Display> {
 
-    public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "strain_crafting");
-    private static final ResourceLocation VANILLA_BG =
-            ResourceLocation.withDefaultNamespace("textures/gui/container/crafting_table.png");
+    public static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "strain_crafting");
+    private static final Identifier VANILLA_BG =
+            Identifier.withDefaultNamespace("textures/gui/container/crafting_table.png");
 
     public static final RecipeType<Display> RECIPE_TYPE =
             new RecipeType<>(UID, Display.class);
@@ -57,11 +57,6 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
         return icon;
     }
 
-    @SuppressWarnings("removal")
-    @Override
-    public IDrawable getBackground() {
-        return background;
-    }
 
     @Override
     public int getWidth() {
@@ -74,7 +69,8 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
     }
 
     @Override
-    public void draw(Display display, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(Display display, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
+        background.draw(guiGraphics);
     }
 
     @Override
@@ -87,7 +83,7 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
                 List<ItemStack> colored = JeiStrainHelper.coloredStacks(strainItem, focuses);
                 if (!colored.isEmpty()) {
                     builder.addSlot(RecipeIngredientRole.INPUT, x, y)
-                            .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(colored.stream()));
+                            .addItemStacks(colored);
                 }
             } else {
                 builder.addSlot(RecipeIngredientRole.INPUT, x, y)
@@ -100,7 +96,7 @@ public class StrainCraftingRecipeCategory implements IRecipeCategory<StrainCraft
                     .addItemStack(outputs.get(0));
         } else if (outputs.size() > 1) {
             builder.addSlot(RecipeIngredientRole.OUTPUT, 95, 19)
-                    .addIngredients(net.minecraft.world.item.crafting.Ingredient.of(outputs.stream()));
+                    .addItemStacks(outputs);
         }
     }
 

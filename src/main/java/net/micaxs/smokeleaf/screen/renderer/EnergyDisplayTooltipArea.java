@@ -1,8 +1,8 @@
 package net.micaxs.smokeleaf.screen.renderer;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import java.util.List;
 
@@ -12,13 +12,13 @@ public class EnergyDisplayTooltipArea {
     private final int yPos;
     private final int width;
     private final int height;
-    private final IEnergyStorage energy;
+    private final EnergyHandler energy;
 
-    public EnergyDisplayTooltipArea(int xMin, int yMin, IEnergyStorage energy) {
+    public EnergyDisplayTooltipArea(int xMin, int yMin, EnergyHandler energy) {
         this(xMin, yMin, energy, 8, 64);
     }
 
-    public EnergyDisplayTooltipArea(int xMin, int yMin, IEnergyStorage energy, int width, int height) {
+    public EnergyDisplayTooltipArea(int xMin, int yMin, EnergyHandler energy, int width, int height) {
         xPos = xMin;
         yPos = yMin;
         this.energy = energy;
@@ -27,11 +27,11 @@ public class EnergyDisplayTooltipArea {
     }
 
     public List<Component> getTooltips() {
-        return List.of(Component.literal(energy.getEnergyStored() + " / " + energy.getMaxEnergyStored() + " FE"));
+        return List.of(Component.literal(energy.getAmountAsInt() + " / " + energy.getCapacityAsInt() + " FE"));
     }
 
-    public void render(GuiGraphics guiGraphics) {
-        int stored = (int)(height * (energy.getEnergyStored() / (float)energy.getMaxEnergyStored()));
+    public void render(GuiGraphicsExtractor guiGraphics) {
+        int stored = (int)(height * (energy.getAmountAsInt() / (float)energy.getCapacityAsInt()));
         guiGraphics.fillGradient(xPos, yPos + (height - stored), xPos + width, yPos + height, 0xffb51500, 0xff600b00);
     }
 

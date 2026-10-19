@@ -1,5 +1,9 @@
 package net.micaxs.smokeleaf.screen.custom;
 
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.micaxs.smokeleaf.recipe.IngredientUtil;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.client.guide.GuideCategory;
 import net.micaxs.smokeleaf.client.guide.GuideDataLoader;
@@ -11,18 +15,22 @@ import net.micaxs.smokeleaf.screen.widget.GuideBookButton;
 import net.micaxs.smokeleaf.screen.widget.UvImageButton;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.micaxs.smokeleaf.recipe.ModRecipes;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
@@ -45,7 +53,7 @@ import java.util.Optional;
  * rather than being silently truncated.
  */
 public class GuideBookScreen extends Screen {
-    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEX = Identifier.fromNamespaceAndPath(
             SmokeleafIndustries.MODID, "textures/gui/smokeleaf_guide.png");
     private static final int TEX_W = 256, TEX_H = 256;
 
@@ -220,8 +228,11 @@ public class GuideBookScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) return true;
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
+        if (super.keyPressed(event)) return true;
         if (mode == Mode.PAGE) {
             if (keyCode == 266) { pageBack(); return true; } // Page Up
             if (keyCode == 267) { pageForward(); return true; } // Page Down
@@ -243,7 +254,10 @@ public class GuideBookScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         if (button == 0 && !categories.isEmpty()) {
             int railX = left();
             int top = top();
@@ -255,17 +269,17 @@ public class GuideBookScreen extends Screen {
                 }
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        this.renderTransparentBackground(g);
-        g.blit(TEX, pageLeft(), top(), IMAGE_WIDTH, IMAGE_HEIGHT, (float) PAGE_U, (float) PAGE_V, SRC_IMAGE_WIDTH, SRC_IMAGE_HEIGHT, TEX_W, TEX_H);
+    public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+        this.extractTransparentBackground(g);
+        g.blit(RenderPipelines.GUI_TEXTURED, TEX, pageLeft(), top(), (float) PAGE_U, (float) PAGE_V, IMAGE_WIDTH, IMAGE_HEIGHT, SRC_IMAGE_WIDTH, SRC_IMAGE_HEIGHT, TEX_W, TEX_H);
         renderTabRail(g, mouseX, mouseY);
     }
 
-    private void renderTabRail(GuiGraphics g, int mouseX, int mouseY) {
+    private void renderTabRail(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         if (categories.isEmpty()) return;
         int railX = left();
         int top = top();
@@ -279,20 +293,20 @@ public class GuideBookScreen extends Screen {
             boolean hovered = !active && mouseX >= railX && mouseX <= railX + RAIL_WIDTH && mouseY >= y && mouseY <= y + TAB_HEIGHT;
             int u = active ? TAB_ACTIVE_U : (hovered ? TAB_HOVER_U : TAB_NORMAL_U);
             int v = active ? TAB_ACTIVE_V : (hovered ? TAB_HOVER_V : TAB_NORMAL_V);
-            g.blit(TEX, railX, y, RAIL_WIDTH, TAB_HEIGHT, (float) u, (float) v, TAB_TILE_SRC, TAB_TILE_SRC, TEX_W, TEX_H);
+            g.blit(RenderPipelines.GUI_TEXTURED, TEX, railX, y, (float) u, (float) v, RAIL_WIDTH, TAB_HEIGHT, TAB_TILE_SRC, TAB_TILE_SRC, TEX_W, TEX_H);
             ItemStack tabIcon = GuideIcons.stack(category.icon(), null);
-            g.renderItem(tabIcon, railX + (RAIL_WIDTH - 16) / 2, y + (TAB_HEIGHT - 16) / 2);
+            g.item(tabIcon, railX + (RAIL_WIDTH - 16) / 2, y + (TAB_HEIGHT - 16) / 2);
             if (hovered) {
-                g.renderTooltip(font, category.name(), mouseX, mouseY);
+                g.setTooltipForNextFrame(font, category.name(), mouseX, mouseY);
             }
         }
     }
 
     @Override
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.render(g, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(g, mouseX, mouseY, partialTick);
         if (categories.isEmpty()) {
-            g.drawCenteredString(font, "No guide content loaded", pageLeft() + IMAGE_WIDTH / 2, top() + IMAGE_HEIGHT / 2, 0xFF553311);
+            g.centeredText(font, "No guide content loaded", pageLeft() + IMAGE_WIDTH / 2, top() + IMAGE_HEIGHT / 2, 0xFF553311);
             return;
         }
         if (mode == Mode.PAGE && selectedEntry != null) {
@@ -300,17 +314,17 @@ public class GuideBookScreen extends Screen {
         } else {
             GuideCategory category = categories.get(categoryIndex);
             int titleWidth = font.width(category.name());
-            g.drawString(font, category.name(), pageLeft() + PAGE_TEXT_X_OFFSET + TEXT_WIDTH / 2 - titleWidth / 2, top() + sc(14) + sc(4), 0x3F2E1E, false);
+            g.text(font, category.name(), pageLeft() + PAGE_TEXT_X_OFFSET + TEXT_WIDTH / 2 - titleWidth / 2, top() + sc(14) + sc(4), 0xFF3F2E1E, false);
         }
     }
 
-    private void renderPage(GuiGraphics g) {
+    private void renderPage(GuiGraphicsExtractor g) {
         int pl = pageLeft();
         int top = top();
 
         Component header = selectedEntry.name();
         int headerWidth = font.width(header);
-        g.drawString(font, header, pl + PAGE_TEXT_X_OFFSET + TEXT_WIDTH / 2 - headerWidth / 2, top + sc(14) + sc(4), 0x3F2E1E, false);
+        g.text(font, header, pl + PAGE_TEXT_X_OFFSET + TEXT_WIDTH / 2 - headerWidth / 2, top + sc(14) + sc(4), 0xFF3F2E1E, false);
 
         List<GuidePage> pages = selectedEntry.pages();
         if (pages.isEmpty()) return;
@@ -331,7 +345,7 @@ public class GuideBookScreen extends Screen {
         }
     }
 
-    private void renderTextPage(GuiGraphics g, int pl, int top, GuidePage.Text text) {
+    private void renderTextPage(GuiGraphicsExtractor g, int pl, int top, GuidePage.Text text) {
         boolean hasTitle = GuideText.has(text.titleKey());
         int bodyStartY;
         if (hasTitle) {
@@ -339,11 +353,11 @@ public class GuideBookScreen extends Screen {
             int titleBaseY = top + PAGE_TEXT_Y_OFFSET + sc(2) + TITLE_EXTRA_Y;
             int centerX = pl + PAGE_TEXT_X_OFFSET + TEXT_WIDTH / 2;
             int titleWidth = font.width(title);
-            g.pose().pushPose();
-            g.pose().translate(centerX, titleBaseY, 0);
-            g.pose().scale(TITLE_SCALE, TITLE_SCALE, 1.0F);
-            g.drawString(font, title, -titleWidth / 2, 0, 0x000000, false);
-            g.pose().popPose();
+            g.pose().pushMatrix();
+            g.pose().translate(centerX, titleBaseY);
+            g.pose().scale(TITLE_SCALE, TITLE_SCALE);
+            g.text(font, title, -titleWidth / 2, 0, 0xFF000000, false);
+            g.pose().popMatrix();
             bodyStartY = titleBaseY + Mth.floor(9 * TITLE_SCALE) + TITLE_BODY_SPACING;
         } else {
             bodyStartY = top + PAGE_TEXT_Y_OFFSET + sc(2);
@@ -359,112 +373,116 @@ public class GuideBookScreen extends Screen {
         renderScrollableText(g, pl + PAGE_TEXT_X_OFFSET, bodyStartY, available, cachedLines);
     }
 
-    private void renderSpotlightPage(GuiGraphics g, int pl, int top, GuidePage.Spotlight spotlight) {
+    private void renderSpotlightPage(GuiGraphicsExtractor g, int pl, int top, GuidePage.Spotlight spotlight) {
         ItemStack stack = GuideIcons.stack(spotlight.item(), spotlight.strainId());
         int centerX = pl + PAGE_TEXT_X_OFFSET + TEXT_WIDTH / 2;
         int iconTop = top + PAGE_TEXT_Y_OFFSET + sc(6);
         int iconHalf = Math.round(8 * SPOTLIGHT_ICON_ZOOM);
 
-        g.pose().pushPose();
-        g.pose().translate(centerX - iconHalf, iconTop, 0);
-        g.pose().scale(SPOTLIGHT_ICON_ZOOM, SPOTLIGHT_ICON_ZOOM, 1.0F);
-        g.renderItem(stack, 0, 0);
-        g.pose().popPose();
+        g.pose().pushMatrix();
+        g.pose().translate(centerX - iconHalf, iconTop);
+        g.pose().scale(SPOTLIGHT_ICON_ZOOM, SPOTLIGHT_ICON_ZOOM);
+        g.item(stack, 0, 0);
+        g.pose().popMatrix();
 
         if (GuideText.has(spotlight.textKey())) {
             renderCaption(g, pl, top, spotlight.textKey(), iconTop + Math.round(2 * iconHalf * 1.2F));
         }
     }
 
-    private void renderRecipePage(GuiGraphics g, int pl, int top, ResourceLocation recipeId, String textKey) {
+    private void renderRecipePage(GuiGraphicsExtractor g, int pl, int top, Identifier recipeId, String textKey) {
         Level level = this.minecraft.level;
         int gridX = pl + PAGE_TEXT_X_OFFSET + sc(4);
         int gridY = top + PAGE_TEXT_Y_OFFSET + sc(10);
         int slot = sc(18);
 
-        Optional<RecipeHolder<?>> holder = level != null ? level.getRecipeManager().byKey(recipeId) : Optional.empty();
+        Optional<RecipeHolder<?>> holder = ModRecipes.byKey(level, ResourceKey.create(Registries.RECIPE, recipeId));
         if (holder.isEmpty()) {
-            g.drawString(font, "(missing recipe: " + recipeId + ")", pl + PAGE_TEXT_X_OFFSET, gridY, 0xAA0000, false);
+            g.text(font, "(missing recipe: " + recipeId + ")", pl + PAGE_TEXT_X_OFFSET, gridY, 0xFFAA0000, false);
             return;
         }
 
         Recipe<?> recipe = holder.get().value();
-        NonNullList<Ingredient> ingredients = recipe.getIngredients();
+        List<Optional<Ingredient>> ingredients;
         int gw, gh;
         if (recipe instanceof ShapedRecipe shaped) {
+            ingredients = shaped.getIngredients();
             gw = shaped.getWidth();
             gh = shaped.getHeight();
         } else {
+            ingredients = recipe.placementInfo().ingredients().stream().map(Optional::of).toList();
             gw = Math.max(1, Math.min(3, ingredients.size()));
             gh = Math.max(1, (int) Math.ceil(ingredients.size() / (double) gw));
         }
 
         long tick = System.currentTimeMillis() / 1000L;
         for (int i = 0; i < ingredients.size(); i++) {
-            ItemStack[] options = ingredients.get(i).getItems();
+            if (ingredients.get(i).isEmpty()) continue;
+            ItemStack[] options = IngredientUtil.stacks(ingredients.get(i).get());
             if (options.length == 0) continue;
             ItemStack shown = options[(int) (tick % options.length)];
             int col = i % gw, row = i / gw;
-            g.renderItem(shown, gridX + col * slot, gridY + row * slot);
+            g.item(shown, gridX + col * slot, gridY + row * slot);
         }
 
         int arrowX = gridX + gw * slot + sc(4);
         int arrowY = gridY + (gh * slot) / 2 - sc(4);
-        g.drawString(font, "->", arrowX, arrowY, 0x000000, false);
+        g.text(font, "->", arrowX, arrowY, 0xFF000000, false);
 
-        ItemStack result = recipe.getResultItem(level.registryAccess());
-        g.renderItem(result, arrowX + sc(16), gridY + (gh * slot) / 2 - sc(8));
+        ItemStack result = recipe.display().isEmpty() ? ItemStack.EMPTY
+                : recipe.display().getFirst().result().resolveForFirstStack(SlotDisplayContext.fromLevel(level));
+        g.item(result, arrowX + sc(16), gridY + (gh * slot) / 2 - sc(8));
 
         if (GuideText.has(textKey)) {
             renderCaption(g, pl, top, textKey, gridY + gh * slot + sc(8));
         }
     }
 
-    private void renderCombinePage(GuiGraphics g, int pl, int top, GuidePage.Combine combine) {
+    private void renderCombinePage(GuiGraphicsExtractor g, int pl, int top, GuidePage.Combine combine) {
         int gridX = pl + PAGE_TEXT_X_OFFSET + sc(4);
         int gridY = top + PAGE_TEXT_Y_OFFSET + sc(10);
         int slot = sc(18);
 
-        List<ResourceLocation> inputs = combine.inputs();
+        List<Identifier> inputs = combine.inputs();
         int gw = Math.max(1, Math.min(3, inputs.size()));
         int gh = Math.max(1, Mth.ceil(inputs.size() / (double) gw));
 
         for (int i = 0; i < inputs.size(); i++) {
             ItemStack shown = GuideIcons.stack(inputs.get(i), null);
             int col = i % gw, row = i / gw;
-            g.renderItem(shown, gridX + col * slot, gridY + row * slot);
+            g.item(shown, gridX + col * slot, gridY + row * slot);
         }
 
         int arrowX = gridX + gw * slot + sc(4);
         int arrowY = gridY + (gh * slot) / 2 - sc(4);
-        g.drawString(font, "->", arrowX, arrowY, 0x000000, false);
+        g.text(font, "->", arrowX, arrowY, 0xFF000000, false);
 
         ItemStack result = GuideIcons.stack(combine.output(), null);
-        g.renderItem(result, arrowX + sc(16), gridY + (gh * slot) / 2 - sc(8));
+        g.item(result, arrowX + sc(16), gridY + (gh * slot) / 2 - sc(8));
 
         if (GuideText.has(combine.textKey())) {
             renderCaption(g, pl, top, combine.textKey(), gridY + gh * slot + sc(8));
         }
     }
 
-    private void renderImagePage(GuiGraphics g, int pl, int top, GuidePage.Image image) {
+    private void renderImagePage(GuiGraphicsExtractor g, int pl, int top, GuidePage.Image image) {
         int size = sc(100);
         int x = pl + PAGE_TEXT_X_OFFSET + (TEXT_WIDTH - size) / 2;
         int y = top + PAGE_TEXT_Y_OFFSET + sc(4);
         float scale = size / 256F;
 
-        g.pose().pushPose();
-        g.pose().translate(x, y, 0);
-        g.pose().scale(scale, scale, 1.0F);
-        g.blit(image.image(), 0, 0, 0, 0, 256, 256, 256, 256);
-        g.pose().popPose();
+        g.pose().pushMatrix();
+        g.pose().translate(x, y);
+        g.pose().scale(scale, scale);
+        g.blit(RenderPipelines.GUI_TEXTURED, image.image(), 0, 0, 0, 0, 256, 256, 256, 256);
+        g.pose().popMatrix();
 
         if (GuideText.has(image.textKey())) {
             renderCaption(g, pl, top, image.textKey(), y + size + sc(8));
         }
     }
 
-    private void renderCaption(GuiGraphics g, int pl, int top, String textKey, int startY) {
+    private void renderCaption(GuiGraphicsExtractor g, int pl, int top, String textKey, int startY) {
         Component caption = GuideText.parseFormatted(textKey);
         List<FormattedCharSequence> lines = font.split(caption, Mth.floor(TEXT_WIDTH / TEXT_SCALE));
         int available = (top + IMAGE_HEIGHT - PAGE_BOTTOM_RESERVED) - startY;
@@ -476,7 +494,7 @@ public class GuideBookScreen extends Screen {
      * by {@link #textScrollOffset}, with a thumb-and-track scrollbar drawn alongside it whenever the
      * text doesn't fit — this is what replaces the old silent-truncation-at-a-fixed-line-count behavior.
      */
-    private void renderScrollableText(GuiGraphics g, int x, int y, int availableHeight, List<FormattedCharSequence> lines) {
+    private void renderScrollableText(GuiGraphicsExtractor g, int x, int y, int availableHeight, List<FormattedCharSequence> lines) {
         if (availableHeight <= 0 || lines.isEmpty()) return;
         int lineHeight = Math.max(1, Mth.ceil(9 * TEXT_SCALE));
         int visibleLines = Math.max(1, availableHeight / lineHeight);
@@ -484,14 +502,14 @@ public class GuideBookScreen extends Screen {
         textScrollOffset = Mth.clamp(textScrollOffset, 0, maxScroll);
 
         g.enableScissor(x, y, x + TEXT_WIDTH, y + availableHeight);
-        g.pose().pushPose();
-        g.pose().translate(x, y, 0);
-        g.pose().scale(TEXT_SCALE, TEXT_SCALE, 1.0F);
+        g.pose().pushMatrix();
+        g.pose().translate(x, y);
+        g.pose().scale(TEXT_SCALE, TEXT_SCALE);
         int end = Math.min(lines.size(), textScrollOffset + visibleLines + 1);
         for (int l = textScrollOffset; l < end; l++) {
-            g.drawString(font, lines.get(l), 0, (l - textScrollOffset) * 9, 0x000000, false);
+            g.text(font, lines.get(l), 0, (l - textScrollOffset) * 9, 0xFF000000, false);
         }
-        g.pose().popPose();
+        g.pose().popMatrix();
         g.disableScissor();
 
         if (maxScroll > 0) {

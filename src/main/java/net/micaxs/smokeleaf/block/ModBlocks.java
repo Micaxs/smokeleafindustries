@@ -3,12 +3,13 @@ package net.micaxs.smokeleaf.block;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.block.custom.*;
 import net.micaxs.smokeleaf.item.ModItems;
-import net.minecraft.world.item.BlockItem;
+import net.micaxs.smokeleaf.item.custom.TooltipBlockItem;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -16,6 +17,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ModBlocks {
@@ -23,131 +25,128 @@ public class ModBlocks {
 
 
     public static final DeferredBlock<Block> HEMP_STONE = registerBlock("hemp_stone",
-            () -> new Block(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new Block(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_STONE_STAIRS = registerBlock("hemp_stone_stairs",
-            () -> new StairBlock(ModBlocks.HEMP_STONE.get().defaultBlockState(), BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new StairBlock(ModBlocks.HEMP_STONE.get().defaultBlockState(), props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_STONE_SLAB = registerBlock("hemp_stone_slab",
-            () -> new SlabBlock(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new SlabBlock(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_STONE_PRESSURE_PLATE = registerBlock("hemp_stone_pressure_plate",
-            () -> new PressurePlateBlock(BlockSetType.STONE, BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new PressurePlateBlock(BlockSetType.STONE, props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_STONE_BUTTON = registerBlock("hemp_stone_button",
-            () -> new ButtonBlock(BlockSetType.STONE, 10, BlockBehaviour.Properties.of().noCollission()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new ButtonBlock(BlockSetType.STONE, 10, props), () -> BlockBehaviour.Properties.of().noCollision()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_STONE_WALL = registerBlock("hemp_stone_wall",
-            () -> new WallBlock(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new WallBlock(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
 
 
     public static final DeferredBlock<Block> HEMP_PLANKS = registerBlock("hemp_planks",
-            () -> new Block(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD)));
+            props -> new Block(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD));
     public static final DeferredBlock<Block> HEMP_PLANK_STAIRS = registerBlock("hemp_plank_stairs",
-            () -> new StairBlock(ModBlocks.HEMP_PLANKS.get().defaultBlockState(), BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD)));
+            props -> new StairBlock(ModBlocks.HEMP_PLANKS.get().defaultBlockState(), props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD));
     public static final DeferredBlock<Block> HEMP_PLANK_SLAB = registerBlock("hemp_plank_slab",
-            () -> new SlabBlock(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD)));
+            props -> new SlabBlock(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD));
     public static final DeferredBlock<Block> HEMP_PLANK_PRESSURE_PLATE = registerBlock("hemp_plank_pressure_plate",
-            () -> new PressurePlateBlock(BlockSetType.OAK, BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD)));
+            props -> new PressurePlateBlock(BlockSetType.OAK, props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD));
     public static final DeferredBlock<Block> HEMP_PLANK_BUTTON = registerBlock("hemp_plank_button",
-            () -> new ButtonBlock(BlockSetType.OAK, 10, BlockBehaviour.Properties.of().noCollission()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD)));
+            props -> new ButtonBlock(BlockSetType.OAK, 10, props), () -> BlockBehaviour.Properties.of().noCollision()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD));
     public static final DeferredBlock<Block> HEMP_PLANK_FENCE = registerBlock("hemp_plank_fence",
-            () -> new FenceBlock(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD)));
+            props -> new FenceBlock(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD));
     public static final DeferredBlock<Block> HEMP_PLANK_FENCE_GATE = registerBlock("hemp_plank_fence_gate",
-            () -> new FenceGateBlock(WoodType.OAK, BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD)));
+            props -> new FenceGateBlock(WoodType.OAK, props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD));
     public static final DeferredBlock<Block> HEMP_PLANK_DOOR = registerBlock("hemp_plank_door",
-            () -> new DoorBlock(BlockSetType.OAK, BlockBehaviour.Properties.of().noOcclusion()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD)));
+            props -> new DoorBlock(BlockSetType.OAK, props), () -> BlockBehaviour.Properties.of().noOcclusion()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD));
     public static final DeferredBlock<Block> HEMP_PLANK_TRAPDOOR = registerBlock("hemp_plank_trapdoor",
-            () -> new TrapDoorBlock(BlockSetType.OAK, BlockBehaviour.Properties.of().noOcclusion()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD)));
+            props -> new TrapDoorBlock(BlockSetType.OAK, props), () -> BlockBehaviour.Properties.of().noOcclusion()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.WOOD));
 
 
     public static final DeferredBlock<Block> HEMP_BRICKS = registerBlock("hemp_bricks",
-            () -> new Block(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new Block(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_BRICK_STAIRS = registerBlock("hemp_brick_stairs",
-            () -> new StairBlock(ModBlocks.HEMP_BRICKS.get().defaultBlockState(), BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new StairBlock(ModBlocks.HEMP_BRICKS.get().defaultBlockState(), props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_BRICK_SLAB = registerBlock("hemp_brick_slab",
-            () -> new SlabBlock(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new SlabBlock(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_BRICK_WALL = registerBlock("hemp_brick_wall",
-            () -> new WallBlock(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new WallBlock(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
 
 
     public static final DeferredBlock<Block> HEMP_CHISELED_STONE = registerBlock("hemp_chiseled_stone",
-            () -> new Block(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new Block(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_CHISELED_STONE_STAIRS = registerBlock("hemp_chiseled_stone_stairs",
-            () -> new StairBlock(ModBlocks.HEMP_CHISELED_STONE.get().defaultBlockState(), BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new StairBlock(ModBlocks.HEMP_CHISELED_STONE.get().defaultBlockState(), props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_CHISELED_STONE_SLAB = registerBlock("hemp_chiseled_stone_slab",
-            () -> new SlabBlock(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new SlabBlock(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
     public static final DeferredBlock<Block> HEMP_CHISELED_STONE_WALL = registerBlock("hemp_chiseled_stone_wall",
-            () -> new WallBlock(BlockBehaviour.Properties.of()
-                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+            props -> new WallBlock(props), () -> BlockBehaviour.Properties.of()
+                    .strength(1f).requiresCorrectToolForDrops().sound(SoundType.STONE));
 
 
     public static final DeferredBlock<Block> GROW_POT = registerBlock("grow_pot",
-            () -> new GrowPotBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
-                    .strength(1f).noOcclusion().sound(SoundType.METAL)));
+            props -> new GrowPotBlock(props), () -> BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
+                    .strength(1f).noOcclusion().sound(SoundType.METAL));
 
 
     public static final DeferredBlock<Block> LED_LIGHT = registerBlock("led_light",
-            () -> new GrowLightBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
-                    .strength(1f).lightLevel(state -> state.getValue(GrowLightBlock.CLICKED) ? 15 : 0).noOcclusion().sound(SoundType.GLASS)));
+            props -> new GrowLightBlock(props), () -> BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
+                    .strength(1f).lightLevel(state -> state.getValue(GrowLightBlock.CLICKED) ? 15 : 0).noOcclusion().sound(SoundType.GLASS));
 
     public static final DeferredBlock<Block> REFLECTOR = registerBlock("reflector",
-            () -> new ReflectorBlock(BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
+            props -> new ReflectorBlock(props), () -> BlockBehaviour.Properties.of().requiresCorrectToolForDrops()
                     .strength(1f).noOcclusion().sound(SoundType.METAL)
-                    .lightLevel(state -> state.getValue(ReflectorBlock.HAS_LAMP) ? 15 : 0)));
+                    .lightLevel(state -> state.getValue(ReflectorBlock.HAS_LAMP) ? 15 : 0));
 
     // Tobacco Crop
-    public static final DeferredBlock<Block> TOBACCO_CROP = BLOCKS.register("tobacco_crop", () ->
-            new TobaccoCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT).noOcclusion().noCollission(), ModItems.TOBACCO_SEEDS));
+    public static final DeferredBlock<Block> TOBACCO_CROP = BLOCKS.registerBlock("tobacco_crop", props -> new TobaccoCropBlock(props, ModItems.TOBACCO_SEEDS), () -> cropProperties());
 
 
     // Weed Crops
-    public static final DeferredBlock<Block> HEMP_CROP = BLOCKS.register("hemp_crop", () ->
-            new BaseWeedCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT).noOcclusion().noCollission(), ModItems.HEMP_SEEDS));
+    public static final DeferredBlock<Block> HEMP_CROP = BLOCKS.registerBlock("hemp_crop", props -> new BaseWeedCropBlock(props, ModItems.HEMP_SEEDS), () -> cropProperties());
 
     // Player-made strain crop
-    public static final DeferredBlock<Block> UNIDENTIFIED_WEED_CROP = BLOCKS.register("unidentified_weed_crop", () ->
-            new UnidentifiedWeedCropBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WHEAT).noOcclusion().noCollission()));
+    public static final DeferredBlock<Block> UNIDENTIFIED_WEED_CROP = BLOCKS.registerBlock("unidentified_weed_crop", props -> new UnidentifiedWeedCropBlock(props), () -> cropProperties());
 
 
     // Machines
-    public static final DeferredBlock<Block> GENERATOR = registerBlock("generator", () -> new GeneratorBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> GRINDER = registerBlock("grinder", () -> new GrinderBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> EXTRACTOR = registerBlock("extractor", () -> new ExtractorBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> LIQUIFIER = registerBlock("liquifier", () -> new LiquifierBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> MUTATOR = registerBlock("mutator", () -> new MutatorBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> SYNTHESIZER = registerBlock("synthesizer", () -> new SynthesizerBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> SEQUENCER = registerBlock("sequencer", () -> new SequencerBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> DRYER = registerBlock("dryer", () -> new DryerBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> MIXER = registerBlock("mixer", () -> new MixerBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> STRAIN_MODIFIER = registerBlock("strain_modifier", () -> new StrainModifierBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
-    public static final DeferredBlock<Block> GUMMY_MACHINE = registerBlock("gummy_machine", () -> new GummyMachineBlock(BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops()));
+    public static final DeferredBlock<Block> GENERATOR = registerBlock("generator", props -> new GeneratorBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> GRINDER = registerBlock("grinder", props -> new GrinderBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> EXTRACTOR = registerBlock("extractor", props -> new ExtractorBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> LIQUIFIER = registerBlock("liquifier", props -> new LiquifierBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> MUTATOR = registerBlock("mutator", props -> new MutatorBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> SYNTHESIZER = registerBlock("synthesizer", props -> new SynthesizerBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> SEQUENCER = registerBlock("sequencer", props -> new SequencerBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> DRYER = registerBlock("dryer", props -> new DryerBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> MIXER = registerBlock("mixer", props -> new MixerBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> STRAIN_MODIFIER = registerBlock("strain_modifier", props -> new StrainModifierBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> GUMMY_MACHINE = registerBlock("gummy_machine", props -> new GummyMachineBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).requiresCorrectToolForDrops());
 
     // Pipe — registered directly (not via registerBlock helper) since it has no default BlockItem;
     // the 3 pipe types are separate PipeItems (see ModItems.java) that merge into this same block.
-    public static final DeferredBlock<Block> PIPE = BLOCKS.register("pipe",
-            () -> new LogisticsPipeBlock(BlockBehaviour.Properties.of().strength(1f).noOcclusion().requiresCorrectToolForDrops()));
+    public static final DeferredBlock<Block> PIPE = BLOCKS.registerBlock("pipe",
+            props -> new LogisticsPipeBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).noOcclusion().requiresCorrectToolForDrops());
 
 
     // Utility Blocks
-    public static final DeferredBlock<Block> DRYING_RACK = registerBlock("drying_rack", () -> new DryingRackBlock(BlockBehaviour.Properties.of().strength(1f).noOcclusion().requiresCorrectToolForDrops()));
+    public static final DeferredBlock<Block> DRYING_RACK = registerBlock("drying_rack", props -> new DryingRackBlock(props), () -> BlockBehaviour.Properties.of().strength(1f).noOcclusion().requiresCorrectToolForDrops());
 
 
     // Hemp Wool — one block per DyeColor, dyed the same way as vanilla wool. WHITE is the
@@ -163,21 +162,35 @@ public class ModBlocks {
         Map<DyeColor, DeferredBlock<Block>> map = new EnumMap<>(DyeColor.class);
         for (DyeColor color : DyeColor.values()) {
             map.put(color, registerBlock(hempWoolName(color),
-                    () -> new Block(BlockBehaviour.Properties.of()
-                            .strength(0.8f).sound(SoundType.WOOL).ignitedByLava())));
+                    props -> new Block(props), () -> BlockBehaviour.Properties.of()
+                            .strength(0.8f).sound(SoundType.WOOL).ignitedByLava()));
         }
         return map;
     }
 
 
     // Helper Functions
-    private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
-        DeferredBlock<T> toReturn = BLOCKS.register(name, block);
+
+    /**
+     * Wheat-like crop properties. (Copying Wheat's properties no longer works: its map color is a
+     * function of Wheat's own age property, which other crop blocks don't have.)
+     */
+    private static BlockBehaviour.Properties cropProperties() {
+        return BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollision().noOcclusion().randomTicks()
+                .instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY);
+    }
+    private static <T extends Block> DeferredBlock<T> registerBlock(String name, Function<BlockBehaviour.Properties, T> block,
+                                                                    Supplier<BlockBehaviour.Properties> properties) {
+        DeferredBlock<T> toReturn = BLOCKS.registerBlock(name, block, properties);
         registerBlockItem(name, toReturn);
         return toReturn;
     }
     public static <T extends Block> void registerBlockItem(String name, DeferredBlock<T> block) {
-        ModItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
+        if (name.equals("grow_pot")) {
+            ModItems.ITEMS.registerItem(name, props -> new TooltipBlockItem(block.get(), props.useBlockDescriptionPrefix(), TooltipBlockItem.growPotLines()));
+            return;
+        }
+        ModItems.ITEMS.registerSimpleBlockItem(name, block);
     }
 
     // Register

@@ -1,4 +1,4 @@
-// 1.21.1	2026-09-18T07:52:40.849556434	Tags for minecraft:item mod id smokeleafindustries
+// 26.1.2	2026-10-19T08:44:27.746837588	Tags for minecraft:item mod id smokeleafindustries
 05b4369c23cdd4e73d8f33dabc87755528299e1e data/minecraft/tags/item/chest_armor.json
 c114dc2d39adc046c2852b14425af58c3951e221 data/minecraft/tags/item/enchantable/durability.json
 77be79ce865c962ad05a4bef079a7f6e146e3256 data/minecraft/tags/item/foot_armor.json
@@ -7,6 +7,7 @@ c114dc2d39adc046c2852b14425af58c3951e221 data/minecraft/tags/item/enchantable/du
 695b5f95ba773ef1320aef93764fdb44b57d1935 data/minecraft/tags/item/wool.json
 695b5f95ba773ef1320aef93764fdb44b57d1935 data/smokeleafindustries/tags/item/hemp_wool.json
 057e8df857095bf868a59fc280fb876b4b7c3d3a data/smokeleafindustries/tags/item/leaves.json
+8e70d0d6b6c339e312467bd28cecf794097f8d66 data/smokeleafindustries/tags/item/repairs_baja_hoodie.json
 2d334ded5cce1bf7256990915a586406aa710bae data/smokeleafindustries/tags/item/weed_buds.json
 734ef9e97f2b9e5413ec03fcce0afe537c44029f data/smokeleafindustries/tags/item/weed_extracts.json
 20357737aedfaddeea7e09f1b0ac51db01f04782 data/smokeleafindustries/tags/item/weed_seeds.json

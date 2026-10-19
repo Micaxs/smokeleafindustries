@@ -2,14 +2,14 @@ package net.micaxs.smokeleaf.strain;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 
 public final class ModStrainRegistry {
 
     public static final ResourceKey<Registry<StrainData>> STRAIN_REGISTRY_KEY =
-            ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("smokeleafindustries", "strain"));
+            ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("smokeleafindustries", "strain"));
 
     private ModStrainRegistry() {
     }

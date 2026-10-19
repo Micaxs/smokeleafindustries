@@ -4,7 +4,7 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.network.StrainDataPadPayload;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -42,16 +42,16 @@ public class ServerStrainList extends AbstractSelectionList<ServerStrainList.Row
     }
 
     @Override
-    protected int getScrollbarPosition() {
+    protected int scrollBarX() {
         return this.getRight() - SCROLLBAR_WIDTH;
     }
 
     @Override
-    protected void renderListBackground(GuiGraphics guiGraphics) {
+    protected void extractListBackground(GuiGraphicsExtractor guiGraphics) {
     }
 
     @Override
-    protected void renderListSeparators(GuiGraphics guiGraphics) {
+    protected void extractListSeparators(GuiGraphicsExtractor guiGraphics) {
     }
 
     @Override
@@ -69,10 +69,13 @@ public class ServerStrainList extends AbstractSelectionList<ServerStrainList.Row
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height,
-                            int mouseX, int mouseY, boolean hovering, float partialTick) {
+        public void extractContent(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
+            int top = getY();
+            int left = getX();
+            int width = getWidth();
+            int height = getContentHeight();
             int fillBottom = top + height - 2;
-            int bg = hovering ? 0x33FFFFFF : (index % 2 == 0 ? 0x22000000 : 0x11000000);
+            int bg = hovering ? 0x33FFFFFF : (ServerStrainList.this.children().indexOf(this) % 2 == 0 ? 0x22000000 : 0x11000000);
             guiGraphics.fill(left, top, left + width, fillBottom, bg);
 
             // Content (16px icon, two 9px text lines) centered within the filled band so it
@@ -81,15 +84,15 @@ public class ServerStrainList extends AbstractSelectionList<ServerStrainList.Row
             int iconY = top + Math.max(1, (visibleH - 16) / 2);
             int textY = top + Math.max(1, (visibleH - (9 + 9)) / 2);
 
-            guiGraphics.renderItem(preview, left + 4, iconY);
+            guiGraphics.item(preview, left + 4, iconY);
 
             int textX = left + 26;
-            guiGraphics.drawString(minecraft.font, entry.data().displayName(), textX, textY, 0xFFE8E8E8, false);
+            guiGraphics.text(minecraft.font, entry.data().displayName(), textX, textY, 0xFFE8E8E8, false);
 
             String discoverer = entry.creatorName().isBlank()
                     ? Component.translatable("gui.smokeleafindustries.strain_book.unknown_discoverer").getString()
                     : Component.translatable("gui.smokeleafindustries.strain_book.by", entry.creatorName()).getString();
-            guiGraphics.drawString(minecraft.font, discoverer, textX, textY + 9, 0xFFA0AAA0, false);
+            guiGraphics.text(minecraft.font, discoverer, textX, textY + 9, 0xFFA0AAA0, false);
         }
     }
 }

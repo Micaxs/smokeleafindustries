@@ -3,10 +3,12 @@ package net.micaxs.smokeleaf.block.entity.pipe;
 import net.micaxs.smokeleaf.block.entity.PipeBlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jetbrains.annotations.Nullable;
 
 /** Energy analog of {@link PipeEndpointItemHandler} — see its javadoc. Pure forwarding, no buffer. */
-public final class PipeEndpointEnergyStorage implements IEnergyStorage {
+public final class PipeEndpointEnergyStorage implements EnergyHandler {
     private final PipeBlockEntity pipe;
     private final Direction direction;
 
@@ -15,55 +17,52 @@ public final class PipeEndpointEnergyStorage implements IEnergyStorage {
         this.direction = direction;
     }
 
-    @Override
-    public int receiveEnergy(int maxReceive, boolean simulate) {
-        if (maxReceive <= 0 || !(pipe.getLevel() instanceof ServerLevel level)) return 0;
-        PipeNetwork network = PipeNetworkManager.get(level).getOrBuild(level, pipe.getBlockPos(), PipeType.ENERGY);
-        if (network == null) return 0;
+    @Nullable
+    private PipeNetwork network() {
+        if (!(pipe.getLevel() instanceof ServerLevel level)) return null;
+        return PipeNetworkManager.get(level).getOrBuild(level, pipe.getBlockPos(), PipeType.ENERGY);
+    }
 
-        int remaining = maxReceive;
-        for (PipeEndpoint endpoint : network.endpoints) {
-            if (endpoint.pipePos.equals(pipe.getBlockPos()) && endpoint.direction == direction) continue;
-            if (!(endpoint.cache.getCapability() instanceof IEnergyStorage storage) || !storage.canReceive()) continue;
-            int accepted = storage.receiveEnergy(remaining, simulate);
-            remaining -= accepted;
-            if (remaining <= 0) break;
-        }
-        return maxReceive - remaining;
+    private boolean isSelf(PipeEndpoint endpoint) {
+        return endpoint.pipePos.equals(pipe.getBlockPos()) && endpoint.direction == direction;
     }
 
     @Override
-    public int extractEnergy(int maxExtract, boolean simulate) {
-        if (maxExtract <= 0 || !(pipe.getLevel() instanceof ServerLevel level)) return 0;
-        PipeNetwork network = PipeNetworkManager.get(level).getOrBuild(level, pipe.getBlockPos(), PipeType.ENERGY);
-        if (network == null) return 0;
+    public long getAmountAsLong() {
+        return 0;
+    }
+
+    @Override
+    public long getCapacityAsLong() {
+        return 0;
+    }
+
+    @Override
+    public int insert(int amount, TransactionContext transaction) {
+        PipeNetwork network = network();
+        if (amount <= 0 || network == null) return 0;
+
+        int remaining = amount;
+        for (PipeEndpoint endpoint : network.endpoints) {
+            if (isSelf(endpoint)) continue;
+            if (!(endpoint.cache.getCapability() instanceof EnergyHandler handler)) continue;
+            remaining -= handler.insert(remaining, transaction);
+            if (remaining <= 0) break;
+        }
+        return amount - remaining;
+    }
+
+    @Override
+    public int extract(int amount, TransactionContext transaction) {
+        PipeNetwork network = network();
+        if (amount <= 0 || network == null) return 0;
 
         for (PipeEndpoint endpoint : network.endpoints) {
-            if (endpoint.pipePos.equals(pipe.getBlockPos()) && endpoint.direction == direction) continue;
-            if (!(endpoint.cache.getCapability() instanceof IEnergyStorage storage) || !storage.canExtract()) continue;
-            int extracted = storage.extractEnergy(maxExtract, simulate);
+            if (isSelf(endpoint)) continue;
+            if (!(endpoint.cache.getCapability() instanceof EnergyHandler handler)) continue;
+            int extracted = handler.extract(amount, transaction);
             if (extracted > 0) return extracted;
         }
         return 0;
-    }
-
-    @Override
-    public int getEnergyStored() {
-        return 0;
-    }
-
-    @Override
-    public int getMaxEnergyStored() {
-        return 0;
-    }
-
-    @Override
-    public boolean canExtract() {
-        return true;
-    }
-
-    @Override
-    public boolean canReceive() {
-        return true;
     }
 }

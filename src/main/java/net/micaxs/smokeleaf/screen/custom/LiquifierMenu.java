@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.screen.custom;
 
+import net.micaxs.smokeleaf.transfer.FluidAction;
 import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.block.entity.LiquifierBlockEntity;
 import net.micaxs.smokeleaf.screen.ModMenuTypes;
@@ -14,9 +15,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.micaxs.smokeleaf.transfer.ModFluidUtil;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class LiquifierMenu extends AbstractContainerMenu {
     public final LiquifierBlockEntity blockEntity;
@@ -48,7 +50,7 @@ public class LiquifierMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 0, 30, 35));
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 0, 30, 35));
 
         addDataSlots(data);
     }
@@ -77,12 +79,12 @@ public class LiquifierMenu extends AbstractContainerMenu {
 
     // Try order: carried -> main hand -> offhand
     private boolean tryEmptyContainerIntoTank(Player player) {
-        IFluidHandler tank = blockEntity.getTank(null);
+        ResourceHandler<FluidResource> tank = blockEntity.getTank(null);
 
         // Carried (mouse cursor)
         ItemStack carried = getCarried();
         if (!carried.isEmpty()) {
-            FluidActionResult res = FluidUtil.tryEmptyContainer(carried, tank, 1000, player, true);
+            FluidActionResult res = ModFluidUtil.tryEmptyContainer(carried, tank, 1000, player, true);
             if (res.isSuccess()) {
                 setCarried(res.getResult());
                 blockEntity.setChanged();
@@ -101,19 +103,19 @@ public class LiquifierMenu extends AbstractContainerMenu {
     }
 
     private boolean tryFillContainerFromTank(Player player) {
-        IFluidHandler tank = blockEntity.getTank(null);
+        ResourceHandler<FluidResource> tank = blockEntity.getTank(null);
 
         // Carried (mouse cursor)
         ItemStack carried = getCarried();
         if (!carried.isEmpty()) {
             if (carried.getCount() > 1 && carried.is(Items.BUCKET)) {
-                FluidStack simulated = tank.drain(1000, IFluidHandler.FluidAction.SIMULATE);
+                FluidStack simulated = ModFluidUtil.drain(tank, 1000, FluidAction.SIMULATE);
                 if (simulated.isEmpty() || simulated.getAmount() < 1000) return false;
 
                 ItemStack filledBucket = filledBucketForFluid(simulated);
                 if (filledBucket.isEmpty()) return false;
 
-                FluidStack drained = tank.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+                FluidStack drained = ModFluidUtil.drain(tank, 1000, FluidAction.EXECUTE);
                 if (drained.isEmpty() || drained.getAmount() < 1000) return false;
 
                 ItemStack remainder = carried.copy();
@@ -132,7 +134,7 @@ public class LiquifierMenu extends AbstractContainerMenu {
                 return true;
             }
 
-            FluidActionResult res = FluidUtil.tryFillContainer(carried, tank, 1000, player, true);
+            FluidActionResult res = ModFluidUtil.tryFillContainer(carried, tank, 1000, player, true);
             if (res.isSuccess()) {
                 setCarried(res.getResult());
                 blockEntity.setChanged();
@@ -150,10 +152,10 @@ public class LiquifierMenu extends AbstractContainerMenu {
         return false;
     }
 
-    private boolean tryEmptyHandIntoTank(Player player, InteractionHand hand, IFluidHandler tank) {
+    private boolean tryEmptyHandIntoTank(Player player, InteractionHand hand, ResourceHandler<FluidResource> tank) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty()) return false;
-        FluidActionResult res = FluidUtil.tryEmptyContainer(held, tank, 1000, player, true);
+        FluidActionResult res = ModFluidUtil.tryEmptyContainer(held, tank, 1000, player, true);
         if (res.isSuccess()) {
             player.setItemInHand(hand, res.getResult());
             blockEntity.setChanged();
@@ -163,7 +165,7 @@ public class LiquifierMenu extends AbstractContainerMenu {
         return false;
     }
 
-    private boolean tryFillHandFromTank(Player player, InteractionHand hand, IFluidHandler tank) {
+    private boolean tryFillHandFromTank(Player player, InteractionHand hand, ResourceHandler<FluidResource> tank) {
         ItemStack held = player.getItemInHand(hand);
         if (held.isEmpty()) return false;
 
@@ -172,28 +174,28 @@ public class LiquifierMenu extends AbstractContainerMenu {
         if (held.getCount() > 1 && held.is(Items.BUCKET)) {
             Inventory inv = player.getInventory();
 
-            FluidStack simulated = tank.drain(1000, IFluidHandler.FluidAction.SIMULATE);
+            FluidStack simulated = ModFluidUtil.drain(tank, 1000, FluidAction.SIMULATE);
             if (simulated.isEmpty() || simulated.getAmount() < 1000) return false;
 
             ItemStack filledBucket = filledBucketForFluid(simulated);
             if (filledBucket.isEmpty()) return false;
 
-            FluidStack drained = tank.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+            FluidStack drained = ModFluidUtil.drain(tank, 1000, FluidAction.EXECUTE);
             if (drained.isEmpty() || drained.getAmount() < 1000) return false;
 
             // Deduct exactly 1 empty bucket from the actual slot
             if (hand == InteractionHand.MAIN_HAND) {
-                int selected = inv.selected;
+                int selected = inv.getSelectedSlot();
                 ItemStack inSlot = inv.getItem(selected);
                 // Be strict here: only mutate if it is still our empty bucket stack
                 if (!inSlot.is(Items.BUCKET) || inSlot.getCount() <= 1) return false;
                 inSlot.shrink(1);
                 inv.setItem(selected, inSlot);
             } else {
-                ItemStack inSlot = inv.offhand.get(0);
+                ItemStack inSlot = inv.getItem(Inventory.SLOT_OFFHAND);
                 if (!inSlot.is(Items.BUCKET) || inSlot.getCount() <= 1) return false;
                 inSlot.shrink(1);
-                inv.offhand.set(0, inSlot);
+                inv.setItem(Inventory.SLOT_OFFHAND, inSlot);
             }
 
             // Add filled bucket to inventory, otherwise drop
@@ -210,7 +212,7 @@ public class LiquifierMenu extends AbstractContainerMenu {
         }
 
         // Single bucket / other containers (including cursor-carried stack handled elsewhere)
-        FluidActionResult res = FluidUtil.tryFillContainer(held, tank, 1000, player, true);
+        FluidActionResult res = ModFluidUtil.tryFillContainer(held, tank, 1000, player, true);
         if (res.isSuccess()) {
             player.setItemInHand(hand, res.getResult());
             blockEntity.setChanged();
@@ -223,7 +225,7 @@ public class LiquifierMenu extends AbstractContainerMenu {
     private static ItemStack filledBucketForFluid(FluidStack drained) {
         // Use FluidUtil.getFilledBucket so FluidType.getBucket(FluidStack) is called,
         // which copies STRAIN_DATA / MIX_KEY / STRAIN_ID onto the bucket item.
-        return net.neoforged.neoforge.fluids.FluidUtil.getFilledBucket(drained);
+        return ModFluidUtil.getFilledBucket(drained);
     }
 
     private static final int HOTBAR_SLOT_COUNT = 9;

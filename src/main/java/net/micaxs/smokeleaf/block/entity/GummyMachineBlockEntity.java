@@ -1,6 +1,13 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.micaxs.smokeleaf.transfer.FluidAction;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.ModFluids;
 import net.micaxs.smokeleaf.recipe.GummyRecipe;
@@ -36,13 +43,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.micaxs.smokeleaf.transfer.ModFluidTank;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +60,7 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
     private static final int SLOT_OUTPUT = 2;
     private static final int REQUIRED_OIL_AMOUNT = 250;
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(3) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(3) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -78,17 +82,17 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
 
     private boolean isValidMold(ItemStack stack) {
         if (level == null) return false;
-        return level.getRecipeManager().getAllRecipesFor(ModRecipes.GUMMY_TYPE.get()).stream()
+        return ModRecipes.all(level, ModRecipes.GUMMY_TYPE.get()).stream()
                 .anyMatch(h -> h.value().mold().test(stack));
     }
 
     private boolean isValidCatalyst(ItemStack stack) {
         if (level == null) return false;
-        return level.getRecipeManager().getAllRecipesFor(ModRecipes.GUMMY_TYPE.get()).stream()
+        return ModRecipes.all(level, ModRecipes.GUMMY_TYPE.get()).stream()
                 .anyMatch(h -> h.value().catalyst().ingredient().test(stack));
     }
 
-    public IItemHandler getItemHandler(@Nullable Direction direction) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable Direction direction) {
         // Also keeps a pipe from being able to yank the reusable mold out from under a running craft.
         return ExtractRestrictedItemHandler.outputOnly(this.itemHandler, SLOT_OUTPUT);
     }
@@ -101,7 +105,7 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
         }
     };
 
-    private final FluidTank FLUID_TANK = new FluidTank(8000) {
+    private final ModFluidTank FLUID_TANK = new ModFluidTank(8000) {
         @Override
         protected void onContentsChanged() {
             setChanged();
@@ -155,7 +159,7 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
         return out.isEmpty() ? itemHandler.getStackInSlot(SLOT_MOLD) : out;
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return this.ENERGY_STORAGE;
     }
 
@@ -163,7 +167,7 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
         return FLUID_TANK.getFluid();
     }
 
-    public IFluidHandler getTank(@Nullable Direction direction) {
+    public ResourceHandler<FluidResource> getTank(@Nullable Direction direction) {
         return FLUID_TANK;
     }
 
@@ -172,8 +176,7 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
         ItemStack mold = itemHandler.getStackInSlot(SLOT_MOLD);
         ItemStack catalyst = itemHandler.getStackInSlot(SLOT_CATALYST);
         if (mold.isEmpty() || catalyst.isEmpty()) return Optional.empty();
-        return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.GUMMY_TYPE.get(), new GummyRecipeInput(mold, catalyst), level)
+        return ModRecipes.find(level, ModRecipes.GUMMY_TYPE.get(), new GummyRecipeInput(mold, catalyst))
                 .map(RecipeHolder::value);
     }
 
@@ -224,7 +227,7 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
 
         ItemStack candidate = buildGummyOutput(FLUID_TANK.getFluid(), recipe.output());
 
-        FLUID_TANK.drain(REQUIRED_OIL_AMOUNT, IFluidHandler.FluidAction.EXECUTE);
+        FLUID_TANK.drain(REQUIRED_OIL_AMOUNT, FluidAction.EXECUTE);
 
         // The mold in SLOT_MOLD is intentionally never extracted — it is a reusable tool.
         // The catalyst (sugar) IS consumed per-craft.
@@ -247,7 +250,7 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
             progress++;
             ENERGY_STORAGE.extractEnergy(20, false);
 
-            if (level.random.nextInt(2) == 0) {
+            if (level.getRandom().nextInt(2) == 0) {
                 level.addParticle(ParticleTypes.SMOKE,
                         blockPos.getX() + 0.5,
                         blockPos.getY() + 1.0,
@@ -293,23 +296,23 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        tag.put("gummy_machine.inventory", itemHandler.serializeNBT(regs));
-        tag.putInt("gummy_machine.progress", progress);
-        tag.putInt("gummy_machine.maxProgress", maxProgress);
-        tag.putInt("gummy_machine.energy", ENERGY_STORAGE.getEnergyStored());
-        tag = FLUID_TANK.writeToNBT(regs, tag);
-        super.saveAdditional(tag, regs);
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("gummy_machine.inventory"));
+        output.putInt("gummy_machine.progress", progress);
+        output.putInt("gummy_machine.maxProgress", maxProgress);
+        output.putInt("gummy_machine.energy", ENERGY_STORAGE.getEnergyStored());
+        FLUID_TANK.serialize(output);
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        itemHandler.deserializeNBT(regs, tag.getCompound("gummy_machine.inventory"));
-        ENERGY_STORAGE.setEnergy(tag.getInt("gummy_machine.energy"));
-        progress = tag.getInt("gummy_machine.progress");
-        maxProgress = tag.getInt("gummy_machine.maxProgress");
-        FLUID_TANK.readFromNBT(regs, tag);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("gummy_machine.inventory"));
+        ENERGY_STORAGE.setEnergy(input.getIntOr("gummy_machine.energy", 0));
+        progress = input.getIntOr("gummy_machine.progress", 0);
+        maxProgress = input.getIntOr("gummy_machine.maxProgress", 0);
+        FLUID_TANK.deserialize(input);
     }
 
     @Override
@@ -323,8 +326,8 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
     }
 
     @Override
@@ -352,7 +355,7 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
         StrainUtil.setStrain(updated, StrainRegistrySavedData.withEntryApplied(current, entry));
         if (!entry.creatorName().isBlank()) updated.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
         FLUID_TANK.setFluid(updated);
-        // FluidTank#setFluid just overwrites the field directly (unlike fill()/drain(), it never
+        // ModFluidTank#setFluid just overwrites the field directly (unlike fill()/drain(), it never
         // calls onContentsChanged()), so without an explicit sync here the server-side data is
         // correct but no update packet goes out, leaving an already-open GUI/tooltip stale until
         // something else (relog, chunk reload) forces a fresh sync.
@@ -360,5 +363,11 @@ public class GummyMachineBlockEntity extends BlockEntity implements MenuProvider
             setChanged();
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
         }
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

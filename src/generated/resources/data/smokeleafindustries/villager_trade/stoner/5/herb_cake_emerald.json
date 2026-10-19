@@ -1,0 +1,11 @@
+{
+  "gives": {
+    "count": 6,
+    "id": "minecraft:emerald"
+  },
+  "reputation_discount": 0.01,
+  "wants": {
+    "id": "smokeleafindustries:herb_cake"
+  },
+  "xp": 20.0
+}

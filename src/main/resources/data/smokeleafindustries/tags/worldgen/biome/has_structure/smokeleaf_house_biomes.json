@@ -1,10 +1,13 @@
 {
   "replace": false,
-    "values": [
-      "#miencraft:is_plains",
-      {
-        "id": "#c:is_plains",
-        "required": false
-      }
-    ]
+  "values": [
+    {
+      "id": "#minecraft:has_structure/village_plains",
+      "required": false
+    },
+    {
+      "id": "#c:is_plains",
+      "required": false
+    }
+  ]
 }

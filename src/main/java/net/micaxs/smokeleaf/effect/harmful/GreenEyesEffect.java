@@ -1,6 +1,7 @@
 // Java
 package net.micaxs.smokeleaf.effect.harmful;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,8 +12,8 @@ public class GreenEyesEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity living, int amplifier) {
-        return super.applyEffectTick(living, amplifier);
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity living, int amplifier) {
+        return super.applyEffectTick(serverLevel, living, amplifier);
     }
 
     @Override

@@ -1,6 +1,8 @@
 // src/main/java/net/micaxs/smokeleaf/item/custom/FertilizerItem.java
 package net.micaxs.smokeleaf.item.custom;
 
+import java.util.function.Consumer;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.micaxs.smokeleaf.block.custom.BaseWeedCropBlock;
 import net.micaxs.smokeleaf.block.custom.UnidentifiedWeedCropBlock;
 import net.micaxs.smokeleaf.block.entity.BaseWeedCropBlockEntity;
@@ -63,15 +65,12 @@ public class FertilizerItem extends Item {
 
         if (isFullyGrown) {
             if (!level.isClientSide() && context.getPlayer() != null) {
-                context.getPlayer().displayClientMessage(
-                        Component.translatable("tooltip.smokeleafindustries.add_fertilizer"),
-                        true
-                );
+                context.getPlayer().sendOverlayMessage(Component.translatable("tooltip.smokeleafindustries.add_fertilizer"));
             }
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return InteractionResult.SUCCESS;
         }
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             BaseWeedCropBlockEntity be = getCropBE(level, bePos);
             if (be != null) {
                 be.addNitrogen(this.nitrogen);
@@ -87,7 +86,7 @@ public class FertilizerItem extends Item {
             }
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     private static BaseWeedCropBlockEntity getCropBE(Level level, BlockPos pos) {
@@ -96,14 +95,14 @@ public class FertilizerItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         addStat(tooltip, "Nitrogen (N): ", getN(), ChatFormatting.DARK_GREEN);
         addStat(tooltip, "Phosphorus (P): ", getP(), ChatFormatting.DARK_AQUA);
         addStat(tooltip, "Potassium (K): ", getK(), ChatFormatting.GOLD);
     }
 
-    private static void addStat(List<Component> tooltip, String label, int value, ChatFormatting labelColor) {
-        tooltip.add(
+    private static void addStat(Consumer<Component> tooltip, String label, int value, ChatFormatting labelColor) {
+        tooltip.accept(
                 Component.literal(label)
                         .withStyle(labelColor)
                         .append(Component.literal(String.format("%+d", value)).withStyle(ChatFormatting.GRAY))

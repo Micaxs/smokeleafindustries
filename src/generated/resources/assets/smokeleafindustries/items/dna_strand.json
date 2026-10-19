@@ -1,0 +1,14 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "smokeleafindustries:item/dna_strand"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "smokeleafindustries:item/dna_strand_full"
+    },
+    "property": "smokeleafindustries:dna_full"
+  }
+}

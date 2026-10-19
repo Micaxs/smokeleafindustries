@@ -12,7 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -175,7 +174,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
             return above.getBlock() == this && super.canSurvive(state, level, pos);
         }
 
-        return pos.getY() < level.getMaxBuildHeight() &&
+        return pos.getY() < level.getMaxY() &&
                 super.canSurvive(state, level, pos) &&
                 level.isEmptyBlock(pos.above());
     }
@@ -260,7 +259,7 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                           Player player, InteractionHand hand, BlockHitResult hitResult) {
         // Only run this behavior on the actual hemp crop.
         if (!state.is(ModBlocks.HEMP_CROP.get())) {
@@ -282,9 +281,9 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
             return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
         }
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             // Let client show hand swing; actual drops/state changes happen server-side.
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         HempShearStage stage = state.getValue(HEMP_SHEAR_STAGE);
@@ -297,8 +296,8 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
             level.gameEvent(player, GameEvent.SHEAR, pos);
 
             // Damage shears.
-            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-            return ItemInteractionResult.CONSUME;
+            stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
+            return InteractionResult.CONSUME;
         }
 
         // 4th time: break/harvest the crop normally (uses loot table, etc.)
@@ -310,8 +309,8 @@ public class BaseWeedCropBlock extends CropBlock implements EntityBlock {
         level.destroyBlock(pos, true);
         level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
 
-        stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-        return ItemInteractionResult.CONSUME;
+        stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
+        return InteractionResult.CONSUME;
     }
 
     @Override

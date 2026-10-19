@@ -1,7 +1,5 @@
 {
   "type": "smokeleafindustries:drying",
-  "ingredient": {
-    "item": "smokeleafindustries:bud"
-  },
+  "ingredient": "smokeleafindustries:bud",
   "dry_bud": true
 }

@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.compat.jei;
 
+import net.micaxs.smokeleaf.recipe.IngredientUtil;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -18,10 +19,10 @@ import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.recipe.SequencerRecipe;
 import net.micaxs.smokeleaf.recipe.SynthesizerRecipe;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
@@ -29,10 +30,10 @@ import java.util.stream.Collectors;
 
 public class SynthesizerRecipeCategory implements IRecipeCategory<SynthesizerRecipeCategory.Display> {
 
-    public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "synthesizer");
-    public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/synthesizer/synthesizer_gui.png");
+    public static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "synthesizer");
+    public static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/synthesizer/synthesizer_gui.png");
     public static final RecipeType<Display> SYNTHESIZER_RECIPE_TYPE =
             new RecipeType<>(UID, Display.class);
 
@@ -64,7 +65,7 @@ public class SynthesizerRecipeCategory implements IRecipeCategory<SynthesizerRec
     }
 
     @Override
-    public void draw(Display display, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(Display display, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         background.draw(guiGraphics);
         arrow.draw(guiGraphics, 125, 25);
     }
@@ -116,7 +117,7 @@ public class SynthesizerRecipeCategory implements IRecipeCategory<SynthesizerRec
     }
 
     private static ItemStack firstNonEmpty(net.minecraft.world.item.crafting.Ingredient ingredient) {
-        for (ItemStack s : ingredient.getItems()) {
+        for (ItemStack s : IngredientUtil.stacks(ingredient)) {
             if (!s.isEmpty()) return s;
         }
         return ItemStack.EMPTY;

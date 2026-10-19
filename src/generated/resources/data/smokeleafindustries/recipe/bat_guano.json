@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:bone_meal"
-    },
-    {
-      "item": "minecraft:charcoal"
-    },
-    {
-      "item": "smokeleafindustries:compost"
-    }
+    "minecraft:bone_meal",
+    "minecraft:charcoal",
+    "smokeleafindustries:compost"
   ],
   "result": {
     "count": 2,

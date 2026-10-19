@@ -1,0 +1,10 @@
+{
+  "amount": 2.0,
+  "random_sequence": "smokeleafindustries:trade_set/dealer/level_3",
+  "trades": [
+    "smokeleafindustries:dealer/3/emerald_base_extract",
+    "smokeleafindustries:dealer/3/emerald_hash_oil_bucket",
+    "smokeleafindustries:dealer/3/emerald_butter",
+    "smokeleafindustries:dealer/3/emerald_dna_strand"
+  ]
+}

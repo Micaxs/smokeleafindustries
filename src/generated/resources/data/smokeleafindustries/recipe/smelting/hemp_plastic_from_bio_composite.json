@@ -3,11 +3,8 @@
   "category": "misc",
   "cookingtime": 320,
   "experience": 0.15,
-  "ingredient": {
-    "item": "smokeleafindustries:bio_composite"
-  },
+  "ingredient": "smokeleafindustries:bio_composite",
   "result": {
-    "count": 1,
     "id": "smokeleafindustries:hemp_plastic"
   }
 }

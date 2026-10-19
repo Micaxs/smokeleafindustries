@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class SequencerMenu extends AbstractContainerMenu {
     public final SequencerBlockEntity blockEntity;
@@ -39,9 +39,9 @@ public class SequencerMenu extends AbstractContainerMenu {
         addPlayerHotbar(inv);
 
 
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 0, 26, 21)); // DNA Input
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 1, 26, 45)); // Base Extract Input
-        this.addSlot(new SlotItemHandler(this.blockEntity.itemHandler, 2, 116, 33)); // Output
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 0, 26, 21)); // DNA Input
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 1, 26, 45)); // Base Extract Input
+        this.addSlot(new ResourceHandlerSlot(this.blockEntity.itemHandler, this.blockEntity.itemHandler::set, 2, 116, 33)); // Output
 
         addDataSlots(data);
     }

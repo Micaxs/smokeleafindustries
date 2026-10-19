@@ -14,9 +14,9 @@ import net.micaxs.smokeleaf.block.ModBlocks;
 import net.micaxs.smokeleaf.item.custom.BaseBudItem;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
 import net.micaxs.smokeleaf.recipe.GrinderRecipe;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
@@ -25,10 +25,10 @@ import java.util.List;
 
 public class GrinderRecipeCategory implements IRecipeCategory<GrinderRecipe> {
 
-    public static final ResourceLocation UID =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "grinder");
-    public static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/grinder/grinder_gui.png");
+    public static final Identifier UID =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "grinder");
+    public static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/grinder/grinder_gui.png");
 
     public static final RecipeType<GrinderRecipe> GRINDER_RECIPE_TYPE =
             new RecipeType<>(UID, GrinderRecipe.class);
@@ -62,7 +62,7 @@ public class GrinderRecipeCategory implements IRecipeCategory<GrinderRecipe> {
         var inputIngredient = recipe.getIngredients().get(0);
         if (JeiStrainHelper.isStrainIngredient(inputIngredient)) {
             builder.addSlot(RecipeIngredientRole.INPUT, 75, 6)
-                    .addIngredients(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
+                    .addItemStacks(JeiStrainHelper.coloredIngredient(inputIngredient, focuses));
         } else {
             builder.addSlot(RecipeIngredientRole.INPUT, 75, 6)
                     .addIngredients(inputIngredient);
@@ -71,7 +71,7 @@ public class GrinderRecipeCategory implements IRecipeCategory<GrinderRecipe> {
         ItemStack result = recipe.getResultItem(null);
         if (result.getItem() instanceof BaseWeedItem || result.getItem() instanceof BaseBudItem) {
             builder.addSlot(RecipeIngredientRole.OUTPUT, 75, 54)
-                    .addIngredients(Ingredient.of(JeiStrainHelper.coloredStacks(result.getItem(), focuses).stream()));
+                    .addItemStacks(JeiStrainHelper.coloredStacks(result.getItem(), focuses));
         } else {
             builder.addSlot(RecipeIngredientRole.OUTPUT, 75, 54)
                     .addItemStack(result);
@@ -79,7 +79,7 @@ public class GrinderRecipeCategory implements IRecipeCategory<GrinderRecipe> {
     }
 
     @Override
-    public void draw(GrinderRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics,
+    public void draw(GrinderRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics,
                      double mouseX, double mouseY) {
         background.draw(guiGraphics, 0, 0);
     }

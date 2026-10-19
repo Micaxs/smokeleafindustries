@@ -3,9 +3,7 @@
   "category": "building",
   "group": "hemp_bricks",
   "key": {
-    "#": {
-      "item": "smokeleafindustries:hemp_bricks"
-    }
+    "#": "smokeleafindustries:hemp_bricks"
   },
   "pattern": [
     "#  ",

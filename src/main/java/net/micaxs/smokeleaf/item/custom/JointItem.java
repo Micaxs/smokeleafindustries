@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.item.custom;
 
+import java.util.function.Consumer;
+import net.minecraft.world.item.component.TooltipDisplay;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
@@ -12,10 +14,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -24,7 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 
 import java.util.LinkedHashMap;
@@ -40,8 +42,8 @@ public class JointItem extends Item {
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.BOW;
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.BOW;
     }
 
     @Override
@@ -50,10 +52,10 @@ public class JointItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         player.startUsingItem(hand);
-        return InteractionResultHolder.consume(stack);
+        return InteractionResult.CONSUME;
     }
 
     @Override
@@ -61,7 +63,7 @@ public class JointItem extends Item {
         if (!(entity instanceof Player player)) return;
 
         int elapsed = BASE_USE_TICKS - remainingUseDuration;
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (elapsed == 1) {
                 // play sound if registered
                 // level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.SMOKING.get(), SoundSource.PLAYERS, 0.7f, 1.0f);
@@ -81,7 +83,7 @@ public class JointItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        if (!level.isClientSide && entity instanceof Player player) {
+        if (!level.isClientSide() && entity instanceof Player player) {
             applyStoredEffects(stack, player);
             if (!player.getAbilities().instabuild) {
                 stack.shrink(1);
@@ -100,9 +102,9 @@ public class JointItem extends Item {
         int maxDuration = 0;
         for (int i = 0; i < arr.size(); i++) {
             JsonObject obj = arr.get(i).getAsJsonObject();
-            ResourceLocation rl = ResourceLocation.tryParse(obj.get("id").getAsString());
+            Identifier rl = Identifier.tryParse(obj.get("id").getAsString());
             if (rl == null) continue;
-            if (rl.equals(BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.CONFUSION.value()))) continue;
+            if (rl.equals(BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.NAUSEA.value()))) continue;
 
             int addDuration = obj.get("duration").getAsInt();
             int addAmplifier = obj.get("amp").getAsInt();
@@ -178,15 +180,15 @@ public class JointItem extends Item {
 
             // Collect all effects from strain data first; fall back to single base effect
             net.micaxs.smokeleaf.strain.StrainData d = net.micaxs.smokeleaf.strain.StrainUtil.getStrain(w);
-            List<net.minecraft.resources.ResourceLocation> effectIds =
+            List<net.minecraft.resources.Identifier> effectIds =
                     (d != net.micaxs.smokeleaf.strain.StrainData.EMPTY && !d.effects().isEmpty())
                             ? d.effects()
                             : java.util.Collections.emptyList();
 
             if (!effectIds.isEmpty()) {
-                for (net.minecraft.resources.ResourceLocation rl : effectIds) {
+                for (net.minecraft.resources.Identifier rl : effectIds) {
                     if (rl == null) continue;
-                    if (rl.equals(BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.CONFUSION.value()))) continue;
+                    if (rl.equals(BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.NAUSEA.value()))) continue;
                     String id = rl.toString();
                     if (merged.containsKey(id)) {
                         JsonObject existing = merged.get(id);
@@ -238,24 +240,23 @@ public class JointItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context,
-                                List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         JsonArray arr = stack.get(ModDataComponentTypes.ACTIVE_INGREDIENTS.get());
         if (arr == null || arr.isEmpty()) {
-            tooltip.add(Component.translatable("tooltip.smokeleafindustries.joint.empty")
+            tooltip.accept(Component.translatable("tooltip.smokeleafindustries.joint.empty")
                     .withStyle(ChatFormatting.GRAY));
             return;
         }
-        tooltip.add(Component.literal("Joint Effects:").withStyle(ChatFormatting.GOLD));
+        tooltip.accept(Component.literal("Joint Effects:").withStyle(ChatFormatting.GOLD));
         for (int i = 0; i < arr.size(); i++) {
             JsonObject obj = arr.get(i).getAsJsonObject();
-            ResourceLocation rl = ResourceLocation.tryParse(obj.get("id").getAsString());
+            Identifier rl = Identifier.tryParse(obj.get("id").getAsString());
             int dur = obj.get("duration").getAsInt();
             int amp = obj.get("amp").getAsInt();
 
             Component nameComp;
             if (rl != null) {
-                MobEffect eff = BuiltInRegistries.MOB_EFFECT.get(rl);
+                MobEffect eff = BuiltInRegistries.MOB_EFFECT.getValue(rl);
                 nameComp = (eff != null)
                         ? Component.translatable(eff.getDescriptionId())
                         : Component.literal(rl.getPath());
@@ -263,7 +264,7 @@ public class JointItem extends Item {
                 nameComp = Component.literal("unknown");
             }
 
-            tooltip.add(Component.literal(" - ")
+            tooltip.accept(Component.literal(" - ")
                     .append(nameComp.copy().withStyle(ChatFormatting.DARK_GREEN))
                     .append(Component.literal(" " + (amp + 1) + " (" + (dur / 20) + "s)")
                             .withStyle(ChatFormatting.DARK_GREEN)));

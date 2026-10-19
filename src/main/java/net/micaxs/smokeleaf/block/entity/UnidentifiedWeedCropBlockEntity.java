@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.micaxs.smokeleaf.Config;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
@@ -128,30 +130,26 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         if (strain != null && strain != StrainData.EMPTY) {
-            tag.put("strain_data", StrainData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, strain).result().orElse(new CompoundTag()));
+            output.store("strain_data", StrainData.CODEC, strain);
         }
         if (strainId != null && !strainId.isBlank()) {
-            tag.putString("strain_id", strainId);
+            output.putString("strain_id", strainId);
         }
         if (strainCreator != null && !strainCreator.isBlank()) {
-            tag.putString("strain_creator", strainCreator);
+            output.putString("strain_creator", strainCreator);
         }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         strain = StrainData.EMPTY;
-        if (tag.contains("strain_data")) {
-            StrainData.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, tag.get("strain_data"))
-                    .result()
-                    .ifPresent(d -> strain = d);
-        }
-        strainId = tag.contains("strain_id") ? tag.getString("strain_id") : "";
-        strainCreator = tag.contains("strain_creator") ? tag.getString("strain_creator") : "";
+        input.read("strain_data", StrainData.CODEC).ifPresent(d -> strain = d);
+        strainId = input.getStringOr("strain_id", "");
+        strainCreator = input.getStringOr("strain_creator", "");
     }
 
     @Override
@@ -165,8 +163,8 @@ public class UnidentifiedWeedCropBlockEntity extends BaseWeedCropBlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
     }
 
     @Override

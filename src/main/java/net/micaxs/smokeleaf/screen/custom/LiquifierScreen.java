@@ -1,5 +1,7 @@
 package net.micaxs.smokeleaf.screen.custom;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.micaxs.smokeleaf.SmokeleafIndustries;
 import net.micaxs.smokeleaf.fluid.ModFluids;
@@ -7,11 +9,11 @@ import net.micaxs.smokeleaf.item.ModItems;
 import net.micaxs.smokeleaf.screen.renderer.EnergyDisplayTooltipArea;
 import net.micaxs.smokeleaf.screen.renderer.FluidTankRenderer;
 import net.micaxs.smokeleaf.utils.MouseUtil;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.TooltipFlag;
@@ -22,11 +24,11 @@ import java.util.Optional;
 
 public class LiquifierScreen extends AbstractContainerScreen<LiquifierMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/liquifier/liquifier_gui.png");
+    public static final Identifier GUI_TEXTURE = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/liquifier/liquifier_gui.png");
     private EnergyDisplayTooltipArea energyInfoArea;
     private FluidTankRenderer fluidRenderer;
 
-    private static final ResourceLocation INFO_ICON = ResourceLocation.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/icons/info.png");
+    private static final Identifier INFO_ICON = Identifier.fromNamespaceAndPath(SmokeleafIndustries.MODID, "textures/gui/icons/info.png");
     private static final int ICON_SIZE = 8;
     private static final float TOOLTIP_SCALE = 0.5f;
 
@@ -48,22 +50,19 @@ public class LiquifierScreen extends AbstractContainerScreen<LiquifierMenu> {
         fluidRenderer = new FluidTankRenderer(8000, true, 16, 64);
     }
 
-    private void renderFluidTooltipArea(GuiGraphics guiGraphics, int pMouseX, int pMouseY, int x, int y, FluidStack stack, int offsetX, int offsetY, FluidTankRenderer renderer) {
+    private void renderFluidTooltipArea(GuiGraphicsExtractor guiGraphics, int pMouseX, int pMouseY, int x, int y, FluidStack stack, int offsetX, int offsetY, FluidTankRenderer renderer) {
         if (isMouseAboveArea(pMouseX, pMouseY, x, y, offsetX, offsetY, renderer)) {
-            guiGraphics.renderTooltip( this.font, renderer.getTooltip(stack, TooltipFlag.Default.NORMAL),
-                    Optional.empty(), pMouseX - x, pMouseY - y);
+            guiGraphics.setTooltipForNextFrame(this.font, renderer.getTooltip(stack, TooltipFlag.Default.NORMAL), Optional.empty(), pMouseX, pMouseY);
         }
     }
 
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+    public void extractBackground(GuiGraphicsExtractor guiGraphics, int i, int i1, float v) {
+        super.extractBackground(guiGraphics, i, i1, v);
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-        guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight, 256, 256);
 
         energyInfoArea.render(guiGraphics);
         fluidRenderer.render(guiGraphics, x + 134, y + 11, menu.blockEntity.getFluid());
@@ -71,24 +70,24 @@ public class LiquifierScreen extends AbstractContainerScreen<LiquifierMenu> {
         renderInfoIcon(guiGraphics, x, y);
     }
 
-    private void renderInfoIcon(GuiGraphics g, int baseX, int baseY) {
+    private void renderInfoIcon(GuiGraphicsExtractor g, int baseX, int baseY) {
         int ix = baseX + ICON_SIZE;
         int iy = baseY + ICON_SIZE;
         // full 16x16 texture
-        g.blit(INFO_ICON, ix, iy, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+        g.blit(RenderPipelines.GUI_TEXTURED, INFO_ICON, ix, iy, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
     }
 
-    private void renderInfoIconTooltip(GuiGraphics g, int mouseX, int mouseY, int baseX, int baseY) {
+    private void renderInfoIconTooltip(GuiGraphicsExtractor g, int mouseX, int mouseY, int baseX, int baseY) {
         if (isMouseAboveAreaEnergy(mouseX, mouseY, baseX, baseY, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE)) {
             Component info = Component.translatable("gui.tooltip.liquifier.info");
             List<FormattedCharSequence> wrapped = this.font.split(info, 300);
-            g.renderTooltip(this.font, wrapped, mouseX, mouseY);
+            g.setTooltipForNextFrame(this.font, wrapped, mouseX, mouseY);
         }
     }
 
-    private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
+    private void renderProgressArrow(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if(menu.isCrafting()) {
-            guiGraphics.blit(GUI_TEXTURE, x + 59, y + 35, 0, 166, menu.getScaledProgress(), 16);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, x + 59, y + 35, 0, 166, menu.getScaledProgress(), 16, 256, 256);
         }
     }
 
@@ -96,9 +95,9 @@ public class LiquifierScreen extends AbstractContainerScreen<LiquifierMenu> {
         energyInfoArea = new EnergyDisplayTooltipArea(((width - imageWidth) / 2) + 156, ((height - imageHeight) / 2) + 11, menu.blockEntity.getEnergyStorage(null), 8, 64);
     }
 
-    private void renderEnergyInfoArea(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y) {
+    private void renderEnergyInfoArea(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, int x, int y) {
         if (isMouseAboveAreaEnergy(mouseX, mouseY, x, y, 156, 11, 8, 64)) {
-            guiGraphics.renderTooltip(this.font, energyInfoArea.getTooltips(), Optional.empty(), mouseX - x, mouseY - y);
+            guiGraphics.setTooltipForNextFrame(this.font, energyInfoArea.getTooltips(), Optional.empty(), mouseX, mouseY);
         }
     }
 
@@ -111,7 +110,10 @@ public class LiquifierScreen extends AbstractContainerScreen<LiquifierMenu> {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
@@ -131,11 +133,11 @@ public class LiquifierScreen extends AbstractContainerScreen<LiquifierMenu> {
                 }
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
         renderEnergyInfoArea(guiGraphics, mouseX, mouseY, x, y);
@@ -143,13 +145,11 @@ public class LiquifierScreen extends AbstractContainerScreen<LiquifierMenu> {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
         renderInfoIconTooltip(guiGraphics, mouseX, mouseY, x, y);
-
-        renderTooltip(guiGraphics, mouseX, mouseY);
     }
 }

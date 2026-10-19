@@ -1,7 +1,7 @@
 package net.micaxs.smokeleaf.client.guide;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 
 import com.google.gson.JsonArray;
@@ -16,7 +16,7 @@ import java.util.List;
  * id (e.g. {@code smokeleafindustries:getting_started/hemp_plant}) is what every one of its pages'
  * translation keys is derived from.
  */
-public record GuideEntry(ResourceLocation id, ResourceLocation icon, ResourceLocation category, int sortnum, List<GuidePage> pages, String strainId) {
+public record GuideEntry(Identifier id, Identifier icon, Identifier category, int sortnum, List<GuidePage> pages, String strainId) {
 
     public String keyBase() {
         return "guide." + id.getNamespace() + "." + id.getPath().replace('/', '.');
@@ -26,9 +26,9 @@ public record GuideEntry(ResourceLocation id, ResourceLocation icon, ResourceLoc
         return GuideText.translatableOrPath(keyBase() + ".name", id.getPath());
     }
 
-    public static GuideEntry parse(ResourceLocation id, JsonObject json) {
-        ResourceLocation icon = ResourceLocation.parse(GsonHelper.getAsString(json, "icon"));
-        ResourceLocation category = ResourceLocation.parse(GsonHelper.getAsString(json, "category"));
+    public static GuideEntry parse(Identifier id, JsonObject json) {
+        Identifier icon = Identifier.parse(GsonHelper.getAsString(json, "icon"));
+        Identifier category = Identifier.parse(GsonHelper.getAsString(json, "category"));
         int sortnum = GsonHelper.getAsInt(json, "sortnum", 0);
 
         String keyBase = "guide." + id.getNamespace() + "." + id.getPath().replace('/', '.');

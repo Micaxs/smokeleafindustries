@@ -1,6 +1,13 @@
 package net.micaxs.smokeleaf.block.entity;
 
-import net.micaxs.smokeleaf.block.entity.energy.ModEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.micaxs.smokeleaf.transfer.FluidAction;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.micaxs.smokeleaf.transfer.ModEnergyStorage;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.fluid.WeedFluidStackUtil;
 import net.micaxs.smokeleaf.item.custom.BaseWeedItem;
@@ -19,7 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -39,14 +46,12 @@ import net.micaxs.smokeleaf.strain.StrainRegistrySavedData;
 import net.micaxs.smokeleaf.strain.StrainTankHolder;
 import net.micaxs.smokeleaf.strain.StrainTankTracker;
 import net.micaxs.smokeleaf.strain.StrainUtil;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.micaxs.smokeleaf.transfer.ModFluidTank;
 import net.micaxs.smokeleaf.utils.ExtractRestrictedItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.micaxs.smokeleaf.transfer.ModItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +61,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
 
     private static final int INPUT_SLOT = 0;
 
-    public final ItemStackHandler itemHandler = new ItemStackHandler(1) {
+    public final ModItemStackHandler itemHandler = new ModItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -74,12 +79,11 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
     private boolean isValidInput(ItemStack stack) {
         if (level == null || stack.isEmpty()) return false;
         LiquifierRecipeInput input = new LiquifierRecipeInput(stack);
-        return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.LIQUIFIER_TYPE.get(), input, level)
+        return ModRecipes.find(level, ModRecipes.LIQUIFIER_TYPE.get(), input)
                 .isPresent();
     }
 
-    public IItemHandler getItemHandler(@Nullable Direction direction) {
+    public ResourceHandler<ItemResource> getItemHandler(@Nullable Direction direction) {
         // The Liquifier's only item slot is its raw-material input — it's consumed into the fluid
         // tank and never turns into an item output, so nothing should ever be pulled from it.
         return new ExtractRestrictedItemHandler(this.itemHandler, slot -> false);
@@ -93,7 +97,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
         }
     };
 
-    private final FluidTank FLUID_TANK = new FluidTank(8000) {
+    private final ModFluidTank FLUID_TANK = new ModFluidTank(8000) {
         @Override
         protected void onContentsChanged() {
             setChanged();
@@ -142,7 +146,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
         return itemHandler.getStackInSlot(INPUT_SLOT);
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return this.ENERGY_STORAGE;
     }
 
@@ -150,7 +154,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
         return FLUID_TANK.getFluid();
     }
 
-    public IFluidHandler getTank(@Nullable Direction direction) {
+    public ResourceHandler<FluidResource> getTank(@Nullable Direction direction) {
         return FLUID_TANK;
     }
 
@@ -158,8 +162,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
         if (level == null) return Optional.empty();
         ItemStack stack = itemHandler.getStackInSlot(INPUT_SLOT);
         if (stack.isEmpty()) return Optional.empty();
-        return level.getRecipeManager()
-                .getRecipeFor(ModRecipes.LIQUIFIER_TYPE.get(), new LiquifierRecipeInput(stack), level)
+        return ModRecipes.find(level, ModRecipes.LIQUIFIER_TYPE.get(), new LiquifierRecipeInput(stack))
                 .map(RecipeHolder::value);
     }
 
@@ -177,13 +180,13 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
         if (in.isEmpty()) return false;
         FluidStack candidate = buildOutputFluid(in, recipe);
         if (candidate.isEmpty()) return false;
-        return FLUID_TANK.fill(candidate, IFluidHandler.FluidAction.SIMULATE) >= candidate.getAmount();
+        return FLUID_TANK.fill(candidate, FluidAction.SIMULATE) >= candidate.getAmount();
     }
 
     private void craftFluid(LiquifierRecipe recipe) {
         ItemStack in = itemHandler.extractItem(INPUT_SLOT, 1, false);
         FluidStack out = buildOutputFluid(in, recipe);
-        FLUID_TANK.fill(out, IFluidHandler.FluidAction.EXECUTE);
+        FLUID_TANK.fill(out, FluidAction.EXECUTE);
     }
 
     /** Builds the exact FluidStack (including inherited effects / STRAIN_DATA) that liquifying {@code in} via {@code recipe} would produce. */
@@ -193,7 +196,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
         if (recipe.shouldInheritInputEffects() && !in.isEmpty() && in.getItem() instanceof BaseWeedItem weedItem) {
             MobEffect effect = weedItem.getEffect();
             if (effect != null) {
-                ResourceLocation id = BuiltInRegistries.MOB_EFFECT.getKey(effect);
+                Identifier id = BuiltInRegistries.MOB_EFFECT.getKey(effect);
                 if (id != null) {
                     int amplifier = 2; // extracts are level 2 in your item definitions
                     int duration = weedItem.getDuration();
@@ -263,7 +266,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
             }
 
             // Roll THC/CBD + N/P/K once, only if unset — deterministic when strain ID is known.
-            base = StrainUtil.finalizeMixtureStats(base, level != null ? level.random : null, strainId);
+            base = StrainUtil.finalizeMixtureStats(base, level != null ? level.getRandom() : null, strainId);
             StrainUtil.setStrain(out, base);
         }
 
@@ -278,7 +281,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
             progress++;
             ENERGY_STORAGE.extractEnergy(20, false);
 
-            if (level.random.nextInt(2) == 0) {
+            if (level.getRandom().nextInt(2) == 0) {
                 level.addParticle(ParticleTypes.SMOKE,
                         blockPos.getX() + 0.5,
                         blockPos.getY() + 1.0,
@@ -307,8 +310,10 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
 
     // Existing fluid push (if still needed)
     private void pushFluidToAboveNeighbour() {
-        FluidUtil.getFluidHandler(level, worldPosition.above(), null).ifPresent(handler ->
-                FluidUtil.tryFluidTransfer(handler, this.FLUID_TANK, Integer.MAX_VALUE, true));
+        ResourceHandler<FluidResource> above = level.getCapability(Capabilities.Fluid.BLOCK, worldPosition.above(), Direction.DOWN);
+        if (above != null) {
+            ResourceHandlerUtil.move(this.FLUID_TANK, above, fluid -> true, Integer.MAX_VALUE, null);
+        }
     }
 
     @Override
@@ -328,23 +333,23 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        tag.put("liquifier.inventory", itemHandler.serializeNBT(regs));
-        tag.putInt("liquifier.progress", progress);
-        tag.putInt("liquifier.maxProgress", maxProgress);
-        tag.putInt("liquifier.energy", ENERGY_STORAGE.getEnergyStored());
-        tag = FLUID_TANK.writeToNBT(regs, tag);
-        super.saveAdditional(tag, regs);
+    protected void saveAdditional(ValueOutput output) {
+        itemHandler.serialize(output.child("liquifier.inventory"));
+        output.putInt("liquifier.progress", progress);
+        output.putInt("liquifier.maxProgress", maxProgress);
+        output.putInt("liquifier.energy", ENERGY_STORAGE.getEnergyStored());
+        FLUID_TANK.serialize(output);
+        super.saveAdditional(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        itemHandler.deserializeNBT(regs, tag.getCompound("liquifier.inventory"));
-        ENERGY_STORAGE.setEnergy(tag.getInt("liquifier.energy"));
-        progress = tag.getInt("liquifier.progress");
-        maxProgress = tag.getInt("liquifier.maxProgress");
-        FLUID_TANK.readFromNBT(regs, tag);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserialize(input.childOrEmpty("liquifier.inventory"));
+        ENERGY_STORAGE.setEnergy(input.getIntOr("liquifier.energy", 0));
+        progress = input.getIntOr("liquifier.progress", 0);
+        maxProgress = input.getIntOr("liquifier.maxProgress", 0);
+        FLUID_TANK.deserialize(input);
     }
 
     @Override
@@ -358,8 +363,8 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        super.onDataPacket(net, input);
     }
 
     @Override
@@ -387,7 +392,7 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
         StrainUtil.setStrain(updated, StrainRegistrySavedData.withEntryApplied(current, entry));
         if (!entry.creatorName().isBlank()) updated.set(ModDataComponentTypes.STRAIN_CREATOR.get(), entry.creatorName());
         FLUID_TANK.setFluid(updated);
-        // FluidTank#setFluid just overwrites the field directly (unlike fill()/drain(), it never
+        // ModFluidTank#setFluid just overwrites the field directly (unlike fill()/drain(), it never
         // calls onContentsChanged()), so without an explicit sync here the server-side data is
         // correct but no update packet goes out, leaving an already-open GUI/tooltip stale until
         // something else (relog, chunk reload) forces a fresh sync.
@@ -395,5 +400,11 @@ public class LiquifierBlockEntity extends BlockEntity implements MenuProvider, S
             setChanged();
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
         }
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        drops();
+        super.preRemoveSideEffects(pos, state);
     }
 }

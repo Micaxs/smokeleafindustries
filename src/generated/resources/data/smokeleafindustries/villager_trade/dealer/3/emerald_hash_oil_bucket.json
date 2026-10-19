@@ -1,0 +1,11 @@
+{
+  "gives": {
+    "id": "smokeleafindustries:hash_oil_bucket"
+  },
+  "reputation_discount": 0.01,
+  "wants": {
+    "count": 8.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 10.0
+}

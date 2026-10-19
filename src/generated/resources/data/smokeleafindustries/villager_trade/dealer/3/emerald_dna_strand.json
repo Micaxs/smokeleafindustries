@@ -1,0 +1,12 @@
+{
+  "gives": {
+    "id": "smokeleafindustries:dna_strand"
+  },
+  "max_uses": 6.0,
+  "reputation_discount": 0.01,
+  "wants": {
+    "count": 14.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 10.0
+}

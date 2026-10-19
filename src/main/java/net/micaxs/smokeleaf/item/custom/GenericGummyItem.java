@@ -4,12 +4,12 @@ import net.micaxs.smokeleaf.strain.StrainData;
 import net.micaxs.smokeleaf.strain.StrainUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 
 public class GenericGummyItem extends WeedDerivedItem {
 
     public GenericGummyItem(Properties properties) {
-        super(properties, 1.5f, 1f, UseAnim.EAT, 40, 2);
+        super(properties, 1.5f, 1f, ItemUseAnimation.EAT, 40, 2);
     }
 
     @Override

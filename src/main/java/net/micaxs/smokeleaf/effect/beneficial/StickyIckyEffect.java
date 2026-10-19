@@ -1,6 +1,7 @@
 // java
 package net.micaxs.smokeleaf.effect.beneficial;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,11 +29,11 @@ public class StickyIckyEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity entity, int amplifier) {
         if (!(entity instanceof Player player)) return true;
 
         Level level = player.level();
-        if (level.isClientSide) return true;
+        if (level.isClientSide()) return true;
 
         double radius = 4.0D + (amplifier + 1) * 1.5D;
         AABB range = player.getBoundingBox().inflate(radius);
@@ -66,7 +67,7 @@ public class StickyIckyEffect extends MobEffect {
             Vec3 pull = delta.normalize().scale(Math.min(delta.length(), 1.0D) * strength);
 
             item.setDeltaMovement(item.getDeltaMovement().add(pull));
-            item.hasImpulse = true;
+            item.needsSync = true;
         }
 
         return true;

@@ -1,7 +1,5 @@
 {
   "type": "smokeleafindustries:generator",
-  "ingredient": {
-    "item": "smokeleafindustries:hash_oil_bucket"
-  },
+  "ingredient": "smokeleafindustries:hash_oil_bucket",
   "total_energy": 48000
 }

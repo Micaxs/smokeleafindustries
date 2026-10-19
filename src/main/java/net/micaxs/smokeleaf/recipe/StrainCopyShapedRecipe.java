@@ -1,51 +1,33 @@
 package net.micaxs.smokeleaf.recipe;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
 import net.micaxs.smokeleaf.strain.StrainData;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
-import net.minecraft.world.level.Level;
 
-public class StrainCopyShapedRecipe implements CraftingRecipe {
+/** Like vanilla shaped crafting but copies STRAIN_DATA from the first ingredient that carries it to the result. */
+public class StrainCopyShapedRecipe extends ShapedRecipe {
 
-    private final String group;
-    private final CraftingBookCategory category;
-    private final ShapedRecipePattern pattern;
-    private final ItemStack result;
-    private final boolean showNotification;
-    private final ShapedRecipe delegate;
+    private final ItemStackTemplate result;
 
-    public StrainCopyShapedRecipe(String group, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack result, boolean showNotification) {
-        this.group = group;
-        this.category = category;
-        this.pattern = pattern;
+    public StrainCopyShapedRecipe(Recipe.CommonInfo commonInfo, CraftingRecipe.CraftingBookInfo bookInfo, ShapedRecipePattern pattern, ItemStackTemplate result) {
+        super(commonInfo, bookInfo, pattern, result);
         this.result = result;
-        this.showNotification = showNotification;
-        this.delegate = new ShapedRecipe(group, category, pattern, result, showNotification);
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
-        return delegate.matches(input, level);
-    }
-
-    @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
-        ItemStack crafted = result.copy();
+    public ItemStack assemble(CraftingInput input) {
+        ItemStack crafted = super.assemble(input);
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getItem(i);
             StrainData sd = stack.get(ModDataComponentTypes.STRAIN_DATA.get());
@@ -58,87 +40,30 @@ public class StrainCopyShapedRecipe implements CraftingRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int w, int h) {
-        return delegate.canCraftInDimensions(w, h);
+    public RecipeSerializer<ShapedRecipe> getSerializer() {
+        @SuppressWarnings("unchecked")
+        RecipeSerializer<ShapedRecipe> serializer = (RecipeSerializer<ShapedRecipe>) (RecipeSerializer<?>) ModRecipes.STRAIN_COPY_SHAPED_SERIALIZER.get();
+        return serializer;
     }
 
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return result.copy();
-    }
-
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return delegate.getIngredients();
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipes.STRAIN_COPY_SHAPED_SERIALIZER.get();
-    }
-
-    @Override
-    public RecipeType<?> getType() {
-        return RecipeType.CRAFTING;
-    }
-
-    @Override
-    public boolean showNotification() {
-        return showNotification;
-    }
-
-    public String group() {
-        return group;
-    }
-
-    public CraftingBookCategory category() {
-        return category;
-    }
-
-    public ShapedRecipePattern pattern() {
-        return pattern;
-    }
-
-    public ItemStack result() {
+    public ItemStackTemplate result() {
         return result;
     }
 
-    public static class Serializer implements RecipeSerializer<StrainCopyShapedRecipe> {
-
+    public static class Serializer {
         public static final MapCodec<StrainCopyShapedRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Codec.STRING.optionalFieldOf("group", "").forGetter(StrainCopyShapedRecipe::group),
-                CraftingBookCategory.CODEC.optionalFieldOf("category", CraftingBookCategory.MISC).forGetter(StrainCopyShapedRecipe::category),
-                ShapedRecipePattern.MAP_CODEC.forGetter(StrainCopyShapedRecipe::pattern),
-                ItemStack.STRICT_CODEC.fieldOf("result").forGetter(StrainCopyShapedRecipe::result),
-                Codec.BOOL.optionalFieldOf("show_notification", true).forGetter(StrainCopyShapedRecipe::showNotification)
+                Recipe.CommonInfo.MAP_CODEC.forGetter(r -> r.commonInfo),
+                CraftingRecipe.CraftingBookInfo.MAP_CODEC.forGetter(r -> r.bookInfo),
+                ShapedRecipePattern.MAP_CODEC.forGetter(r -> r.pattern),
+                ItemStackTemplate.CODEC.fieldOf("result").forGetter(StrainCopyShapedRecipe::result)
         ).apply(instance, StrainCopyShapedRecipe::new));
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, StrainCopyShapedRecipe> STREAM_CODEC = StreamCodec.of(
-                (buf, recipe) -> {
-                    buf.writeUtf(recipe.group);
-                    buf.writeEnum(recipe.category);
-                    ShapedRecipePattern.STREAM_CODEC.encode(buf, recipe.pattern);
-                    ItemStack.STREAM_CODEC.encode(buf, recipe.result);
-                    buf.writeBoolean(recipe.showNotification);
-                },
-                buf -> {
-                    String group = buf.readUtf();
-                    CraftingBookCategory category = buf.readEnum(CraftingBookCategory.class);
-                    ShapedRecipePattern pattern = ShapedRecipePattern.STREAM_CODEC.decode(buf);
-                    ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-                    boolean showNotification = buf.readBoolean();
-                    return new StrainCopyShapedRecipe(group, category, pattern, result, showNotification);
-                }
+        public static final StreamCodec<RegistryFriendlyByteBuf, StrainCopyShapedRecipe> STREAM_CODEC = StreamCodec.composite(
+                Recipe.CommonInfo.STREAM_CODEC, r -> r.commonInfo,
+                CraftingRecipe.CraftingBookInfo.STREAM_CODEC, r -> r.bookInfo,
+                ShapedRecipePattern.STREAM_CODEC, r -> r.pattern,
+                ItemStackTemplate.STREAM_CODEC, StrainCopyShapedRecipe::result,
+                StrainCopyShapedRecipe::new
         );
-
-        @Override
-        public MapCodec<StrainCopyShapedRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, StrainCopyShapedRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
     }
 }

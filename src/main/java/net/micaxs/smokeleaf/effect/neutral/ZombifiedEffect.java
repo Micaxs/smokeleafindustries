@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.effect.neutral;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -15,17 +16,17 @@ public class ZombifiedEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel serverLevel, LivingEntity entity, int amplifier) {
         Level level = entity.level();
-        if (level.isClientSide) return false;
+        if (level.isClientSide()) return false;
 
         if (entity instanceof Player player) {
             if (player.isCreative() || player.isSpectator()) return false;
 
             BlockPos pos = BlockPos.containing(player.getX(), player.getEyeY(), player.getZ());
-            boolean inSunlight = level.isDay()
+            boolean inSunlight = level.isBrightOutside()
                     && level.canSeeSky(pos)
-                    && !player.isInWaterRainOrBubble();
+                    && !player.isInWaterOrRain();
 
             if (inSunlight) {
                 ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);

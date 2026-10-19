@@ -1,5 +1,6 @@
 package net.micaxs.smokeleaf.recipe;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.micaxs.smokeleaf.component.ModDataComponentTypes;
@@ -15,9 +16,14 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public record ExtractorRecipe(Ingredient inputItem, ItemStack output) implements Recipe<ExtractorRecipeInput> {
+public record ExtractorRecipe(Ingredient inputItem, ItemStackTemplate outputTemplate) implements ModMachineRecipe<ExtractorRecipeInput> {
 
-    @Override
+    /** Fresh copy of the output (stored as a template: stacks can't be created while recipes load). */
+    public ItemStack output() {
+        return outputTemplate.create();
+    }
+
+
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> list = NonNullList.create();
         list.add(inputItem);
@@ -30,8 +36,8 @@ public record ExtractorRecipe(Ingredient inputItem, ItemStack output) implements
     }
 
     @Override
-    public ItemStack assemble(ExtractorRecipeInput extractorRecipeInput, HolderLookup.Provider provider) {
-        ItemStack out = output.copy();
+    public ItemStack assemble(ExtractorRecipeInput extractorRecipeInput) {
+        ItemStack out = output().copy();
         ItemStack in = extractorRecipeInput.getItem(0);
         if (!in.isEmpty()) {
             StrainData sd = in.get(ModDataComponentTypes.STRAIN_DATA.get());
@@ -47,48 +53,40 @@ public record ExtractorRecipe(Ingredient inputItem, ItemStack output) implements
         return out;
     }
 
-    @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return true;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return output;
+        return output();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<ExtractorRecipe> getSerializer() {
         return ModRecipes.EXTRACTOR_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<ExtractorRecipe> getType() {
         return ModRecipes.EXTRACTOR_TYPE.get();
     }
 
 
-    public static class Serializer implements RecipeSerializer<ExtractorRecipe> {
+    public static class Serializer {
         // Codec
         public static final MapCodec<ExtractorRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(ExtractorRecipe::inputItem),
-                ItemStack.CODEC.fieldOf("result").forGetter(ExtractorRecipe::output)
+                Ingredient.CODEC.fieldOf("ingredient").forGetter(ExtractorRecipe::inputItem),
+                ItemStackTemplate.CODEC.fieldOf("result").forGetter(ExtractorRecipe::outputTemplate)
         ).apply(inst, ExtractorRecipe::new));
 
         // StreamCodec
         public static final StreamCodec<RegistryFriendlyByteBuf, ExtractorRecipe> STREAM_CODEC =
                 StreamCodec.composite(
                         Ingredient.CONTENTS_STREAM_CODEC, ExtractorRecipe::inputItem,
-                        ItemStack.STREAM_CODEC, ExtractorRecipe::output,
+                        ItemStackTemplate.STREAM_CODEC, ExtractorRecipe::outputTemplate,
                         ExtractorRecipe::new);
 
 
-        @Override
         public MapCodec<ExtractorRecipe> codec() {
             return CODEC;
         }
 
-        @Override
         public StreamCodec<RegistryFriendlyByteBuf, ExtractorRecipe> streamCodec() {
             return STREAM_CODEC;
         }

@@ -87,17 +87,6 @@ public class LogisticsPipeBlock extends BaseEntityBlock {
         return null;
     }
 
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.getBlock() != newState.getBlock() && level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
-            for (PipeType type : PipeType.VALUES) {
-                if (pipe.hasType(type)) {
-                    Block.popResource(level, pos, new ItemStack(itemFor(type)));
-                }
-            }
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
 
     public static Item itemFor(PipeType type) {
         return switch (type) {

@@ -1,10 +1,11 @@
 package net.micaxs.smokeleaf.client.brainmelt;
 
 import net.micaxs.smokeleaf.effect.ModEffects;
-import net.micaxs.smokeleaf.effect.harmful.BrainMeltEffect;
-import net.minecraft.client.player.Input;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Input;
+import net.minecraft.world.phys.Vec2;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 
 public final class BrainMeltInputHandler {
@@ -17,19 +18,16 @@ public final class BrainMeltInputHandler {
         MobEffectInstance inst = player.getEffect(ModEffects.BRAIN_MELT);
         if (inst != null) {
             // You can use inst.getAmplifier() if you want to scale the effect with potency
-
-            // Use event input; if your version uses getMovementInput(), swap accordingly.
-            Input input = player.input;
+            ClientInput input = event.getInput();
 
             // Invert movement axes
-            input.forwardImpulse = -input.forwardImpulse;
-            input.leftImpulse = -input.leftImpulse;
+            Vec2 move = input.getMoveVector();
+            input.moveVector = new Vec2(-move.x, -move.y);
 
-            // Swap jump and crouch
-            boolean jump = input.jumping;
-            boolean crouch = input.shiftKeyDown;
-            input.jumping = crouch;
-            input.shiftKeyDown = jump;
+            // Invert the key presses too (they drive sprinting etc.), and swap jump and crouch
+            Input keys = input.keyPresses;
+            input.keyPresses = new Input(keys.backward(), keys.forward(), keys.right(), keys.left(),
+                    keys.shift(), keys.jump(), keys.sprint());
         }
 
     }

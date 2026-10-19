@@ -1,0 +1,17 @@
+{
+  "given_item_modifiers": [
+    {
+      "function": "smokeleafindustries:set_preset_strain",
+      "strain": "ak47"
+    }
+  ],
+  "gives": {
+    "id": "smokeleafindustries:gummy"
+  },
+  "reputation_discount": 0.01,
+  "wants": {
+    "count": 5.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 5.0
+}

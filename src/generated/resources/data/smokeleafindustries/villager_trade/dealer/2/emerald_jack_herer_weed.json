@@ -1,0 +1,18 @@
+{
+  "given_item_modifiers": [
+    {
+      "function": "smokeleafindustries:set_preset_strain",
+      "strain": "jack_herer"
+    }
+  ],
+  "gives": {
+    "id": "smokeleafindustries:weed"
+  },
+  "max_uses": 6.0,
+  "reputation_discount": 0.01,
+  "wants": {
+    "count": 4.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 5.0
+}
