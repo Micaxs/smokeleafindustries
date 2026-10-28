@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": {
+      "item": "smokeleafindustries:hemp_fibers"
+    },
+    "P": {
+      "item": "minecraft:oak_planks"
+    },
+    "S": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "SHS",
+    "SPS",
+    "SHS"
+  ],
+  "result": {
+    "item": "smokeleafindustries:drying_rack"
+  },
+  "show_notification": true
+}

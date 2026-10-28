@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "smokeleafindustries:hash_oil_bucket"
+    },
+    {
+      "item": "smokeleafindustries:bio_composite"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "item": "smokeleafindustries:hemp_plastic"
+  }
+}

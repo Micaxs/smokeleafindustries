@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:dirt"
+    },
+    {
+      "item": "minecraft:bone_meal"
+    },
+    {
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "item": "smokeleafindustries:compost"
+    }
+  ],
+  "result": {
+    "count": 2,
+    "item": "smokeleafindustries:worm_castings"
+  }
+}

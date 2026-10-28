@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "group": "hemp_planks",
+  "key": {
+    "#": {
+      "item": "smokeleafindustries:hemp_planks"
+    }
+  },
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "result": {
+    "count": 2,
+    "item": "smokeleafindustries:hemp_plank_trapdoor"
+  },
+  "show_notification": true
+}

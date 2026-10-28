@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_hemp_leaf": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "smokeleafindustries:hemp_leaf"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "smokeleafindustries:hemp_coal"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_hemp_leaf",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "smokeleafindustries:hemp_coal"
+    ]
+  },
+  "sends_telemetry_event": false
+}

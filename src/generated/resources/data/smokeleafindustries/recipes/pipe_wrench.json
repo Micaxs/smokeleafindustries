@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "F": {
+      "item": "smokeleafindustries:hemp_fibers"
+    },
+    "H": {
+      "item": "smokeleafindustries:hemp_fabric"
+    },
+    "S": {
+      "item": "smokeleafindustries:hemp_stick"
+    }
+  },
+  "pattern": [
+    " CF",
+    " HC",
+    "S  "
+  ],
+  "result": {
+    "item": "smokeleafindustries:pipe_wrench"
+  },
+  "show_notification": true
+}

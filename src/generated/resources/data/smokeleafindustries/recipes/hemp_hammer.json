@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "F": {
+      "item": "smokeleafindustries:hemp_fibers"
+    },
+    "S": {
+      "item": "smokeleafindustries:hemp_stick"
+    }
+  },
+  "pattern": [
+    " CF",
+    " SC",
+    "S  "
+  ],
+  "result": {
+    "item": "smokeleafindustries:hemp_hammer"
+  },
+  "show_notification": true
+}

@@ -1,0 +1,41 @@
+{
+  "parent": "smokeleafindustries:root",
+  "criteria": {
+    "has_joint": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "smokeleafindustries:joint"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.smokeleafindustries.joint.desc"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "smokeleafindustries:joint"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.smokeleafindustries.joint.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_joint"
+    ]
+  ],
+  "rewards": {
+    "experience": 5
+  },
+  "sends_telemetry_event": true
+}

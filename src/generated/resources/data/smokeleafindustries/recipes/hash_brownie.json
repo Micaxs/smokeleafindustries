@@ -1,0 +1,27 @@
+{
+  "type": "smokeleafindustries:strain_copy_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "smokeleafindustries:infused_butter"
+    },
+    "C": {
+      "item": "minecraft:cocoa_beans"
+    },
+    "H": {
+      "item": "smokeleafindustries:hash_oil_bucket"
+    },
+    "W": {
+      "tag": "smokeleafindustries:weeds"
+    }
+  },
+  "pattern": [
+    "WBW",
+    "CHC",
+    "WBW"
+  ],
+  "result": {
+    "item": "smokeleafindustries:hash_brownie"
+  },
+  "show_notification": false
+}

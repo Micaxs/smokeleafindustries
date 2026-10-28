@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_bio_composite": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "smokeleafindustries:bio_composite"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "smokeleafindustries:hemp_plastic"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_bio_composite",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "smokeleafindustries:hemp_plastic"
+    ]
+  },
+  "sends_telemetry_event": false
+}

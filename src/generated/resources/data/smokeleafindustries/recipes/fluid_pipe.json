@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "item": "minecraft:lapis_lazuli"
+    },
+    "P": {
+      "item": "smokeleafindustries:hemp_plastic"
+    }
+  },
+  "pattern": [
+    "PPP",
+    "LLL",
+    "PPP"
+  ],
+  "result": {
+    "count": 4,
+    "item": "smokeleafindustries:fluid_pipe"
+  },
+  "show_notification": true
+}

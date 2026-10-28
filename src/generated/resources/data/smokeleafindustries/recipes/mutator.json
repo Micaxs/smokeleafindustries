@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "smokeleafindustries:hemp_core"
+    },
+    "G": {
+      "item": "minecraft:diamond_block"
+    },
+    "H": {
+      "item": "smokeleafindustries:hemp_plastic"
+    },
+    "I": {
+      "item": "smokeleafindustries:hemp_stick"
+    }
+  },
+  "pattern": [
+    "HCH",
+    "IGI",
+    "HCH"
+  ],
+  "result": {
+    "item": "smokeleafindustries:mutator"
+  },
+  "show_notification": true
+}

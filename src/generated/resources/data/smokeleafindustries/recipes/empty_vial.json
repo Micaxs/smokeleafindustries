@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "item": "minecraft:white_stained_glass"
+    },
+    "P": {
+      "item": "minecraft:glass_pane"
+    }
+  },
+  "pattern": [
+    "P P",
+    "P P",
+    " G "
+  ],
+  "result": {
+    "item": "smokeleafindustries:empty_vial"
+  },
+  "show_notification": true
+}

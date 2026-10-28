@@ -1,0 +1,41 @@
+{
+  "parent": "smokeleafindustries:root",
+  "criteria": {
+    "has_hemp_seeds": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "smokeleafindustries:hemp_seeds"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.smokeleafindustries.hemp_seeds.desc"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "smokeleafindustries:hemp_seeds"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.smokeleafindustries.hemp_seeds.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_hemp_seeds"
+    ]
+  ],
+  "rewards": {
+    "experience": 5
+  },
+  "sends_telemetry_event": true
+}

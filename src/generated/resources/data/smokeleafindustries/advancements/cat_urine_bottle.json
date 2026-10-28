@@ -1,0 +1,41 @@
+{
+  "parent": "smokeleafindustries:root",
+  "criteria": {
+    "has_cat_urine_bottle": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "smokeleafindustries:cat_urine_bottle"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.smokeleafindustries.cat_urine.desc"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "smokeleafindustries:cat_urine_bottle"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.smokeleafindustries.cat_urine.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_cat_urine_bottle"
+    ]
+  ],
+  "rewards": {
+    "experience": 25
+  },
+  "sends_telemetry_event": true
+}

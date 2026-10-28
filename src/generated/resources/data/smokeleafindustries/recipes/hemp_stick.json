@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "smokeleafindustries:hemp_fibers"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "  F",
+    " S ",
+    "F  "
+  ],
+  "result": {
+    "item": "smokeleafindustries:hemp_stick"
+  },
+  "show_notification": true
+}

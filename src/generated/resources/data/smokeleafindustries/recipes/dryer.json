@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "smokeleafindustries:hemp_core"
+    },
+    "G": {
+      "item": "smokeleafindustries:drying_rack"
+    },
+    "H": {
+      "item": "smokeleafindustries:hemp_plastic"
+    },
+    "I": {
+      "item": "minecraft:magma_block"
+    }
+  },
+  "pattern": [
+    "HCH",
+    "IGI",
+    "HCH"
+  ],
+  "result": {
+    "item": "smokeleafindustries:dryer"
+  },
+  "show_notification": true
+}

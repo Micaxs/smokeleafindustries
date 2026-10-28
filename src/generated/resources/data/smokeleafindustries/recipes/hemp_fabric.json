@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": {
+      "item": "smokeleafindustries:hemp_fibers"
+    }
+  },
+  "pattern": [
+    "PP ",
+    "PP ",
+    "   "
+  ],
+  "result": {
+    "item": "smokeleafindustries:hemp_fabric"
+  },
+  "show_notification": true
+}

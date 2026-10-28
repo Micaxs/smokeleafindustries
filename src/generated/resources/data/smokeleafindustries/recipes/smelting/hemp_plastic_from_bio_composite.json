@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 320,
+  "experience": 0.15,
+  "ingredient": {
+    "item": "smokeleafindustries:bio_composite"
+  },
+  "result": "smokeleafindustries:hemp_plastic"
+}

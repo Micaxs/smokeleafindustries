@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "hemp_planks",
+  "key": {
+    "#": {
+      "item": "smokeleafindustries:hemp_planks"
+    }
+  },
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "result": {
+    "count": 4,
+    "item": "smokeleafindustries:hemp_plank_stairs"
+  },
+  "show_notification": true
+}

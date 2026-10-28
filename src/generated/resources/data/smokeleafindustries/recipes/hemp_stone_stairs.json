@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "hemp_stone",
+  "key": {
+    "#": {
+      "item": "smokeleafindustries:hemp_stone"
+    }
+  },
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "result": {
+    "count": 4,
+    "item": "smokeleafindustries:hemp_stone_stairs"
+  },
+  "show_notification": true
+}

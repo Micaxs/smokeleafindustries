@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:coal"
+    },
+    {
+      "item": "smokeleafindustries:hemp_leaf"
+    },
+    {
+      "item": "smokeleafindustries:hemp_leaf"
+    }
+  ],
+  "result": {
+    "item": "smokeleafindustries:hemp_coal"
+  }
+}

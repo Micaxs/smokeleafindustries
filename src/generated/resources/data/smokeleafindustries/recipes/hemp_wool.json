@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "smokeleafindustries:hemp_fabric"
+    },
+    {
+      "item": "smokeleafindustries:hemp_fabric"
+    },
+    {
+      "item": "smokeleafindustries:hemp_fabric"
+    },
+    {
+      "item": "smokeleafindustries:hemp_fabric"
+    }
+  ],
+  "result": {
+    "item": "smokeleafindustries:hemp_wool"
+  }
+}

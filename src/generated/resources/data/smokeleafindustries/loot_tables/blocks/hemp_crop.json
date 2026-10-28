@@ -1,0 +1,131 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "smokeleafindustries:hemp_crop",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "top": "false"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "smokeleafindustries:hemp_seeds"
+        }
+      ],
+      "functions": [
+        {
+          "add": false,
+          "count": 1.0,
+          "function": "minecraft:set_count"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "smokeleafindustries:hemp_crop",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "top": "false"
+          }
+        },
+        {
+          "chance": 0.5,
+          "condition": "minecraft:random_chance"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "smokeleafindustries:hemp_seeds"
+        }
+      ],
+      "functions": [
+        {
+          "add": false,
+          "count": 1.0,
+          "function": "minecraft:set_count"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:all_of",
+          "terms": [
+            {
+              "block": "smokeleafindustries:hemp_crop",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "age": "10"
+              }
+            },
+            {
+              "block": "smokeleafindustries:hemp_crop",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "top": "false"
+              }
+            }
+          ]
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "smokeleafindustries:hemp_fibers"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:all_of",
+          "terms": [
+            {
+              "block": "smokeleafindustries:hemp_crop",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "age": "10"
+              }
+            },
+            {
+              "block": "smokeleafindustries:hemp_crop",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "top": "false"
+              }
+            }
+          ]
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "smokeleafindustries:hemp_leaf"
+        }
+      ],
+      "functions": [
+        {
+          "add": false,
+          "count": 1.0,
+          "function": "minecraft:set_count"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "smokeleafindustries:blocks/hemp_crop"
+}

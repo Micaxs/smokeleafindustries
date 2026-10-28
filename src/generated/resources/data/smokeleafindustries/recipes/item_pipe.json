@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": {
+      "item": "smokeleafindustries:hemp_plastic"
+    }
+  },
+  "pattern": [
+    "PPP",
+    "   ",
+    "PPP"
+  ],
+  "result": {
+    "count": 4,
+    "item": "smokeleafindustries:item_pipe"
+  },
+  "show_notification": true
+}

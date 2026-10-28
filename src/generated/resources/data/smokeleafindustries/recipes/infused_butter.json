@@ -1,0 +1,14 @@
+{
+  "type": "smokeleafindustries:strain_copy_shapeless",
+  "ingredients": [
+    {
+      "item": "smokeleafindustries:butter"
+    },
+    {
+      "tag": "smokeleafindustries:weeds"
+    }
+  ],
+  "result": {
+    "item": "smokeleafindustries:infused_butter"
+  }
+}

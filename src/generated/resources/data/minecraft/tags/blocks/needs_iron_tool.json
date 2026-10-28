@@ -1,0 +1,11 @@
+{
+  "values": [
+    "smokeleafindustries:grinder",
+    "smokeleafindustries:extractor",
+    "smokeleafindustries:generator",
+    "smokeleafindustries:mutator",
+    "smokeleafindustries:liquifier",
+    "smokeleafindustries:sequencer",
+    "smokeleafindustries:synthesizer"
+  ]
+}
