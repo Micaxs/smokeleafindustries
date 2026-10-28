@@ -1,6 +1,7 @@
 package net.micaxs.smokeleaf.event;
 
 import net.micaxs.smokeleaf.SmokeleafIndustries;
+import net.micaxs.smokeleaf.block.entity.pipe.EnergyDistribution;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeEndpoint;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeNetwork;
 import net.micaxs.smokeleaf.block.entity.pipe.PipeNetworkManager;
@@ -8,7 +9,6 @@ import net.micaxs.smokeleaf.block.entity.pipe.PipeType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -19,6 +19,7 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -152,7 +153,7 @@ public final class PipeNetworkTickHandler {
         network.roundRobinCursor = (network.roundRobinCursor + 1) % exports.size();
 
         if (!(export.cache.getCapability() instanceof IFluidHandler source)) return;
-        if (source.getFluidInTank(0).getFluid() == Fluids.EMPTY) return;
+        if (!hasAnyFluid(source)) return;
 
         for (PipeEndpoint imp : imports) {
             if (sameFace(export, imp)) continue;
@@ -176,18 +177,27 @@ public final class PipeNetworkTickHandler {
             int available = source.extractEnergy(Integer.MAX_VALUE, true);
             if (available <= 0) continue;
 
-            int remaining = available;
+            List<IEnergyStorage> targets = new ArrayList<>();
             for (PipeEndpoint imp : imports) {
                 if (sameFace(export, imp)) continue;
                 if (!(imp.cache.getCapability() instanceof IEnergyStorage dest) || !dest.canReceive()) continue;
-                int accepted = dest.receiveEnergy(remaining, false);
-                if (accepted > 0) {
-                    source.extractEnergy(accepted, false);
-                    remaining -= accepted;
-                }
-                if (remaining <= 0) break;
+                targets.add(dest);
             }
+            // Split evenly across every connected machine rather than filling the first one first.
+            int accepted = EnergyDistribution.distribute(targets, available, false);
+            if (accepted > 0) source.extractEnergy(accepted, false);
         }
+    }
+
+    /**
+     * Checks every tank, not just tank 0: multi-tank machines (e.g. the Mixer, whose tank 0 is an
+     * input and tank 2 the drainable output) would otherwise never be pulled from while tank 0 is empty.
+     */
+    private static boolean hasAnyFluid(IFluidHandler handler) {
+        for (int i = 0; i < handler.getTanks(); i++) {
+            if (!handler.getFluidInTank(i).isEmpty()) return true;
+        }
+        return false;
     }
 
     private static boolean sameFace(PipeEndpoint a, PipeEndpoint b) {

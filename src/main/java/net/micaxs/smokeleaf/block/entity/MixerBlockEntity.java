@@ -213,11 +213,14 @@ public class MixerBlockEntity extends BlockEntity implements MenuProvider, Strai
             if (resource.isEmpty()) return 0;
 
             // Keep tanks separate: fill at most ONE tank per call.
-            // Prefer filling a tank that already contains this fluid; otherwise the first empty one.
-            if (!TANK_A.isEmpty() && TANK_A.getFluid().getFluid().isSame(resource.getFluid())) {
+            // Prefer filling a tank that already contains this exact fluid; otherwise the first empty one.
+            // Must compare NBT too (isFluidEqual), not just the fluid type: every strain's oil is the
+            // same hash_oil fluid differing only by STRAIN_DATA, so a type-only match would route a
+            // second strain into tank A, where FluidTank#fill rejects it, and tank B never gets filled.
+            if (!TANK_A.isEmpty() && TANK_A.getFluid().isFluidEqual(resource)) {
                 return TANK_A.fill(resource, action);
             }
-            if (!TANK_B.isEmpty() && TANK_B.getFluid().getFluid().isSame(resource.getFluid())) {
+            if (!TANK_B.isEmpty() && TANK_B.getFluid().isFluidEqual(resource)) {
                 return TANK_B.fill(resource, action);
             }
 

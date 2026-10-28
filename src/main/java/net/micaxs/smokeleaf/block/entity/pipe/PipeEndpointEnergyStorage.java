@@ -4,6 +4,10 @@ import net.micaxs.smokeleaf.block.entity.PipeBlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.energy.IEnergyStorage;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /** Energy analog of {@link PipeEndpointItemHandler} — see its javadoc. Pure forwarding, no buffer. */
 public final class PipeEndpointEnergyStorage implements IEnergyStorage {
     private final PipeBlockEntity pipe;
@@ -20,15 +24,13 @@ public final class PipeEndpointEnergyStorage implements IEnergyStorage {
         PipeNetwork network = PipeNetworkManager.get(level).getOrBuild(level, pipe.getBlockPos(), PipeType.ENERGY);
         if (network == null) return 0;
 
-        int remaining = maxReceive;
+        List<IEnergyStorage> targets = new ArrayList<>();
         for (PipeEndpoint endpoint : network.endpoints) {
             if (endpoint.pipePos.equals(pipe.getBlockPos()) && endpoint.direction == direction) continue;
             if (!(endpoint.cache.getCapability() instanceof IEnergyStorage storage) || !storage.canReceive()) continue;
-            int accepted = storage.receiveEnergy(remaining, simulate);
-            remaining -= accepted;
-            if (remaining <= 0) break;
+            targets.add(storage);
         }
-        return maxReceive - remaining;
+        return EnergyDistribution.distribute(targets, maxReceive, simulate);
     }
 
     @Override
